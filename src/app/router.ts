@@ -60,6 +60,7 @@ const router = createRouter({
     { path: '/split/scan', component: () => import('@/pages/ScanPage.vue'), meta: { depth: 1, takeover: true } },
     { path: '/split/bill', component: () => import('@/pages/BillPage.vue'), meta: { depth: 2 } },
     { path: '/split/amount', component: () => import('@/pages/AmountPage.vue'), meta: { depth: 2, tab: true } },
+    { path: '/split/review', component: () => import('@/pages/ReviewItemsPage.vue'), meta: { depth: 3 } },
     { path: '/split/members', component: () => import('@/pages/MembersPage.vue'), meta: { depth: 3 } },
     { path: '/split/:id/share', component: () => import('@/pages/SharePage.vue'), meta: { depth: 4 } },
     { path: '/split/:id/closed', component: () => import('@/pages/SplitClosedPage.vue'), meta: { depth: 5, takeover: true } },
@@ -68,6 +69,12 @@ const router = createRouter({
     { path: '/split/:id', component: () => import('@/pages/SplitLivePage.vue'), meta: { depth: 4 } },
 
     { path: '/s/:code', component: () => import('@/pages/ParticipantPage.vue'), meta: { depth: 1, public: true } },
+
+    // DEV-only: диагностика источников данных фискального чека (на телефоне).
+    // В прод-сборке ветка вырезается бандлером (import.meta.env.DEV === false).
+    ...(import.meta.env.DEV
+      ? [{ path: '/dev/fiscal-probe', component: () => import('@/pages/FiscalProbePage.vue'), meta: { depth: 1, public: true } }]
+      : []),
 
     { path: '/:pathMatch(.*)*', redirect: '/' },
   ],

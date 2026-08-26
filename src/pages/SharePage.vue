@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // Дизайн 3k: «Покажите QR друзьям» — QR в мягком боксе, ссылка моно,
 // стек аватаров со статусом, CTA «Отправить SMS» / «Скопировать ссылку».
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import * as api from '@/api'
 import { toast } from '@/lib/toast'
 import { money, equalShares } from '@/lib/format'
 import { useSplitsStore } from '@/entities/stores/splits'
@@ -24,7 +25,9 @@ onMounted(() => {
   void contacts.hydrate()
 })
 
-const link = computed(() => `zap.uz/s/${split.value?.code ?? ''}`)
+const origin = window.location.origin
+const link = computed(() => origin.replace(/^https?:\/\//, '') + '/s/' + (split.value?.code ?? ''))
+const shareUrl = computed(() => origin + '/s/' + (split.value?.code ?? ''))
 
 const perPerson = computed(() => {
   if (!split.value) return 0
@@ -42,24 +45,25 @@ const waitingNames = computed(() => {
 
 async function copyLink() {
   try {
-    await navigator.clipboard.writeText('https://' + link.value)
+    await navigator.clipboard.writeText(shareUrl.value)
     toast.success('Ссылка скопирована')
   } catch {
     toast('Ссылка скопирована')
   }
 }
 
+// сервер сам шлёт SMS со ссылкой всем неоплатившим (троттлинг 30 мин)
+const smsSending = ref(false)
 async function shareSms() {
-  const url = 'https://' + link.value
-  if (navigator.share) {
-    try {
-      await navigator.share({ title: 'ZAP! Сплит', text: `${split.value?.title ?? 'Сплит'} — внесите свою долю`, url })
-      toast.success('Ссылка отправлена')
-    } catch {
-      /* пользователь закрыл шэр */
-    }
-  } else {
-    await copyLink()
+  if (smsSending.value) return
+  smsSending.value = true
+  try {
+    const sent = await api.sendSplitLinkSms(id.value)
+    toast.success(sent > 1 ? `SMS отправлены — ${sent} участникам` : 'SMS со ссылкой отправлено')
+  } catch (e) {
+    toast(e instanceof Error ? e.message : 'Не удалось отправить SMS')
+  } finally {
+    smsSending.value = false
   }
 }
 </script>
@@ -83,7 +87,7 @@ async function shareSms() {
 
       <div class="mt-[22px] flex justify-center">
         <div class="flex h-[214px] w-[214px] items-center justify-center rounded-[26px] bg-shell p-4">
-          <QrCode :value="'https://' + link" :size="182" light="#F7F5F0" />
+          <QrCode :value="shareUrl" :size="182" light="#F7F5F0" />
         </div>
       </div>
       <p class="mt-3 text-center font-mono text-[11px] font-bold tracking-[0.1em] text-faint-2">{{ link }}</p>
@@ -109,8 +113,8 @@ async function shareSms() {
 
       <div class="flex-1" />
 
-      <div class="flex flex-col gap-2.5">
-        <button type="button" class="press flex h-14 items-center justify-center gap-2.5 rounded-full bg-lime text-[16px] font-extrabold text-on-lime" @click="shareSms">
+      <div class="flex flex-col gap-2.5 mt-4">
+        <button type="button" :disabled="smsSending" class="press flex h-14 items-center justify-center gap-2.5 rounded-full bg-lime text-[16px] font-extrabold text-on-lime disabled:opacity-60" @click="shareSms">
           <svg width="19" height="19" viewBox="0 0 20 20" fill="none">
             <rect x="2" y="4" width="16" height="12" rx="3" stroke="#111110" stroke-width="1.8" />
             <path d="M2.5 6.5L10 11L17.5 6.5" stroke="#111110" stroke-width="1.8" stroke-linejoin="round" />

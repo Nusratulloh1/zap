@@ -13,7 +13,11 @@ export interface DraftMember {
 
 /** Черновик сплита между экранами scan → bill/amount → members. */
 export const useDraftStore = defineStore('draft', () => {
-  const source = ref<'bill' | 'manual'>('manual')
+  const source = ref<'bill' | 'manual' | 'fiscal'>('manual')
+  /** фискальный чек: джоба догрузки позиций / OCR */
+  const fiscal = ref<null | { jobId?: string; status: 'pending' | 'ready' | 'failed'; ocr?: boolean; merchant?: string; receiptTotal?: number }>(null)
+  /** DEBUG: сырой payload отсканированного QR (временно показываем в UI) */
+  const scannedPayload = ref('')
   const merchantId = ref<string | undefined>(undefined)
   const bill = ref<Bill | null>(null)
   const total = ref(0)
@@ -25,8 +29,40 @@ export const useDraftStore = defineStore('draft', () => {
     return { contactId, manualAmount: 0, debt: false, itemIds: [] }
   }
 
+  /** фискальный QR: мгновенный тотал, позиции догружаются асинхронно */
+  function startFiscal(amount: number, jobId?: string) {
+    source.value = 'fiscal'
+    fiscal.value = { jobId, status: 'pending' }
+    bill.value = { merchantId: '', orderNo: '', time: '', items: [], total: amount }
+    merchantId.value = undefined
+    total.value = amount
+    title.value = ''
+    mode.value = 'equal'
+    members.value = [newMember('me')]
+  }
+
+  function applyFiscalItems(receipt: { merchant?: string; total: number; items: { id: string; name: string; qty: number; amount: number }[] }, ocr = false) {
+    source.value = 'fiscal'
+    fiscal.value = { ...(fiscal.value ?? { status: 'ready' }), status: 'ready', ocr, merchant: receipt.merchant, receiptTotal: receipt.total }
+    bill.value = {
+      merchantId: '',
+      orderNo: '',
+      time: '',
+      items: receipt.items.map((i) => ({ id: i.id, title: i.name, qty: i.qty, amount: i.amount })),
+      total: receipt.total,
+    }
+    total.value = receipt.total
+    if (!members.value.length) members.value = [newMember('me')]
+    if (receipt.merchant) title.value = receipt.merchant
+  }
+
+  function fiscalFailed() {
+    if (fiscal.value) fiscal.value = { ...fiscal.value, status: 'failed' }
+  }
+
   function startFromBill(b: Bill) {
     source.value = 'bill'
+    fiscal.value = null
     bill.value = b
     merchantId.value = b.merchantId
     total.value = b.total
@@ -160,6 +196,11 @@ export const useDraftStore = defineStore('draft', () => {
     myShare,
     debtMembers,
     startFromBill,
+    fiscal,
+    scannedPayload,
+    startFiscal,
+    applyFiscalItems,
+    fiscalFailed,
     startForGroup,
     startManual,
     hasMember,

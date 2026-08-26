@@ -8,6 +8,7 @@ import { toast } from '@/lib/toast'
 import { money } from '@/lib/format'
 import { gsap, reducedMotion } from '@/lib/motion'
 import { useDraftStore } from '@/entities/stores/draft'
+import { useUserStore } from '@/entities/stores/user'
 import { payAlone } from '@/api'
 import AnimatedAmount from '@/components/AnimatedAmount.vue'
 import PayPad from '@/components/PayPad.vue'
@@ -15,6 +16,7 @@ import PinSheet from '@/components/PinSheet.vue'
 
 const router = useRouter()
 const draft = useDraftStore()
+const user = useUserStore()
 
 // черновик суммы живёт до конца сессии: набрал → ушёл → вернулся с пилл-нава
 const DRAFT_KEY = 'zap:amount-draft'
@@ -121,7 +123,7 @@ async function confirmPay() {
         class="press flex h-9 w-9 items-center justify-center rounded-full bg-ink text-[15px] font-extrabold text-lime"
         @click="router.push('/profile')"
       >
-        И
+        {{ (user.user?.name?.trim()[0] ?? 'В').toUpperCase() }}
       </button>
     </div>
 

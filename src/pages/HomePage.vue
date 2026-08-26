@@ -23,7 +23,7 @@ import heroImg from '@/assets/brand/promo-hero.png'
 import partnerSafia from '@/assets/brand/partners/safia.png'
 import partnerTexnomart from '@/assets/brand/partners/texnomart.png'
 import partnerIdea from '@/assets/brand/partners/idea.png'
-import myAvatar from '@/assets/brand/avatars/a12.png'
+import UserAvatar from '@/components/UserAvatar.vue'
 
 defineOptions({ name: 'HomePage' })
 
@@ -178,7 +178,7 @@ function splitLetter(s: Split): string {
             </svg>
           </button>
           <button type="button" aria-label="Профиль" class="press" @click="router.push('/profile')">
-            <img :src="myAvatar" alt="Профиль" class="h-11 w-11 rounded-full border-2 border-lime object-cover" />
+            <UserAvatar :size="44" :border="2" />
           </button>
         </div>
       </div>

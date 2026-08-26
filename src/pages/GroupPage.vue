@@ -42,7 +42,7 @@ onMounted(() => {
 const groupSplits = computed(() => splits.splits.filter((s) => s.groupId === id.value))
 
 function nameOf(cid: string): string {
-  return cid === 'me' ? (user.user?.name ?? 'Ислам') : (contacts.byId(cid)?.name ?? '?')
+  return cid === 'me' ? (user.user?.name ?? 'Вы') : (contacts.byId(cid)?.name ?? '?')
 }
 
 function colorOf(cid: string): string {
@@ -75,8 +75,12 @@ const reminded = ref<Set<string>>(new Set())
 async function remind(cid: string) {
   reminded.value = new Set([...reminded.value, cid])
   const debt = debts.openDebts.find((d) => d.contactId === cid)
-  if (debt) await debts.remind(debt.id)
-  toast.success('Напоминание отправлено')
+  try {
+    if (debt) await debts.remind(debt.id)
+    toast.success('Напоминание отправлено')
+  } catch (e) {
+    toast(e instanceof Error ? e.message : 'Напоминание уже отправлено')
+  }
 }
 
 async function newSplit() {
@@ -87,7 +91,7 @@ async function newSplit() {
 }
 
 async function invite() {
-  const url = 'https://zap.uz/g/' + id.value
+  const url = location.origin + '/g/' + id.value
   if (navigator.share) {
     try {
       await navigator.share({ title: group.value?.name ?? 'ZAP!', text: 'Вступай в группу в ZAP!', url })

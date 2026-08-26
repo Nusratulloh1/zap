@@ -151,6 +151,12 @@ export class SplitsController {
     return this.splits.remindMember(id, user.id, memberId)
   }
 
+  @Post(':id/send-link')
+  @HttpCode(200)
+  async sendLink(@CurrentUser() user: AuthUser, @Param('id') id: string) {
+    return this.splits.sendLink(id, user.id)
+  }
+
   @Post(':id/cancel')
   @HttpCode(200)
   async cancel(@CurrentUser() user: AuthUser, @Param('id') id: string) {
@@ -196,6 +202,10 @@ export class PublicSplitController {
       return { otpRequired: true, ...res }
     }
     await this.auth.verifyOtp(phone, dto.code, 'participant_pay')
-    return this.splits.payPublic(splitCode, phone, dto.amount)
+    // OTP подтверждён → участник становится залогиненным пользователем (user + сессия),
+    // ПЕРЕД оплатой: чтобы payPublic нашёл payer'а и записал списание + историю.
+    const auth = await this.auth.sessionForPhone(phone)
+    const view = await this.splits.payPublic(splitCode, phone, dto.amount)
+    return { ...view, auth }
   }
 }

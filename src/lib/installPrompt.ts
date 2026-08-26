@@ -1,6 +1,9 @@
-// Система установки PWA: детекция платформы, захват beforeinstallprompt,
-// баннер в стиле ZAP + iOS-инструкция. Показ: после онбординга, со 2-го визита
-// или после первого сплита; «×» — снуз 7 дней; максимум 3 показа за всё время.
+// Установка PWA — РАННИЙ и ДЕТЕРМИНИРОВАННЫЙ показ баннера.
+// Видимость баннера НЕ зависит от beforeinstallprompt: показываем по своим
+// правилам на онбординге/авторизации/главной (1.5с после первого eligible-экрана,
+// один раз за сессию). Кнопка «Установить»: есть stash-событие → prompt(),
+// иначе — инструкция (Android-меню / iOS-Safari-шит). Событие стэшится в main.ts
+// ДО маунта приложения — это лечит «иногда срабатывает».
 import { reactive } from 'vue'
 import { toast } from '@/lib/toast'
 
@@ -14,10 +17,15 @@ interface BipEvent extends Event {
 const INSTALLED_KEY = 'zap:installed'
 const SNOOZE_KEY = 'zap:install-snooze'
 const SHOWS_KEY = 'zap:install-shows'
-const VISITS_KEY = 'zap:visits'
-const SPLIT_KEY = 'zap:first-split'
+const SESSION_SHOWN_KEY = 'zap:install-shown-session'
 const SNOOZE_MS = 7 * 24 * 3600 * 1000
-const MAX_SHOWS = 3
+const MAX_SHOWS = 5
+const SHOW_DELAY_MS = 1500
+
+// экраны, где баннер РАЗРЕШЁН: онбординг, ввод номера, ввод кода, главная.
+// Всё остальное (сканер, пад суммы, участники, шэр, live-статус, пред-оплата
+// участника, PIN-шиты) — исключено by design (allowlist).
+const ELIGIBLE: RegExp[] = [/^\/onboarding/, /^\/auth\/phone/, /^\/auth\/code/, /^\/$/]
 
 export const installState = reactive({
   banner: false,
@@ -44,6 +52,26 @@ const ls = {
       /* noop */
     }
   },
+}
+const ss = {
+  get: (k: string) => {
+    try {
+      return sessionStorage.getItem(k)
+    } catch {
+      return null
+    }
+  },
+  set: (k: string, v: string) => {
+    try {
+      sessionStorage.setItem(k, v)
+    } catch {
+      /* noop */
+    }
+  },
+}
+
+const dbg = (...a: unknown[]) => {
+  if (import.meta.env.DEV) console.debug('[install]', ...a)
 }
 
 export function isStandalone(): boolean {
@@ -77,64 +105,86 @@ export function platform(): Platform {
   return 'other'
 }
 
-// ранний захват события установки (модуль импортируется до маунта приложения)
-if (typeof window !== 'undefined') {
+/** Стэш beforeinstallprompt как можно раньше (слушатель ставится из main.ts до маунта). */
+export function initInstallCapture() {
+  if (typeof window === 'undefined') return
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault()
     deferred = e as BipEvent
     installState.canPrompt = true
+    dbg('beforeinstallprompt stashed')
   })
   window.addEventListener('appinstalled', () => {
     ls.set(INSTALLED_KEY, '1')
+    deferred = null
+    installState.canPrompt = false
     installState.banner = false
     installState.sheet = false
     toast.success('ZAP! установлен 🎉')
   })
-  // счётчик визитов: один инкремент на браузерную сессию
-  try {
-    if (!sessionStorage.getItem('zap:visit-counted')) {
-      sessionStorage.setItem('zap:visit-counted', '1')
-      ls.set(VISITS_KEY, String(Number(ls.get(VISITS_KEY) ?? '0') + 1))
-    }
-  } catch {
-    /* noop */
-  }
 }
 
 export function markSplitCreated() {
-  ls.set(SPLIT_KEY, '1')
+  ls.set('zap:first-split', '1')
 }
-
-/** экраны, где баннер запрещён: сканер, оплата/PIN-флоу, такеоверы, гостевая доля */
-const DENIED = [/^\/split\/scan/, /^\/split\/amount/, /^\/split\/[^/]+\/(closed|cashback)/, /^\/s\//, /^\/auth\//, /^\/onboarding/]
 
 export function routeAllowed(path: string): boolean {
-  return !DENIED.some((re) => re.test(path))
+  return ELIGIBLE.some((re) => re.test(path))
 }
 
-function frequencyAllowed(): boolean {
-  if (ls.get('zap:install-force') === '1') return true
+/** Причина, по которой баннер сейчас НЕ показывается (или '' если можно). */
+function blockReason(path: string): string {
+  if (isInstalled()) return 'installed'
+  if (ss.get(SESSION_SHOWN_KEY) === '1' && ls.get('zap:install-force') !== '1') return 'already-shown-this-session'
+  if (ls.get('zap:install-force') === '1') return ''
   const snooze = Number(ls.get(SNOOZE_KEY) ?? '0')
-  if (snooze && Date.now() - snooze < SNOOZE_MS) return false
-  if (Number(ls.get(SHOWS_KEY) ?? '0') >= MAX_SHOWS) return false
-  const visits = Number(ls.get(VISITS_KEY) ?? '0')
-  return visits >= 2 || ls.get(SPLIT_KEY) === '1'
+  if (snooze && Date.now() - snooze < SNOOZE_MS) return 'snoozed'
+  if (Number(ls.get(SHOWS_KEY) ?? '0') >= MAX_SHOWS) return 'max-shows'
+  if (!routeAllowed(path)) return 'screen-excluded'
+  return ''
 }
 
-/** Запросить показ баннера (после 1.2с покоя) — вызывается из App при смене роута. */
-export function requestBanner(path: string, authed: boolean) {
+function actuallyShow() {
+  if (isInstalled() || installState.banner) return
+  installState.banner = true
+  ls.set(SHOWS_KEY, String(Number(ls.get(SHOWS_KEY) ?? '0') + 1))
+  ss.set(SESSION_SHOWN_KEY, '1')
+  dbg('shown')
+}
+
+/** Вызывается при каждой смене роута. Показывает баннер по правилам (не по событию). */
+export function requestBanner(path: string, _authed?: boolean) {
   clearTimeout(showTimer)
-  if (installState.banner && !routeAllowed(path)) installState.banner = false
+  // ушли с eligible-экрана в середину задачи — прячем
+  if (installState.banner && !routeAllowed(path)) {
+    installState.banner = false
+    dbg('hidden (screen-excluded):', path)
+    return
+  }
   if (installState.banner || installState.sheet) return
-  if (!authed || isInstalled() || !routeAllowed(path) || !frequencyAllowed()) return
-  showTimer = window.setTimeout(() => {
-    if (isInstalled() || installState.banner) return
-    installState.banner = true
-    ls.set(SHOWS_KEY, String(Number(ls.get(SHOWS_KEY) ?? '0') + 1))
-  }, 1200)
+  const reason = blockReason(path)
+  if (reason) {
+    dbg('not shown:', reason, path)
+    return
+  }
+  dbg('scheduling show in', SHOW_DELAY_MS, 'ms on', path)
+  showTimer = window.setTimeout(actuallyShow, SHOW_DELAY_MS)
 }
 
-/** «Установить»: нативный prompt (Android/Chromium) или инструкция (iOS/прочие). */
+/** Отдельный eligible-момент: экран успеха участника (после первой оплаты). */
+export function participantSuccessMoment() {
+  clearTimeout(showTimer)
+  if (installState.banner || installState.sheet) return
+  if (isInstalled()) return dbg('success moment skipped: installed')
+  const snooze = Number(ls.get(SNOOZE_KEY) ?? '0')
+  if (snooze && Date.now() - snooze < SNOOZE_MS && ls.get('zap:install-force') !== '1')
+    return dbg('success moment skipped: snoozed')
+  if (Number(ls.get(SHOWS_KEY) ?? '0') >= MAX_SHOWS && ls.get('zap:install-force') !== '1')
+    return dbg('success moment skipped: max-shows')
+  showTimer = window.setTimeout(actuallyShow, SHOW_DELAY_MS)
+}
+
+/** «Установить»: нативный prompt (если событие есть) или инструкция. Всегда что-то делает. */
 export async function install() {
   if (deferred) {
     installState.banner = false
@@ -142,7 +192,6 @@ export async function install() {
     const choice = await deferred.userChoice.catch(() => ({ outcome: 'dismissed' as const }))
     if (choice.outcome === 'accepted') {
       ls.set(INSTALLED_KEY, '1')
-      // тост придёт из appinstalled; на случай, если событие не сработает:
       window.setTimeout(() => {
         if (ls.get(INSTALLED_KEY) === '1') toast.success('ZAP! установлен 🎉')
       }, 1500)
@@ -153,15 +202,18 @@ export async function install() {
     installState.canPrompt = false
     return
   }
+  // события нет (Chrome ещё/не выстрелил, iOS Safari) → инструкция
   const p = platform()
   installState.sheetVariant = p === 'ios-safari' ? 'ios-safari' : p === 'ios-other' ? 'ios-other' : 'android-other'
   installState.banner = false
   installState.sheet = true
+  dbg('no stashed event → instruction sheet', installState.sheetVariant)
 }
 
 export function snooze() {
   installState.banner = false
   ls.set(SNOOZE_KEY, String(Date.now()))
+  dbg('snoozed 7d')
 }
 
 export function closeSheet() {

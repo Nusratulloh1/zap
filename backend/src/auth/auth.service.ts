@@ -33,6 +33,15 @@ export class AuthService {
 
   // ---------- OTP ----------
 
+  /** Тестовые номера (только для верификации прода): OTP не уходит в smsxabar,
+   *  код детерминирован из TEST_OTP_CODE. Всё остальное (лимиты/JWT/PIN)
+   *  идентично. Отключается очисткой TEST_PHONES. */
+  private get testPhones(): Set<string> {
+    return new Set(
+      (process.env.TEST_PHONES ?? '').split(',').map((s) => s.trim()).filter(Boolean),
+    )
+  }
+
   async requestOtp(phone: string, purpose: OtpPurpose = 'login'): Promise<{ devCode?: string }> {
     // скользящее окно: 3/час, 1/мин на телефон (по строкам OtpCode)
     const hourAgo = new Date(Date.now() - 3600_000)
@@ -43,7 +52,8 @@ export class AuthService {
     ])
     if (inHour >= 3 || inMinute >= 1) throw new HttpException('Слишком часто — попробуйте позже', 429)
 
-    const code = String(randomInt(100000, 1000000))
+    const isTest = this.testPhones.has(phone)
+    const code = isTest ? (process.env.TEST_OTP_CODE ?? '000000') : String(randomInt(100000, 1000000))
     await this.prisma.otpCode.create({
       data: {
         phone,
@@ -52,7 +62,11 @@ export class AuthService {
         expiresAt: new Date(Date.now() + OTP_TTL_MS),
       },
     })
-    await this.sms.send(phone, `ZAP! Код: ${code}`, 'otp')
+    if (isTest) {
+      this.log.warn(`⚠️  TEST OTP for ${maskPhone(phone)} (${purpose}) — SMS skipped, code from TEST_OTP_CODE`)
+    } else {
+      await this.sms.send(phone, `ZAP! Код: ${code}`, 'otp')
+    }
     this.log.log(`OTP issued → ${maskPhone(phone)} (${purpose})`)
     // dev-хук: код в ответе ТОЛЬКО при явном флаге (тесты/локалка)
     return process.env.OTP_DEV_HOOK === 'true' ? { devCode: code } : {}
@@ -85,6 +99,19 @@ export class AuthService {
       create: { phone },
       update: {},
     })
+    await this.prisma.userSettings.upsert({
+      where: { userId: user.id },
+      create: { userId: user.id, visits: 1 },
+      update: { visits: { increment: 1 } },
+    })
+    const tokens = await this.issueTokens(user.id, phone, deviceInfo)
+    return { ...tokens, needsPin: !user.pinHash, userId: user.id }
+  }
+
+  /** Участник подтвердил OTP при оплате доли → он становится полноценным
+   *  пользователем с сессией (апсерт user + токены). needsPin — ставил ли он PIN. */
+  async sessionForPhone(phone: string, deviceInfo?: string) {
+    const user = await this.prisma.user.upsert({ where: { phone }, create: { phone }, update: {} })
     await this.prisma.userSettings.upsert({
       where: { userId: user.id },
       create: { userId: user.id, visits: 1 },

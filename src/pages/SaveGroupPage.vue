@@ -24,7 +24,14 @@ const debts = useDebtsStore()
 const id = computed(() => String(route.params.id))
 const split = computed(() => splits.byId(id.value))
 
-const name = ref('Friday Crew')
+import { isRealApi } from '@/api'
+const name = ref(isRealApi ? '' : 'Friday Crew')
+
+// реальный режим: предлагаем название из имён участников
+function suggestName(names: string[]) {
+  const firsts = names.map((n) => n.split(' ')[0]).filter(Boolean).slice(0, 3)
+  return firsts.length > 1 ? firsts.join(' + ') : (firsts[0] ?? '') + ' и компания'
+}
 const accrue = ref(true)
 const memberIds = ref<string[]>([])
 const saving = ref(false)
@@ -42,13 +49,16 @@ watch(
     if (existing) {
       name.value = existing.name
       accrue.value = existing.accrueCashback
+    } else if (isRealApi && !name.value) {
+      // предлагаем название из имён участников: «Nusrat + Amal»
+      name.value = suggestName(memberIds.value.map((cid) => nameOf(cid)))
     }
   },
   { immediate: true },
 )
 
 function nameOf(cid: string): string {
-  return cid === 'me' ? (user.user?.name ?? 'Ислам') : (contacts.byId(cid)?.name ?? '?')
+  return cid === 'me' ? (user.user?.name ?? 'Вы') : (contacts.byId(cid)?.name ?? '?')
 }
 
 function colorOf(cid: string): string {
@@ -127,9 +137,9 @@ async function save() {
         :class="i < memberIds.length - 1 && 'border-b border-sand-2'"
       >
         <ZapAvatar :name="nameOf(cid)" :color="colorOf(cid)" :contact-id="cid" class="h-[38px] w-[38px]" size="sm" />
-        <span class="min-w-0 flex-1 truncate text-[15px] font-bold">
-          {{ nameOf(cid) }}<template v-if="cid === 'me'"> · вы</template>
-          <span v-if="metaOf(cid)" class="font-semibold text-faint"> {{ metaOf(cid) }}</span>
+        <span class="flex min-w-0 flex-1 flex-col">
+          <span class="truncate text-[15px] font-bold">{{ nameOf(cid) }}<template v-if="cid === 'me'"> · вы</template></span>
+          <span v-if="metaOf(cid)" class="truncate text-[12px] font-semibold text-faint">{{ metaOf(cid) }}</span>
         </span>
         <span v-if="cid === 'me'" class="flex h-7 items-center rounded-full bg-dune-2 px-3 text-[11.5px] font-bold text-muted">владелец</span>
         <button

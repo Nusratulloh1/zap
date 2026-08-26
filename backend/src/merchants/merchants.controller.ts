@@ -12,6 +12,7 @@ import {
 import { Throttle } from '@nestjs/throttler'
 import { Type } from 'class-transformer'
 import { IsArray, IsBoolean, IsInt, IsOptional, IsString, Min, ValidateNested } from 'class-validator'
+import { JwtService } from '@nestjs/jwt'
 import { JwtAuthGuard } from '../common/auth.guard'
 import { MerchantsService } from './merchants.service'
 
@@ -70,7 +71,10 @@ function assertAdmin(key?: string) {
 
 @Controller()
 export class MerchantsController {
-  constructor(private readonly merchants: MerchantsService) {}
+  constructor(
+    private readonly merchants: MerchantsService,
+    private readonly jwt: JwtService,
+  ) {}
 
   @Get('merchants')
   @UseGuards(JwtAuthGuard)
@@ -98,7 +102,18 @@ export class MerchantsController {
 
   @Get('qr/resolve')
   @Throttle({ default: { ttl: 60_000, limit: 30 } })
-  resolve(@Query('payload') payload = '') {
-    return this.merchants.resolveQr(payload)
+  async resolve(@Query('payload') payload = '', @Headers('authorization') auth?: string) {
+    // авторизация опциональна: фискальная джоба стартует только для юзера
+    let userId: string | undefined
+    const token = (auth ?? '').replace(/^Bearer /, '')
+    if (token) {
+      try {
+        const p = await this.jwt.verifyAsync<{ sub: string; typ: string }>(token)
+        if (p.typ === 'access') userId = p.sub
+      } catch {
+        /* публичный вызов */
+      }
+    }
+    return this.merchants.resolveQr(payload, userId)
   }
 }

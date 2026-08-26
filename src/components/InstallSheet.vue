@@ -6,6 +6,7 @@ import { installState, closeSheet } from '@/lib/installPrompt'
 import { toast } from '@/lib/toast'
 import BottomSheet from '@/components/BottomSheet.vue'
 
+const location = window.location
 const variant = computed(() => installState.sheetVariant)
 
 async function copyLink() {
@@ -63,7 +64,7 @@ async function copyLink() {
       <!-- iOS не-Safari -->
       <div v-else-if="variant === 'ios-other'" class="mt-5 flex w-full flex-col items-center gap-4">
         <p class="text-center text-[15px] font-semibold leading-snug">
-          Откройте <span class="font-mono font-bold">zap.uz</span> в Safari, чтобы установить приложение
+          Откройте <span class="font-mono font-bold">{{ location.host }}</span> в Safari, чтобы установить приложение
         </p>
         <button type="button" class="press h-12 w-full rounded-full bg-sand text-[15px] font-bold text-ink" @click="copyLink">
           Скопировать ссылку

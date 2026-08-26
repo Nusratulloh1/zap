@@ -3,6 +3,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { S } from '@/lib/strings'
+import { toast } from '@/lib/toast'
 import { useUserStore } from '@/entities/stores/user'
 
 const router = useRouter()
@@ -36,8 +37,14 @@ onMounted(() => {
 async function submit() {
   if (!valid.value || busy.value) return
   busy.value = true
-  await user.startLogin(digits.value)
-  router.push('/auth/code')
+  try {
+    await user.startLogin(digits.value)
+    router.push('/auth/code')
+  } catch (e) {
+    toast(e instanceof Error && e.message ? e.message : 'Не удалось отправить код')
+  } finally {
+    busy.value = false
+  }
 }
 </script>
 

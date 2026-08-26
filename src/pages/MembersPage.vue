@@ -45,7 +45,7 @@ const mode = computed({
 })
 
 function nameOf(id: string): string {
-  return id === 'me' ? (user.user?.name ?? 'Ислам') : (contacts.byId(id)?.name ?? '?')
+  return id === 'me' ? (user.user?.name || 'Вы') : (contacts.byId(id)?.name ?? '?')
 }
 
 function colorOf(id: string): string {
@@ -92,6 +92,7 @@ const contactSearch = ref('')
 // «+ Номер»: шит с вводом телефона
 const phoneSheet = ref(false)
 const phoneDigits = ref('')
+const phoneName = ref('')
 const phoneInputEl = ref<HTMLInputElement | null>(null)
 
 function phoneMask(d: string): string {
@@ -105,11 +106,12 @@ function onPhoneInput(e: Event) {
 }
 
 async function addByPhone() {
-  if (phoneDigits.value.length !== 9) return
-  const c = await addContact(phoneDigits.value)
+  if (phoneDigits.value.length !== 9 || phoneName.value.trim().length < 2) return
+  const c = await addContact(phoneDigits.value, phoneName.value)
   draft.addMember(c.id)
   phoneSheet.value = false
   phoneDigits.value = ''
+  phoneName.value = ''
 }
 
 const filteredContacts = computed(() => {
@@ -189,6 +191,8 @@ async function createSplit() {
       <span class="shrink-0 text-[15.5px] font-extrabold text-muted">За что</span>
       <input
         v-model="draft.title"
+        name="split-title"
+        autocomplete="off"
         placeholder="Ужин пятница 🍕"
         class="w-full bg-transparent text-[16px] font-bold text-ink outline-none [caret-color:#DDFF33] placeholder:text-faint"
       />
@@ -377,10 +381,20 @@ async function createSplit() {
             @input="onPhoneInput"
           />
         </label>
+        <label class="mt-3 flex items-center border-b-2 border-sand-2 pb-3 transition-colors focus-within:border-lime">
+          <input
+            v-model="phoneName"
+            type="text"
+            autocomplete="name"
+            placeholder="Имя и фамилия"
+            class="w-full bg-transparent text-[17px] font-bold outline-none [caret-color:#DDFF33] placeholder:text-faint"
+            @keydown.enter="addByPhone"
+          />
+        </label>
         <button
           type="button"
           class="press mt-5 h-12 w-full rounded-full bg-ink text-[15px] font-bold text-paper disabled:opacity-40"
-          :disabled="phoneDigits.length !== 9"
+          :disabled="phoneDigits.length !== 9 || phoneName.trim().length < 2"
           @click="addByPhone"
         >
           Добавить

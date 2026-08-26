@@ -8,6 +8,10 @@ export interface BusEvents {
   'pin:request': { resolve: () => void; reject: () => void }
   'guest-phone:request': { resolve: (phone: string) => void; reject: () => void }
   'guest-otp:request': { resolve: (code: string) => void; reject: () => void }
+  // фискальный чек: позиции догрузились / парсинг упал
+  'fiscal:update': { jobId: string; status: 'ready' | 'failed' }
+  // публичная страница участника: событие в комнате сплита (для live-прогресса)
+  'public-split:touch': { kind: 'opened' | 'paid' | 'closed'; cashback?: number }
 }
 
 type Handler<T> = (payload: T) => void

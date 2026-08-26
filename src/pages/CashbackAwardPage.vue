@@ -44,7 +44,7 @@ const perMember = computed(() => {
 })
 
 function nameOf(cid: string): string {
-  return cid === 'me' ? (user.user?.name ?? 'Ислам') : (contacts.byId(cid)?.name ?? '?')
+  return cid === 'me' ? (user.user?.name ?? 'Вы') : (contacts.byId(cid)?.name ?? '?')
 }
 
 function colorOf(cid: string): string {

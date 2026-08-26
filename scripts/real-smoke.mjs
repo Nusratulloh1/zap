@@ -4,6 +4,7 @@
 import { chromium } from 'playwright-core'
 
 const FRONT = process.env.FRONT_URL ?? 'http://localhost:5174'
+const API = process.env.API_URL ?? 'http://localhost:3000'
 const browser = await chromium.launch({ channel: 'chrome', headless: true })
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
 const errors = []
@@ -33,14 +34,22 @@ await page.keyboard.type('901234221', { delay: 40 })
 await sleep(300)
 await page.getByRole('button', { name: 'Получить код' }).click()
 await sleep(1500)
-const devCode = await page.evaluate(() => window.__ZAP_DEV_OTP)
-check('OTP dev-код получен от бэкенда', Boolean(devCode), devCode ? '******' : 'нет')
+const smsRes = await fetch(API + '/dev/sms/latest?phone=998901234221').then((r) => r.json()).catch(() => ({}))
+const devCode = smsRes.code ?? (await page.evaluate(() => window.__ZAP_DEV_OTP))
+check('код взят из /dev/sms/latest (dry-run SMS)', Boolean(smsRes.code), smsRes.code ? '******' : 'фолбэк window-хук')
 await page.keyboard.type(devCode, { delay: 45 })
 await sleep(1800)
 await page.keyboard.type('7777', { delay: 45 })
 await sleep(700)
 await page.keyboard.type('7777', { delay: 45 })
 await sleep(2200)
+// незакрываемый шит «Как вас зовут?» у нового пользователя
+const nameSheet = await page.waitForSelector('text=Как вас зовут?', { timeout: 10_000 }).then(() => true).catch(() => false)
+check('шит имени показан новому пользователю', nameSheet)
+await page.locator('input[placeholder="Имя и фамилия"]').click()
+await page.keyboard.type('Ислам Ахунов', { delay: 30 })
+await page.getByRole('button', { name: 'Продолжить' }).click()
+await sleep(1500)
 
 check('после auth — главная', await page.evaluate(() => location.pathname) === '/')
 // прод-пусто: ни одного сплита в кэше
@@ -71,6 +80,10 @@ await sleep(800)
 await page.locator('input[type="tel"]').last().click()
 await page.keyboard.type('901112233', { delay: 40 })
 await sleep(300)
+// обязательное поле имени в шите «+ Номер»
+await page.locator('input[placeholder="Имя и фамилия"]').last().click()
+await page.keyboard.type('Али Каримов', { delay: 30 })
+await sleep(200)
 await page.getByRole('button', { name: 'Добавить' }).last().click()
 await sleep(1200)
 const shareTxt = await page.locator('text=/по .* на человека/').first().textContent().catch(() => '')
@@ -83,7 +96,7 @@ await page.keyboard.type('7777', { delay: 45 })
 await sleep(3000)
 const shareUrl = await page.evaluate(() => location.pathname)
 check('создан сплит → /share', /\/split\/.+\/share/.test(shareUrl), shareUrl)
-const codeText = await page.locator('text=/zap\\.uz\\/s\\//').first().textContent()
+const codeText = await page.locator('p.font-mono').first().textContent()
 const code = (codeText ?? '').match(/s\/([\dA-Z-]+)/i)?.[1] ?? ''
 check('код сплита получен', Boolean(code), code)
 

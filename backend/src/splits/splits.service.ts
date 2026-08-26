@@ -8,6 +8,7 @@ import {
   Injectable,
   Logger,
   NotFoundException,
+  ServiceUnavailableException,
 } from '@nestjs/common'
 import { MemberStatus, Prisma, SplitMode } from '@prisma/client'
 import { PrismaService } from '../common/prisma.service'
@@ -247,15 +248,40 @@ export class SplitsService {
     })
     if (!split) throw new NotFoundException('Сплит не найден')
     const me = phone ? split.members.find((m) => m.phone === normalizePhone(phone)) : undefined
+
+    // live-прогресс: сколько уже собрано (для полосы на экране участника)
+    const paidTotal = split.members.reduce(
+      (s, m) => s + (m.status === 'debt' || m.status === 'covered' ? m.shareAmount : m.paidAmount),
+      0,
+    )
+    const paidCount = split.members.filter((m) => m.status === 'paid' || m.status === 'debt' || m.status === 'covered').length
+
+    // кэшбэк участника: фактический (после закрытия) или превью (×2, пока активен)
+    let yourCashback: number | null = null
+    if (me) {
+      const entry = await this.prisma.cashbackEntry.findFirst({
+        where: { splitId: split.id, userId: me.userId ?? undefined, amount: { gt: 0 } },
+      })
+      if (entry) yourCashback = entry.amount
+      else if (split.merchant && split.merchant.cashbackRate > 0 && split.members.length >= 2) {
+        const base = Math.floor((me.shareAmount * split.merchant.cashbackRate) / 1000)
+        yourCashback = round1000(base * (split.merchant.cashbackX2 ? 2 : 1))
+      }
+    }
+
     return {
       code: split.code,
       title: split.title,
       status: split.status,
       totalAmount: split.totalAmount,
+      paidTotal,
+      paidCount,
+      memberCount: split.members.length,
       merchant: split.merchant ? { name: split.merchant.name, letter: split.merchant.letter, color: split.merchant.color } : null,
       bill: split.bill ? { orderNo: split.bill.externalRef, total: split.bill.totalAmount } : null,
       creatorName: (split.creator.name || 'Друг').split(' ')[0],
       cashbackX2: split.merchant?.cashbackX2 ?? false,
+      yourCashback,
       members: split.members.map((m) => ({
         id: m.id,
         name: m.isCreator ? (split.creator.name || 'Создатель') : m.displayName,
@@ -419,6 +445,34 @@ export class SplitsService {
     await this.sms.send(member.phone, `ZAP! Напоминание: ваша доля в «${split.title}» — ${origin}/s/${split.code}`, 'reminder')
     await this.prisma.splitMember.update({ where: { id: memberId }, data: { lastRemindedAt: new Date() } })
     return { ok: true }
+  }
+
+  /** «Отправить SMS со ссылкой»: линк всем неоплатившим, троттлинг 30 мин на участника (lastRemindedAt). */
+  async sendLink(splitId: string, creatorId: string) {
+    const split = await this.byIdOrThrow(splitId, creatorId)
+    if (split.creatorId !== creatorId) throw new ForbiddenException()
+    const creator = await this.prisma.user.findUniqueOrThrow({ where: { id: creatorId } })
+    const origin = process.env.PWA_ORIGIN ?? 'http://localhost:5173'
+    const waiting = split.members.filter(
+      (m) => !m.isCreator && (m.status === 'pending' || m.status === 'opened'),
+    )
+    if (!waiting.length) throw new BadRequestException('Все доли уже внесены')
+    const eligible = waiting.filter(
+      (m) => !m.lastRemindedAt || Date.now() - m.lastRemindedAt.getTime() >= REMIND_INTERVAL_MS,
+    )
+    if (!eligible.length) throw new BadRequestException('SMS уже отправлены — подождите 30 минут')
+    let sent = 0
+    for (const m of eligible) {
+      try {
+        await this.sms.send(m.phone, `ZAP! ${creator.name || 'Друг'} просит вашу долю в «${split.title}»: ${origin}/s/${split.code}`, 'split_link')
+        await this.prisma.splitMember.update({ where: { id: m.id }, data: { lastRemindedAt: new Date() } })
+        sent++
+      } catch (e) {
+        this.log.warn(`send-link sms failed → member ${m.id}: ${String(e)}`)
+      }
+    }
+    if (!sent) throw new ServiceUnavailableException('SMS временно недоступны')
+    return { sent }
   }
 
   async cancel(splitId: string, creatorId: string) {

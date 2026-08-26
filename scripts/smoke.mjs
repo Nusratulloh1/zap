@@ -3,6 +3,7 @@
 import { chromium } from 'playwright-core'
 import { mkdirSync } from 'node:fs'
 
+const BASE = process.env.BASE_URL ?? 'http://localhost:5173'
 const OUT = process.env.SHOT_DIR ?? './shots/'
 mkdirSync(OUT, { recursive: true })
 
@@ -35,7 +36,7 @@ async function typeDigits(s) {
 
 if (process.env.THEME) await page.addInitScript((t) => localStorage.setItem('zap:theme', t), process.env.THEME)
 
-await page.goto('http://localhost:5173/')
+await page.goto(BASE + '/')
 await sleep(1200)
 await shot('01-onboarding-1')
 
@@ -123,7 +124,7 @@ await sleep(1200)
 await shot('20-home-after')
 
 // долги
-await page.goto('http://localhost:5173/debts')
+await page.goto(BASE + '/debts')
 await sleep(1200)
 await shot('21-debts')
 const remindBtn = page.getByRole('button', { name: 'Напомнить', exact: true }).first()
@@ -132,14 +133,14 @@ await sleep(600)
 await shot('22-debts-reminded')
 
 // история и кэшбэк
-await page.goto('http://localhost:5173/history')
+await page.goto(BASE + '/history')
 await sleep(1200)
 await shot('23-history')
-await page.goto('http://localhost:5173/cashback')
+await page.goto(BASE + '/cashback')
 await sleep(1200)
 await shot('24-cashback')
 
-await page.goto('http://localhost:5173/profile')
+await page.goto(BASE + '/profile')
 await sleep(1200)
 await shot('25-profile')
 

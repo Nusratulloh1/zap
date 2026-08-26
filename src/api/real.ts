@@ -147,7 +147,7 @@ export function connectRealtime() {
   if (socket || !BASE) return
   // BASE может быть с префиксом (https://zapapp.uz/api): origin + namespace,
   // а engine-путь — prefix + /socket.io (nginx проксирует /api/ на бэкенд)
-  const u = new URL(BASE)
+  const u = new URL(BASE, typeof location !== 'undefined' ? location.origin : 'http://localhost')
   const prefix = u.pathname.endsWith('/') ? u.pathname.slice(0, -1) : u.pathname
   socket = io(u.origin + '/realtime', {
     path: (prefix === '/' ? '' : prefix) + '/socket.io',
@@ -160,16 +160,25 @@ export function connectRealtime() {
       if (active) bus.emit('split:event', { split: clone(active), kind, message })
     })
   }
-  socket.on('member_opened', (p: { name?: string }) => refetchAnd('opened', `${p.name ?? 'Участник'} открыл ссылку`))
-  socket.on('member_paid', (p: { name?: string; amount?: number }) =>
-    refetchAnd('paid', `${p.name ?? 'Участник'} оплатил ${money(p.amount ?? 0)}`),
-  )
+  // публичная страница участника (в комнате split:{code}) не имеет bootstrap —
+  // отдельный лёгкий сигнал, чтобы она перезапросила публичный вид для live-прогресса
+  socket.on('member_opened', (p: { name?: string }) => {
+    bus.emit('public-split:touch', { kind: 'opened' })
+    refetchAnd('opened', `${p.name ?? 'Участник'} открыл ссылку`)
+  })
+  socket.on('member_paid', (p: { name?: string; amount?: number }) => {
+    bus.emit('public-split:touch', { kind: 'paid' })
+    refetchAnd('paid', `${p.name ?? 'Участник'} оплатил ${money(p.amount ?? 0)}`)
+  })
   socket.on('member_covered', () => void refreshBootstrap())
   socket.on('split_closed', (p: { cashback?: number }) => {
+    bus.emit('public-split:touch', { kind: 'closed', cashback: p.cashback })
     refetchAnd('closed', 'Сплит закрыт')
     if (p.cashback) refetchAnd('cashback', `Кэшбэк зачислен +${money(p.cashback)}`)
   })
   socket.on('debt_settled', () => void refreshBootstrap())
+  socket.on('fiscal_ready', (p: { jobId: string }) => bus.emit('fiscal:update', { jobId: p.jobId, status: 'ready' }))
+  socket.on('fiscal_failed', (p: { jobId: string }) => bus.emit('fiscal:update', { jobId: p.jobId, status: 'failed' }))
 }
 
 function joinSplitRoom(code: string) {
@@ -322,10 +331,14 @@ interface PublicView {
   title: string
   status: string
   totalAmount: number
+  paidTotal: number
+  paidCount: number
+  memberCount: number
   merchant: { name: string; letter: string; color: string } | null
   bill: { orderNo: string; total: number } | null
   creatorName: string
   cashbackX2: boolean
+  yourCashback: number | null
   members: { id: string; name: string; initial: string; status: string; amount?: number; isYou?: boolean }[]
   yourShare: number | null
   yourStatus: string | null
@@ -384,6 +397,13 @@ function mapPublicView(v: PublicView): Split {
     createdAt: Date.now(),
     cashbackX2: v.cashbackX2,
     memberNames: Object.fromEntries(v.members.map((m) => [m.id, m.name])),
+    // доп. поля публичного вида (читаются участником через каст)
+    creatorName: v.creatorName,
+    paidTotal: v.paidTotal,
+    paidCount: v.paidCount,
+    memberCount: v.memberCount,
+    yourCashback: v.yourCashback,
+    memberInitials: Object.fromEntries(v.members.map((m) => [m.id, m.initial])),
   } as Split
 }
 
@@ -433,12 +453,34 @@ export async function payShare(splitCodeOrId: string, _contactId: string): Promi
     }
     bus.emit('guest-otp:request', { resolve, reject: () => reject(new ApiError('Оплата отменена', 400)) })
   })
-  const paid = await http<PublicView>(`/s/${encodeURIComponent(code)}/pay`, {
+  const paid = await http<PublicView & { auth?: GuestAuth }>(`/s/${encodeURIComponent(code)}/pay`, {
     method: 'POST',
     auth: false,
     body: JSON.stringify({ phone, amount, code: otp }),
   })
+  // участник подтвердил OTP → бэкенд выдал сессию: гость становится залогиненным
+  if (paid.auth) {
+    tokens = { accessToken: paid.auth.accessToken, refreshToken: paid.auth.refreshToken }
+    saveJson(LS_TOKENS, tokens)
+    session = { stage: 'authed', phone }
+    persistSession()
+    _guestNeedsPin = paid.auth.needsPin
+    await refreshBootstrap().catch(() => undefined)
+  }
   return mapPublicView(paid)
+}
+
+interface GuestAuth {
+  accessToken: string
+  refreshToken: string
+  needsPin: boolean
+  userId: string
+}
+
+// нужно ли участнику придумать PIN после оплаты (для inline-шита на success-экране)
+let _guestNeedsPin = false
+export function guestNeedsPin(): boolean {
+  return _guestNeedsPin
 }
 
 export async function coverRemainder(splitId: string): Promise<Split | null> {
@@ -458,6 +500,12 @@ export async function remindSplitMember(splitId: string, contactId: string): Pro
   const member = split?.members.find((m) => m.contactId === contactId) as { memberId?: string } | undefined
   if (!member?.memberId) return
   await http(`/splits/${splitId}/remind/${member.memberId}`, { method: 'POST' })
+}
+
+/** «Отправить SMS со ссылкой»: сервер шлёт линк всем неоплатившим (троттлинг 30 мин) */
+export async function sendSplitLinkSms(splitId: string): Promise<number> {
+  const res = await http<{ sent: number }>(`/splits/${splitId}/send-link`, { method: 'POST' })
+  return res.sent
 }
 
 export async function saveGroup(input: SaveGroupInput): Promise<Group> {
@@ -494,8 +542,16 @@ export async function repayDebt(debtId: string): Promise<void> {
 
 // ---------- contacts / cards / settings ----------
 
-export async function addContact(phoneDigits: string): Promise<Contact> {
-  const contact = await http<Contact>('/contacts', { method: 'POST', body: JSON.stringify({ phone: phoneDigits }) })
+export async function updateProfile(name: string): Promise<void> {
+  await http('/me', { method: 'PATCH', body: JSON.stringify({ name: name.trim() }) })
+  await refreshBootstrap()
+}
+
+export async function addContact(phoneDigits: string, fullName?: string): Promise<Contact> {
+  const contact = await http<Contact>('/contacts', {
+    method: 'POST',
+    body: JSON.stringify({ phone: phoneDigits, name: fullName?.trim() || undefined }),
+  })
   await refreshBootstrap()
   return contact
 }
@@ -558,6 +614,60 @@ export async function payAlone(amount: number, merchantId?: string, title = 'О�
     body: JSON.stringify({ amount, title, merchantId }),
   })
   await refreshBootstrap()
+}
+
+// ---------- QR / фискальные чеки ----------
+
+export interface FiscalReceiptView {
+  merchant?: string
+  total: number
+  source: string
+  items: { id: string; name: string; qty: number; unitPrice: number; amount: number }[]
+}
+
+export async function resolveQr(payload: string) {
+  return http<
+    | { type: 'split'; code: string }
+    | { type: 'bill'; bill: Bill }
+    | { type: 'fiscal'; instant: { totalAmount?: number; datetime?: string }; jobId?: string }
+    | { type: 'unknown' }
+  >('/qr/resolve?payload=' + encodeURIComponent(payload))
+}
+
+export async function fiscalStatus(jobId: string) {
+  return http<{ status: 'pending' | 'ready' | 'failed'; receipt?: FiscalReceiptView }>('/qr/fiscal/' + jobId)
+}
+
+/** Результат клиентского фетча чека → бэкенд (сервер перепроверяет суммы) */
+export async function submitFiscalClientResult(result: {
+  sourceUrl: string
+  merchantName?: string
+  merchantInn?: string
+  datetime?: string
+  totalAmount: number
+  items: { name: string; qtyMilli: number; unitPrice: number; lineTotal: number }[]
+}) {
+  return http<{ jobId: string; status: 'pending' | 'ready' | 'failed'; receipt?: FiscalReceiptView }>('/qr/fiscal/client-result', {
+    method: 'POST',
+    body: JSON.stringify(result),
+  })
+}
+
+export async function fiscalOcr(file: File) {
+  const form = new FormData()
+  form.append('image', file)
+  const doFetch = () =>
+    fetch(BASE + '/qr/fiscal/ocr', {
+      method: 'POST',
+      headers: tokens ? { Authorization: 'Bearer ' + tokens.accessToken } : {},
+      body: form,
+    })
+  const res = await doFetch()
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { message?: string }
+    throw new ApiError(body.message ?? 'Не удалось распознать фото', res.status)
+  }
+  return (await res.json()) as { status: string; receipt?: FiscalReceiptView; confidence?: string }
 }
 
 export function payShareSync(): Split | null {

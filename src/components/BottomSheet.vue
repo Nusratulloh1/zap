@@ -4,7 +4,7 @@
 import { onBeforeUnmount, ref, watch, nextTick } from 'vue'
 import { gsap, DUR, reducedMotion, staggerIn } from '@/lib/motion'
 
-const props = defineProps<{ open: boolean }>()
+const props = defineProps<{ open: boolean; locked?: boolean }>()
 const emit = defineEmits<{ close: [] }>()
 
 const panel = ref<HTMLElement | null>(null)
@@ -85,7 +85,7 @@ function onDragEnd() {
   if (!dragging || !panel.value) return
   dragging = false
   const h = panel.value.offsetHeight
-  if (velocity > 0.5 || dragY > h * 0.35) {
+  if (!props.locked && (velocity > 0.5 || dragY > h * 0.35)) {
     gsap.to(panel.value, {
       y: '100%',
       duration: DUR.slow,
@@ -108,7 +108,7 @@ function onDragEnd() {
 <template>
   <Teleport to="body">
     <Transition name="backdrop">
-      <div v-if="props.open" ref="backdrop" class="zap-backdrop fixed inset-0 z-40 bg-ink/40" @click="emit('close')" />
+      <div v-if="props.open" ref="backdrop" class="zap-backdrop fixed inset-0 z-40 bg-ink/40" @click="!props.locked && emit('close')" />
     </Transition>
     <Transition :name="reducedMotion() ? 'backdrop' : 'sheet-none'">
       <div

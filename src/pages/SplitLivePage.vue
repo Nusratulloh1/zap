@@ -58,7 +58,7 @@ const pendingMembers = computed(() =>
 )
 
 function nameOf(cid: string): string {
-  return cid === 'me' ? (user.user?.name ?? 'Ислам') : (contacts.byId(cid)?.name ?? '?')
+  return cid === 'me' ? (user.user?.name ?? 'Вы') : (contacts.byId(cid)?.name ?? '?')
 }
 
 function colorOf(cid: string): string {
@@ -71,8 +71,13 @@ const remindedIds = ref<Set<string>>(new Set())
 
 async function remind(cid: string) {
   remindedIds.value = new Set([...remindedIds.value, cid])
-  await splits.remindMember(id.value, cid)
-  toast.success('Напоминание отправлено')
+  try {
+    await splits.remindMember(id.value, cid)
+    toast.success('Напоминание отправлено')
+  } catch (e) {
+    // сервер троттлит повторы (30 мин) — показываем его сообщение, кнопка остаётся «отправлено»
+    toast(e instanceof Error ? e.message : 'Напоминание уже отправлено')
+  }
 }
 
 const coverSheet = ref(false)

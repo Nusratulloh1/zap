@@ -14,7 +14,7 @@ import PinDots from '@/components/PinDots.vue'
 import { setPrimaryCard, changePin } from '@/api'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { install, isInstalled } from '@/lib/installPrompt'
-import myAvatar from '@/assets/brand/avatars/a12.png'
+import UserAvatar from '@/components/UserAvatar.vue'
 
 const installed = isInstalled()
 
@@ -34,10 +34,15 @@ const notifs = computed({
   set: (v: boolean) => void user.toggleDebtNotifications(v),
 })
 
-// добавление карты
+// добавление карты: форма → мок SMS-подтверждение → мок проверка карты
 const cardSheet = ref(false)
+type CardStep = 'form' | 'sms' | 'check'
+const cardStep = ref<CardStep>('form')
 const cardNetwork = ref<'UZCARD' | 'HUMO'>('UZCARD')
 const cardDigits = ref('')
+const cardExpiry = ref('')
+const cardOwner = ref('')
+const cardSms = ref('')
 const savingCard = ref(false)
 
 const cardMask = computed(() => {
@@ -45,15 +50,50 @@ const cardMask = computed(() => {
   return d.match(/.{1,4}/g)?.join(' ') ?? ''
 })
 
-async function saveCard() {
-  if (cardDigits.value.length !== 16 || savingCard.value) return
+const expiryValid = computed(() => {
+  const m = cardExpiry.value.match(/^(\d{2})\/(\d{2})$/)
+  if (!m) return false
+  const mm = Number(m[1])
+  return mm >= 1 && mm <= 12
+})
+const cardFormValid = computed(
+  () => cardDigits.value.length === 16 && expiryValid.value && cardOwner.value.trim().length >= 3,
+)
+
+function openCardSheet() {
+  cardStep.value = 'form'
+  cardDigits.value = ''
+  cardExpiry.value = ''
+  cardOwner.value = ''
+  cardSms.value = ''
+  cardSheet.value = true
+}
+
+function onExpiryInput(e: Event) {
+  const el = e.target as HTMLInputElement
+  const d = el.value.replace(/\D/g, '').slice(0, 4)
+  cardExpiry.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d
+  el.value = cardExpiry.value
+}
+
+function cardContinue() {
+  if (!cardFormValid.value) return
+  cardStep.value = 'sms'
+  cardSms.value = ''
+}
+
+// мок: любой 6-значный код подтверждает телефон, затем «проверка карты»
+watch(cardSms, async (v) => {
+  if (v.length !== 6 || savingCard.value) return
   savingCard.value = true
+  await new Promise((r) => setTimeout(r, 600))
+  cardStep.value = 'check'
+  await new Promise((r) => setTimeout(r, 1400))
   await user.addCard(cardNetwork.value, cardDigits.value.slice(-4))
   savingCard.value = false
   cardSheet.value = false
-  cardDigits.value = ''
-  toast.success('Карта добавлена')
-}
+  toast.success('Карта подтверждена и добавлена')
+})
 
 // сделать карту основной
 async function makePrimary(cardId: string, last4: string) {
@@ -159,7 +199,7 @@ async function confirmLogout() {
 
     <template v-if="user.user">
       <div class="mt-[22px] flex items-center gap-4">
-        <img :src="myAvatar" :alt="user.user.name" class="h-[76px] w-[76px] rounded-full border-[3px] border-lime object-cover" />
+        <UserAvatar :size="76" :border="3" />
         <div class="flex flex-col gap-[3px]">
           <h1 class="text-[23px] font-extrabold tracking-[-0.01em]">{{ user.user.name }}</h1>
           <p class="text-[13.5px] font-semibold text-muted">{{ user.user.handle }} · {{ phone(user.user.phone) }}</p>
@@ -205,7 +245,7 @@ async function confirmLogout() {
           <span v-if="card.primary" class="flex h-[26px] items-center rounded-full bg-lime px-[11px] text-[11px] font-extrabold text-on-lime">основная</span>
           <span v-else class="text-[12px] font-bold text-faint-2">сделать основной</span>
         </button>
-        <button type="button" class="flex min-h-[62px] items-center gap-3.5 text-left transition-colors active:bg-sand" @click="cardSheet = true">
+        <button type="button" class="flex min-h-[62px] items-center gap-3.5 text-left transition-colors active:bg-sand" @click="openCardSheet">
           <span class="flex h-[30px] w-[42px] items-center justify-center rounded-lg bg-sand text-[16px] font-semibold text-faint-2">+</span>
           <span class="flex-1 text-[15px] font-bold text-faint-2">Добавить карту</span>
         </button>
@@ -267,18 +307,67 @@ async function confirmLogout() {
             {{ n }}
           </button>
         </div>
-        <p class="mt-5 text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">НОМЕР КАРТЫ</p>
-        <InvisibleDigits v-if="cardSheet" v-model="cardDigits" :length="16" autofocus class="mt-2 py-1">
-          <p class="text-center font-mono text-[20px] font-bold tabular-nums tracking-wider">{{ cardMask }}</p>
-        </InvisibleDigits>
-        <button
-          type="button"
-          class="press mt-5 h-14 w-full rounded-full bg-lime text-[16px] font-extrabold text-on-lime disabled:opacity-40"
-          :disabled="cardDigits.length !== 16 || savingCard"
-          @click="saveCard"
-        >
-          Готово
-        </button>
+        <template v-if="cardStep === 'form'">
+          <p class="mt-5 text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">НОМЕР КАРТЫ</p>
+          <InvisibleDigits v-if="cardSheet" v-model="cardDigits" :length="16" autofocus class="mt-2 py-1">
+            <p class="text-center font-mono text-[20px] font-bold tabular-nums tracking-wider">{{ cardMask }}</p>
+          </InvisibleDigits>
+          <div class="mt-4 flex gap-3">
+            <label class="flex-1">
+              <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">СРОК</p>
+              <input
+                inputmode="numeric"
+                placeholder="MM/ГГ"
+                :value="cardExpiry"
+                class="mt-1.5 w-full border-b-2 border-sand-2 bg-transparent pb-2 text-center font-mono text-[17px] font-bold outline-none transition-colors [caret-color:#DDFF33] focus:border-lime placeholder:text-faint"
+                @input="onExpiryInput"
+              />
+            </label>
+            <label class="flex-[1.6]">
+              <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">ВЛАДЕЛЕЦ</p>
+              <input
+                v-model="cardOwner"
+                autocomplete="cc-name"
+                placeholder="AZIZ KARIMOV"
+                class="mt-1.5 w-full border-b-2 border-sand-2 bg-transparent pb-2 text-center font-mono text-[15px] font-bold uppercase outline-none transition-colors [caret-color:#DDFF33] focus:border-lime placeholder:text-faint"
+              />
+            </label>
+          </div>
+          <button
+            type="button"
+            class="press mt-5 h-14 w-full rounded-full bg-lime text-[16px] font-extrabold text-on-lime disabled:opacity-40"
+            :disabled="!cardFormValid"
+            @click="cardContinue"
+          >
+            Продолжить
+          </button>
+        </template>
+
+        <template v-else-if="cardStep === 'sms'">
+          <p class="mt-5 text-center text-[14px] font-semibold text-muted">
+            Код из SMS на номер {{ phone(user.user?.phone ?? '') }}
+          </p>
+          <InvisibleDigits v-if="cardSheet" v-model="cardSms" :length="6" one-time-code autofocus class="mt-4 py-1">
+            <div class="flex justify-center gap-2">
+              <span
+                v-for="i in 6"
+                :key="i"
+                class="flex h-11 w-9 items-center justify-center rounded-xl bg-sand text-[18px] font-extrabold"
+              >
+                {{ cardSms[i - 1] ?? '' }}
+              </span>
+            </div>
+          </InvisibleDigits>
+          <p class="mt-4 text-center text-[12px] font-semibold text-faint">Подтверждение владельца номера</p>
+        </template>
+
+        <template v-else>
+          <div class="flex flex-col items-center py-7">
+            <span class="h-9 w-9 animate-spin rounded-full border-[3px] border-sand border-t-lime" />
+            <p class="mt-4 text-[15px] font-bold">Проверяем карту…</p>
+            <p class="mt-1 text-[12.5px] font-semibold text-muted">{{ cardNetwork }} ·· {{ cardDigits.slice(-4) }}</p>
+          </div>
+        </template>
       </div>
     </BottomSheet>
 

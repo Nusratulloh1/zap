@@ -46,8 +46,12 @@ async function remind(debtId: string) {
   setTimeout(() => {
     cooldowns.value = { ...cooldowns.value }
   }, 30500)
-  await debts.remind(debtId)
-  toast.success('Напоминание отправлено')
+  try {
+    await debts.remind(debtId)
+    toast.success('Напоминание отправлено')
+  } catch (e) {
+    toast(e instanceof Error ? e.message : 'Напоминание уже отправлено')
+  }
 }
 
 async function remindAll() {
@@ -58,11 +62,15 @@ async function remindAll() {
   setTimeout(() => {
     cooldowns.value = { ...cooldowns.value }
   }, 30500)
-  await debts.remindAll()
-  debts.openDebts.forEach((d, i) => {
-    const name = contacts.byId(d.contactId)?.name ?? '?'
-    setTimeout(() => toast.success('Напомнили: ' + name), 250 * i)
-  })
+  try {
+    await debts.remindAll()
+    debts.openDebts.forEach((d, i) => {
+      const name = contacts.byId(d.contactId)?.name ?? '?'
+      setTimeout(() => toast.success('Напомнили: ' + name), 250 * i)
+    })
+  } catch (e) {
+    toast(e instanceof Error ? e.message : 'Напоминания уже отправлены')
+  }
 }
 </script>
 

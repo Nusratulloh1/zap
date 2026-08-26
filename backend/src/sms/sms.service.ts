@@ -12,6 +12,12 @@ const TIMEOUT_MS = 8000
 @Injectable()
 export class SmsService {
   private readonly log = new Logger(SmsService.name)
+  /** dev: последние dry-run SMS по номеру (в памяти, только для /dev/sms/latest) */
+  private readonly devBuffer = new Map<string, { phone: string; text: string; at: number }>()
+
+  devLatest(phone: string) {
+    return this.devBuffer.get(phone) ?? null
+  }
 
   constructor(private readonly prisma: PrismaService) {}
 
@@ -48,7 +54,10 @@ export class SmsService {
     }
 
     if (this.dryRun) {
-      this.log.log(`[DRY_RUN] SMS → ${maskPhone(phone)} (${kind}): ${text}`)
+      // заметный блок в консоли — локальный логин идёт через эти коды
+      // eslint-disable-next-line no-console
+      console.log('\n┏━━ SMS DRY-RUN ━━\n┃ [SMS→' + phone + '] ' + text + '\n┗━━━━━━━━━━━━━━━━\n')
+      this.devBuffer.set(phone, { phone, text, at: Date.now() })
       await this.prisma.smsLog.create({ data: { phone, kind, status: 'dry_run' } })
       return
     }

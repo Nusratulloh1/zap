@@ -13,7 +13,9 @@
     "prisma:generate": "prisma generate",
     "seed:demo": "node scripts/seed-demo.mjs",
     "test:e2e": "jest --config test/jest-e2e.json --runInBand --forceExit",
-    "lint": "eslint \"src/**/*.ts\""
+    "lint": "eslint \"src/**/*.ts\"",
+    "test:fiscal-parser": "jest --config test/jest-e2e.json --testPathPattern fiscal-parser --forceExit",
+    "test:participant": "jest --config test/jest-e2e.json --testPathPattern participant-chips --forceExit"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
@@ -25,6 +27,7 @@
     "@nestjs/websockets": "^10.4.15",
     "@prisma/client": "^5.22.0",
     "bcryptjs": "^2.4.3",
+    "cheerio": "^1.2.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "helmet": "^8.0.0",
@@ -41,6 +44,7 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
+    "@types/multer": "^2.2.0",
     "@types/node": "^22.10.0",
     "@types/supertest": "^6.0.2",
     "embedded-postgres": "^17.2.0-beta.9",

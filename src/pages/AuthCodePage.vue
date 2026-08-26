@@ -12,6 +12,22 @@ import InvisibleDigits from '@/components/InvisibleDigits.vue'
 import PinDots from '@/components/PinDots.vue'
 
 const router = useRouter()
+
+// DEV-хелпер: код из dry-run SMS локального бэкенда (тришейкается из прод-сборки)
+const showDevCode = import.meta.env.DEV && Boolean(import.meta.env.VITE_API_URL)
+async function fetchDevCode() {
+  try {
+    const phoneDigits = user.session.phone ?? ''
+    const res = await fetch(
+      String(import.meta.env.VITE_API_URL ?? '').replace(/\/+$/, '') + '/dev/sms/latest?phone=' + encodeURIComponent(phoneDigits),
+    )
+    const data = (await res.json()) as { code?: string | null }
+    if (data.code) code.value = data.code
+    else toast('DEV: код ещё не отправлен')
+  } catch {
+    toast('DEV: бэкенд недоступен')
+  }
+}
 const user = useUserStore()
 
 type Step = 'code' | 'pin1' | 'pin2'
@@ -23,13 +39,16 @@ const pin2 = ref('')
 const busy = ref(false)
 const shake = ref(false)
 const mismatch = ref(false)
+const codeError = ref('')
+const codeShake = ref(false)
+let codeErrorTimer = 0
 
 // таймер повторной отправки
-const seconds = ref(24)
+const seconds = ref(60) // = серверный лимит: 1 SMS в минуту на номер
 let timer = 0
 
 function startTimer() {
-  seconds.value = 24
+  seconds.value = 60
   clearInterval(timer)
   timer = window.setInterval(() => {
     if (seconds.value > 0) seconds.value -= 1
@@ -40,10 +59,15 @@ function startTimer() {
 onMounted(startTimer)
 onBeforeUnmount(() => clearInterval(timer))
 
-function resend() {
-  if (seconds.value > 0) return
-  startTimer()
-  toast(S.auth.codeResent)
+async function resend() {
+  if (seconds.value > 0 || busy.value) return
+  try {
+    await user.startLogin(user.session.phone ?? '')
+    startTimer()
+    toast(S.auth.codeResent)
+  } catch (e) {
+    toast(e instanceof Error && e.message ? e.message : 'Не удалось отправить код')
+  }
 }
 
 const timerLabel = computed(() => `0:${seconds.value.toString().padStart(2, '0')}`)
@@ -51,8 +75,29 @@ const timerLabel = computed(() => `0:${seconds.value.toString().padStart(2, '0')
 watch(code, async (v) => {
   if (v.length !== 6 || busy.value) return
   busy.value = true
-  await user.verifyCode(v)
+  try {
+    await user.verifyCode(v)
+  } catch (e) {
+    // неверный код: точки краснеют + трясутся, через 3с — сброс в дефолт
+    busy.value = false
+    codeError.value = e instanceof Error && e.message ? e.message : 'Неверный код — попробуйте ещё раз'
+    codeShake.value = true
+    hapticError()
+    setTimeout(() => (codeShake.value = false), 450)
+    clearTimeout(codeErrorTimer)
+    codeErrorTimer = window.setTimeout(() => {
+      codeError.value = ''
+      code.value = ''
+    }, 3000)
+    return
+  }
   busy.value = false
+  // реальный API: у вернувшегося пользователя PIN уже есть — сразу в приложение
+  if (user.session.stage === 'authed') {
+    hapticSuccess()
+    router.replace('/')
+    return
+  }
   step.value = 'pin1'
 })
 
@@ -104,9 +149,10 @@ watch(pin2, async (v) => {
           </p>
 
           <InvisibleDigits v-model="code" :length="6" one-time-code autofocus class="mt-[26px] w-fit">
-            <PinDots :length="6" :filled="code.length" :size="26" :gap="14" :bar-width="264" />
+            <PinDots :length="6" :filled="code.length" :shake="codeShake" :error="Boolean(codeError)" :size="26" :gap="14" :bar-width="264" />
           </InvisibleDigits>
 
+          <p v-if="codeError" class="mt-3 text-[13px] font-bold text-danger">{{ codeError }}</p>
           <p class="mt-4 text-[13px] font-semibold text-muted">
             {{ S.auth.notArrived }}
             <button
@@ -118,6 +164,15 @@ watch(pin2, async (v) => {
               <template v-else><span class="underline underline-offset-2">{{ S.auth.resend }}</span></template>
             </button>
           </p>
+
+          <button
+            v-if="showDevCode"
+            type="button"
+            class="mt-2 rounded-full bg-sand px-3 py-1.5 font-mono text-[11px] font-bold text-muted"
+            @click="fetchDevCode"
+          >
+            DEV · получить код
+          </button>
 
           <div class="mt-[26px] border-t border-sand-2 pt-5">
             <p class="text-[15.5px] font-extrabold">{{ S.auth.pinTitle }}</p>

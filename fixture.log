@@ -1,0 +1,6 @@
+
+> zap-split@0.1.0 dev:fiscal-fixture D:\Projects\TreeThree\zap_split
+> node scripts/fiscal-fixture.mjs
+
+OFD-фикстура: http://localhost:3299/check (и /fail для пути ошибки)
+демо-QR: http://localhost:3299/check?t=EP000000000001&r=481&s=120000000&fs=DEMO000000000001&d=202608261942

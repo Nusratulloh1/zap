@@ -15,6 +15,8 @@ import { CashbackModule } from './cashback/cashback.module'
 import { HistoryModule } from './history/history.module'
 import { RealtimeModule } from './realtime/realtime.module'
 import { HealthController } from './common/health.controller'
+import { DevModule } from './dev/dev.module'
+import { FiscalModule } from './fiscal/fiscal.module'
 
 /** маскирование PII в логах: телефоны никогда не пишутся целиком */
 const redactPhone = (v: unknown) =>
@@ -42,6 +44,9 @@ const redactPhone = (v: unknown) =>
     CashbackModule,
     HistoryModule,
     RealtimeModule,
+    FiscalModule,
+    // dev-ручки не попадают в прод-граф
+    ...(process.env.NODE_ENV !== 'production' ? [DevModule] : []),
   ],
   controllers: [HealthController],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],

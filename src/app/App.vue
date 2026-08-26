@@ -14,6 +14,7 @@ import { applyThemeColor } from '@/lib/theme'
 import { resumeSimulations } from '@/api/events'
 import { isRealApi } from '@/api'
 import RealAuthSheets from '@/components/RealAuthSheets.vue'
+import NameSheet from '@/components/NameSheet.vue'
 import TabBar from '@/components/TabBar.vue'
 import ActiveSplitPill from '@/components/ActiveSplitPill.vue'
 
@@ -146,5 +147,6 @@ watch(
     <InstallBanner />
     <InstallSheet />
     <RealAuthSheets v-if="isRealApi" />
+    <NameSheet />
   </div>
 </template>

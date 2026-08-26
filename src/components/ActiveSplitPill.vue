@@ -17,7 +17,8 @@ const user = useUserStore()
 
 const split = computed(() => splits.activeSplit)
 
-const show = computed(() => user.isAuthed && Boolean(route.meta.tab) && split.value !== null)
+// только на главной: на пэде суммы плашка перекрывала «Далее»
+const show = computed(() => user.isAuthed && route.path === '/' && split.value !== null)
 
 const waitingNames = computed(() => {
   if (!split.value) return ''

@@ -355,3 +355,42 @@ model UserSettings {
   visits            Int     @default(0)
   pendingCashback   Int     @default(0)
 }
+
+/// Фискальный чек: распарсенная страница ОФД или OCR-фолбэк.
+model FiscalReceipt {
+  id              String   @id @default(cuid())
+  userId          String
+  fiscalKey       String   @unique // дедуп: одинаковый чек не парсим дважды
+  url             String
+  status          String   @default("pending") // pending | ready | failed_parse
+  source          String   @default("page") // page | ocr
+  merchantName    String?
+  merchantInn     String?
+  receiptDatetime DateTime?
+  totalAmount     Int?
+  snapshotFile    String?
+  createdAt       DateTime @default(now())
+
+  items FiscalReceiptItem[]
+
+  @@index([userId, createdAt])
+}
+
+model FiscalReceiptItem {
+  id        String        @id @default(cuid())
+  receiptId String
+  receipt   FiscalReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  name      String
+  qtyMilli  Int           @default(1000) // 0.500 кг → 500
+  unitPrice Int
+  lineTotal Int
+}
+
+/// счётчики фискального инжеста (метрики /health + алерт)
+model FiscalEvent {
+  id        String   @id @default(cuid())
+  kind      String // fiscal_resolved | parse_ok | parse_failed | ocr_used
+  createdAt DateTime @default(now())
+
+  @@index([kind, createdAt])
+}

@@ -1,9 +1,15 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable, Logger, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../common/prisma.service'
+import { FiscalService } from '../fiscal/fiscal.service'
 
 @Injectable()
 export class MerchantsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly log = new Logger(MerchantsService.name)
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly fiscal: FiscalService,
+  ) {}
 
   list() {
     return this.prisma.merchant.findMany()
@@ -32,8 +38,28 @@ export class MerchantsService {
   }
 
   /** QR-резолв: ZAP-ссылка на сплит → {type:'split'}, зарегистрированный счёт →
-   *  {type:'bill'}, иначе {type:'unknown'} — фронт предложит ручную сумму. */
-  async resolveQr(payload: string) {
+   *  {type:'bill'}, фискальный чек ОФД → {type:'fiscal', instant, jobId} с
+   *  асинхронной догрузкой позиций, иначе {type:'unknown'}. */
+  async resolveQr(payload: string, userId?: string) {
+    // фискальный чек: мгновенный ответ из параметров QR + async-джоба позиций.
+    // ХАРД-ПРАВИЛО: инжест НИКОГДА не роняет скан — любая ошибка джобы
+    // деградирует до fiscal без jobId (UI ведёт на ручной ввод / фото чека).
+    const fiscal = this.fiscal.tryParseFiscalUrl(payload)
+    if (fiscal) {
+      let jobId: string | undefined
+      if (userId) {
+        try {
+          jobId = await this.fiscal.startJob(userId, fiscal.url, fiscal.fiscalKey, fiscal.instant)
+        } catch (e) {
+          this.log.warn(`fiscal startJob failed, degrading gracefully: ${String(e)}`)
+        }
+      }
+      return { type: 'fiscal' as const, instant: fiscal.instant, jobId }
+    }
+    return this.resolveKnown(payload)
+  }
+
+  private async resolveKnown(payload: string) {
     const linkMatch = payload.match(/\/s\/([\dA-Z-]{5,12})\b/i)
     if (linkMatch) {
       const split = await this.prisma.split.findUnique({ where: { code: linkMatch[1]!.toUpperCase() } })

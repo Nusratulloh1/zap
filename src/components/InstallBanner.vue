@@ -6,12 +6,16 @@ import { useRoute } from 'vue-router'
 import { installState, install, snooze } from '@/lib/installPrompt'
 
 const route = useRoute()
-// над таббаром на табовых экранах, иначе у нижнего края
-const bottomClass = computed(() =>
-  route.meta.tab
-    ? 'bottom-[calc(env(safe-area-inset-bottom)+92px)]'
-    : 'bottom-[calc(env(safe-area-inset-bottom)+16px)]',
-)
+// позиционирование: над таббаром (главная), выше нижней подсказки/CTA на
+// онбординге/авторизации, иначе у нижнего края
+const bottomClass = computed(() => {
+  if (route.meta.tab) return 'bottom-[calc(env(safe-area-inset-bottom)+92px)]'
+  if (route.path === '/onboarding' || route.path.startsWith('/auth/'))
+    return 'bottom-[calc(env(safe-area-inset-bottom)+104px)]'
+  // экран участника (/s/:code): над CTA «Открыть ZAP!», не перекрывая его
+  if (route.path.startsWith('/s/')) return 'bottom-[calc(env(safe-area-inset-bottom)+120px)]'
+  return 'bottom-[calc(env(safe-area-inset-bottom)+16px)]'
+})
 </script>
 
 <template>
@@ -19,25 +23,25 @@ const bottomClass = computed(() =>
     <Transition name="install-banner">
       <div
         v-if="installState.banner"
-        class="fixed inset-x-0 z-[35] mx-auto w-full max-w-app px-4"
+        class="pointer-events-none fixed inset-x-0 z-[35] mx-auto w-full max-w-app px-4"
         :class="bottomClass"
       >
         <div
           data-install-banner
-          class="install-banner flex items-center gap-3 rounded-[22px] px-4 py-3.5 shadow-xl shadow-black/25"
+          class="install-banner pointer-events-auto relative flex items-center gap-3 rounded-[22px] py-3.5 pl-4 pr-3 shadow-xl shadow-black/25"
         >
           <span class="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-[12px] bg-lime">
             <img src="/icon-192.png" alt="" class="h-full w-full object-cover" />
           </span>
           <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span class="text-[15px] font-bold leading-tight text-white">Установите ZAP!</span>
-            <span class="text-[12.5px] font-semibold leading-snug text-white/[0.65]">
-              Быстрый доступ с экрана «Домой» — как приложение
+            <span class="truncate text-[15px] font-bold leading-tight text-white">Установите ZAP!</span>
+            <span class="install-banner-desc text-[12px] font-semibold leading-snug text-white/[0.65]">
+              Быстрый доступ с экрана «Домой»
             </span>
           </span>
           <button
             type="button"
-            class="press flex h-[38px] shrink-0 items-center rounded-full bg-lime px-4 text-[13.5px] font-bold text-on-lime"
+            class="press flex h-[38px] shrink-0 items-center whitespace-nowrap rounded-full bg-lime px-4 text-[13.5px] font-bold text-on-lime"
             @click="install()"
           >
             Установить
@@ -45,10 +49,10 @@ const bottomClass = computed(() =>
           <button
             type="button"
             aria-label="Скрыть"
-            class="press hit-area relative flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-white/60"
+            class="press hit-area absolute -right-1.5 -top-1.5 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-[#2a2a28] text-white/70 shadow-md shadow-black/30"
             @click="snooze()"
           >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
               <path d="m3.5 3.5 7 7M10.5 3.5l-7 7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
             </svg>
           </button>
@@ -61,6 +65,13 @@ const bottomClass = computed(() =>
 <style>
 .install-banner {
   background-color: #111110;
+}
+/* описание не раздувает баннер: максимум 2 строки */
+.install-banner-desc {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 [data-theme='dark'] .install-banner {
   background-color: var(--elevated);

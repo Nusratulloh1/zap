@@ -9,8 +9,16 @@ import jsQR from 'jsqr'
 import { useContactsStore } from '@/entities/stores/contacts'
 import { useDraftStore } from '@/entities/stores/draft'
 import { fetchFeaturedBill } from '@/api'
+import * as api from '@/api'
+import { isRealApi } from '@/api'
 
 const router = useRouter()
+
+// dev-демо фискального QR: локальный фикстур-сервер (scripts/fiscal-fixture.mjs)
+const showFiscalDemo = import.meta.env.DEV && isRealApi
+const FISCAL_DEMO_PAYLOAD =
+  localStorage.getItem('zap:fiscal-demo-payload') ??
+  'http://localhost:3299/check?t=EP000000000001&r=481&s=120000000&fs=DEMO000000000001&d=202608261942'
 const contacts = useContactsStore()
 const draft = useDraftStore()
 
@@ -77,11 +85,48 @@ function onDecoded(payload: string, corners?: Pt[]) {
   if (!reducedMotion() && video.value) {
     gsap.to(video.value, { scale: 1.03, duration: 0.45, ease: 'power2.out' })
   }
-  const m = payload.match(/zap\.uz\/s\/([\w-]+)/i)
-  setTimeout(() => {
-    if (m) router.replace(`/s/${m[1]}`)
-    else void openDemoBill(true)
-  }, 480)
+  setTimeout(() => void routePayload(payload), 480)
+}
+
+/** Классификация отсканированного QR через api.resolveQr (сплит / счёт /
+ *  фискальный чек / неизвестное). Никогда не блокирует: фискальный чек сразу
+ *  открывает экран счёта с мгновенным тоталом, позиции догружаются асинхронно. */
+async function routePayload(payload: string) {
+  const m = payload.match(/\/s\/([\w-]+)/i)
+  if (m) {
+    router.replace(`/s/${m[1]}`)
+    return
+  }
+  try {
+    const res = await api.resolveQr(payload)
+    if (res.type === 'split') {
+      router.replace(`/s/${res.code}`)
+      return
+    }
+    if (res.type === 'bill') {
+      draft.startFromBill(res.bill)
+      toast.success('QR распознан')
+      router.replace('/split/bill')
+      return
+    }
+    if (res.type === 'fiscal') {
+      // узбекский QR НЕ несёт суммы (s = фискальный признак, не тотал):
+      // идём на экран чека в состоянии загрузки, тотал и позиции догрузятся.
+      // Ручной ввод суммы предлагается ТОЛЬКО после неудачи фетча (в BillPage).
+      draft.startFiscal(res.instant.totalAmount ?? 0, res.jobId)
+      draft.scannedPayload = payload // DEBUG: показать отсканированную ссылку
+      router.replace('/split/bill')
+      return
+    }
+  } catch {
+    /* сеть упала — ведём как unknown */
+  }
+  if (isRealApi) {
+    toast('QR не распознан — введите сумму вручную')
+    router.replace('/split/amount')
+  } else {
+    void openDemoBill(true) // мок-демо: любой QR ведёт на демо-чек
+  }
 }
 
 async function detectLoop() {
@@ -250,6 +295,14 @@ onBeforeUnmount(() => {
             @click="openDemoBill()"
           >
             Демо-чек
+          </button>
+          <button
+            v-if="showFiscalDemo"
+            type="button"
+            class="press mt-2 h-10 w-full rounded-full bg-white/10 text-[13px] font-bold text-white"
+            @click="onDecoded(FISCAL_DEMO_PAYLOAD)"
+          >
+            DEV · фискальный чек
           </button>
         </div>
       </template>

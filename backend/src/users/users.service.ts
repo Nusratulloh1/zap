@@ -32,7 +32,7 @@ export class UsersService {
     const d = u.createdAt
     return {
       id: 'me',
-      name: u.name || 'Вы',
+      name: u.name, // пустое имя триггерит онбординг-шит «Как вас зовут?»
       handle: u.handle ? `@${u.handle.replace(/^@/, '')}` : '',
       phone: u.phone.slice(3),
       initials: (u.name || 'В')[0]!,

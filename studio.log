@@ -1,0 +1,7 @@
+
+> zap-split@0.1.0 db:studio D:\Projects\TreeThree\zap_split
+> node scripts/dev-run.mjs npx prisma studio
+
+npm warn Unknown env config "verify-deps-before-run". This will stop working in the next major version of npm.
+Prisma schema loaded from prisma\schema.prisma
+Prisma Studio is up on http://localhost:5555

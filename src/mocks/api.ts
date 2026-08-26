@@ -260,6 +260,11 @@ export async function payShare(splitId: string, contactId: string): Promise<Spli
   return payShareSync(splitId, contactId)
 }
 
+// в мок-режиме гость всегда «как будто с PIN» — inline-шит не показываем
+export function guestNeedsPin(): boolean {
+  return false
+}
+
 export function payShareSync(splitId: string, contactId: string): Split | null {
   const db = getDb()
   const split = db.splits.find((s) => s.id === splitId)
@@ -382,6 +387,12 @@ export async function remindSplitMember(_splitId: string, _contactId: string): P
   await fakeLatency(250, 450)
 }
 
+export async function sendSplitLinkSms(splitId: string): Promise<number> {
+  await fakeLatency(300, 600)
+  const split = getDb().splits.find((s) => s.id === splitId)
+  return split?.members.filter((m) => m.status === 'waiting' || m.status === 'opened').length ?? 1
+}
+
 // ---------- groups ----------
 
 export interface SaveGroupInput {
@@ -468,13 +479,23 @@ export async function repayDebt(debtId: string): Promise<void> {
 
 // ---------- contacts ----------
 
+/** Имя пользователя (онбординг-шит после первого входа) */
+export async function updateProfile(name: string): Promise<void> {
+  await fakeLatency(200, 400)
+  const db = getDb()
+  db.user.name = name.trim()
+  db.user.initials = (name.trim()[0] ?? 'В').toUpperCase()
+  touch('user')
+}
+
 /** Добавление контакта по номеру («+ Номер» на экране участников) */
-export async function addContact(phoneDigits: string): Promise<Contact> {
+export async function addContact(phoneDigits: string, fullName?: string): Promise<Contact> {
   await fakeLatency(250, 450)
   const db = getDb()
   const d = phoneDigits.replace(/D/g, '').slice(0, 9)
-  const name = '+998 ' + [d.slice(0, 2), d.slice(2, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(' ')
-  const contact: Contact = { id: uid('c'), name, phone: d, initials: '+', color: '#8A887E' }
+  const pretty = '+998 ' + [d.slice(0, 2), d.slice(2, 5), d.slice(5, 7), d.slice(7, 9)].filter(Boolean).join(' ')
+  const name = fullName?.trim() || pretty
+  const contact: Contact = { id: uid('c'), name, phone: d, initials: (fullName?.trim()[0] ?? '+').toUpperCase(), color: '#8A887E' }
   db.contacts.push(contact)
   touch('contacts')
   return clone(contact)
@@ -568,6 +589,35 @@ export async function toggleDebtNotifications(value: boolean): Promise<void> {
 export function dismissPromo() {
   getDb().settings.promoDismissed = true
   touch('settings')
+}
+
+// ---------- QR ----------
+
+export type ResolveQrResult =
+  | { type: 'split'; code: string }
+  | { type: 'bill'; bill: Bill }
+  | { type: 'fiscal'; instant: { totalAmount?: number; datetime?: string }; jobId?: string }
+  | { type: 'unknown' }
+
+/** Мок: ZAP-ссылка → split, demo-payload → счёт, остальное — unknown. */
+export async function resolveQr(payload: string): Promise<ResolveQrResult> {
+  await fakeLatency(150, 300)
+  const m = payload.match(/\/s\/([\w-]+)/i)
+  if (m) return { type: 'split', code: m[1]! }
+  if (payload.startsWith('zap:bill:')) return { type: 'bill', bill: clone(getDb().featuredBill) }
+  return { type: 'unknown' }
+}
+
+export async function fiscalStatus(_jobId: string): Promise<{ status: string; receipt?: unknown }> {
+  return { status: 'failed' } // фискальный инжест есть только в реальном API
+}
+
+export async function fiscalOcr(_file: File): Promise<{ status: string; receipt?: unknown }> {
+  throw new Error('OCR доступен только с реальным бэкендом')
+}
+
+export async function submitFiscalClientResult(_r: unknown): Promise<{ jobId: string; status: string; receipt?: unknown }> {
+  return { jobId: 'mock', status: 'failed' } // фискальный инжест есть только в реальном API
 }
 
 /** «Оплатить целиком» / «Оплатить» без сплита. */

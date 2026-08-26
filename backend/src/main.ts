@@ -10,8 +10,12 @@ async function bootstrap() {
   app.use(helmet())
   // за nginx: реальные IP клиентов для rate-limit и логов
   app.getHttpAdapter().getInstance().set('trust proxy', 1)
+  const devOrigin = /^https?:\/\/(localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)(:\d+)?$/
   app.enableCors({
-    origin: (process.env.PWA_ORIGIN ?? 'http://localhost:5173').split(','),
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? (process.env.PWA_ORIGIN ?? 'http://localhost:5173').split(',')
+        : (origin, cb) => cb(null, !origin || devOrigin.test(origin)),
     credentials: true,
   })
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
@@ -19,3 +23,4 @@ async function bootstrap() {
   await app.listen(Number(process.env.PORT ?? 3000), '0.0.0.0')
 }
 void bootstrap()
+

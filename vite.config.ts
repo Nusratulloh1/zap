@@ -2,9 +2,28 @@ import { fileURLToPath, URL } from 'node:url'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import mkcert from 'vite-plugin-mkcert'
+
+// pnpm dev:https: доверенный TLS для теста с телефона по Wi-Fi + прокси /api,
+// чтобы https-страница не упиралась в mixed-content до http-бэкенда
+const DEV_HTTPS = process.env.DEV_HTTPS === '1'
 
 export default defineConfig({
+  server: DEV_HTTPS
+    ? {
+        host: true,
+        proxy: {
+          '/api': {
+            target: 'http://localhost:3202',
+            changeOrigin: true,
+            ws: true,
+            rewrite: (p) => p.replace('/api', ''),
+          },
+        },
+      }
+    : undefined,
   plugins: [
+    ...(DEV_HTTPS ? [mkcert()] : []),
     vue(),
     VitePWA({
       registerType: 'autoUpdate',
