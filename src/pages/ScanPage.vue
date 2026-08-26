@@ -8,7 +8,7 @@ import { toast } from '@/lib/toast'
 import jsQR from 'jsqr'
 import { useContactsStore } from '@/entities/stores/contacts'
 import { useDraftStore } from '@/entities/stores/draft'
-import { fetchFeaturedBill } from '@/mocks/api'
+import { fetchFeaturedBill } from '@/api'
 
 const router = useRouter()
 const contacts = useContactsStore()

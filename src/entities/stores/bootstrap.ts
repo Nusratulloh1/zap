@@ -1,5 +1,5 @@
 import type { Db } from '@/entities/types'
-import { fetchBootstrap } from '@/mocks/api'
+import { fetchBootstrap } from '@/api'
 
 let promise: Promise<Db> | null = null
 

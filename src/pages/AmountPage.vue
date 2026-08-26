@@ -8,7 +8,7 @@ import { toast } from '@/lib/toast'
 import { money } from '@/lib/format'
 import { gsap, reducedMotion } from '@/lib/motion'
 import { useDraftStore } from '@/entities/stores/draft'
-import { payAlone } from '@/mocks/api'
+import { payAlone } from '@/api'
 import AnimatedAmount from '@/components/AnimatedAmount.vue'
 import PayPad from '@/components/PayPad.vue'
 import PinSheet from '@/components/PinSheet.vue'
@@ -16,7 +16,26 @@ import PinSheet from '@/components/PinSheet.vue'
 const router = useRouter()
 const draft = useDraftStore()
 
-const raw = ref('')
+// черновик суммы живёт до конца сессии: набрал → ушёл → вернулся с пилл-нава
+const DRAFT_KEY = 'zap:amount-draft'
+const savedDraft = (() => {
+  try {
+    return sessionStorage.getItem(DRAFT_KEY) ?? ''
+  } catch {
+    return ''
+  }
+})()
+
+const raw = ref(savedDraft)
+
+watch(raw, (v) => {
+  try {
+    if (v) sessionStorage.setItem(DRAFT_KEY, v)
+    else sessionStorage.removeItem(DRAFT_KEY)
+  } catch {
+    /* noop */
+  }
+})
 const amount = computed(() => Number(raw.value || '0'))
 const paySheet = ref(false)
 const paying = ref(false)
@@ -53,6 +72,13 @@ watch(
 function toSplit() {
   if (amount.value <= 0) return
   draft.startManual(amount.value)
+  // черновик сдан — при следующем открытии пад чистый (raw не трогаем:
+  // компонент и так уходит, а его сброс перезаписал бы черновик через watch)
+  try {
+    sessionStorage.removeItem(DRAFT_KEY)
+  } catch {
+    /* noop */
+  }
   router.push('/split/members')
 }
 
@@ -62,12 +88,18 @@ async function confirmPay() {
   paying.value = true
   await payAlone(amount.value)
   toast.success('Оплачено · ' + money(amount.value))
+  try {
+    sessionStorage.removeItem(DRAFT_KEY)
+  } catch {
+    /* noop */
+  }
   router.push('/')
 }
 </script>
 
 <template>
-  <div class="theme-fixed flex min-h-dvh flex-col bg-lime px-5 pb-[calc(env(safe-area-inset-bottom)+8px)] pt-[calc(env(safe-area-inset-top)+20px)] text-ink">
+  <!-- pb с запасом под плавающий нав-пилл (дизайн 3a) -->
+  <div class="theme-fixed flex min-h-dvh flex-col bg-lime px-5 pb-[calc(env(safe-area-inset-bottom)+86px)] pt-[calc(env(safe-area-inset-top)+20px)] text-ink">
     <!-- шапка -->
     <div class="flex items-center justify-between">
       <button
@@ -129,28 +161,8 @@ async function confirmPay() {
       </button>
     </div>
 
-    <!-- плавающий нав-пилл -->
-    <div class="mt-3.5 flex justify-center">
-      <div class="flex items-center gap-[18px] rounded-full bg-white px-3 py-1.5 shadow-[0_10px_26px_rgba(30,28,16,0.16)]">
-        <button type="button" aria-label="Главная" class="press flex h-10 w-10 items-center justify-center" @click="router.push('/')">
-          <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
-            <path d="M4 11.5L12 4.5L20 11.5V19.5H14.5V14.5H9.5V19.5H4V11.5Z" stroke="#8A887E" stroke-width="2.2" stroke-linejoin="round" />
-          </svg>
-        </button>
-        <span class="flex h-10 w-10 items-center justify-center rounded-full bg-ink">
-          <span class="grid grid-cols-[4px_4px_4px] gap-1">
-            <span v-for="i in 6" :key="i" class="h-1 w-1 rounded-full bg-lime" />
-          </span>
-        </span>
-        <button type="button" aria-label="История" class="press flex h-10 w-10 items-center justify-center" @click="router.push('/history')">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="9" stroke="#8A887E" stroke-width="2.2" />
-            <path d="M12 7.5V12L15 14" stroke="#8A887E" stroke-width="2.2" stroke-linecap="round" />
-          </svg>
-        </button>
-      </div>
-    </div>
-
+    <!-- нав-пилл общий (TabBar в App-шелле): живёт вне переходов роутов,
+         активная точка-раскладка показывается им же -->
     <PinSheet :open="paySheet" :hint="`Оплата · ${money(amount)} UZS`" @close="paySheet = false" @confirm="confirmPay" />
   </div>
 </template>

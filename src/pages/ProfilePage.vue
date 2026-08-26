@@ -11,9 +11,12 @@ import { useCashbackStore } from '@/entities/stores/cashback'
 import BottomSheet from '@/components/BottomSheet.vue'
 import InvisibleDigits from '@/components/InvisibleDigits.vue'
 import PinDots from '@/components/PinDots.vue'
-import { setPrimaryCard, changePin } from '@/mocks/api'
+import { setPrimaryCard, changePin } from '@/api'
 import ThemeToggle from '@/components/ThemeToggle.vue'
+import { install, isInstalled } from '@/lib/installPrompt'
 import myAvatar from '@/assets/brand/avatars/a12.png'
+
+const installed = isInstalled()
 
 const router = useRouter()
 const user = useUserStore()
@@ -231,6 +234,15 @@ async function confirmLogout() {
         <button type="button" class="flex min-h-[56px] items-center border-b border-sand-2 transition-colors active:bg-sand" @click="groupsSheet = true">
           <span class="flex-1 text-left text-[15px] font-bold">Мои группы</span>
           <span class="mr-2 text-[13px] font-bold text-muted">{{ groups.groups.length }}</span>
+          <span class="text-[15px] font-semibold text-mist">›</span>
+        </button>
+        <button
+          v-if="!installed"
+          type="button"
+          class="flex min-h-[56px] w-full items-center border-b border-sand-2 text-left transition-colors active:bg-sand"
+          @click="install()"
+        >
+          <span class="flex-1 text-[15px] font-bold">Установить приложение</span>
           <span class="text-[15px] font-semibold text-mist">›</span>
         </button>
         <button type="button" class="flex min-h-[56px] items-center text-left transition-colors active:bg-sand" @click="logoutSheet = true">

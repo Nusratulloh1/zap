@@ -1,0 +1,8 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "rootDir": ".",
+  "testEnvironment": "node",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": { "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": { "strict": false, "emitDecoratorMetadata": true, "experimentalDecorators": true, "esModuleInterop": true, "target": "ES2022", "module": "commonjs", "skipLibCheck": true } }] },
+  "testTimeout": 180000
+}

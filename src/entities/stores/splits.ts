@@ -1,8 +1,9 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Split } from '@/entities/types'
-import * as api from '@/mocks/api'
-import { simulateSplitProgress, cancelSimulation } from '@/mocks/events'
+import * as api from '@/api'
+import { markSplitCreated } from '@/lib/installPrompt'
+import { simulateSplitProgress, cancelSimulation } from '@/api/events'
 import { bus } from '@/lib/bus'
 import { ensureBootstrap } from './bootstrap'
 
@@ -33,6 +34,7 @@ export const useSplitsStore = defineStore('splits', () => {
 
   async function create(input: api.CreateSplitInput): Promise<Split> {
     const split = await api.createSplit(input)
+    markSplitCreated()
     refresh()
     if (split.status === 'active') simulateSplitProgress(split.id)
     return split

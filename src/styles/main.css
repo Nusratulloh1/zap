@@ -699,14 +699,38 @@
    Тёмная тема: компонентные оверрайды (light не затрагивается — селекторы
    активны только под [data-theme='dark']).
    ========================================================================== */
-/* стеклянный таббар: тёмное стекло, лайм-активная вкладка остаётся */
+/* Пилл-нав: полупрозрачное стекло в обеих темах — контент скроллится ПОД ним.
+   Вся отрисовка здесь (не в utility-классах), чтобы работал @supports-фолбэк. */
+.zap-tabbar {
+  background-color: rgba(255, 255, 255, 0.72);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid rgba(17, 17, 16, 0.06);
+  box-shadow: 0 8px 24px rgba(17, 17, 16, 0.1);
+}
 [data-theme='dark'] .zap-tabbar {
-  background-color: rgba(20, 19, 17, 0.82);
-  border-color: rgba(255, 255, 255, 0.06);
-  box-shadow:
-    0 12px 30px rgba(0, 0, 0, 0.55),
-    0 2px 8px rgba(0, 0, 0, 0.35),
-    inset 1.5px 1.5px 1px rgba(255, 255, 255, 0.05);
+  background-color: rgba(26, 25, 22, 0.62);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55);
+}
+/* без поддержки blur — плотнее подложка, чтобы контент не мешал читаемости */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .zap-tabbar {
+    background-color: rgba(255, 255, 255, 0.92);
+  }
+  [data-theme='dark'] .zap-tabbar {
+    background-color: rgba(26, 25, 22, 0.92);
+  }
+}
+/* иконки: неактивные приглушены, активная — чернила (на лаймовом круге) */
+.zap-tabbar .tab-btn {
+  color: rgba(17, 17, 16, 0.55);
+}
+[data-theme='dark'] .zap-tabbar .tab-btn {
+  color: rgba(245, 243, 238, 0.6);
+}
+.zap-tabbar .tab-btn.is-active {
+  color: #111110;
 }
 /* шиты: elevated-поверхность, оверлей глубже */
 [data-theme='dark'] .zap-sheet {

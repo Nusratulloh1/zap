@@ -3,7 +3,7 @@
 // контекстная строка оплаты, 4 точки 34px с лаймовым баром. Выезжает снизу.
 import { onBeforeUnmount, ref, watch } from 'vue'
 import { gsap, reducedMotion } from '@/lib/motion'
-import { verifyPin } from '@/mocks/api'
+import { verifyPin } from '@/api'
 import { error as hapticError, success as hapticSuccess } from '@/lib/haptics'
 import { S } from '@/lib/strings'
 import InvisibleDigits from './InvisibleDigits.vue'

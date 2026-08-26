@@ -4,6 +4,10 @@ import type { Split } from '@/entities/types'
 export interface BusEvents {
   'db:changed': { domains: string[] }
   'split:event': { split: Split; message: string; kind: 'opened' | 'paid' | 'closed' | 'cashback' }
+  // реальный API: глобальные запросы подтверждений (PIN / номер гостя / SMS-код)
+  'pin:request': { resolve: () => void; reject: () => void }
+  'guest-phone:request': { resolve: (phone: string) => void; reject: () => void }
+  'guest-otp:request': { resolve: (code: string) => void; reject: () => void }
 }
 
 type Handler<T> = (payload: T) => void

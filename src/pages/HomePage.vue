@@ -5,7 +5,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import emblaCarouselVue from 'embla-carousel-vue'
 import Autoplay from 'embla-carousel-autoplay'
-import { fetchFeaturedBill } from '@/mocks/api'
+import { fetchFeaturedBill } from '@/api'
 import { useDraftStore } from '@/entities/stores/draft'
 import { money, peopleCount, isSameDay } from '@/lib/format'
 import { useUserStore } from '@/entities/stores/user'
@@ -24,6 +24,8 @@ import partnerSafia from '@/assets/brand/partners/safia.png'
 import partnerTexnomart from '@/assets/brand/partners/texnomart.png'
 import partnerIdea from '@/assets/brand/partners/idea.png'
 import myAvatar from '@/assets/brand/avatars/a12.png'
+
+defineOptions({ name: 'HomePage' })
 
 const router = useRouter()
 const user = useUserStore()

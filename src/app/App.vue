@@ -1,15 +1,19 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { TAB_TRIO } from '@/app/router'
 import { toast } from '@/lib/toast'
 import ToastHost from '@/components/ToastHost.vue'
+import InstallBanner from '@/components/InstallBanner.vue'
+import InstallSheet from '@/components/InstallSheet.vue'
+import { requestBanner } from '@/lib/installPrompt'
 import { bus } from '@/lib/bus'
-import { S } from '@/lib/strings'
 import { useUserStore } from '@/entities/stores/user'
 import { initKeyboardAvoidance } from '@/lib/keyboard'
 import { applyThemeColor } from '@/lib/theme'
-import { resumeSimulations } from '@/mocks/events'
-import { getDb } from '@/mocks/db'
+import { resumeSimulations } from '@/api/events'
+import { isRealApi } from '@/api'
+import RealAuthSheets from '@/components/RealAuthSheets.vue'
 import TabBar from '@/components/TabBar.vue'
 import ActiveSplitPill from '@/components/ActiveSplitPill.vue'
 
@@ -62,6 +66,11 @@ router.afterEach((to, from) => {
     transitionName.value = 'route-fade'
     return
   }
+  // трио пилл-нава (главная / пад суммы / история) — сиблинги: кроссфейд, не слайд
+  if (TAB_TRIO.includes(to.path) && TAB_TRIO.includes(from.path)) {
+    transitionName.value = 'route-fade'
+    return
+  }
   const toDepth = to.meta.depth ?? 0
   const fromDepth = from.meta.depth ?? 0
   // такеоверы (сканер, закрытие, кэшбэк): въезд снизу / уход вниз
@@ -89,23 +98,24 @@ bus.on('split:event', ({ kind, message }) => {
   else toast(message)
 })
 
-// подсказка «на главный экран» со второго визита
 onMounted(() => {
   initKeyboardAvoidance()
   if (user.isAuthed) resumeSimulations()
-  try {
-    if (getDb().settings.visits === 2 && !window.matchMedia('(display-mode: standalone)').matches) {
-      setTimeout(() => toast(S.pwa.installHint), 2500)
-    }
-  } catch {
-    /* noop */
-  }
+  // баннер установки PWA: после онбординга, со 2-го визита или после первого сплита
+  requestBanner(route.path, user.isAuthed)
 })
+
+watch(
+  () => route.path,
+  (path) => requestBanner(path, user.isAuthed),
+)
 
 watch(
   () => user.isAuthed,
   (authed) => {
     if (authed) resumeSimulations()
+    // сессия гидрируется асинхронно — баннер установки ждёт авторизации
+    requestBanner(route.path, authed)
   },
 )
 </script>
@@ -121,7 +131,10 @@ watch(
           @after-leave="onAfterLeave"
           @after-enter="onAfterEnter"
         >
-          <component :is="Component" :key="route.path" />
+          <!-- главная живёт в keep-alive: возврат с пада не перезагружает её -->
+          <KeepAlive :include="['HomePage']">
+            <component :is="Component" :key="route.path" />
+          </KeepAlive>
         </Transition>
       </RouterView>
 
@@ -130,5 +143,8 @@ watch(
     </div>
 
     <ToastHost />
+    <InstallBanner />
+    <InstallSheet />
+    <RealAuthSheets v-if="isRealApi" />
   </div>
 </template>

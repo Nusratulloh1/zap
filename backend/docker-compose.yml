@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: zap
+      POSTGRES_PASSWORD: zap
+      POSTGRES_DB: zap
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U zap']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://zap:zap@db:5432/zap
+      JWT_SECRET: ${JWT_SECRET:-dev-only-change-me}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-dev-only-change-me-2}
+      PWA_ORIGIN: ${PWA_ORIGIN:-http://localhost:5173}
+      SMS_DRY_RUN: ${SMS_DRY_RUN:-true}
+      SMSXABAR_EMAIL: ${SMSXABAR_EMAIL:-}
+      SMSXABAR_PASSWORD: ${SMSXABAR_PASSWORD:-}
+      OTP_DEV_HOOK: ${OTP_DEV_HOOK:-false}
+      PORT: '3000'
+    ports:
+      - '3000:3000'
+
+volumes:
+  pgdata:

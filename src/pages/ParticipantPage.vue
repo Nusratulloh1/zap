@@ -6,7 +6,8 @@ import { useRoute } from 'vue-router'
 import { toast } from '@/lib/toast'
 import { money, peopleCount } from '@/lib/format'
 import type { Split } from '@/entities/types'
-import * as api from '@/mocks/api'
+import * as api from '@/api'
+import { isRealApi } from '@/api'
 import { useContactsStore } from '@/entities/stores/contacts'
 import ConfettiBurst from '@/components/ConfettiBurst.vue'
 import PinSheet from '@/components/PinSheet.vue'
@@ -38,7 +39,11 @@ onMounted(async () => {
   await contacts.hydrate()
   split.value = await api.fetchSplitByCode(String(route.params.code))
   loading.value = false
-  const first = pendingMembers.value[0] ?? otherMembers.value[0]
+  // реальный режим: зритель — участник, найденный по его номеру (isYou);
+  // мок-демо: «переключение ролей» — первый ожидающий участник
+  const first = isRealApi
+    ? (split.value?.members.find((m) => m.isYou) ?? pendingMembers.value[0])
+    : (pendingMembers.value[0] ?? otherMembers.value[0])
   if (first) {
     viewAs.value = first.contactId
     amount.value = first.amount
@@ -54,6 +59,8 @@ function switchTo(cid: string) {
 }
 
 function nameOf(cid: string): string {
+  const names = (split.value as unknown as { memberNames?: Record<string, string> } | null)?.memberNames
+  if (names?.[cid]) return names[cid]!
   return contacts.byId(cid)?.name ?? '?'
 }
 
@@ -223,7 +230,7 @@ const alreadyPaid = computed(() => me.value && (me.value.status === 'paid' || me
           type="button"
           class="press h-14 rounded-full bg-lime text-[16px] font-extrabold text-on-lime disabled:opacity-40"
           :disabled="amount <= 0"
-          @click="pinSheet = true"
+          @click="isRealApi ? void confirmPay() : (pinSheet = true)"
         >
           Внести {{ money(amount) }}
         </button>

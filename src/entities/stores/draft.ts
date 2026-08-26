@@ -1,3 +1,4 @@
+import { isRealApi } from '@/api'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Bill, SplitMode } from '@/entities/types'
@@ -31,7 +32,8 @@ export const useDraftStore = defineStore('draft', () => {
     total.value = b.total
     title.value = 'Ужин пятница 🍕'
     mode.value = 'equal'
-    members.value = [newMember('me'), newMember('c_ali'), newMember('c_bek')]
+    // мок-демо стартует с компанией; реальный режим — только вы, участников добавляют явно
+    members.value = isRealApi ? [newMember('me')] : [newMember('me'), newMember('c_ali'), newMember('c_bek')]
   }
 
   /** быстрый сплит из группы: чек + участники группы */

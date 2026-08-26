@@ -129,6 +129,7 @@ const midFlight = (samples) => samples.some((s) => s && (!isIdentity(s) || Numbe
 
 // ---------- 5. пад суммы: поп цифры ----------
 {
+  await page.evaluate(() => sessionStorage.removeItem('zap:amount-draft')).catch(() => {})
   await page.goto(BASE + '/split/amount')
   await sleep(1000)
   await page.locator('button', { hasText: /^\s*5\s*$/ }).last().dispatchEvent('pointerdown')
@@ -223,6 +224,7 @@ const midFlight = (samples) => samples.some((s) => s && (!isIdentity(s) || Numbe
 
 // ---------- 8. AnimatedAmount: цифры живут (не перемонтируются), глайдят, scale-ступень анимируется ----------
 {
+  await page.evaluate(() => sessionStorage.removeItem('zap:amount-draft')).catch(() => {})
   await page.goto(BASE + '/split/amount')
   await sleep(1000)
   const res = await page.evaluate(
@@ -337,6 +339,129 @@ const midFlight = (samples) => samples.some((s) => s && (!isIdentity(s) || Numbe
     Math.abs(backY - fwd.savedY) <= 2,
     `backY=${backY} savedY=${fwd.savedY}`,
   )
+}
+
+// ---------- 11-14. install-баннер PWA ----------
+{
+  const mkCtx = async (init) => {
+    const c = await browser.newContext({ viewport: { width: 390, height: 844 }, reducedMotion: REDUCED ? 'reduce' : 'no-preference' })
+    const p = await c.newPage()
+    await p.addInitScript((extra) => {
+      localStorage.setItem('zap:session:v1', JSON.stringify({ stage: 'authed', phone: '901234221', pin: '7777' }))
+      localStorage.setItem('zap:visits', '2') // триггер «2-й визит»
+      for (const [k, v] of Object.entries(extra ?? {})) localStorage.setItem(k, v)
+    }, init)
+    return [c, p]
+  }
+
+  // 11: баннер появляется с анимированным входом; стаб beforeinstallprompt ловится
+  const [c1, p1] = await mkCtx()
+  await p1.goto(BASE + '/')
+  await p1.evaluate(() => {
+    window.__promptCalled = 0
+    const e = new Event('beforeinstallprompt')
+    e.prompt = () => {
+      window.__promptCalled++
+      return Promise.resolve()
+    }
+    e.userChoice = Promise.resolve({ outcome: 'dismissed' })
+    window.dispatchEvent(e)
+    // кадры входа баннера
+    window.__bannerFrames = []
+    const mo = new MutationObserver(() => {
+      const el = document.querySelector('[data-install-banner]')
+      if (el && !window.__bw) {
+        window.__bw = true
+        const t0 = performance.now()
+        const tick = () => {
+          const wrap = el.parentElement
+          window.__bannerFrames.push({ t: Math.round(performance.now() - t0), tf: getComputedStyle(wrap).transform, op: getComputedStyle(wrap).opacity })
+          if (performance.now() - t0 < 450) requestAnimationFrame(tick)
+        }
+        tick()
+      }
+    })
+    mo.observe(document.body, { childList: true, subtree: true })
+  })
+  await p1.waitForTimeout(2200)
+  const frames = await p1.evaluate(() => window.__bannerFrames ?? [])
+  const visible = await p1.locator('[data-install-banner]').isVisible()
+  const animated = frames.some((f) => (f.tf && f.tf !== 'none' && f.tf !== 'matrix(1, 0, 0, 1, 0, 0)') || Number(f.op) < 0.99)
+  record('install banner appears (animated entrance)', visible && (REDUCED ? true : animated), `visible=${visible} frames=${frames.length}`)
+
+  // 12: «Установить» зовёт prompt() на стабе
+  await p1.getByRole('button', { name: 'Установить', exact: true }).click()
+  await p1.waitForTimeout(400)
+  const promptCalled = await p1.evaluate(() => window.__promptCalled)
+  record('install CTA calls prompt() on stubbed event', promptCalled === 1, `promptCalled=${promptCalled}`)
+  await c1.close()
+
+  // 13: «×» снузит на 7 дней — после перезагрузки баннера нет
+  const [c2, p2] = await mkCtx()
+  await p2.goto(BASE + '/')
+  await p2.waitForTimeout(2000)
+  await p2.locator('[data-install-banner] button[aria-label="Скрыть"]').click()
+  await p2.waitForTimeout(400)
+  await p2.reload()
+  await p2.waitForTimeout(2200)
+  const afterSnooze = await p2.locator('[data-install-banner]').count()
+  const snoozeTs = await p2.evaluate(() => Number(localStorage.getItem('zap:install-snooze') ?? '0'))
+  record('install banner snoozed by «×» (absent after reload, ts persisted)', afterSnooze === 0 && snoozeTs > 0, `count=${afterSnooze} ts=${snoozeTs > 0}`)
+  await c2.close()
+
+  // 14: в standalone (установлено) баннер не рендерится никогда
+  const [c3, p3] = await mkCtx()
+  await p3.addInitScript(() => {
+    const orig = window.matchMedia.bind(window)
+    window.matchMedia = (q) => (q.includes('display-mode: standalone') ? { matches: true, media: q, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, onchange: null, dispatchEvent: () => false } : orig(q))
+  })
+  await p3.goto(BASE + '/')
+  await p3.waitForTimeout(2400)
+  const inStandalone = await p3.locator('[data-install-banner]').count()
+  record('install banner never renders in standalone', inStandalone === 0, `count=${inStandalone}`)
+  await c3.close()
+}
+
+// ---------- 15. пилл-нав: точки → пад суммы кроссфейдом, пилл персистентен, скролл возвращается ----------
+{
+  await page.goto(BASE + '/')
+  await sleep(1800)
+  const res = await page.evaluate(
+    () =>
+      new Promise((resolve) => {
+        window.scrollTo(0, document.body.scrollHeight)
+        const savedY = Math.round(window.scrollY)
+        const nav = document.querySelector('nav .zap-tabbar')
+        if (nav) nav.dataset.pillMarked = '1'
+        const seen = new Set()
+        const t0 = performance.now()
+        const tick = () => {
+          document.querySelectorAll('[class*="-enter-active"], [class*="-leave-active"]').forEach((el) => {
+            el.className.split(' ').filter((c) => c.includes('route-')).forEach((c) => seen.add(c))
+          })
+          if (performance.now() - t0 < 500) requestAnimationFrame(tick)
+          else resolve({ savedY, classes: [...seen] })
+        }
+        document.querySelector('nav button[aria-label="/split/amount"]')?.click()
+        tick()
+      }),
+  )
+  await sleep(500)
+  const url = await page.evaluate(() => location.pathname)
+  const fadeOk = res.classes.some((c) => c.startsWith('route-fade'))
+  const noSlide = !res.classes.some((c) => c.startsWith('route-forward') || c.startsWith('route-back'))
+  record(
+    'pill nav: dots open /split/amount with crossfade (no slide)',
+    url === '/split/amount' && (REDUCED ? true : fadeOk) && noSlide,
+    `url=${url} classes=${JSON.stringify(res.classes)}`,
+  )
+  const pillPersisted = await page.evaluate(() => document.querySelector('nav .zap-tabbar')?.dataset.pillMarked === '1')
+  record('pill nav: element identity persists across the switch', pillPersisted, `marked=${pillPersisted}`)
+
+  await page.evaluate(() => document.querySelector('nav button[aria-label="/"]')?.click())
+  await sleep(1100)
+  const backY = await page.evaluate(() => Math.round(window.scrollY))
+  record('pill nav: home scroll restored after returning from pad', Math.abs(backY - res.savedY) <= 2, `backY=${backY} savedY=${res.savedY}`)
 }
 
 console.log(REDUCED ? '--- reduced-motion mode: only smoke-level checks ---' : '')

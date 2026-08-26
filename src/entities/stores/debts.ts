@@ -1,7 +1,7 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Debt } from '@/entities/types'
-import * as api from '@/mocks/api'
+import * as api from '@/api'
 import { bus } from '@/lib/bus'
 import { ensureBootstrap } from './bootstrap'
 

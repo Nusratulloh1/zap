@@ -15,6 +15,10 @@ declare module 'vue-router' {
 // скроллом управляем сами: пиннинг уходящей страницы + отложенный restore
 if (typeof history !== 'undefined' && 'scrollRestoration' in history) history.scrollRestoration = 'manual'
 
+// трио пилл-нава — сиблинги одного уровня: кроссфейд + возврат скролла
+export const TAB_TRIO = ['/', '/history', '/split/amount']
+const tabScroll = new Map<string, number>()
+
 const router = createRouter({
   history: createWebHistory(),
   // Вперёд: скролл сбрасывается мгновенно в @before-leave (App.vue) — уходящая
@@ -22,8 +26,10 @@ const router = createRouter({
   // Назад/вперёд по истории: восстанавливаем сохранённую позицию ПОСЛЕ
   // enter-перехода (событие zap:route-enter-done) и полного рендера высоты,
   // иначе restore обрезается по короткой странице — ещё один источник прыжка.
-  scrollBehavior(_to, _from, savedPosition) {
-    if (!savedPosition) return false
+  scrollBehavior(to, _from, savedPosition) {
+    // внутри трио пилл-нава позиция хранится и без history-pop (тап по иконке)
+    const target = savedPosition ?? (TAB_TRIO.includes(to.path) && tabScroll.has(to.path) ? { left: 0, top: tabScroll.get(to.path)! } : null)
+    if (!target) return false
     return new Promise((resolve) => {
       let done = false
       const finish = () => {
@@ -31,7 +37,7 @@ const router = createRouter({
         done = true
         document.removeEventListener('zap:route-enter-done', finish)
         requestAnimationFrame(() =>
-          requestAnimationFrame(() => resolve({ ...savedPosition, behavior: 'auto' as const })),
+          requestAnimationFrame(() => resolve({ ...target, behavior: 'auto' as const })),
         )
       }
       document.addEventListener('zap:route-enter-done', finish, { once: true })
@@ -53,7 +59,7 @@ const router = createRouter({
 
     { path: '/split/scan', component: () => import('@/pages/ScanPage.vue'), meta: { depth: 1, takeover: true } },
     { path: '/split/bill', component: () => import('@/pages/BillPage.vue'), meta: { depth: 2 } },
-    { path: '/split/amount', component: () => import('@/pages/AmountPage.vue'), meta: { depth: 2 } },
+    { path: '/split/amount', component: () => import('@/pages/AmountPage.vue'), meta: { depth: 2, tab: true } },
     { path: '/split/members', component: () => import('@/pages/MembersPage.vue'), meta: { depth: 3 } },
     { path: '/split/:id/share', component: () => import('@/pages/SharePage.vue'), meta: { depth: 4 } },
     { path: '/split/:id/closed', component: () => import('@/pages/SplitClosedPage.vue'), meta: { depth: 5, takeover: true } },
@@ -67,7 +73,11 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
+  // запомнить скролл уходящего таба ДО пиннинга/сброса (hooks идут позже)
+  if (typeof window !== 'undefined' && from.matched.length && TAB_TRIO.includes(from.path)) {
+    tabScroll.set(from.path, window.scrollY)
+  }
   const user = useUserStore()
   await user.hydrateSession()
 
