@@ -1,0 +1,3 @@
+# SPA-фолбэк: все роуты отдаёт index.html (vue-router history mode).
+# Netlify сначала отдаёт реальные файлы (ассеты, иконки, sw.js) — правило их не перекрывает.
+/*  /index.html  200

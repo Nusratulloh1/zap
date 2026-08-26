@@ -1,0 +1,10 @@
+# Netlify: сборка и SPA-фолбэк (дублирует public/_redirects — работает и при
+# деплое из репозитория, и при drag-and-drop папки dist).
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

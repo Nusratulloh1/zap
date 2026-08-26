@@ -1,0 +1,766 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ==========================================================================
+   Темы. Светлая = утверждённый дизайн, значения 1:1 с прежней палитрой.
+   Триплеты RGB — чтобы работали alpha-модификаторы Tailwind (text-ink/55).
+   ========================================================================== */
+:root {
+  --c-lime: 221 255 51;
+  --c-lime-soft: 234 255 122;
+  --c-ink: 17 17 16; /* основной текст; в тёмной — тёплый крем */
+  --c-cream: 239 237 230; /* фон приложения */
+  --c-paper: 255 255 255; /* карточки (surface) */
+  --c-sand: 245 243 238; /* вложенные ряды (surface-2) */
+  --c-sand-2: 240 238 232; /* бордеры карточек */
+  --c-stone: 227 225 216;
+  --c-muted: 138 136 126;
+  --c-faint: 179 177 168;
+  --c-faint-2: 163 161 153;
+  --c-deep: 62 60 53;
+  --c-shell: 247 245 240; /* #F7F5F0 подложки */
+  --c-dune: 242 240 234; /* #F2F0EA фон главной/сохранения группы */
+  --c-dune-2: 241 239 233; /* #F1EFE9 */
+  --c-pebble: 236 234 226; /* #ECEAE2 */
+  --c-pebble-2: 239 237 231; /* #EFEDE7 */
+  --c-hairline: 232 230 222; /* #E8E6DE разделители */
+  --c-slate: 91 89 79; /* #5B594F вторичный текст */
+  --c-mist: 198 196 186; /* #C6C4BA слабый текст */
+  --c-danger: 194 69 62; /* #C2453E */
+  --c-ember: 180 69 31; /* #B4451F */
+  --c-on-lime: 17 17 16; /* текст на лайме — чернила в ОБЕИХ темах */
+  --bg-html: #efede6;
+  --elevated: #ffffff; /* шиты, тосты */
+  --overlay: rgba(17, 17, 16, 0.4);
+}
+
+/* Тёмная тема: не инверсия, а свой дизайн в том же бренд-языке.
+   Пары переворачиваются согласованно: bg-ink кнопка → крем-фон,
+   её text-paper → тёмный текст; карточки paper → surface #1A1916. */
+[data-theme='dark'] {
+  --c-ink: 245 243 238; /* --text: тёплый крем-белый */
+  --c-cream: 14 14 12; /* --bg #0E0E0C */
+  --c-paper: 26 25 22; /* --surface #1A1916 */
+  --c-sand: 34 33 29; /* --surface-2 #22211D */
+  --c-sand-2: 46 45 42; /* бордер ≈ rgba(255,255,255,0.09) на surface */
+  --c-stone: 53 52 47;
+  --c-muted: 163 161 153; /* #A3A199 */
+  --c-faint: 138 135 127;
+  --c-faint-2: 163 161 153;
+  --c-deep: 214 212 203;
+  --c-shell: 34 33 29;
+  --c-dune: 14 14 12;
+  --c-dune-2: 34 33 29;
+  --c-pebble: 42 41 37; /* #2A2925 */
+  --c-pebble-2: 34 33 29;
+  --c-hairline: 46 45 42;
+  --c-slate: 184 182 173;
+  --c-mist: 117 115 107;
+  --c-danger: 224 104 92; /* смягчённый красный для тёмного */
+  --c-ember: 229 138 95;
+  --bg-html: #0e0e0c;
+  --elevated: #2a2925;
+  --overlay: rgba(0, 0, 0, 0.6);
+}
+
+/* Брендовые statement-экраны (лайм-фулблид, сканер, онбординг):
+   выглядят одинаково в обеих темах — локально возвращаем светлые значения. */
+.theme-fixed {
+  --c-ink: 17 17 16;
+  --c-cream: 239 237 230;
+  --c-paper: 255 255 255;
+  --c-sand: 245 243 238;
+  --c-sand-2: 240 238 232;
+  --c-stone: 227 225 216;
+  --c-muted: 138 136 126;
+  --c-faint: 179 177 168;
+  --c-faint-2: 163 161 153;
+  --c-deep: 62 60 53;
+  --c-shell: 247 245 240;
+  --c-dune: 242 240 234;
+  --c-dune-2: 241 239 233;
+  --c-pebble: 236 234 226;
+  --c-pebble-2: 239 237 231;
+  --c-hairline: 232 230 222;
+  --c-slate: 91 89 79;
+  --c-mist: 198 196 186;
+  --c-danger: 194 69 62;
+  --c-ember: 180 69 31;
+  --elevated: #ffffff;
+  /* наследуемый color с body уже вычислен снаружи — восстанавливаем внутри */
+  color: rgb(var(--c-ink));
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    /* до гидрации и на оверскролле — цвет приложения, никогда не белый */
+    background-color: var(--bg-html);
+  }
+  body {
+    @apply bg-cream text-ink font-sans antialiased;
+    overscroll-behavior-y: none;
+  }
+  button {
+    touch-action: manipulation;
+  }
+  img {
+    -webkit-touch-callout: none;
+    user-select: none;
+  }
+}
+
+@layer components {
+  /* Заголовки секций: КЭШБЭК ГРУППЫ, UZS · ВАША ДОЛЯ */
+  .section-label {
+    @apply font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-muted;
+  }
+  .card {
+    @apply rounded-card bg-paper;
+  }
+  /* маркер тап-элемента: анимацию нажатия ведёт GSAP (initPressFeedback) */
+  .press {
+    @apply select-none;
+  }
+}
+
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  /* фиксированные футеры: свой отступ + вырез снизу одним свойством,
+     иначе pb-6 и pb-safe конфликтуют за padding-bottom */
+  .pb-safe-6 {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+  }
+  .pb-safe-8 {
+    padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  /* приподнимает фиксированные футеры/шиты над нативной клавиатурой
+     (--kb-inset обновляет src/lib/keyboard.ts по visualViewport) */
+  .kb-avoid {
+    transform: translateY(calc(-1 * var(--kb-inset, 0px)));
+    transition: transform 220ms cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  /* Расширение зоны нажатия у визуально мелких кнопок до ~44px.
+     Не задаёт position — элементу нужен свой relative/absolute,
+     иначе утилита перебивала бы позиционирование (напр. absolute-крестики). */
+  .hit-area::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+  }
+  /* только по вертикали — для мелких кнопок, стоящих вплотную друг к другу */
+  .hit-area-y::after {
+    content: '';
+    position: absolute;
+    inset: -9px 0;
+  }
+}
+
+/* ---------- route transitions ---------- */
+.route-forward-enter-active,
+.route-forward-leave-active,
+.route-back-enter-active,
+.route-back-leave-active {
+  transition:
+    transform 280ms cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 280ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.route-forward-leave-active,
+.route-back-leave-active {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+}
+.route-forward-enter-active,
+.route-back-enter-active {
+  position: relative;
+  z-index: 1;
+}
+.route-forward-enter-from {
+  transform: translateX(24px);
+  opacity: 0;
+}
+.route-forward-leave-to {
+  transform: translateX(-16px);
+  opacity: 0;
+}
+.route-back-enter-from {
+  transform: translateX(-24px);
+  opacity: 0;
+}
+.route-back-leave-to {
+  transform: translateX(16px);
+  opacity: 0;
+}
+
+/* fade + подъём 8px для переключения табов */
+.route-fade-enter-active,
+.route-fade-leave-active {
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+.route-fade-leave-active {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+.route-fade-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.route-fade-leave-to {
+  opacity: 0;
+}
+
+/* такеоверы: сканер, закрытие сплита, кэшбэк — снизу вверх */
+.route-up-enter-active {
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  position: relative;
+  z-index: 2;
+}
+.route-up-leave-active {
+  transition: opacity 320ms ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 0;
+}
+.route-up-enter-from {
+  transform: translateY(100%);
+}
+.route-up-leave-to {
+  opacity: 0.6;
+}
+.route-down-leave-active {
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+}
+.route-down-enter-active {
+  transition: opacity 320ms ease;
+  position: relative;
+  z-index: 0;
+}
+.route-down-leave-to {
+  transform: translateY(100%);
+}
+.route-down-enter-from {
+  opacity: 0.6;
+}
+
+/* ---------- sheet ---------- */
+.sheet-enter-active {
+  transition: transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.sheet-leave-active {
+  transition: transform 240ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.sheet-enter-from,
+.sheet-leave-to {
+  transform: translateY(100%);
+}
+.backdrop-enter-active,
+.backdrop-leave-active {
+  transition: opacity 240ms ease;
+}
+.backdrop-enter-from,
+.backdrop-leave-to {
+  opacity: 0;
+}
+
+/* кроссфейд скелетон → контент */
+.fadeswap-enter-active,
+.fadeswap-leave-active {
+  transition: opacity 150ms ease;
+}
+.fadeswap-enter-from,
+.fadeswap-leave-to {
+  opacity: 0;
+}
+
+/* ---------- list stagger ---------- */
+.list-enter-active {
+  transition:
+    opacity 320ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 320ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition-delay: calc(var(--i, 0) * 30ms);
+}
+.list-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+/* FLIP: перестановка/удаление строк едет, а не прыгает */
+.list-move {
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.list-leave-active {
+  transition: opacity 200ms ease, transform 200ms ease;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+/* ---------- AnimatedList: фильтры/свопы без наслоений ---------- */
+.alist-enter-active {
+  transition:
+    opacity 200ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 200ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition-delay: calc(var(--i, 0) * 30ms);
+}
+.alist-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+/* уходящие: вне потока, БЕЗ translate (absolute + translate даёт смаз) */
+.alist-leave-active {
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+}
+.alist-leave-to {
+  opacity: 0;
+  transform: scale(0.98);
+}
+.alist-move {
+  transition: transform 280ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* полный своп списка (табы): контейнер out-in */
+.listswap-enter-active {
+  transition: opacity 200ms ease;
+}
+.listswap-leave-active {
+  transition: opacity 120ms ease;
+}
+.listswap-enter-from,
+.listswap-leave-to {
+  opacity: 0;
+}
+
+/* ---------- pin dots ---------- */
+@keyframes dot-pop {
+  0% {
+    transform: scale(0.6);
+  }
+  60% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.dot-pop {
+  animation: dot-pop 180ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}
+.shake {
+  animation: shake 360ms ease;
+}
+
+/* ---------- key press flash ---------- */
+@keyframes key-flash {
+  0% {
+    background-color: rgba(17, 17, 16, 0.08);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.key-flash {
+  animation: key-flash 240ms ease-out;
+}
+
+/* ---------- checkmark draw ---------- */
+.check-draw {
+  stroke-dasharray: 26;
+  stroke-dashoffset: 26;
+  animation: check-draw 360ms cubic-bezier(0.32, 0.72, 0, 1) forwards;
+}
+@keyframes check-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* row tint when a member pays */
+@keyframes row-paid {
+  0% {
+    background-color: rgba(221, 255, 51, 0.55);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.row-paid-flash {
+  animation: row-paid 1200ms ease-out;
+}
+
+/* ---------- amount digits ---------- */
+.digit-enter-active {
+  transition:
+    opacity 160ms ease,
+    transform 160ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.digit-enter-from {
+  opacity: 0;
+  transform: translateY(8px) scale(0.85);
+}
+.digit-leave-active {
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.digit-leave-to {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+/* ---------- confetti ---------- */
+@keyframes confetti-fall {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--dx, 0), 60vh, 0) rotate(var(--rot, 360deg));
+    opacity: 0;
+  }
+}
+.confetti-piece {
+  animation: confetti-fall var(--dur, 1600ms) cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+  animation-delay: var(--delay, 0ms);
+}
+
+/* pill slide-up with overshoot */
+.pill-enter-active {
+  transition: transform 420ms cubic-bezier(0.34, 1.4, 0.4, 1), opacity 300ms ease;
+}
+.pill-leave-active {
+  transition: transform 240ms ease-in, opacity 200ms ease;
+}
+.pill-enter-from,
+.pill-leave-to {
+  transform: translateY(120%);
+  opacity: 0;
+}
+
+/* онбординг-сторис: направленные переходы + стаггер контента (.st с --d) */
+.story-fwd-enter-active,
+.story-back-enter-active {
+  transition:
+    opacity 400ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 400ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.story-fwd-leave-active,
+.story-back-leave-active {
+  transition:
+    opacity 220ms cubic-bezier(0.4, 0, 1, 1),
+    transform 220ms cubic-bezier(0.4, 0, 1, 1);
+}
+.story-fwd-enter-from {
+  opacity: 0;
+  transform: translateX(28px);
+}
+.story-back-enter-from {
+  opacity: 0;
+  transform: translateX(-28px);
+}
+.story-fwd-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+.story-back-leave-to {
+  opacity: 0;
+  transform: translateX(20px);
+}
+/* независимое свойство translate — не затирает rotate/transform у визуалов */
+.story-fwd-enter-active .st,
+.story-back-enter-active .st {
+  transition:
+    opacity 400ms cubic-bezier(0.32, 0.72, 0, 1),
+    translate 400ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition-delay: calc(var(--d, 0) * 55ms);
+}
+.story-fwd-enter-from .st,
+.story-back-enter-from .st {
+  opacity: 0;
+  translate: 0 14px;
+}
+
+/* подвал онбординга: смена хинт ↔ кнопки с подъёмом и стаггером */
+.footer-swap-enter-active {
+  transition:
+    opacity 380ms cubic-bezier(0.32, 0.72, 0, 1),
+    transform 380ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.footer-swap-leave-active {
+  transition: opacity 180ms ease;
+}
+.footer-swap-enter-from {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.footer-swap-leave-to {
+  opacity: 0;
+}
+.footer-swap-enter-active .st {
+  transition:
+    opacity 380ms cubic-bezier(0.32, 0.72, 0, 1),
+    translate 380ms cubic-bezier(0.32, 0.72, 0, 1);
+  transition-delay: calc(var(--d, 0) * 70ms);
+}
+.footer-swap-enter-from .st {
+  opacity: 0;
+  translate: 0 14px;
+}
+
+/* onboarding slide crossfade + parallax */
+.story-enter-active,
+.story-leave-active {
+  transition: opacity 360ms ease, transform 360ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.story-leave-active {
+  position: absolute;
+  inset: 0;
+}
+.story-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+}
+.story-leave-to {
+  opacity: 0;
+  transform: translateX(-20px);
+}
+
+/* Reduce-режим: убираем КРУПНОЕ движение (сдвиги, параллакс, пульсы, стаггеры),
+   но оставляем быстрые фейды и мелкий отклик — приложение не должно казаться мёртвым.
+   (Ранее здесь стоял глобальный `* { 0.01ms }` — он полностью убивал весь моушен
+   у пользователей с выключенной системной анимацией; см. scratchpad/motion-rootcause.md.) */
+@media (prefers-reduced-motion: reduce) {
+  /* декоративные бесконечные анимации — выкл. */
+  .animate-soft-pulse,
+  .animate-ping,
+  .laser,
+  .corner,
+  .confetti-piece {
+    animation: none !important;
+  }
+  /* переходы страниц/такеоверов: только быстрый кроссфейд */
+  .route-forward-enter-active,
+  .route-forward-leave-active,
+  .route-back-enter-active,
+  .route-back-leave-active,
+  .route-fade-enter-active,
+  .route-fade-leave-active,
+  .route-up-enter-active,
+  .route-up-leave-active,
+  .route-down-enter-active,
+  .route-down-leave-active {
+    transition: opacity 150ms ease !important;
+  }
+  .route-forward-enter-from,
+  .route-forward-leave-to,
+  .route-back-enter-from,
+  .route-back-leave-to,
+  .route-fade-enter-from,
+  .route-up-enter-from,
+  .route-down-leave-to {
+    transform: none !important;
+    opacity: 0;
+  }
+  /* шит/бэкдроп: фейд */
+  .sheet-enter-active,
+  .sheet-leave-active {
+    transition: opacity 150ms ease !important;
+  }
+  .sheet-enter-from,
+  .sheet-leave-to {
+    transform: none !important;
+    opacity: 0;
+  }
+  /* списки: без подъёма и задержек */
+  .list-enter-active {
+    transition: opacity 150ms ease !important;
+    transition-delay: 0ms !important;
+  }
+  .list-enter-from {
+    transform: none !important;
+  }
+  .list-move {
+    transition: none !important;
+  }
+  .alist-enter-active,
+  .alist-leave-active,
+  .listswap-enter-active,
+  .listswap-leave-active {
+    transition: opacity 120ms ease !important;
+    transition-delay: 0ms !important;
+  }
+  .alist-enter-from,
+  .alist-leave-to {
+    transform: none !important;
+  }
+  .alist-move {
+    transition: none !important;
+  }
+  /* цифры пада: только фейд */
+  .digit-enter-active,
+  .digit-leave-active {
+    transition: opacity 100ms ease !important;
+  }
+  .digit-enter-from,
+  .digit-leave-to {
+    transform: none !important;
+  }
+  /* пилл активного сплита: без пружины */
+  .pill-enter-active,
+  .pill-leave-active {
+    transition: opacity 150ms ease !important;
+  }
+  .pill-enter-from,
+  .pill-leave-to {
+    transform: translateY(0) !important;
+  }
+  /* онбординг при reduced motion: только кроссфейд, без сдвигов и стаггера */
+  .story-fwd-enter-active,
+  .story-back-enter-active,
+  .story-fwd-leave-active,
+  .story-back-leave-active,
+  .footer-swap-enter-active,
+  .footer-swap-leave-active {
+    transition: opacity 180ms ease !important;
+  }
+  .story-fwd-enter-from,
+  .story-back-enter-from,
+  .story-fwd-leave-to,
+  .story-back-leave-to,
+  .footer-swap-enter-from,
+  .footer-swap-leave-to {
+    transform: none !important;
+  }
+  .story-fwd-enter-active .st,
+  .story-back-enter-active .st,
+  .footer-swap-enter-active .st {
+    transition: none !important;
+  }
+  .story-fwd-enter-from .st,
+  .story-back-enter-from .st,
+  .footer-swap-enter-from .st {
+    opacity: 1;
+    translate: none !important;
+  }
+}
+
+/* ==========================================================================
+   Тёмная тема: компонентные оверрайды (light не затрагивается — селекторы
+   активны только под [data-theme='dark']).
+   ========================================================================== */
+/* стеклянный таббар: тёмное стекло, лайм-активная вкладка остаётся */
+[data-theme='dark'] .zap-tabbar {
+  background-color: rgba(20, 19, 17, 0.82);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.55),
+    0 2px 8px rgba(0, 0, 0, 0.35),
+    inset 1.5px 1.5px 1px rgba(255, 255, 255, 0.05);
+}
+/* шиты: elevated-поверхность, оверлей глубже */
+[data-theme='dark'] .zap-sheet {
+  background-color: var(--elevated);
+}
+[data-theme='dark'] .zap-backdrop {
+  background-color: var(--overlay);
+}
+/* тосты: elevated с кремовым текстом и лайм-акцентами */
+[data-theme='dark'] [data-zap-toast] {
+  background-color: var(--elevated);
+}
+[data-theme='dark'] [data-zap-toast] .toast-label {
+  color: rgb(var(--c-ink));
+}
+[data-theme='dark'] [data-zap-toast] .toast-label.bg-white\/15 {
+  background-color: rgba(255, 255, 255, 0.09);
+}
+/* скелетоны: светлый шиммер на тёмном */
+[data-theme='dark'] .zap-skeleton {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+/* история: знак суммы получает акцент (только в тёмной) */
+[data-theme='dark'] .hist-amount[data-sign='p'] {
+  color: rgb(var(--c-lime));
+}
+[data-theme='dark'] .hist-amount[data-sign='n'] {
+  color: rgb(var(--c-danger));
+}
+
+/* ---------- переключение темы ---------- */
+/* круговое раскрытие ведёт animate() на ::view-transition-new; дефолт глушим */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+/* фолбэк без View Transitions: мягкий переход цветов, без вспышки */
+html.theme-xfade,
+html.theme-xfade * {
+  transition:
+    background-color 250ms ease,
+    color 250ms ease,
+    border-color 250ms ease,
+    fill 250ms ease,
+    stroke 250ms ease !important;
+}
+
+/* логотипы мерчантов с тёмным артом: в тёмной теме — светлая подложка-плашка */
+[data-theme='dark'] img.merchant-img {
+  background-color: #f5f3ee;
+}
+
+/* чип «Напомнить» (ink+lime): в тёмной — тонкое стекло, лайм-текст остаётся */
+[data-theme='dark'] .remind-chip.bg-ink {
+  background-color: rgba(255, 255, 255, 0.08);
+}
