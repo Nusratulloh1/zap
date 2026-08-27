@@ -12,6 +12,8 @@
 //     обфускация, не серверный ключ). Мы воспроизводим клиентское поведение
 //     для СОБСТВЕННОГО чека пользователя.
 
+import { sourceForUrl } from './fiscalSources'
+
 const OFD_API_URL = 'https://new-ofd.soliq.uz/api/payment'
 // публичная константа подписи из фронт-бандла ofd.soliq.uz (не секрет сервера)
 const OFD_CLIENT_KEY = 'thisIsPaymentSecretKey123@#'
@@ -91,6 +93,16 @@ async function hmacHex(key: string, message: string): Promise<string> {
 
 export function clientFetchAvailable(): boolean {
   return typeof crypto !== 'undefined' && !!crypto.subtle
+}
+
+/** Диспетчер по источнику QR: MySoliq → клиентский фетч; Rahmat/неизвестный →
+ *  null (UI уходит на Gemini-фото / ручной ввод). Маппинг — в fiscalSources.ts. */
+export async function fetchReceiptForUrl(checkUrl: string): Promise<ClientReceipt | null> {
+  const src = sourceForUrl(checkUrl)
+  if (!src?.clientFetch || !clientFetchAvailable()) return null
+  if (src.id === 'mysoliq') return fetchReceiptOnDevice(checkUrl)
+  // if (src.id === 'rahmat') return fetchRahmatOnDevice(checkUrl)  // §3: после исследования
+  return null
 }
 
 /** Забрать чек с устройства пользователя. null — если нельзя/не вышло (UI

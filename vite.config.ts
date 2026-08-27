@@ -9,6 +9,7 @@ import mkcert from 'vite-plugin-mkcert'
 const DEV_HTTPS = process.env.DEV_HTTPS === '1'
 
 export default defineConfig({
+  define: { __BUILD_ID__: JSON.stringify(String(Date.now())) },
   server: DEV_HTTPS
     ? {
         host: true,
@@ -51,6 +52,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,ico,woff2}'],
+        // НЕ прекэшируем тяжёлые launch-ассеты: сплэши iOS и icon-1024 система
+        // берёт сама при запуске, офлайн они не нужны. Прекэш из-за них раздувался
+        // (~45 c на установку SW) — установленная PWA не успевала обновиться.
+        globIgnores: ['**/splash/**', '**/icon-1024.png', '**/icon-maskable-512.png'],
         navigateFallback: '/index.html',
         runtimeCaching: [
           {

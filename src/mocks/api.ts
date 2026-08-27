@@ -480,12 +480,38 @@ export async function repayDebt(debtId: string): Promise<void> {
 // ---------- contacts ----------
 
 /** Имя пользователя (онбординг-шит после первого входа) */
-export async function updateProfile(name: string): Promise<void> {
+export async function updateProfile(name: string, handle?: string): Promise<void> {
   await fakeLatency(200, 400)
   const db = getDb()
   db.user.name = name.trim()
   db.user.initials = (name.trim()[0] ?? 'В').toUpperCase()
+  if (handle) db.user.handle = '@' + handle.trim().replace(/^@+/, '').toLowerCase()
   touch('user')
+}
+
+export async function checkHandle(handle: string): Promise<{ valid: boolean; available: boolean; handle: string }> {
+  await fakeLatency(120, 250)
+  const h = handle.trim().replace(/^@+/, '').toLowerCase()
+  return { valid: /^[a-z0-9_]{3,20}$/.test(h), available: h !== 'admin' && h !== 'zap', handle: h }
+}
+
+export interface UserSearchResult {
+  id: string
+  name: string
+  handle: string
+  phone: string
+  initials: string
+  color: string
+}
+export async function searchUsers(query: string): Promise<UserSearchResult[]> {
+  await fakeLatency(150, 300)
+  const q = query.trim().replace(/^@+/, '').toLowerCase()
+  if (q.length < 2) return []
+  const db = getDb()
+  return db.contacts
+    .filter((c) => c.name.toLowerCase().includes(q))
+    .slice(0, 6)
+    .map((c) => ({ id: c.id, name: c.name, handle: '@' + c.name.toLowerCase().replace(/\s+/g, ''), phone: c.phone ?? '', initials: c.name[0]!.toUpperCase(), color: c.color }))
 }
 
 /** Добавление контакта по номеру («+ Номер» на экране участников) */
@@ -612,7 +638,9 @@ export async function fiscalStatus(_jobId: string): Promise<{ status: string; re
   return { status: 'failed' } // фискальный инжест есть только в реальном API
 }
 
-export async function fiscalOcr(_file: File): Promise<{ status: string; receipt?: unknown }> {
+export async function fiscalOcr(
+  _file: File,
+): Promise<{ status: string; receipt?: { total: number; items?: unknown[] }; confidence?: string; itemsRecognized?: boolean }> {
   throw new Error('OCR доступен только с реальным бэкендом')
 }
 

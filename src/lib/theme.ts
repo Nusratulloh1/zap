@@ -60,12 +60,68 @@ export function themeColorFor(path: string, theme: Theme = themeState.theme): st
 
 let lastPath = '/'
 
+function isStandalonePWA(): boolean {
+  try {
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (navigator as Navigator & { standalone?: boolean }).standalone === true
+    )
+  } catch {
+    return false
+  }
+}
+
+/** Красим ли фон html/body под цвет экрана. На телефоне приложение занимает всю
+ *  ширину (и в PWA, и в мобильном Safari) — там светлый html-фон просвечивал бы
+ *  в зонах выреза/тулбара. На десктопе оставляем «карточку» на своём фоне. */
+function paintsEdges(): boolean {
+  try {
+    // 640px — та же граница, что и в CSS (main.css): до неё приложение
+    // растянуто во всю ширину, значит светлый html-фон нигде не должен
+    // просвечивать. iPhone Pro Max — 440 CSS-px, поэтому 430 было мало.
+    return isStandalonePWA() || window.innerWidth <= 640
+  } catch {
+    return false
+  }
+}
+
 export function applyThemeColor(path?: string) {
   if (path !== undefined) lastPath = path
   const color = themeColorFor(lastPath)
   document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => {
     m.content = color
   })
+  // На телефоне приложение занимает всю ширину, поэтому html/body видно только
+  // в зонах выреза/тулбаров и при оверскролле. Красим их цветом ВЕРХА текущего
+  // экрана — иначе там светится дефолтный кремовый фон (полоса над тёмной
+  // главной, над лаймовым падом и т.д.). На десктопе «карточку» не трогаем.
+  if (paintsEdges()) {
+    document.documentElement.style.backgroundColor = color
+    document.body.style.backgroundColor = color
+  }
+}
+
+/** Только meta[theme-color] (тулбары Safari), без покраски html/body. */
+export function setBarColor(color: string) {
+  document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => (m.content = color))
+}
+
+/** Цвета главной: тёмный hero сверху и светлый «лист» ниже — чтобы тулбары
+ *  Safari совпадали с той частью страницы, которую видно. */
+export const HOME_TOP_COLOR = DARK_BG
+export const homeSheetColor = () => (themeState.theme === 'dark' ? DARK_BG : '#F2F0EA')
+
+/** Прямая установка цвета safe-area зон + статус-бара — для экранов, чей фон
+ *  меняется без смены роута (онбординг: слайды lime/dark). null → сброс. */
+export function setSafeAreaEdge(color: string | null) {
+  const c = color ?? ''
+  if (paintsEdges()) {
+    document.documentElement.style.backgroundColor = c
+    document.body.style.backgroundColor = c
+  }
+  if (color) {
+    document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]').forEach((m) => (m.content = color))
+  }
 }
 
 function applyTheme(theme: Theme) {

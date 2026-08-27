@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Дизайн 3d + реальная камера: getUserMedia → BarcodeDetector / jsQR.
 // Без камеры (или в headless) — фолбэк-карточка с «Демо-чек».
-import { onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { gsap, reducedMotion } from '@/lib/motion'
 import { useRouter } from 'vue-router'
 import { toast } from '@/lib/toast'
@@ -11,6 +11,10 @@ import { useDraftStore } from '@/entities/stores/draft'
 import { fetchFeaturedBill } from '@/api'
 import * as api from '@/api'
 import { isRealApi } from '@/api'
+import mysoliqLogo from '@/assets/brand/partners/mysoliq.svg'
+import rahmatLogo from '@/assets/brand/partners/rahmat.svg'
+import { sourceForUrl } from '@/lib/fiscalSources'
+import { isStandalone, platform } from '@/lib/installPrompt'
 
 const router = useRouter()
 
@@ -24,12 +28,25 @@ const draft = useDraftStore()
 
 const video = ref<HTMLVideoElement | null>(null)
 const cameraState = ref<'starting' | 'live' | 'denied'>('starting')
+
+// iOS не запоминает доступ к камере навсегда (ограничение WebKit): в
+// установленной PWA он спрашивается ОДИН раз за запуск приложения. Поясняем
+// это пользователю вместо «просто не работает».
+const isIos = computed(() => platform() === 'ios-safari' || platform() === 'ios-other')
+const permissionHelp = computed(() => {
+  if (isIos.value) {
+    return isStandalone()
+      ? 'iOS спрашивает камеру один раз за запуск приложения. Нажмите «Разрешить» — до следующего полного закрытия ZAP! спрашивать не будет.'
+      : 'Откройте Настройки → Safari → Камера → Разрешить, затем вернитесь в ZAP!. Совет: установите ZAP! на экран «Домой» — тогда доступ спрашивается один раз за запуск.'
+  }
+  return 'Откройте настройки сайта в браузере (замок в адресной строке) → Камера → Разрешить, затем обновите страницу.'
+})
+// режим: скан QR ⇄ фото (Gemini OCR). Камера общая — переключение не пере-запрашивает доступ.
+const mode = ref<'scan' | 'photo'>('scan')
+const ocrBusy = ref(false)
 const frozen = ref(false)
-const hintVisible = ref(false)
 /** рамка вокруг распознанного QR в экранных координатах */
 const quad = ref<{ x: number; y: number; w: number; h: number } | null>(null)
-const hintChip = ref<HTMLElement | null>(null)
-let hintTimer = 0
 
 let stream: MediaStream | null = null
 let stopped = false
@@ -79,7 +96,6 @@ function onDecoded(payload: string, corners?: Pt[]) {
   frozen.value = true
   video.value?.pause()
   clearInterval(detectTimer)
-  clearTimeout(hintTimer)
   // подсветка найденного QR + лёгкий зум замороженного кадра
   if (corners?.length) quad.value = coverMap(corners)
   if (!reducedMotion() && video.value) {
@@ -122,14 +138,39 @@ async function routePayload(payload: string) {
     /* сеть упала — ведём как unknown */
   }
   if (isRealApi) {
-    toast('QR не распознан — введите сумму вручную')
-    router.replace('/split/amount')
+    // неизвестный QR-URL (вероятно чек Rahmat/другого ОФД) → фото → Gemini,
+    // а не тупик. Не-URL → ручной ввод суммы.
+    if (/^https?:\/\//i.test(payload.trim())) {
+      draft.scannedPayload = payload // DEBUG: показать отсканированную ссылку
+      const src = sourceForUrl(payload)
+      // Gemini читает ФОТО, а не ссылку: у Rahmat API ещё не вскрыт, поэтому
+      // такой чек снимаем камерой и распознаём с изображения.
+      toast(src ? `Чек ${src.label} — сфотографируйте` : 'Чек не распознан — сфотографируйте')
+      resumeForPhoto()
+    } else {
+      toast('QR не распознан — введите сумму вручную')
+      router.replace('/split/amount')
+    }
   } else {
     void openDemoBill(true) // мок-демо: любой QR ведёт на демо-чек
   }
 }
 
+/** Вернуть камеру в живой режим и переключиться на фото (после неизвестного QR). */
+function resumeForPhoto() {
+  stopped = false
+  frozen.value = false
+  quad.value = null
+  mode.value = 'photo'
+  if (video.value) {
+    gsap.set(video.value, { scale: 1 })
+    void video.value.play().catch(() => undefined)
+  }
+  if (cameraState.value === 'live') detectTimer = window.setInterval(detectLoop, 100)
+}
+
 async function detectLoop() {
+  if (mode.value !== 'scan' || frozen.value) return // в режиме фото QR не ищем
   const el = video.value
   if (!el || el.readyState < 2) return
   // нативный детектор, если есть
@@ -180,16 +221,6 @@ async function startCamera() {
     await video.value.play()
     cameraState.value = 'live'
     detectTimer = window.setInterval(detectLoop, 100)
-    clearTimeout(hintTimer)
-    hintTimer = window.setTimeout(() => {
-      if (!stopped) {
-        hintVisible.value = true
-        requestAnimationFrame(() => {
-          if (hintChip.value && !reducedMotion())
-            gsap.fromTo(hintChip.value, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: 'back.out(1.6)' })
-        })
-      }
-    }, 8000)
   } catch {
     cameraState.value = 'denied'
   }
@@ -207,6 +238,67 @@ async function toggleTorch() {
   }
 }
 
+// ---------- фото → Gemini OCR ----------
+
+/** Единый роутер результата OCR: позиции → экран проверки; только сумма →
+ *  делим сумму; ничего → честная ошибка (без фейкового 0). */
+async function routeOcr(file: File) {
+  if (ocrBusy.value) return // in-flight guard: двойной тап не шлёт второй запрос
+  ocrBusy.value = true
+  try {
+    let res: Awaited<ReturnType<typeof api.fiscalOcr>>
+    try {
+      res = await api.fiscalOcr(file)
+    } catch (err) {
+      // 429 — один авто-ретрай после короткого бэкоффа, потом дружелюбный тост
+      const status = (err as { status?: number })?.status
+      if (status !== 429) throw err
+      toast('Слишком часто — подождите пару секунд')
+      await new Promise((r) => setTimeout(r, 2500))
+      res = await api.fiscalOcr(file)
+    }
+    const receipt = res.receipt
+    if (receipt && (receipt.items?.length || res.itemsRecognized)) {
+      draft.applyFiscalItems(receipt as never, true)
+      toast.success('Распознано с фото — проверьте')
+      router.push('/split/review')
+    } else if (receipt && receipt.total > 0) {
+      // тотал есть, позиции нет — идём со суммой (без «Позиций»)
+      draft.startFiscal(receipt.total)
+      draft.fiscalFailed()
+      toast('Позиции не распознаны — делим сумму')
+      router.push('/split/members')
+    } else {
+      toast('Не удалось распознать чек — попробуйте ещё раз')
+    }
+  } catch (e) {
+    const status = (e as { status?: number })?.status
+    if (status === 429) toast('Слишком часто — подождите пару секунд')
+    else toast(e instanceof Error && e.message ? e.message : 'Не удалось распознать чек')
+  } finally {
+    ocrBusy.value = false
+  }
+}
+
+/** Снимок текущего кадра камеры → JPEG → OCR. */
+async function capturePhoto() {
+  const el = video.value
+  if (!el || !el.videoWidth || ocrBusy.value) return
+  const c = document.createElement('canvas')
+  c.width = el.videoWidth
+  c.height = el.videoHeight
+  c.getContext('2d')?.drawImage(el, 0, 0)
+  const blob = await new Promise<Blob | null>((res) => c.toBlob(res, 'image/jpeg', 0.9))
+  if (blob) await routeOcr(new File([blob], 'receipt.jpg', { type: 'image/jpeg' }))
+}
+
+/** Фолбэк без камеры: выбор/съёмка файла. */
+async function onPhotoFile(e: Event) {
+  const file = (e.target as HTMLInputElement).files?.[0]
+  ;(e.target as HTMLInputElement).value = ''
+  if (file) await routeOcr(file)
+}
+
 function onVisibility() {
   if (document.hidden) stopCamera()
   else if (cameraState.value === 'live' && !stopped) void startCamera()
@@ -220,14 +312,13 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   stopped = true
-  clearTimeout(hintTimer)
   stopCamera()
   document.removeEventListener('visibilitychange', onVisibility)
 })
 </script>
 
 <template>
-  <div class="theme-fixed relative flex min-h-dvh flex-col overflow-hidden bg-[#151513] px-5 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)] text-white">
+  <div class="theme-fixed screen-lock relative flex flex-col bg-[#151513] text-white">
     <!-- живое видео с камеры -->
     <video
       ref="video"
@@ -236,97 +327,168 @@ onBeforeUnmount(() => {
       class="absolute inset-0 h-full w-full object-cover transition-opacity duration-300"
       :class="cameraState === 'live' ? 'opacity-100' : 'opacity-0'"
     />
-    <div v-if="cameraState === 'live'" class="absolute inset-0 bg-black/30" />
-    <!-- анимированная рамка вокруг распознанного QR -->
+    <div v-if="cameraState === 'live'" class="absolute inset-0 bg-black/25" />
+    <!-- подсветка найденного QR -->
     <div
       v-if="quad"
       class="pointer-events-none absolute z-10 rounded-2xl border-[3px] border-lime shadow-[0_0_24px_rgba(221,255,51,0.5)]"
       :style="{ left: quad.x - 8 + 'px', top: quad.y - 8 + 'px', width: quad.w + 16 + 'px', height: quad.h + 16 + 'px' }"
     />
 
-    <!-- верхние кнопки -->
-    <div class="relative z-10 flex items-center justify-between">
+    <!-- ЗОНА 1 — верх: × · переключатель · фонарик (одна строка) + скрим -->
+    <div class="pointer-events-none absolute inset-x-0 top-0 z-10 h-[180px] bg-gradient-to-b from-black/75 via-black/30 to-transparent" />
+    <div class="relative z-20 flex items-center gap-2 px-4 pt-[calc(env(safe-area-inset-top)+12px)]">
       <button
         type="button"
         aria-label="Закрыть"
-        class="press flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.14] bg-white/10 text-white"
+        class="press flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.14] bg-black/30 text-white backdrop-blur"
         @click="router.push('/')"
       >
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="m4.5 4.5 9 9M13.5 4.5l-9 9" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" /></svg>
+        <svg width="17" height="17" viewBox="0 0 18 18" fill="none" aria-hidden="true"><path d="m4.5 4.5 9 9M13.5 4.5l-9 9" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" /></svg>
       </button>
+
+      <!-- сегментированный переключатель режима -->
+      <div class="relative mx-auto flex h-10 w-[220px] shrink-0 rounded-full border border-white/[0.14] bg-black/35 p-1 backdrop-blur">
+        <div
+          class="absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-full bg-lime"
+          :style="{ transform: mode === 'photo' ? 'translateX(100%)' : 'translateX(0)', transition: 'transform 220ms cubic-bezier(0.34,1.35,0.5,1)' }"
+        />
+        <button
+          type="button"
+          class="press relative z-10 h-8 flex-1 rounded-full text-[13px] font-bold transition-colors duration-200"
+          :class="mode === 'scan' ? 'text-ink' : 'text-white/75'"
+          @click="mode = 'scan'"
+        >
+          Скан
+        </button>
+        <button
+          type="button"
+          class="press relative z-10 h-8 flex-1 rounded-full text-[13px] font-bold transition-colors duration-200"
+          :class="mode === 'photo' ? 'text-ink' : 'text-white/75'"
+          @click="mode = 'photo'"
+        >
+          Фото
+        </button>
+      </div>
+
       <button
         type="button"
         aria-label="Фонарик"
-        class="press flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.14] bg-white/10"
+        class="press flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.14] bg-black/30 backdrop-blur"
         @click="toggleTorch"
       >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none">
           <path d="M13 2L5 13H11L9 22L19 10H12.5L13 2Z" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round" />
         </svg>
       </button>
     </div>
 
-    <!-- рамка + лазер / фолбэк -->
-    <div class="relative z-10 flex flex-1 flex-col items-center justify-center gap-[26px]">
-      <template v-if="cameraState !== 'denied'">
-        <div class="relative h-[232px] w-[232px]" :class="frozen && 'scale-105 transition-transform duration-300'">
-          <svg width="232" height="232" viewBox="0 0 232 232" fill="none" class="absolute inset-0">
-            <path d="M6 54V22C6 13.2 13.2 6 22 6H54" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
-            <path d="M178 6H210C218.8 6 226 13.2 226 22V54" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
-            <path d="M226 178V210C226 218.8 218.8 226 210 226H178" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
-            <path d="M54 226H22C13.2 226 6 218.8 6 210V178" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
-          </svg>
-          <div v-if="!frozen" class="laser absolute left-[22px] right-[22px] top-0 h-[3px] rounded-full bg-lime/60" />
-        </div>
-        <p class="text-center text-[15px] font-semibold text-white">
-          Наведи камеру на QR на кассе<br />или на счёте
+    <!-- ЗОНА 2 — центр: рамка сканера (в фото-режиме пусто) / карточка без камеры -->
+    <div class="relative z-10 flex flex-1 items-center justify-center px-4">
+      <div
+        v-if="cameraState !== 'denied' && mode === 'scan'"
+        class="relative h-[232px] w-[232px]"
+        :class="frozen && 'scale-105 transition-transform duration-300'"
+      >
+        <svg width="232" height="232" viewBox="0 0 232 232" fill="none" class="absolute inset-0">
+          <path d="M6 54V22C6 13.2 13.2 6 22 6H54" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
+          <path d="M178 6H210C218.8 6 226 13.2 226 22V54" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
+          <path d="M226 178V210C226 218.8 218.8 226 210 226H178" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
+          <path d="M54 226H22C13.2 226 6 218.8 6 210V178" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
+        </svg>
+        <div v-if="!frozen" class="laser absolute left-[22px] right-[22px] top-0 h-[3px] rounded-full bg-lime/60" />
+      </div>
+
+      <!-- нет камеры: одна аккуратная карточка -->
+      <div v-else-if="cameraState === 'denied'" class="w-full rounded-card bg-black/55 p-6 text-center backdrop-blur">
+        <p class="text-[17px] font-extrabold text-white">Нет доступа к камере</p>
+        <!-- как вернуть доступ: инструкция под платформу пользователя -->
+        <p class="mt-2 text-[12.5px] font-semibold leading-snug text-white/70">{{ permissionHelp }}</p>
+        <p class="mt-2.5 text-[13.5px] font-semibold leading-snug text-white/85">
+          Или сфотографируйте чек / введите сумму вручную
         </p>
-      </template>
-
-      <template v-else>
-        <div class="w-full rounded-card bg-white/[0.08] p-6 text-center">
-          <p class="text-[17px] font-extrabold text-white">Нет доступа к камере</p>
-          <p class="mt-1.5 text-[13.5px] font-semibold text-white/85">
-            Разрешите доступ в настройках или продолжите без сканера
-          </p>
-          <button
-            type="button"
-            class="press mt-5 h-[54px] w-full rounded-full bg-lime text-[15px] font-extrabold text-ink"
-            @click="openDemoBill()"
-          >
-            Демо-чек
-          </button>
-          <button
-            v-if="showFiscalDemo"
-            type="button"
-            class="press mt-2 h-10 w-full rounded-full bg-white/10 text-[13px] font-bold text-white"
-            @click="onDecoded(FISCAL_DEMO_PAYLOAD)"
-          >
-            DEV · фискальный чек
-          </button>
+        <div class="mt-4 flex items-center justify-center gap-2">
+          <span class="flex h-8 items-center gap-1.5 rounded-full bg-white/95 px-3">
+            <img :src="mysoliqLogo" alt="" class="h-[18px] w-auto" />
+            <span class="text-[11.5px] font-bold text-[#364BA8]">MySoliq</span>
+          </span>
+          <span class="flex h-8 items-center rounded-full bg-white/95 px-3">
+            <img :src="rahmatLogo" alt="Rahmat" class="h-[13px] w-auto" />
+          </span>
         </div>
-      </template>
+        <label class="press mt-5 flex h-[52px] w-full cursor-pointer items-center justify-center rounded-full bg-lime text-[15px] font-extrabold text-ink">
+          Сфотографировать чек
+          <input type="file" accept="image/*" capture="environment" class="hidden" @change="onPhotoFile" />
+        </label>
+        <button
+          type="button"
+          class="press mt-2.5 h-[46px] w-full rounded-full border border-white/[0.14] bg-white/10 text-[14px] font-bold text-white"
+          @click="router.push('/split/amount')"
+        >
+          Ввести сумму вручную
+        </button>
+        <button
+          v-if="showFiscalDemo"
+          type="button"
+          class="press mt-2 h-9 w-full rounded-full text-[12px] font-bold text-white/45"
+          @click="onDecoded(FISCAL_DEMO_PAYLOAD)"
+        >
+          DEV · фискальный чек
+        </button>
+      </div>
     </div>
 
-    <!-- хинт после 8с без результата -->
-    <div v-if="hintVisible && !frozen" ref="hintChip" class="relative z-10 mb-2.5 flex items-center gap-2 rounded-full bg-white/10 py-2 pl-4 pr-2 backdrop-blur">
-      <span class="min-w-0 flex-1 text-[12.5px] font-semibold text-white">Не находит QR?</span>
-      <button type="button" class="press h-9 shrink-0 rounded-full bg-lime px-3.5 text-[12.5px] font-extrabold text-ink" @click="openDemoBill()">
-        Демо-чек
-      </button>
-      <button type="button" class="press h-9 shrink-0 rounded-full bg-white/15 px-3.5 text-[12.5px] font-bold text-white" @click="router.push('/split/amount')">
-        Ввести сумму
-      </button>
-    </div>
-
-    <!-- вручную -->
-    <button
-      type="button"
-      class="press relative z-10 flex h-[54px] items-center justify-center rounded-full border border-white/[0.14] bg-white/10 text-[15px] font-bold text-white"
-      @click="router.push('/split/amount')"
+    <!-- ЗОНА 3 — низ: подпись · основное действие · вторичная ссылка + скрим -->
+    <div class="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-[230px] bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
+    <div
+      v-if="cameraState !== 'denied'"
+      class="relative z-20 flex flex-col items-center gap-4 px-4 pb-[calc(env(safe-area-inset-bottom)+28px)]"
     >
-      Ввести сумму вручную
-    </button>
+      <p class="scan-caption text-center text-[15px] font-semibold text-white">
+        <template v-if="cameraState === 'starting'">Разрешите доступ к камере</template>
+        <template v-else>{{ mode === 'scan' ? 'Наведите на QR-код чека' : 'Сфотографируйте чек' }}</template>
+      </p>
+      <!-- iOS: доступ спрашивается один раз за запуск приложения — поясняем -->
+      <p
+        v-if="cameraState === 'starting' && isIos"
+        class="scan-caption -mt-2 max-w-[300px] text-center text-[12.5px] font-semibold leading-snug text-white/70"
+      >
+        Это нужно один раз за запуск ZAP!
+      </p>
+
+      <!-- поддерживаемые источники: реальные логотипы на светлой плашке
+           (обе марки тёмные на прозрачном — на кадре камеры иначе не читаются) -->
+      <div v-if="mode === 'scan'" class="flex items-center gap-2">
+        <span class="flex h-8 items-center gap-1.5 rounded-full bg-white/95 px-3 shadow-sm">
+          <img :src="mysoliqLogo" alt="" class="h-[18px] w-auto" />
+          <span class="text-[11.5px] font-bold text-[#364BA8]">MySoliq</span>
+        </span>
+        <span class="flex h-8 items-center rounded-full bg-white/95 px-3 shadow-sm">
+          <img :src="rahmatLogo" alt="Rahmat" class="h-[13px] w-auto" />
+        </span>
+      </div>
+
+      <!-- фото: затвор -->
+      <button
+        v-if="mode === 'photo'"
+        type="button"
+        aria-label="Снять фото"
+        class="press flex h-[72px] w-[72px] items-center justify-center rounded-full border-[5px] border-white/85 disabled:opacity-60"
+        :disabled="ocrBusy"
+        @click="capturePhoto"
+      >
+        <span v-if="ocrBusy" class="h-7 w-7 animate-spin rounded-full border-[3px] border-lime border-t-transparent" />
+        <span v-else class="h-[52px] w-[52px] rounded-full bg-lime" />
+      </button>
+
+      <button
+        type="button"
+        class="press scan-caption text-[13.5px] font-bold text-white/75"
+        @click="router.push('/split/amount')"
+      >
+        Ввести сумму вручную
+      </button>
+    </div>
   </div>
 </template>
 
@@ -342,5 +504,9 @@ onBeforeUnmount(() => {
 }
 .laser {
   animation: laser-sweep 2.2s ease-in-out infinite;
+}
+/* читаемость подписей поверх любого кадра камеры */
+.scan-caption {
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.75);
 }
 </style>

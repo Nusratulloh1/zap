@@ -122,7 +122,7 @@ watch(
 </script>
 
 <template>
-  <div class="mx-auto min-h-dvh w-full max-w-app bg-cream shadow-2xl shadow-black/5">
+  <div class="app-root mx-auto min-h-dvh w-full max-w-app bg-cream shadow-2xl shadow-black/5">
     <div class="relative min-h-dvh overflow-x-clip">
       <RouterView v-slot="{ Component }">
         <Transition
@@ -139,9 +139,13 @@ watch(
         </Transition>
       </RouterView>
 
-      <ActiveSplitPill />
-      <TabBar v-if="showTabBar" />
     </div>
+
+    <!-- Фиксированные оверлеи ВНЕ overflow-x-clip: в WebKit клиппинг-контекст
+         у предка ломает backdrop-filter — стеклянный пилл-нав становился
+         матовым/сплошным на iOS. -->
+    <ActiveSplitPill />
+    <TabBar v-if="showTabBar" />
 
     <ToastHost />
     <InstallBanner />

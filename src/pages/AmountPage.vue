@@ -101,7 +101,7 @@ async function confirmPay() {
 
 <template>
   <!-- pb с запасом под плавающий нав-пилл (дизайн 3a) -->
-  <div class="theme-fixed flex min-h-dvh flex-col bg-lime px-5 pb-[calc(env(safe-area-inset-bottom)+86px)] pt-[calc(env(safe-area-inset-top)+20px)] text-ink">
+  <div class="theme-fixed screen-lock flex flex-col bg-lime px-5 pb-[calc(env(safe-area-inset-bottom)+86px)] pt-[calc(env(safe-area-inset-top)+20px)] text-ink">
     <!-- шапка -->
     <div class="flex items-center justify-between">
       <button
@@ -135,9 +135,6 @@ async function confirmPay() {
         placeholder-zero
         class="w-full font-mono text-[64px] font-bold leading-none tracking-[-0.02em]"
       />
-      <button type="button" class="press flex h-9 items-center gap-1.5 rounded-full bg-ink/[0.08] px-4 text-[13px] font-extrabold">
-        UZS <span class="text-[10px] opacity-60">⌄</span>
-      </button>
     </div>
 
     <!-- клавиатура -->

@@ -1,6 +1,6 @@
 // Профиль, контакты, карты, настройки + GET /bootstrap — проекция всех данных
 // пользователя в форму, 1:1 совместимую с интерфейсом мок-слоя фронтенда.
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import type { Bill, BillItem, CardBrand, Contact, Merchant, Split, SplitMember, User } from '@prisma/client'
 import { PrismaService } from '../common/prisma.service'
 import { normalizePhone } from '../common/utils'
@@ -42,9 +42,60 @@ export class UsersService {
     }
   }
 
+  // ---------- username (@handle) ----------
+
+  /** @Shoshiy / @shoshiy / shoshiy → shoshiy (латиница/цифры/_, 3–20). */
+  private normalizeHandle(h: string): string {
+    return h.trim().replace(/^@+/, '').toLowerCase()
+  }
+  private validHandle(h: string): boolean {
+    return /^[a-z0-9_]{3,20}$/.test(h)
+  }
+
   async updateProfile(userId: string, data: { name?: string; handle?: string }) {
-    await this.prisma.user.update({ where: { id: userId }, data })
+    const patch: { name?: string; handle?: string } = {}
+    if (data.name !== undefined) patch.name = data.name.trim()
+    if (data.handle !== undefined && data.handle !== '') {
+      const h = this.normalizeHandle(data.handle)
+      if (!this.validHandle(h))
+        throw new BadRequestException('Юзернейм: 3–20 символов, латиница, цифры или _')
+      const taken = await this.prisma.user.findFirst({ where: { handle: h, NOT: { id: userId } } })
+      if (taken) throw new ConflictException('Этот юзернейм уже занят')
+      patch.handle = h
+    }
+    await this.prisma.user.update({ where: { id: userId }, data: patch })
     return this.me(userId)
+  }
+
+  /** Свободен ли юзернейм (для живой проверки в шите профиля). */
+  async checkHandle(userId: string, raw: string) {
+    const handle = this.normalizeHandle(raw ?? '')
+    if (!this.validHandle(handle)) return { handle, valid: false, available: false }
+    const taken = await this.prisma.user.findFirst({ where: { handle, NOT: { id: userId } } })
+    return { handle, valid: true, available: !taken }
+  }
+
+  /** Поиск пользователей по @username или имени — для добавления в сплит. */
+  async searchUsers(selfId: string, query: string) {
+    const q = query.trim().replace(/^@+/, '').toLowerCase()
+    if (q.length < 2) return []
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: { not: selfId },
+        handle: { not: null },
+        OR: [{ handle: { contains: q } }, { name: { contains: q, mode: 'insensitive' } }],
+      },
+      take: 8,
+      orderBy: { handle: 'asc' },
+    })
+    return users.map((u) => ({
+      id: u.id,
+      name: u.name || `@${u.handle}`,
+      handle: u.handle ? `@${u.handle}` : '',
+      phone: u.phone, // нужен для добавления в сплит (телефонная модель участников)
+      initials: (u.name || u.handle || '?')[0]!.toUpperCase(),
+      color: colorFor(u.phone),
+    }))
   }
 
   // ---------- контакты ----------

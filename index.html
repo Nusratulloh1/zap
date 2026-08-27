@@ -10,7 +10,10 @@
       } catch (e) {}
     </script>
     <style>
-      html { background: #efede6 }
+      /* фон ДО гидрации: тёмный, как верх главной/онбординга — иначе в зонах
+         статус-бара и тулбара Safari мелькает кремовая полоса. Дальше цвет
+         под конкретный экран выставляет applyThemeColor() */
+      html { background: #0e0e0c }
       html[data-theme='dark'] { background: #0e0e0c }
     </style>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -25,8 +28,9 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="ZAP!" />
-    <meta name="theme-color" content="#DDFF33" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#DDFF33" media="(prefers-color-scheme: dark)" />
+    <!-- ОДИН theme-color: цвет тулбаров Safari/статус-бара выставляет JS под
+         текущий экран (src/lib/theme.ts). Дубли с media сбивали iOS. -->
+    <meta name="theme-color" content="#0E0E0C" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/splash/splash-1170x2532.png" />
     <link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="/splash/splash-1179x2556.png" />

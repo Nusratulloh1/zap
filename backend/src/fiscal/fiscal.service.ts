@@ -102,7 +102,7 @@ export class FiscalService {
     // rate limit: 10 чеков/час на пользователя
     const hourAgo = new Date(Date.now() - 3600_000)
     const recent = await this.prisma.fiscalReceipt.count({ where: { userId, createdAt: { gt: hourAgo } } })
-    if (recent >= 10) throw new HttpException('Слишком много чеков — попробуйте позже', 429)
+    if (recent >= Number(process.env.FISCAL_HOURLY_LIMIT ?? 40)) throw new HttpException('Слишком часто — подождите пару секунд', 429)
 
     // дедуп: тот же чек уже парсили
     const existing = await this.prisma.fiscalReceipt.findUnique({ where: { fiscalKey }, include: { items: true } })
@@ -477,55 +477,78 @@ export class FiscalService {
     this.realtime.emitUser(userId, status === 'ready' ? 'fiscal_ready' : 'fiscal_failed', { jobId })
   }
 
-  // ---------- OCR-фолбэк (Anthropic vision) ----------
+  // ---------- OCR-фолбэк (Gemini vision) ----------
 
-  /** Фото чека → строгий JSON. Изображение НЕ сохраняется после обработки
-   *  (приватность): передаётся в API и отбрасывается. */
+  /** Фото чека → строгий JSON через Gemini. Изображение НЕ сохраняется после
+   *  обработки (приватность): уходит в API и отбрасывается, в БД не пишется.
+   *  Честные ошибки: если сумм/позиций нет — ошибка пользователю, НИКОГДА не 0. */
   async ocr(userId: string, image: Buffer, mime: string) {
     const hourAgo = new Date(Date.now() - 3600_000)
     const recent = await this.prisma.fiscalReceipt.count({
-      where: { userId, source: 'ocr', createdAt: { gt: hourAgo } },
+      where: { userId, source: 'gemini_ocr', createdAt: { gt: hourAgo } },
     })
-    if (recent >= 5) throw new HttpException('Слишком много фото — попробуйте позже', 429)
-    const key = process.env.ANTHROPIC_API_KEY
+    if (recent >= Number(process.env.OCR_HOURLY_LIMIT ?? 20)) throw new HttpException('Слишком часто — подождите пару секунд', 429)
+    const key = process.env.GEMINI_API_KEY
     if (!key) throw new HttpException('Распознавание фото не настроено', 503)
     await this.metric('ocr_used')
+    await this.metric('gemini_ocr')
 
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'x-api-key': key, 'anthropic-version': '2023-06-01', 'content-type': 'application/json' },
-      body: JSON.stringify({
-        model: process.env.ANTHROPIC_MODEL ?? 'claude-sonnet-4-6',
-        max_tokens: 2000,
-        messages: [
-          {
-            role: 'user',
-            content: [
-              { type: 'image', source: { type: 'base64', media_type: mime, data: image.toString('base64') } },
-              {
-                type: 'text',
-                text: 'Это фискальный чек из Узбекистана. Верни ТОЛЬКО JSON без пояснений: {"merchant"?: string, "datetime"?: "ISO", "total": number (целые сумы UZS), "items": [{"name": string, "qty": number, "amount": number (сумы, итог строки)}], "confidence": "high"|"medium"|"low"}. Если что-то нечитаемо — пропусти позицию, не выдумывай.',
-              },
-            ],
-          },
-        ],
-      }),
-    })
-    if (!res.ok) throw new HttpException('Не удалось распознать фото', 502)
-    const data = (await res.json()) as { content?: { type: string; text?: string }[] }
-    const textOut = data.content?.find((c) => c.type === 'text')?.text ?? ''
-    const jsonStr = textOut.match(/\{[\s\S]*\}/)?.[0]
-    if (!jsonStr) throw new BadRequestException('Не удалось разобрать чек с фото')
-    const parsed = JSON.parse(jsonStr) as {
-      merchant?: string
-      datetime?: string
-      total: number
-      items: { name: string; qty: number; amount: number }[]
-      confidence: string
+    const model = process.env.GEMINI_MODEL ?? 'gemini-3.6-flash'
+    const prompt =
+      'Это фискальный чек (Узбекистан, сумы UZS). Верни ТОЛЬКО JSON, без пояснений и markdown: ' +
+      '{"merchant": string|null, "datetime": "ISO"|null, "total": number, ' +
+      '"items": [{"name": string, "qty": number, "amount": number}], ' +
+      '"currency": "UZS", "confidence": "high"|"medium"|"low"}. ' +
+      'amount — итог строки в целых сумах, total — итог чека. Нечитаемое пропусти, ' +
+      'НЕ выдумывай числа. Если чек не читается — верни total:0, items:[], confidence:"low".'
+
+    let parsed: { merchant?: string | null; datetime?: string | null; total?: number; items?: { name: string; qty: number; amount: number }[]; confidence?: string }
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ inline_data: { mime_type: mime, data: image.toString('base64') } }, { text: prompt }] }],
+            generationConfig: { temperature: 0, responseMimeType: 'application/json', maxOutputTokens: 2048 },
+          }),
+        },
+      )
+      if (!res.ok) {
+        this.log.warn(`gemini ocr HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`)
+        throw new HttpException('Не удалось распознать фото — попробуйте ещё раз', 502)
+      }
+      const data = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] }
+      const textOut = data.candidates?.[0]?.content?.parts?.map((p) => p.text ?? '').join('') ?? ''
+      const jsonStr = textOut.match(/\{[\s\S]*\}/)?.[0]
+      if (!jsonStr) throw new BadRequestException('Не удалось распознать чек — попробуйте ещё раз или введите сумму вручную')
+      parsed = JSON.parse(jsonStr)
+    } catch (e) {
+      if (e instanceof HttpException) throw e
+      throw new BadRequestException('Не удалось распознать чек — попробуйте ещё раз или введите сумму вручную')
     }
-    const itemsSum = parsed.items.reduce((s, i) => s + i.amount, 0)
-    if (!parsed.items.length || Math.abs(itemsSum - parsed.total) > 1000)
-      throw new BadRequestException('Суммы на фото не сходятся — попробуйте другой кадр')
+
+    const items = (parsed.items ?? []).filter((i) => i && Number(i.amount) > 0)
+    const total = Math.round(Number(parsed.total) || 0)
+    const itemsSum = items.reduce((s, i) => s + Math.round(Number(i.amount) || 0), 0)
+
+    // 1) нет ни позиций, ни тотала → честная ошибка (никогда не показываем 0)
+    if (!items.length && total <= 0)
+      throw new BadRequestException('Не удалось распознать чек — попробуйте ещё раз или введите сумму вручную')
+
+    // 2) позиции есть и сходятся с тоталом → полноценный чек (экран проверки)
+    // 3) тотал есть, позиций нет (или не сходятся) → только сумма, без «Позиций»
+    const itemsUsable = items.length > 0 && total > 0 && Math.abs(itemsSum - total) <= 1000
+    const finalTotal = total > 0 ? total : itemsSum
+    const storedItems = itemsUsable
+      ? items.map((i) => ({
+          name: String(i.name).slice(0, 200),
+          qtyMilli: Math.round((Number(i.qty) || 1) * 1000),
+          unitPrice: Math.round(Math.round(Number(i.amount)) / (Number(i.qty) || 1)),
+          lineTotal: Math.round(Number(i.amount)),
+        }))
+      : []
 
     const row = await this.prisma.fiscalReceipt.create({
       data: {
@@ -533,21 +556,19 @@ export class FiscalService {
         fiscalKey: `ocr|${userId}|${Date.now().toString(36)}`,
         url: 'ocr://photo',
         status: 'ready',
-        source: 'ocr',
-        merchantName: parsed.merchant,
+        source: 'gemini_ocr',
+        merchantName: parsed.merchant ?? undefined,
         receiptDatetime: parsed.datetime ? new Date(parsed.datetime) : undefined,
-        totalAmount: parsed.total,
-        items: {
-          create: parsed.items.map((i) => ({
-            name: i.name.slice(0, 200),
-            qtyMilli: Math.round((i.qty || 1) * 1000),
-            unitPrice: Math.round(i.amount / (i.qty || 1)),
-            lineTotal: i.amount,
-          })),
-        },
+        totalAmount: finalTotal,
+        items: { create: storedItems },
       },
     })
-    return { jobId: row.id, confidence: parsed.confidence, ...(await this.jobStatus(userId, row.id)) }
+    return {
+      jobId: row.id,
+      confidence: parsed.confidence ?? 'low',
+      itemsRecognized: itemsUsable, // false → фронт покажет «Позиции не распознаны», только сумма
+      ...(await this.jobStatus(userId, row.id)),
+    }
   }
 
   // ---------- метрики + алерт ----------
@@ -559,7 +580,7 @@ export class FiscalService {
   async healthStats() {
     const dayAgo = new Date(Date.now() - 24 * 3600_000)
     const count = (kind: string) => this.prisma.fiscalEvent.count({ where: { kind, createdAt: { gt: dayAgo } } })
-    const [ok, failed, blocked, resolved, ocr, clientOk, clientFail] = await Promise.all([
+    const [ok, failed, blocked, resolved, ocr, clientOk, clientFail, gemini] = await Promise.all([
       count('parse_ok'),
       count('parse_failed'),
       count('fetch_blocked'),
@@ -567,6 +588,7 @@ export class FiscalService {
       count('ocr_used'),
       count('client_fetch_ok'),
       count('client_fetch_failed'),
+      count('gemini_ocr'),
     ])
     const attempts = ok + failed // fetch_blocked не входит в parse-rate (это инфраструктура, не парсер)
     const serverOk = Math.max(0, ok - clientOk) // parse_ok пишется и клиентским путём
@@ -580,9 +602,9 @@ export class FiscalService {
       parseSuccessRate24h: attempts ? ok / attempts : null,
       // разбивка по источнику данных: клиент / сервер / OCR
       bySource: {
-        client_fetch: { ok: clientOk, failed: clientFail, rate: clientAttempts ? clientOk / clientAttempts : null },
+        mysoliq_client: { ok: clientOk, failed: clientFail, rate: clientAttempts ? clientOk / clientAttempts : null },
         server_fetch: { ok: serverOk, failed: failed, blocked },
-        ocr: { used: ocr },
+        gemini_ocr: { used: gemini },
       },
     }
   }

@@ -2,7 +2,7 @@
 // Дизайн 3b: «С кем делим?» — сумма 40px, строка «За что» с лаймовым подчёркиванием,
 // чипы режимов, участники с фото-аватарами (должник — в grayscale, чип «В ДОЛГ»),
 // «ДОБАВИТЬ» с аватар-чипами, CTA «Сплит · оплатить N».
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { money } from '@/lib/format'
 import { tap } from '@/lib/haptics'
@@ -10,7 +10,8 @@ import { useDraftStore } from '@/entities/stores/draft'
 import { useContactsStore } from '@/entities/stores/contacts'
 import { useUserStore } from '@/entities/stores/user'
 import { useSplitsStore } from '@/entities/stores/splits'
-import { addContact } from '@/api'
+import { addContact, searchUsers } from '@/api'
+import type { UserSearchResult } from '@/api/real'
 import ZapAvatar from '@/components/ZapAvatar.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import AmountField from '@/components/AmountField.vue'
@@ -119,6 +120,48 @@ const filteredContacts = computed(() => {
   if (!q) return contacts.contacts
   return contacts.contacts.filter((c) => c.name.toLowerCase().includes(q))
 })
+
+// ---------- поиск пользователей ZAP! по @username ----------
+// Локальных контактов может не быть: ищем по всей базе по юзернейму/имени
+// и добавляем найденного как участника (по его номеру).
+const userResults = ref<UserSearchResult[]>([])
+const searching = ref(false)
+let searchTimer = 0
+let searchSeq = 0
+
+watch(contactSearch, (q) => {
+  window.clearTimeout(searchTimer)
+  const query = q.trim()
+  if (query.length < 2) {
+    userResults.value = []
+    searching.value = false
+    return
+  }
+  searching.value = true
+  const seq = ++searchSeq
+  searchTimer = window.setTimeout(async () => {
+    try {
+      const res = await searchUsers(query)
+      if (seq !== searchSeq) return // устаревший ответ
+      // не показываем тех, кто уже есть в локальных контактах
+      const known = new Set(contacts.contacts.map((c) => (c.phone ?? '').replace(/\D/g, '').slice(-9)))
+      userResults.value = res.filter((u) => !known.has(u.phone.replace(/\D/g, '').slice(-9)))
+    } catch {
+      if (seq === searchSeq) userResults.value = []
+    } finally {
+      if (seq === searchSeq) searching.value = false
+    }
+  }, 350)
+})
+
+/** Добавить найденного пользователя: заводим контакт по номеру → в участники. */
+async function addFoundUser(u: UserSearchResult) {
+  const digits = u.phone.replace(/\D/g, '').slice(-9)
+  const c = await addContact(digits, u.name)
+  draft.addMember(c.id)
+  userResults.value = userResults.value.filter((x) => x.id !== u.id)
+  contactSearch.value = ''
+}
 
 // зарезервированный кэшбэк уменьшает «вашу долю»
 const pendingCashback = computed(() => Math.min(user.settings.pendingCashback ?? 0, draft.myShare))
@@ -342,8 +385,44 @@ async function createSplit() {
             <circle cx="9.5" cy="9.5" r="6.5" stroke="#A3A199" stroke-width="2.2" />
             <line x1="14.5" y1="14.5" x2="19" y2="19" stroke="#A3A199" stroke-width="2.2" stroke-linecap="round" />
           </svg>
-          <input v-model="contactSearch" placeholder="Найти" class="w-full bg-transparent text-[16px] font-semibold outline-none placeholder:text-faint" />
+          <input
+            v-model="contactSearch"
+            placeholder="Имя или @username"
+            autocapitalize="none"
+            autocomplete="off"
+            class="w-full bg-transparent text-[16px] font-semibold outline-none placeholder:text-faint"
+          />
         </label>
+
+        <!-- найдено в ZAP! по @username (когда в контактах нет) -->
+        <template v-if="contactSearch.trim().length >= 2">
+          <p v-if="searching" class="py-3 text-center text-[12.5px] font-semibold text-muted">Ищем в ZAP!…</p>
+          <template v-else-if="userResults.length">
+            <p class="pt-3 font-mono text-[10px] font-bold tracking-[0.14em] text-faint-2">ПОЛЬЗОВАТЕЛИ ZAP!</p>
+            <div
+              v-for="u in userResults"
+              :key="u.id"
+              class="flex items-center gap-3 border-b border-sand-2 py-3 last:border-0"
+            >
+              <ZapAvatar :name="u.name" :color="u.color" :contact-id="u.id" class="h-10 w-10" size="sm" />
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-[14px] font-bold">{{ u.name }}</p>
+                <p class="font-mono text-[11px] text-muted">{{ u.handle }}</p>
+              </div>
+              <button
+                type="button"
+                class="press h-8 shrink-0 rounded-full bg-lime px-3.5 text-[12px] font-extrabold text-on-lime"
+                @click="addFoundUser(u)"
+              >
+                Добавить
+              </button>
+            </div>
+          </template>
+          <p v-else-if="!filteredContacts.length" class="py-3 text-center text-[12.5px] font-semibold text-muted">
+            Никого не нашли — добавьте по номеру
+          </p>
+        </template>
+
         <div
           v-for="c in filteredContacts"
           :key="c.id"

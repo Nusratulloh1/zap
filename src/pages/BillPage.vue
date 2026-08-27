@@ -5,7 +5,7 @@ import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from '@/lib/toast'
 import { money } from '@/lib/format'
-import { clientFetchAvailable, fetchReceiptOnDevice } from '@/lib/fiscalClient'
+import { clientFetchAvailable, fetchReceiptForUrl } from '@/lib/fiscalClient'
 import { useDraftStore } from '@/entities/stores/draft'
 import { useContactsStore } from '@/entities/stores/contacts'
 import { useSplitsStore } from '@/entities/stores/splits'
@@ -59,7 +59,7 @@ const offFiscal = bus.on('fiscal:update', ({ jobId, status }) => {
 async function tryClientFetch(): Promise<boolean> {
   const url = draft.scannedPayload
   if (!url || !clientFetchAvailable()) return false
-  const receipt = await fetchReceiptOnDevice(url)
+  const receipt = await fetchReceiptForUrl(url) // роутинг по источнику (MySoliq/Rahmat)
   if (!receipt) return false
   try {
     const res = await api.submitFiscalClientResult(receipt)

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { setSafeAreaEdge } from '@/lib/theme'
 import { S } from '@/lib/strings'
 import { tap } from '@/lib/haptics'
 import StoryProgress, { type StoryProgressPalette } from '@/components/StoryProgress.vue'
@@ -88,10 +89,18 @@ function start() {
   router.push('/auth/phone')
 }
 
+// safe-area/статус-бар подхватывают цвет активного слайда (lime / dark),
+// иначе в iOS-PWA у выреза видны полосы не того цвета
+watch(isDark, (dark) => setSafeAreaEdge(dark ? '#0E0E0C' : '#DDFF33'), { immediate: true })
+
 onMounted(() => {
   raf = requestAnimationFrame(loop)
 })
-onBeforeUnmount(() => cancelAnimationFrame(raf))
+onBeforeUnmount(() => {
+  cancelAnimationFrame(raf)
+  // уход с онбординга — сброс, дальше applyThemeColor(route) выставит своё
+  setSafeAreaEdge(null)
+})
 </script>
 
 <template>

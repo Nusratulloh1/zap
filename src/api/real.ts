@@ -542,9 +542,27 @@ export async function repayDebt(debtId: string): Promise<void> {
 
 // ---------- contacts / cards / settings ----------
 
-export async function updateProfile(name: string): Promise<void> {
-  await http('/me', { method: 'PATCH', body: JSON.stringify({ name: name.trim() }) })
+export async function updateProfile(name: string, handle?: string): Promise<void> {
+  await http('/me', { method: 'PATCH', body: JSON.stringify({ name: name.trim(), handle: handle?.trim() || undefined }) })
   await refreshBootstrap()
+}
+
+/** свободен ли @username */
+export async function checkHandle(handle: string): Promise<{ valid: boolean; available: boolean; handle: string }> {
+  return http(`/username/check?u=${encodeURIComponent(handle)}`)
+}
+
+export interface UserSearchResult {
+  id: string
+  name: string
+  handle: string
+  phone: string
+  initials: string
+  color: string
+}
+/** поиск пользователей по @username / имени */
+export async function searchUsers(query: string): Promise<UserSearchResult[]> {
+  return http(`/users/search?q=${encodeURIComponent(query)}`)
 }
 
 export async function addContact(phoneDigits: string, fullName?: string): Promise<Contact> {
@@ -667,7 +685,7 @@ export async function fiscalOcr(file: File) {
     const body = (await res.json().catch(() => ({}))) as { message?: string }
     throw new ApiError(body.message ?? 'Не удалось распознать фото', res.status)
   }
-  return (await res.json()) as { status: string; receipt?: FiscalReceiptView; confidence?: string }
+  return (await res.json()) as { status: string; receipt?: FiscalReceiptView; confidence?: string; itemsRecognized?: boolean }
 }
 
 export function payShareSync(): Split | null {

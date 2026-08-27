@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Дизайн 4b/4a: тёмный hero-хедер (логотип, скан, аватар, промо, категории, поиск)
 // + светлый лист с карточками «Кэшбэк/Должники», «Мои группы», «Ваши сплиты».
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import emblaCarouselVue from 'embla-carousel-vue'
 import Autoplay from 'embla-carousel-autoplay'
@@ -23,7 +23,20 @@ import heroImg from '@/assets/brand/promo-hero.png'
 import partnerSafia from '@/assets/brand/partners/safia.png'
 import partnerTexnomart from '@/assets/brand/partners/texnomart.png'
 import partnerIdea from '@/assets/brand/partners/idea.png'
+import partnerBellissimo from '@/assets/brand/partners/bellissimo.png'
+import brandMaxway from '@/assets/brand/partners/maxway.svg'
+import brandLesAiles from '@/assets/brand/partners/lesailes.svg'
+import brandOqtepa from '@/assets/brand/partners/oqtepa.svg'
+import brandEvos from '@/assets/brand/partners/evos.svg'
+import brandSushiTime from '@/assets/brand/partners/sushitime.png'
+import brandKorzinka from '@/assets/brand/partners/korzinka.png'
+import brandClick from '@/assets/brand/partners/click.svg'
+import brandPayme from '@/assets/brand/partners/payme.png'
 import UserAvatar from '@/components/UserAvatar.vue'
+import { setBarColor, homeSheetColor, HOME_TOP_COLOR } from '@/lib/theme'
+// витрины-рельсы отключены: все предложения показываются в верхней карусели.
+// Компонент BrandRail.vue остаётся в проекте — если решим вернуть секции.
+import { type RailBrand } from '@/components/BrandRail.vue'
 
 defineOptions({ name: 'HomePage' })
 
@@ -37,6 +50,33 @@ const cashback = useCashbackStore()
 const draft = useDraftStore()
 
 const search = ref('')
+
+// фиксированный хедер: прозрачный вверху, стекло при скролле.
+// Заодно тулбары Safari перекрашиваем под видимую часть страницы:
+// тёмный hero сверху → светлый «лист» ниже.
+const scrolled = ref(false)
+let onSheet = false
+function onScroll() {
+  const y = window.scrollY
+  scrolled.value = y > 8
+  const nowSheet = y > 260 // высота hero-блока
+  if (nowSheet !== onSheet) {
+    onSheet = nowSheet
+    setBarColor(nowSheet ? homeSheetColor() : HOME_TOP_COLOR)
+  }
+}
+onMounted(() => {
+  window.addEventListener('scroll', onScroll, { passive: true })
+  onScroll()
+})
+onUnmounted(() => {
+  window.removeEventListener('scroll', onScroll)
+  setBarColor(HOME_TOP_COLOR)
+})
+
+function scrollTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
 
 // --- промо-карусель (embla): drag с инерцией, снап, автоплей 5с ---
 // zap:test отключает автоплей — иначе скриншот-раны недетерминированы
@@ -57,11 +97,118 @@ watch(promoApi, (api) => {
   api.on('select', () => (promoIndex.value = api.selectedScrollSnap()))
 })
 
-const promoSlides = [
-  { kind: 'hero', name: '', label: '', img: '' },
-  { kind: 'partner', name: 'Safia café', label: '10% группе', img: 'safia' },
-  { kind: 'partner', name: 'Texnomart', label: '7% от 3 человек', img: 'texnomart' },
-  { kind: 'partner', name: 'idea', label: '5% на всё', img: 'idea' },
+// тап по левой/правой части карусели — назад/вперёд (как в сторис)
+function onPromoTap(e: MouseEvent) {
+  const api = promoApi.value
+  if (!api) return
+  const { left, width } = (e.currentTarget as HTMLElement).getBoundingClientRect()
+  if (e.clientX - left < width * 0.4) api.scrollPrev()
+  else api.scrollNext()
+}
+
+// Три РАЗНЫХ типа предложений (как в фильтрах: Кэшбэк · Акции · Скидки),
+// у каждого свой чип и цвет — раньше все слайды выглядели одинаково «кэшбэк».
+type OfferType = 'cashback' | 'promo' | 'discount'
+interface PromoSlide {
+  kind: 'hero' | 'partner'
+  name: string
+  img: string
+  bg?: string // фирменная подложка под логотип
+  type?: OfferType
+  label?: string // короткая суть предложения
+  labelIcon?: string
+  terms?: string // условие мелким шрифтом
+  tags?: string
+  rating?: number
+  venue?: string // иллюстрация зала заведения (если есть)
+}
+
+// Иллюстрации залов заведений: кладутся в src/assets/brand/venues/<id>.png
+// (id бренда без префикса b_). Подхватываются автоматически; если файла нет —
+// слайд рисует прежнюю плашку с логотипом.
+const venueFiles = import.meta.glob('@/assets/brand/venues/*.{png,jpg,jpeg,webp}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>
+const venueByBrand: Record<string, string> = Object.fromEntries(
+  Object.entries(venueFiles).map(([path, url]) => [
+    'b_' + (path.split('/').pop() ?? '').replace(/\.[a-z]+$/i, ''),
+    url,
+  ]),
+)
+
+// условия предложений для слайдов (ключ = id бренда)
+const OFFER_TERMS: Record<string, string> = {
+  b_evos: 'второй лаваш в подарок — до 30 сентября',
+  b_oqtepa: 'второй лаваш в подарок при сплите',
+  b_maxway: 'кэшбэк баллами на всю компанию',
+  b_lesailes: 'при сплите от 4 человек',
+  b_bellissimo: 'на всё меню, кроме напитков',
+  b_sushitime: 'на сеты от 300 000 сум',
+  b_feedup: 'третий донер в подарок по будням',
+  b_bon: 'на выпечку до 12:00',
+  b_safia: 'при сплите от 3 человек',
+  b_korzinka: 'на продукты каждый день',
+  b_texnomart: 'на технику от 1 млн сум',
+  b_idea: 'третий товар в подарок',
+  b_click: 'кэшбэк за оплату через ZAP!',
+  b_payme: 'кэшбэк за оплату через ZAP!',
+}
+
+// категория (фильтр) → тип предложения
+const CATEGORY_TO_OFFER: Record<string, OfferType> = { Кэшбэк: 'cashback', Акции: 'promo', Скидки: 'discount' }
+
+/** Стиль чипа под тип предложения. */
+const OFFER_STYLE: Record<OfferType, { chip: string; icon: string }> = {
+  cashback: { chip: 'bg-lime text-on-lime', icon: '💸' },
+  // тёмный чип: на белой карточке витрины белый был бы не виден
+  discount: { chip: 'bg-ink text-paper', icon: '%' },
+  promo: { chip: 'bg-[#B98CE0] text-white', icon: '🎁' },
+}
+
+// --- Витрины партнёров (логотипы — реальные бренды UZ, локальные ассеты) ---
+interface BrandCard extends RailBrand {
+  type: OfferType
+}
+const brands: BrandCard[] = [
+  { id: 'b_evos', name: 'EVOS', tags: 'Лаваш · Бургеры', rating: 4.7, logo: brandEvos, bg: '#E7F3EC', badge: 'Акция 1+1', badgeIcon: '🔥', time: '20–30 мин', type: 'promo' },
+  { id: 'b_oqtepa', name: 'Oqtepa Lavash', tags: 'Лаваш · Шаурма', rating: 4.5, logo: brandOqtepa, bg: '#FFECEC', badge: 'Акция 1+1', badgeIcon: '🔥', time: '20–30 мин', type: 'promo' },
+  { id: 'b_maxway', name: 'Maxway', tags: 'Фастфуд · Бургеры', rating: 4.6, logo: brandMaxway, bg: '#F1EDFA', badge: 'Кэшбэк 10%', badgeIcon: '💸', time: '25–35 мин', type: 'cashback' },
+  { id: 'b_lesailes', name: 'Les Ailes', tags: 'Курица · Бургеры', rating: 4.8, logo: brandLesAiles, bg: '#FFE9F0', badge: 'Скидка 15%', badgeIcon: '%', time: '30–40 мин', type: 'discount' },
+  { id: 'b_bellissimo', name: 'Bellissimo Pizza', tags: 'Пицца · Паста', rating: 4.7, logo: partnerBellissimo, bg: '#FFF0E8', badge: 'Скидка 10%', badgeIcon: '%', time: '35–45 мин', type: 'discount' },
+  { id: 'b_sushitime', name: 'Sushi Time', tags: 'Роллы · Суши', rating: 4.6, logo: brandSushiTime, bg: '#F2F4F7', badge: 'Скидка 30%', badgeIcon: '%', time: '40–50 мин', type: 'discount' },
+  { id: 'b_feedup', name: 'Feed Up', tags: 'Донер · Бургеры', rating: 4.6, logo: '', bg: '#2A2622', badge: 'Акция 2+1', badgeIcon: '🔥', time: '20–30 мин', type: 'promo' },
+  { id: 'b_bon', name: 'Bon!', tags: 'Пекарня · Круассаны', rating: 4.8, logo: '', bg: '#F0E4D8', badge: 'Скидка 20%', badgeIcon: '%', time: '20–30 мин', type: 'discount' },
+  { id: 'b_safia', name: 'Safia café', tags: 'Кофе · Десерты', rating: 4.9, logo: partnerSafia, bg: '#FFF1E2', badge: 'Кэшбэк ×2', badgeIcon: '💸', time: '15–25 мин', type: 'cashback' },
+  { id: 'b_korzinka', name: 'Korzinka', tags: 'Супермаркет', rating: 4.5, logo: brandKorzinka, bg: '#FFECEC', badge: 'Кэшбэк 5%', badgeIcon: '💸', type: 'cashback' },
+  { id: 'b_texnomart', name: 'Texnomart', tags: 'Техника · Электроника', rating: 4.4, logo: partnerTexnomart, bg: '#FFF7DB', badge: 'Скидка 7%', badgeIcon: '%', type: 'discount' },
+  { id: 'b_idea', name: 'idea', tags: 'Товары для дома', rating: 4.5, logo: partnerIdea, bg: '#FFE6F2', badge: 'Акция 2+1', badgeIcon: '🔥', type: 'promo' },
+  // у Click вордмарк БЕЛЫЙ — на светлой плашке он не читается, нужен тёмный фон
+  { id: 'b_click', name: 'Click', tags: 'Платежи · Переводы', rating: 4.8, logo: brandClick, bg: '#0B2140', badge: 'Кэшбэк 3%', badgeIcon: '💸', type: 'cashback' },
+  { id: 'b_payme', name: 'Payme', tags: 'Платежи', rating: 4.7, logo: brandPayme, bg: '#E9FAFB', badge: 'Кэшбэк 3%', badgeIcon: '💸', type: 'cashback' },
+]
+
+// ВСЕ предложения партнёров живут в верхней карусели: hero + слайд на бренд
+// В карусели показываем ТОЛЬКО заведения с иллюстрацией зала — остальные
+// бренды остаются в массиве brands (для витрин/поиска), но в баннеры не идут.
+const promoSlides: PromoSlide[] = [
+  { kind: 'hero', name: '', img: '' },
+  ...brands
+    .filter((b) => venueByBrand[b.id])
+    .map((b) => ({
+      kind: 'partner' as const,
+      name: b.name,
+      img: b.logo,
+      bg: b.bg,
+      type: b.type,
+      label: b.badge,
+      labelIcon: b.badgeIcon,
+      terms: OFFER_TERMS[b.id],
+      tags: b.tags,
+      rating: b.rating,
+      venue: venueByBrand[b.id]!,
+    })),
 ]
 
 // --- фильтры-категории: реально фильтруют список сплитов ---
@@ -97,12 +244,36 @@ onMounted(() => {
 
 const categories = ['Все', 'Кэшбэк', 'Акции', 'Скидки']
 
+const visibleSlides = computed(() => {
+  const want = CATEGORY_TO_OFFER[category.value]
+  if (!want) return promoSlides // «Все» — включая hero
+  const matched = promoSlides.filter((s) => s.type === want)
+  return matched.length ? matched : promoSlides
+})
+
+// набор слайдов сменился — переинициализируем карусель и сбрасываем позицию
+watch(visibleSlides, async () => {
+  await nextTick()
+  promoApi.value?.reInit()
+  promoApi.value?.scrollTo(0)
+  promoIndex.value = 0
+})
+
 const debtors = computed(() =>
   debts.debtorIds
     .map((id) => contacts.byId(id))
     .filter((c): c is NonNullable<typeof c> => Boolean(c))
     .slice(0, 3),
 )
+
+// «5 кэшбэков» с правильным окончанием
+const cashbackWord = computed(() => {
+  const n = cashback.entries.length
+  const mod10 = n % 10
+  const mod100 = n % 100
+  const word = mod10 === 1 && mod100 !== 11 ? 'кэшбэк' : mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20) ? 'кэшбэка' : 'кэшбэков'
+  return `${n} ${word}`
+})
 
 const splitRows = computed(() => {
   const q = search.value.trim().toLowerCase()
@@ -151,17 +322,13 @@ function splitLetter(s: Split): string {
 
 <template>
   <div class="flex min-h-dvh flex-col bg-dune pb-32">
-    <!-- тёмный hero -->
-    <div
-      class="flex flex-col gap-4 px-4 pb-11 pt-[calc(env(safe-area-inset-top)+24px)]"
-      style="
-        background-color: #0e0e0c;
-        background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1.2px, transparent 1.3px);
-        background-size: 16px 16px;
-      "
+    <!-- фиксированный хедер: прозрачный вверху → тёмное стекло при скролле -->
+    <header
+      class="home-header fixed inset-x-0 top-0 z-40 mx-auto w-full max-w-app px-4 pt-[env(safe-area-inset-top)]"
+      :class="scrolled && 'is-scrolled'"
     >
-      <div class="flex items-center justify-between px-1">
-        <img :src="wordmark" alt="ZAP!" class="h-[52px] w-auto" />
+      <div class="flex items-center justify-between px-1 pb-3 pt-3">
+        <img :src="wordmark" alt="ZAP!" class="press h-[52px] w-auto cursor-pointer" @click="scrollTop" />
         <div class="flex items-center gap-3">
           <button
             type="button"
@@ -182,12 +349,22 @@ function splitLetter(s: Split): string {
           </button>
         </div>
       </div>
+    </header>
 
+    <!-- тёмный hero (контент начинается ПОД фиксированным хедером) -->
+    <div
+      class="flex flex-col gap-4 px-4 pb-11 pt-[calc(env(safe-area-inset-top)+84px)]"
+      style="
+        background-color: #0e0e0c;
+        background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1.2px, transparent 1.3px);
+        background-size: 16px 16px;
+      "
+    >
       <!-- промо-карусель: сегменты + слайды с drag/снапом -->
       <template v-if="!user.settings.promoDismissed">
         <div class="mt-1.5 flex gap-1.5">
           <div
-            v-for="(_sl, i) in promoSlides"
+            v-for="(_sl, i) in visibleSlides"
             :key="'seg' + i"
             class="h-[3px] flex-1 rounded-full transition-colors duration-300"
             :class="i === promoIndex ? 'bg-lime' : 'bg-white/[0.22]'"
@@ -195,17 +372,9 @@ function splitLetter(s: Split): string {
         </div>
 
         <div class="relative">
-          <button
-            type="button"
-            aria-label="Скрыть промо"
-            class="press absolute -top-1 right-0 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-[13px] text-white/70"
-            @click="user.dismissPromo()"
-          >
-            ×
-          </button>
-          <div ref="promoRef" class="overflow-hidden">
+          <div ref="promoRef" class="overflow-hidden" @click="onPromoTap">
             <div class="flex">
-              <div v-for="(sl, i) in promoSlides" :key="i" class="min-w-0 shrink-0 grow-0 basis-full px-1">
+              <div v-for="(sl, i) in visibleSlides" :key="i" class="min-w-0 shrink-0 grow-0 basis-full px-1">
                 <template v-if="sl.kind === 'hero'">
                   <div class="mx-6">
                     <img :src="heroImg" alt="" class="h-[148px] w-full rounded-[20px] object-contain" />
@@ -220,17 +389,47 @@ function splitLetter(s: Split): string {
                   </div>
                 </template>
                 <template v-else>
-                  <div class="flex h-full flex-col items-center justify-center gap-4 py-6">
-                    <img
-                      :src="sl.img === 'safia' ? partnerSafia : sl.img === 'texnomart' ? partnerTexnomart : partnerIdea"
-                      :alt="sl.name"
-                      class="h-[84px] w-auto rounded-[18px]"
-                    />
+                  <!-- Заведение: та же структура, что и у hero — иллюстрация,
+                       под ней крупный заголовок предложения и условие. -->
+                  <div v-if="sl.venue">
+                    <div class="mx-6">
+                      <img :src="sl.venue" :alt="sl.name" class="h-[148px] w-full rounded-[20px] object-contain" />
+                    </div>
+                    <div class="mt-4 flex flex-col items-center gap-1.5 px-4">
+                      <h1 class="text-center text-[27px] font-extrabold leading-[1.15] tracking-[-0.01em] text-white">
+                        {{ sl.label }}<br />в {{ sl.name }}
+                      </h1>
+                      <p class="text-center text-[14.5px] font-semibold text-white/[0.65]">
+                        {{ sl.terms }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- нет иллюстрации → прежняя плашка с логотипом -->
+                  <div v-else class="flex h-full flex-col items-center justify-center gap-3.5 py-4">
+                    <span
+                      class="flex h-[104px] w-[164px] items-center justify-center rounded-[20px] px-4"
+                      :style="{ backgroundColor: sl.bg ?? '#F2F0EA' }"
+                    >
+                      <img :src="sl.img" :alt="sl.name" class="max-h-[52px] w-auto max-w-[128px] object-contain" />
+                    </span>
                     <div class="flex flex-col items-center gap-1.5">
-                      <h2 class="text-center text-[24px] font-extrabold tracking-[-0.01em] text-white">{{ sl.name }}</h2>
-                      <span class="flex h-8 items-center rounded-full bg-lime px-3.5 text-[13px] font-extrabold text-on-lime">
-                        Кэшбэк {{ sl.label }}
+                      <h2 class="text-center text-[23px] font-extrabold tracking-[-0.01em] text-white">{{ sl.name }}</h2>
+                      <p v-if="sl.tags" class="flex items-center gap-1.5 text-[12px] font-semibold text-white/55">
+                        <span class="text-[#B9E24A]">★</span>
+                        <span class="font-extrabold text-white/85">{{ sl.rating?.toFixed(1) }}</span>
+                        <span>· {{ sl.tags }}</span>
+                      </p>
+                      <span
+                        class="mt-1 flex h-8 items-center gap-1.5 whitespace-nowrap rounded-full px-3.5 text-[13px] font-extrabold"
+                        :class="OFFER_STYLE[sl.type ?? 'cashback'].chip"
+                      >
+                        <span class="text-[12px]">{{ sl.labelIcon ?? OFFER_STYLE[sl.type ?? 'cashback'].icon }}</span>
+                        {{ sl.label }}
                       </span>
+                      <p v-if="sl.terms" class="max-w-[280px] text-center text-[12px] font-semibold leading-snug text-white/50">
+                        {{ sl.terms }}
+                      </p>
                     </div>
                   </div>
                 </template>
@@ -251,27 +450,27 @@ function splitLetter(s: Split): string {
         >
           <span
             class="flex h-[52px] w-[52px] items-center justify-center rounded-full transition-colors duration-200"
-            :class="category === c ? 'bg-white/[0.24]' : 'bg-white/[0.12]'"
+            :class="category === c ? 'bg-white/[0.24] text-lime' : 'bg-white/[0.12] text-white'"
           >
             <span v-if="c === 'Все'" class="grid grid-cols-[6px_6px] gap-[5px]">
-              <span v-for="i in 4" :key="i" class="h-1.5 w-1.5 rounded-[2px] bg-white" />
+              <span v-for="i in 4" :key="i" class="h-1.5 w-1.5 rounded-[2px] bg-current" />
             </span>
             <svg v-else-if="c === 'Кэшбэк'" width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <rect x="2.5" y="6.5" width="19" height="11" rx="2.5" stroke="#FFFFFF" stroke-width="1.8" />
-              <circle cx="12" cy="12" r="2.8" stroke="#FFFFFF" stroke-width="1.8" />
-              <line x1="5.8" y1="12" x2="5.8" y2="12.01" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" />
-              <line x1="18.2" y1="12" x2="18.2" y2="12.01" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" />
+              <rect x="2.5" y="6.5" width="19" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8" />
+              <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8" />
+              <line x1="5.8" y1="12" x2="5.8" y2="12.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
+              <line x1="18.2" y1="12" x2="18.2" y2="12.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
             </svg>
             <svg v-else-if="c === 'Акции'" width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
                 d="M3 8C3 7.17 3.67 6.5 4.5 6.5H19.5C20.33 6.5 21 7.17 21 8V9.8C19.9 10.2 19.1 11.03 19.1 12C19.1 12.97 19.9 13.8 21 14.2V16C21 16.83 20.33 17.5 19.5 17.5H4.5C3.67 17.5 3 16.83 3 16V14.2C4.1 13.8 4.9 12.97 4.9 12C4.9 11.03 4.1 10.2 3 9.8V8Z"
-                stroke="#DDFF33"
+                stroke="currentColor"
                 stroke-width="1.8"
                 stroke-linejoin="round"
               />
-              <line x1="14.5" y1="8.8" x2="14.5" y2="15.2" stroke="#DDFF33" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="2 2.4" />
+              <line x1="14.5" y1="8.8" x2="14.5" y2="15.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="2 2.4" />
             </svg>
-            <span v-else class="text-[17px] font-extrabold text-white">%</span>
+            <span v-else class="text-[17px] font-extrabold">%</span>
           </span>
           <span class="text-[11.5px] font-semibold transition-colors" :class="category === c ? 'text-white' : 'text-white/70'">{{ c }}</span>
         </button>
@@ -320,28 +519,47 @@ function splitLetter(s: Split): string {
       <div class="grid grid-cols-2 gap-3">
         <button
           type="button"
-          class="press flex h-48 flex-col rounded-card bg-paper p-[18px] text-left shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]"
+          class="press flex h-56 flex-col rounded-card bg-paper p-[18px] text-left shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]"
           @click="router.push('/cashback')"
         >
           <span class="text-[18px] font-extrabold leading-[1.15] tracking-[-0.01em]">Накопленные кэшбеки</span>
-          <span class="mt-[5px] text-[13px] font-semibold leading-[1.3] text-faint">3 общих групповых кэшбека</span>
-          <span class="mt-auto flex min-h-[60px] items-center">
+          <span class="mt-[5px] text-[13px] font-semibold leading-[1.3] text-faint">
+            {{ cashback.entries.length ? `${money(cashback.balance)} · ${cashbackWord}` : 'Появится после первого сплита' }}
+          </span>
+          <span v-if="cashback.entries.length" class="mt-auto flex min-h-[60px] items-center">
             <img :src="partnerSafia" alt="Safia" class="h-[29px] w-auto rounded-[9px]" />
             <img :src="partnerTexnomart" alt="texnomart" class="-ml-2.5 h-[29px] w-auto rounded-[9px]" />
             <img :src="partnerIdea" alt="idea" class="-ml-2.5 h-[29px] w-auto rounded-[9px]" />
           </span>
+          <span v-else class="mt-auto flex min-h-[60px] items-end">
+            <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-lime/[0.14]">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="8.2" stroke="#B9CF2E" stroke-width="1.8" />
+                <path d="M12 8.2v7.6M9.6 10.1c0-1 1.1-1.6 2.4-1.6s2.4.6 2.4 1.6-1.1 1.6-2.4 1.6-2.4.6-2.4 1.6 1.1 1.6 2.4 1.6 2.4-.6 2.4-1.6" stroke="#B9CF2E" stroke-width="1.6" stroke-linecap="round" />
+              </svg>
+            </span>
+          </span>
         </button>
         <button
           type="button"
-          class="press flex h-48 flex-col rounded-card bg-paper p-[18px] text-left shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]"
+          class="press flex h-56 flex-col rounded-card bg-paper p-[18px] text-left shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]"
           @click="router.push('/debts')"
         >
           <span class="text-[18px] font-extrabold leading-[1.15] tracking-[-0.01em]">Мои должники</span>
-          <span class="mt-[5px] text-[13px] font-semibold leading-[1.3] text-faint">{{ debtors.length }} общих должника</span>
-          <span class="mt-auto flex min-h-[60px] items-end gap-2">
+          <span class="mt-[5px] text-[13px] font-semibold leading-[1.3] text-faint">
+            {{ debtors.length ? `${money(debts.totalOwedToMe)} · ${peopleCount(debtors.length)}` : 'Все долги закрыты' }}
+          </span>
+          <span v-if="debtors.length" class="mt-auto flex min-h-[60px] items-end gap-2">
             <span v-for="d in debtors" :key="d.id" class="flex flex-col items-center gap-1">
               <ZapAvatar :name="d.name" :color="d.color" :contact-id="d.id" class="h-[38px] w-[38px]" size="sm" />
               <span class="text-[10.5px] font-bold">{{ d.name }}</span>
+            </span>
+          </span>
+          <span v-else class="mt-auto flex min-h-[60px] items-end">
+            <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-sand">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M5 12.5l4.5 4.5L19 7.5" stroke="#A3A199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
             </span>
           </span>
         </button>
@@ -353,7 +571,17 @@ function splitLetter(s: Split): string {
           <h2 class="text-[18px] font-extrabold tracking-[-0.01em]">Мои группы</h2>
           <span class="text-[14px] font-bold text-muted">Все ›</span>
         </div>
-        <div v-if="loaded" class="mt-1 flex flex-col">
+        <div v-if="loaded && !groups.groups.length" class="flex items-center gap-3 py-4 text-[13px] font-semibold text-faint">
+          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-sand">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <circle cx="9" cy="9.5" r="3" stroke="#A3A199" stroke-width="1.8" />
+              <path d="M3.5 18.5c0-2.8 2.5-4.5 5.5-4.5s5.5 1.7 5.5 4.5" stroke="#A3A199" stroke-width="1.8" stroke-linecap="round" />
+              <path d="M16 7.2a2.8 2.8 0 0 1 0 5.4M17.5 18.5c0-2-1-3.4-2.6-4.1" stroke="#A3A199" stroke-width="1.8" stroke-linecap="round" />
+            </svg>
+          </span>
+          Появятся из ваших сплитов
+        </div>
+        <div v-else-if="loaded" class="mt-1 flex flex-col">
           <div
             v-for="(g, gi) in groups.groups"
             :key="g.id"

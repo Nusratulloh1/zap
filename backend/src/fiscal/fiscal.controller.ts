@@ -88,9 +88,10 @@ export class FiscalController {
     return this.fiscal.acceptClientResult(user.id, dto)
   }
 
-  /** OCR-фолбэк: фото чека. Изображение не сохраняется после обработки. */
+  /** OCR-фолбэк: фото чека. Изображение не сохраняется после обработки.
+   *  Лимит — из env (MVP: 20/час), чтобы тестирование не упиралось в 429. */
   @Post('ocr')
-  @Throttle({ default: { ttl: 3600_000, limit: 5 } })
+  @Throttle({ default: { ttl: 3600_000, limit: Number(process.env.OCR_HOURLY_LIMIT ?? 20) } })
   @UseInterceptors(FileInterceptor('image', { limits: { fileSize: 8 * 1024 * 1024 } }))
   ocr(@CurrentUser() user: AuthUser, @UploadedFile() file?: { buffer: Buffer; mimetype: string }) {
     if (!file?.buffer?.length) throw new HttpException('Нет изображения', 400)

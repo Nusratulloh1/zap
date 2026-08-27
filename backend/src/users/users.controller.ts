@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
 import { IsBoolean, IsEnum, IsOptional, IsString, Length, Matches } from 'class-validator'
 import { CardBrand } from '@prisma/client'
 import { CurrentUser, JwtAuthGuard, type AuthUser } from '../common/auth.guard'
@@ -62,6 +62,18 @@ export class UsersController {
   @Patch('me')
   update(@CurrentUser() user: AuthUser, @Body() dto: ProfileDto) {
     return this.users.updateProfile(user.id, dto)
+  }
+
+  /** свободен ли @username (живая проверка в шите профиля) */
+  @Get('username/check')
+  checkHandle(@CurrentUser() user: AuthUser, @Query('u') u: string) {
+    return this.users.checkHandle(user.id, u ?? '')
+  }
+
+  /** поиск пользователей по @username / имени — для добавления в сплит */
+  @Get('users/search')
+  searchUsers(@CurrentUser() user: AuthUser, @Query('q') q: string) {
+    return this.users.searchUsers(user.id, q ?? '')
   }
 
   @Post('contacts')
