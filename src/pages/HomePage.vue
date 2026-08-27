@@ -361,7 +361,9 @@ function splitLetter(s: Split): string {
       "
     >
       <!-- промо-карусель: сегменты + слайды с drag/снапом -->
-      <template v-if="!user.settings.promoDismissed">
+      <!-- карусель показывается ВСЕГДА: кнопки «скрыть» больше нет, а старый
+           флаг promoDismissed у части пользователей остался true и навсегда
+           прятал баннеры -->
         <div class="mt-1.5 flex gap-1.5">
           <div
             v-for="(_sl, i) in visibleSlides"
@@ -392,14 +394,16 @@ function splitLetter(s: Split): string {
                   <!-- Заведение: та же структура, что и у hero — иллюстрация,
                        под ней крупный заголовок предложения и условие. -->
                   <div v-if="sl.venue">
-                    <div class="mx-6">
-                      <img :src="sl.venue" :alt="sl.name" class="h-[148px] w-full rounded-[20px] object-contain" />
+                    <!-- вертикально: крупная иллюстрация, под ней заголовок ОДНОЙ
+                         строкой и условие предложения -->
+                    <div class="px-2 pt-4">
+                      <img :src="sl.venue" :alt="sl.name" class="h-[218px] w-full object-contain" />
                     </div>
-                    <div class="mt-4 flex flex-col items-center gap-1.5 px-4">
-                      <h1 class="text-center text-[27px] font-extrabold leading-[1.15] tracking-[-0.01em] text-white">
-                        {{ sl.label }}<br />в {{ sl.name }}
+                    <div class="mt-3 flex flex-col items-center gap-1 px-3">
+                      <h1 class="max-w-full truncate whitespace-nowrap text-center text-[20px] font-extrabold tracking-[-0.01em] text-white">
+                        {{ sl.label }} в {{ sl.name }}
                       </h1>
-                      <p class="text-center text-[14.5px] font-semibold text-white/[0.65]">
+                      <p class="max-w-full truncate whitespace-nowrap text-center text-[13px] font-semibold text-white/[0.6]">
                         {{ sl.terms }}
                       </p>
                     </div>
@@ -437,7 +441,6 @@ function splitLetter(s: Split): string {
             </div>
           </div>
         </div>
-      </template>
 
       <!-- категории -->
       <div class="flex justify-between px-1.5 pt-1">
