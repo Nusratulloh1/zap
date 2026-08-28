@@ -4,7 +4,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from '@/lib/toast'
-import { money, peopleCount, isSameDay } from '@/lib/format'
+import { money, peopleCount } from '@/lib/format'
+import { humanDateLc } from '@/lib/datetime'
 import { useGroupsStore } from '@/entities/stores/groups'
 import { useContactsStore } from '@/entities/stores/contacts'
 import { useSplitsStore } from '@/entities/stores/splits'
@@ -18,9 +19,11 @@ import partnerSafia from '@/assets/brand/partners/safia.png'
 import partnerTexnomart from '@/assets/brand/partners/texnomart.png'
 import partnerIdea from '@/assets/brand/partners/idea.png'
 import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const groups = useGroupsStore()
 const contacts = useContactsStore()
 const splits = useSplitsStore()
@@ -42,7 +45,7 @@ onMounted(() => {
 const groupSplits = computed(() => splits.splits.filter((s) => s.groupId === id.value))
 
 function nameOf(cid: string): string {
-  return cid === 'me' ? (user.user?.name ?? 'Вы') : (contacts.byId(cid)?.name ?? '?')
+  return cid === 'me' ? (user.user?.name ?? t('members.youShort')) : (contacts.byId(cid)?.name ?? '?')
 }
 
 function colorOf(cid: string): string {
@@ -55,20 +58,14 @@ function debtOf(cid: string): number {
 
 function memberSub(cid: string): string {
   const debt = debtOf(cid)
-  if (debt > 0) return `должен вам ${money(debt)}`
+  if (debt > 0) return t('group.owes', { amount: money(debt) })
   const n = groupSplits.value.filter((s) => s.members.some((m) => m.contactId === cid)).length
-  return `${n} сплитов · всё закрыто`
+  return t('group.allClosed', n, { named: { n } })
 }
 
-const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
 
-function splitDate(ts: number): string {
-  const d = new Date(ts)
-  const now = new Date()
-  if (isSameDay(d, now)) return 'сегодня'
-  if (isSameDay(d, new Date(now.getTime() - 86400000))) return 'вчера'
-  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`
-}
+
+const splitDate = (ts: number) => humanDateLc(ts)
 
 const reminded = ref<Set<string>>(new Set())
 
@@ -77,9 +74,9 @@ async function remind(cid: string) {
   const debt = debts.openDebts.find((d) => d.contactId === cid)
   try {
     if (debt) await debts.remind(debt.id)
-    toast.success('Напоминание отправлено')
+    toast.success(t('debts.remindedToast'))
   } catch (e) {
-    toast(e instanceof Error ? e.message : 'Напоминание уже отправлено')
+    toast(e instanceof Error ? e.message : t('debts.alreadyReminded'))
   }
 }
 
@@ -94,7 +91,7 @@ async function invite() {
   const url = location.origin + '/g/' + id.value
   if (navigator.share) {
     try {
-      await navigator.share({ title: group.value?.name ?? 'ZAP!', text: 'Вступай в группу в ZAP!', url })
+      await navigator.share({ title: group.value?.name ?? 'ZAP!', text: t('group.shareText'), url })
       return
     } catch {
       /* закрыли шэр */
@@ -105,7 +102,7 @@ async function invite() {
     } catch {
       /* noop */
     }
-    toast.success('Ссылка скопирована')
+    toast.success(t('common.copied'))
   }
 }
 
@@ -125,13 +122,13 @@ async function applyRename() {
   if (!renameValue.value.trim()) return
   await renameGroup(id.value, renameValue.value.trim())
   renameSheet.value = false
-  toast.success('Группа переименована')
+  toast.success(t('group.renamed'))
 }
 
 async function applyDelete() {
   await deleteGroup(id.value)
   confirmDelete.value = false
-  toast.success('Группа удалена')
+  toast.success(t('group.deleted'))
   router.replace('/')
 }
 </script>
@@ -141,13 +138,13 @@ async function applyDelete() {
     <div class="flex items-center justify-between">
       <button
         type="button"
-        aria-label="Назад"
+        :aria-label="t('common.backAria')"
         class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[18px] font-semibold"
         @click="router.push('/')"
       >
         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" /></svg>
       </button>
-      <button type="button" aria-label="Меню" class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[17px] font-bold text-slate" @click="menuSheet = true">
+      <button type="button" :aria-label="t('group.menuAria')" class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[17px] font-bold text-slate" @click="menuSheet = true">
         ⋯
       </button>
     </div>
@@ -168,22 +165,22 @@ async function applyDelete() {
         </div>
         <div class="flex flex-col gap-0.5">
           <h1 class="text-[22px] font-extrabold tracking-[-0.01em]">{{ group.name }}</h1>
-          <p class="text-[12.5px] font-semibold text-faint">{{ peopleCount(group.memberIds.length) }} · с {{ group.sinceLabel }}</p>
+          <p class="text-[12.5px] font-semibold text-faint">{{ t('group.sinceWith', { people: peopleCount(group.memberIds.length), date: group.sinceLabel }) }}</p>
         </div>
       </div>
 
       <div class="mt-5 flex gap-2.5">
         <button type="button" class="press h-[50px] flex-1 rounded-full bg-lime text-[15px] font-extrabold text-on-lime" @click="newSplit">
-          Новый сплит
+          {{ t('group.newSplit') }}
         </button>
         <button type="button" class="press h-[50px] flex-1 rounded-full bg-sand text-[15px] font-bold text-ink" @click="invite">
-          Позвать
+          {{ t('group.invite') }}
         </button>
       </div>
 
       <!-- кэшбэк группы -->
       <div class="mt-6 border-t border-sand-2 pt-5">
-        <p class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">КЭШБЭК ГРУППЫ</p>
+        <p class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('group.cashback') }}</p>
         <div class="mt-2.5 flex items-baseline gap-2">
           <span class="text-[36px] font-extrabold leading-none tracking-[-0.02em]">{{ money(group.cashback) }}</span>
           <span class="font-mono text-[10.5px] font-bold text-faint-2">UZS</span>
@@ -192,21 +189,21 @@ async function applyDelete() {
           <img :src="partnerSafia" alt="Safia" class="h-7 w-auto rounded-[9px]" />
           <img :src="partnerTexnomart" alt="texnomart" class="-ml-2.5 h-7 w-auto rounded-[9px]" />
           <img :src="partnerIdea" alt="idea" class="-ml-2.5 h-7 w-auto rounded-[9px]" />
-          <span class="ml-3 text-[12.5px] font-semibold text-muted">{{ group.merchantsCount }} мерчанта</span>
+          <span class="ml-3 text-[12.5px] font-semibold text-muted">{{ t('group.merchantsCount', group.merchantsCount, { named: { n: group.merchantsCount } }) }}</span>
         </div>
       </div>
 
       <!-- участники -->
       <div class="mt-[22px] border-t border-sand-2 pt-[18px]">
-        <p class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">УЧАСТНИКИ</p>
+        <p class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('group.members') }}</p>
         <div class="mt-2 flex flex-col">
           <div v-for="cid in group.memberIds" :key="cid" class="flex min-h-[58px] items-center gap-3">
             <ZapAvatar :name="nameOf(cid)" :color="colorOf(cid)" :contact-id="cid" class="h-10 w-10" size="sm" />
             <div class="flex min-w-0 flex-1 flex-col gap-px">
-              <span class="text-[15px] font-bold">{{ nameOf(cid) }}<template v-if="cid === 'me'"> · вы</template></span>
-              <span class="text-[12px] font-semibold text-faint">{{ cid === 'me' ? `${groupSplits.length} сплитов · всё закрыто` : memberSub(cid) }}</span>
+              <span class="text-[15px] font-bold">{{ nameOf(cid) }}<template v-if="cid === 'me'">{{ t('group.youSuffix') }}</template></span>
+              <span class="text-[12px] font-semibold text-faint">{{ cid === 'me' ? t('group.allClosed', groupSplits.length, { named: { n: groupSplits.length } }) : memberSub(cid) }}</span>
             </div>
-            <span v-if="cid === group.ownerId" class="flex h-7 items-center rounded-full bg-sand px-3 text-[11.5px] font-bold text-muted">владелец</span>
+            <span v-if="cid === group.ownerId" class="flex h-7 items-center rounded-full bg-sand px-3 text-[11.5px] font-bold text-muted">{{ t('group.owner') }}</span>
             <button
               v-else-if="debtOf(cid) > 0"
               type="button"
@@ -214,7 +211,7 @@ async function applyDelete() {
               :disabled="reminded.has(cid)"
               @click="remind(cid)"
             >
-              {{ reminded.has(cid) ? 'Отправлено' : 'Напомнить' }}
+              {{ reminded.has(cid) ? t('group.reminded') : t('group.remind') }}
             </button>
           </div>
         </div>
@@ -223,8 +220,8 @@ async function applyDelete() {
       <!-- сплиты группы -->
       <div class="mt-[18px] border-t border-sand-2 pt-[18px]">
         <div class="flex items-baseline justify-between">
-          <p class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">СПЛИТЫ ГРУППЫ</p>
-          <button type="button" class="text-[13px] font-bold text-muted" @click="router.push('/history')">Все ›</button>
+          <p class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('group.splits') }}</p>
+          <button type="button" class="text-[13px] font-bold text-muted" @click="router.push('/history')">{{ t('home.seeAll') }}</button>
         </div>
         <div class="mt-1.5 flex flex-col">
           <div
@@ -242,12 +239,12 @@ async function applyDelete() {
                 {{ contacts.merchantById(s.merchantId)?.name ?? s.title }}<template v-if="s.bill"> · #{{ s.bill.orderNo }}</template>
               </span>
               <span class="text-[12px] font-semibold text-faint">
-                {{ splitDate(s.createdAt) }}<template v-if="s.cashback"> · кэшбэк +{{ money(s.cashback) }}</template>
+                {{ splitDate(s.createdAt) }}<template v-if="s.cashback">{{ t('group.splitCashback', { amount: money(s.cashback) }) }}</template>
               </span>
             </div>
             <span class="text-[15px] font-extrabold">{{ money(s.total) }}</span>
           </div>
-          <p v-if="!groupSplits.length" class="py-5 text-center text-[13px] font-semibold text-muted">Пока пусто</p>
+          <p v-if="!groupSplits.length" class="py-5 text-center text-[13px] font-semibold text-muted">{{ t('history.empty') }}</p>
         </div>
       </div>
     </template>
@@ -255,14 +252,14 @@ async function applyDelete() {
     <BottomSheet :open="menuSheet" @close="menuSheet = false">
       <div class="pb-4">
         <button type="button" class="flex min-h-[52px] w-full items-center border-b border-sand-2 text-[15px] font-bold transition-colors active:bg-sand" @click="openRename">
-          Переименовать группу
+          {{ t('group.renameTitle') }}
         </button>
         <button
           type="button"
           class="flex min-h-[52px] w-full items-center text-[15px] font-bold text-ember transition-colors active:bg-sand"
           @click="menuSheet = false; confirmDelete = true"
         >
-          Удалить группу
+          {{ t('group.delete') }}
         </button>
       </div>
     </BottomSheet>
@@ -270,13 +267,13 @@ async function applyDelete() {
     <!-- переименование -->
     <BottomSheet :open="renameSheet" @close="renameSheet = false">
       <div class="pb-4">
-        <p class="text-center text-[15px] font-extrabold">Название группы</p>
+        <p class="text-center text-[15px] font-extrabold">{{ t('group.renameSheetTitle') }}</p>
         <input
           v-model="renameValue"
           class="mt-4 w-full border-b-2 border-lime bg-transparent pb-2 text-[18px] font-bold outline-none [caret-color:#DDFF33]"
         />
         <button type="button" class="press mt-5 h-12 w-full rounded-full bg-ink text-[15px] font-bold text-paper" @click="applyRename">
-          Сохранить
+          {{ t('group.save') }}
         </button>
       </div>
     </BottomSheet>
@@ -284,11 +281,11 @@ async function applyDelete() {
     <!-- подтверждение удаления -->
     <BottomSheet :open="confirmDelete" @close="confirmDelete = false">
       <div class="pb-6 pt-2">
-        <p class="text-center text-[17px] font-extrabold">Удалить группу?</p>
-        <p class="mt-1 text-center text-[13px] font-semibold text-muted">Сплиты останутся в истории</p>
+        <p class="text-center text-[17px] font-extrabold">{{ t('group.deleteConfirm') }}</p>
+        <p class="mt-1 text-center text-[13px] font-semibold text-muted">{{ t('group.deleteNote') }}</p>
         <div class="mt-5 grid grid-cols-2 gap-2.5">
-          <button type="button" class="press h-14 rounded-full bg-sand text-[15px] font-bold" @click="confirmDelete = false">Отмена</button>
-          <button type="button" class="press h-14 rounded-full bg-[#B4451F] text-[15px] font-extrabold text-white" @click="applyDelete">Удалить</button>
+          <button type="button" class="press h-14 rounded-full bg-sand text-[15px] font-bold" @click="confirmDelete = false">{{ t('common.cancel') }}</button>
+          <button type="button" class="press h-14 rounded-full bg-[#B4451F] text-[15px] font-extrabold text-white" @click="applyDelete">{{ t('group.deleteAction') }}</button>
         </div>
       </div>
     </BottomSheet>

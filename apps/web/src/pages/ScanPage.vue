@@ -15,8 +15,10 @@ import mysoliqLogo from '@/assets/brand/partners/mysoliq.svg'
 import rahmatLogo from '@/assets/brand/partners/rahmat.svg'
 import { sourceForUrl } from '@/lib/fiscalSources'
 import { isStandalone, platform } from '@/lib/installPrompt'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 // dev-демо фискального QR: локальный фикстур-сервер (scripts/fiscal-fixture.mjs)
 const showFiscalDemo = import.meta.env.DEV && isRealApi
@@ -36,10 +38,10 @@ const isIos = computed(() => platform() === 'ios-safari' || platform() === 'ios-
 const permissionHelp = computed(() => {
   if (isIos.value) {
     return isStandalone()
-      ? 'iOS спрашивает камеру один раз за запуск приложения. Нажмите «Разрешить» — до следующего полного закрытия ZAP! спрашивать не будет.'
-      : 'Откройте Настройки → Safari → Камера → Разрешить, затем вернитесь в ZAP!. Совет: установите ZAP! на экран «Домой» — тогда доступ спрашивается один раз за запуск.'
+      ? t('scan.iosHintStandalone')
+      : t('scan.iosHintSafari')
   }
-  return 'Откройте настройки сайта в браузере (замок в адресной строке) → Камера → Разрешить, затем обновите страницу.'
+  return t('scan.browserHint')
 })
 // режим: скан QR ⇄ фото (Gemini OCR). Камера общая — переключение не пере-запрашивает доступ.
 const mode = ref<'scan' | 'photo'>('scan')
@@ -62,7 +64,7 @@ function stopCamera() {
 async function openDemoBill(note = false) {
   const bill = contacts.featuredBill ?? (await fetchFeaturedBill())
   draft.startFromBill(bill)
-  if (note) toast.success('QR распознан · Bellissimo #481')
+  if (note) toast.success(t('scan.qrDetectedDemo'))
   router.replace('/split/bill')
 }
 
@@ -121,7 +123,7 @@ async function routePayload(payload: string) {
     }
     if (res.type === 'bill') {
       draft.startFromBill(res.bill)
-      toast.success('QR распознан')
+      toast.success(t('scan.qrDetected'))
       router.replace('/split/bill')
       return
     }
@@ -145,10 +147,10 @@ async function routePayload(payload: string) {
       const src = sourceForUrl(payload)
       // Gemini читает ФОТО, а не ссылку: у Rahmat API ещё не вскрыт, поэтому
       // такой чек снимаем камерой и распознаём с изображения.
-      toast(src ? `Чек ${src.label} — сфотографируйте` : 'Чек не распознан — сфотографируйте')
+      toast(src ? t('scan.receiptPhotograph', { source: src.label }) : t('scan.receiptUnknown'))
       resumeForPhoto()
     } else {
-      toast('QR не распознан — введите сумму вручную')
+      toast(t('scan.qrUnknown'))
       router.replace('/split/amount')
     }
   } else {
@@ -253,28 +255,28 @@ async function routeOcr(file: File) {
       // 429 — один авто-ретрай после короткого бэкоффа, потом дружелюбный тост
       const status = (err as { status?: number })?.status
       if (status !== 429) throw err
-      toast('Слишком часто — подождите пару секунд')
+      toast(t('scan.tooOftenShort'))
       await new Promise((r) => setTimeout(r, 2500))
       res = await api.fiscalOcr(file)
     }
     const receipt = res.receipt
     if (receipt && (receipt.items?.length || res.itemsRecognized)) {
       draft.applyFiscalItems(receipt as never, true)
-      toast.success('Распознано с фото — проверьте')
+      toast.success(t('scan.photoOk'))
       router.push('/split/review')
     } else if (receipt && receipt.total > 0) {
       // тотал есть, позиции нет — идём со суммой (без «Позиций»)
       draft.startFiscal(receipt.total)
       draft.fiscalFailed()
-      toast('Позиции не распознаны — делим сумму')
+      toast(t('scan.photoNoItems'))
       router.push('/split/members')
     } else {
-      toast('Не удалось распознать чек — попробуйте ещё раз')
+      toast(t('scan.photoFailed'))
     }
   } catch (e) {
     const status = (e as { status?: number })?.status
-    if (status === 429) toast('Слишком часто — подождите пару секунд')
-    else toast(e instanceof Error && e.message ? e.message : 'Не удалось распознать чек')
+    if (status === 429) toast(t('scan.tooOftenShort'))
+    else toast(e instanceof Error && e.message ? e.message : t('scan.photoFailedShort'))
   } finally {
     ocrBusy.value = false
   }
@@ -340,7 +342,7 @@ onBeforeUnmount(() => {
     <div class="relative z-20 flex items-center gap-2 px-4 pt-[calc(env(safe-area-inset-top)+12px)]">
       <button
         type="button"
-        aria-label="Закрыть"
+        :aria-label="t('scan.closeAria')"
         class="press flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.14] bg-black/30 text-white backdrop-blur"
         @click="router.push('/')"
       >
@@ -359,7 +361,7 @@ onBeforeUnmount(() => {
           :class="mode === 'scan' ? 'text-ink' : 'text-white/75'"
           @click="mode = 'scan'"
         >
-          Скан
+          {{ t('scan.tabScan') }}
         </button>
         <button
           type="button"
@@ -367,13 +369,13 @@ onBeforeUnmount(() => {
           :class="mode === 'photo' ? 'text-ink' : 'text-white/75'"
           @click="mode = 'photo'"
         >
-          Фото
+          {{ t('scan.tabPhoto') }}
         </button>
       </div>
 
       <button
         type="button"
-        aria-label="Фонарик"
+        :aria-label="t('scan.torchAria')"
         class="press flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/[0.14] bg-black/30 backdrop-blur"
         @click="toggleTorch"
       >
@@ -401,11 +403,11 @@ onBeforeUnmount(() => {
 
       <!-- нет камеры: одна аккуратная карточка -->
       <div v-else-if="cameraState === 'denied'" class="w-full rounded-card bg-black/55 p-6 text-center backdrop-blur">
-        <p class="text-[17px] font-extrabold text-white">Нет доступа к камере</p>
+        <p class="text-[17px] font-extrabold text-white">{{ t('scan.noCamera') }}</p>
         <!-- как вернуть доступ: инструкция под платформу пользователя -->
         <p class="mt-2 text-[12.5px] font-semibold leading-snug text-white/70">{{ permissionHelp }}</p>
         <p class="mt-2.5 text-[13.5px] font-semibold leading-snug text-white/85">
-          Или сфотографируйте чек / введите сумму вручную
+          {{ t('scan.orPhotoOrManual') }}
         </p>
         <div class="mt-4 flex items-center justify-center gap-2">
           <span class="flex h-8 items-center gap-1.5 rounded-full bg-white/95 px-3">
@@ -417,7 +419,7 @@ onBeforeUnmount(() => {
           </span>
         </div>
         <label class="press mt-5 flex h-[52px] w-full cursor-pointer items-center justify-center rounded-full bg-lime text-[15px] font-extrabold text-ink">
-          Сфотографировать чек
+          {{ t('scan.photographReceipt') }}
           <input type="file" accept="image/*" capture="environment" class="hidden" @change="onPhotoFile" />
         </label>
         <button
@@ -425,7 +427,7 @@ onBeforeUnmount(() => {
           class="press mt-2.5 h-[46px] w-full rounded-full border border-white/[0.14] bg-white/10 text-[14px] font-bold text-white"
           @click="router.push('/split/amount')"
         >
-          Ввести сумму вручную
+          {{ t('scan.manual') }}
         </button>
         <button
           v-if="showFiscalDemo"
@@ -433,7 +435,7 @@ onBeforeUnmount(() => {
           class="press mt-2 h-9 w-full rounded-full text-[12px] font-bold text-white/45"
           @click="onDecoded(FISCAL_DEMO_PAYLOAD)"
         >
-          DEV · фискальный чек
+          {{ t('scan.devFiscal') }}
         </button>
       </div>
     </div>
@@ -445,15 +447,15 @@ onBeforeUnmount(() => {
       class="relative z-20 flex flex-col items-center gap-4 px-4 pb-[calc(env(safe-area-inset-bottom)+28px)]"
     >
       <p class="scan-caption text-center text-[15px] font-semibold text-white">
-        <template v-if="cameraState === 'starting'">Разрешите доступ к камере</template>
-        <template v-else>{{ mode === 'scan' ? 'Наведите на QR-код чека' : 'Сфотографируйте чек' }}</template>
+        <template v-if="cameraState === 'starting'">{{ t('scan.allowCamera') }}</template>
+        <template v-else>{{ mode === 'scan' ? t('scan.aimAtQr') : t('scan.photoTitle') }}</template>
       </p>
       <!-- iOS: доступ спрашивается один раз за запуск приложения — поясняем -->
       <p
         v-if="cameraState === 'starting' && isIos"
         class="scan-caption -mt-2 max-w-[300px] text-center text-[12.5px] font-semibold leading-snug text-white/70"
       >
-        Это нужно один раз за запуск ZAP!
+        {{ t('scan.oncePerLaunch') }}
       </p>
 
       <!-- поддерживаемые источники: реальные логотипы на светлой плашке
@@ -472,7 +474,7 @@ onBeforeUnmount(() => {
       <button
         v-if="mode === 'photo'"
         type="button"
-        aria-label="Снять фото"
+        :aria-label="t('scan.shutterAria')"
         class="press flex h-[72px] w-[72px] items-center justify-center rounded-full border-[5px] border-white/85 disabled:opacity-60"
         :disabled="ocrBusy"
         @click="capturePhoto"
@@ -486,7 +488,7 @@ onBeforeUnmount(() => {
         class="press scan-caption text-[13.5px] font-bold text-white/75"
         @click="router.push('/split/amount')"
       >
-        Ввести сумму вручную
+        {{ t('scan.manual') }}
       </button>
     </div>
   </div>

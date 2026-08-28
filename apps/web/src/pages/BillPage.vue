@@ -14,8 +14,10 @@ import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
 import { onBeforeUnmount, onMounted } from 'vue'
 import { bus } from '@/lib/bus'
 import * as api from '@/api'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 const draft = useDraftStore()
 const contacts = useContactsStore()
 const splits = useSplitsStore()
@@ -99,11 +101,11 @@ async function onOcrFile(e: Event) {
     const res = await api.fiscalOcr(file)
     if (res.receipt) {
       draft.applyFiscalItems(res.receipt as never, true)
-      toast.success('Чек распознан с фото')
+      toast.success(t('bill.photoOk'))
       router.push('/split/review')
     }
   } catch (err) {
-    toast(err instanceof Error && err.message ? err.message : 'Не удалось распознать фото')
+    toast(err instanceof Error && err.message ? err.message : t('bill.photoFailed'))
   } finally {
     ocrBusy.value = false
     ;(e.target as HTMLInputElement).value = ''
@@ -124,14 +126,14 @@ async function confirmPayWhole() {
   paying.value = true
   // соло-сплит: один участник, закрывается сразу → экран «Готово»
   const split = await splits.create({
-    title: 'Счёт целиком',
+    title: t('bill.wholeBill'),
     total: bill.value.total,
     mode: 'equal',
     merchantId: bill.value.merchantId,
     bill: bill.value,
     members: [{ contactId: 'me', amount: bill.value.total }],
   })
-  toast.success('Оплачено · ' + money(bill.value.total))
+  toast.success(t('bill.paidToast', { amount: money(bill.value.total) }))
   router.replace('/split/' + split.id + '/closed')
 }
 </script>
@@ -140,7 +142,7 @@ async function confirmPayWhole() {
   <div v-if="bill" class="flex min-h-dvh flex-col bg-paper px-5 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[17px] font-semibold"
       @click="router.push('/split/scan')"
     >
@@ -151,12 +153,12 @@ async function confirmPayWhole() {
       <div class="flex flex-col items-start gap-1.5">
         <template v-if="isFiscal">
           <span class="flex h-[64px] w-[64px] items-center justify-center rounded-[18px] bg-ink text-[24px] font-extrabold text-lime">
-            {{ (fiscal?.merchant ?? 'Ч')[0] }}
+            {{ (fiscal?.merchant ?? t('bill.merchantInitialFallback'))[0] }}
           </span>
           <!-- пока чек грузится и продавец неизвестен — скелетон вместо заглушки -->
           <span v-if="fiscalLoading && !fiscal?.merchant" class="zap-skeleton mt-0.5 h-6 w-40 animate-pulse rounded-md bg-stone/60" />
-          <h1 v-else class="text-[19px] font-extrabold">{{ fiscal?.merchant ?? 'Фискальный чек' }}</h1>
-          <p class="font-mono text-[9.5px] font-bold tracking-[0.12em] text-faint-2">ЧЕК ИЗ QR · ОФД</p>
+          <h1 v-else class="text-[19px] font-extrabold">{{ fiscal?.merchant ?? t('bill.fiscalTitle') }}</h1>
+          <p class="font-mono text-[9.5px] font-bold tracking-[0.12em] text-faint-2">{{ t('bill.fiscalSource') }}</p>
           <!-- DEBUG: отсканированная ссылка (временно) -->
           <p v-if="draft.scannedPayload" class="mt-1.5 max-w-full break-all rounded-md bg-shell px-2 py-1 font-mono text-[9px] leading-tight text-muted">
             🐛 {{ draft.scannedPayload }}
@@ -166,7 +168,7 @@ async function confirmPayWhole() {
           <img :src="bellissimoLogo" alt="Bellissimo Pizza" class="merchant-img -ml-2.5 h-[84px] w-[84px] object-cover" />
           <h1 class="text-[19px] font-extrabold">{{ merchant?.name ?? 'Bellissimo Pizza' }}</h1>
           <p class="font-mono text-[9.5px] font-bold tracking-[0.12em] text-faint-2">
-            ЗАКАЗ #{{ bill.orderNo }} · СТОЛ {{ bill.table }} · {{ bill.time }}
+            {{ t('bill.orderTable', { order: bill.orderNo, table: bill.table, time: bill.time }) }}
           </p>
         </template>
       </div>
@@ -175,20 +177,20 @@ async function confirmPayWhole() {
 
       <!-- фискальный чек: позиции догружаются — скелетон; фейл — тихие чипы -->
       <div v-if="isFiscal && fiscal?.status === 'pending'" class="mt-2.5 flex flex-col gap-2.5 py-1">
-        <p class="text-[12.5px] font-semibold text-muted">Получаем чек…</p>
+        <p class="text-[12.5px] font-semibold text-muted">{{ t('bill.loading') }}</p>
         <div v-for="i in 3" :key="i" class="flex items-center justify-between">
           <span class="zap-skeleton h-4 animate-pulse rounded-md bg-stone/60" :style="{ width: 120 + i * 30 + 'px' }" />
           <span class="zap-skeleton h-4 w-16 animate-pulse rounded-md bg-stone/60" />
         </div>
       </div>
       <div v-else-if="fiscalFailed" class="mt-2.5 rounded-inner bg-shell px-4 py-4">
-        <p class="text-[14px] font-bold">Чек не загрузился</p>
+        <p class="text-[14px] font-bold">{{ t('bill.loadFailed') }}</p>
         <p class="mt-0.5 text-[12.5px] font-semibold leading-snug text-muted">
-          {{ fiscalNoTotal ? 'Сфотографируйте чек или введите сумму вручную' : 'Сумма чека уже есть — можно продолжать' }}
+          {{ fiscalNoTotal ? t('bill.photoOrManual') : t('bill.totalKnown') }}
         </p>
         <div class="mt-3.5 flex flex-col gap-2">
           <label class="press flex h-12 w-full cursor-pointer items-center justify-center gap-2 rounded-full bg-ink text-[14px] font-bold text-paper">
-            <span>📷</span> Сфотографировать чек
+            <span>📷</span> {{ t('bill.photographReceipt') }}
             <input type="file" accept="image/*" capture="environment" class="hidden" @change="onOcrFile" />
           </label>
           <button
@@ -196,7 +198,7 @@ async function confirmPayWhole() {
             class="press h-12 w-full rounded-full bg-sand text-[14px] font-bold text-ink"
             @click="fiscalNoTotal ? router.push('/split/amount') : router.push('/split/members')"
           >
-            {{ fiscalNoTotal ? 'Ввести сумму вручную' : `Продолжить с суммой · ${money(bill.total)}` }}
+            {{ fiscalNoTotal ? t('bill.manualAmount') : t('bill.continueWith', { amount: money(bill.total) }) }}
           </button>
         </div>
       </div>
@@ -217,7 +219,7 @@ async function confirmPayWhole() {
       <template v-if="!fiscalNoTotal">
         <div class="mt-2.5 border-t-2 border-dashed border-hairline" />
         <div class="mt-3.5 flex items-baseline justify-between">
-          <span class="text-[15px] font-extrabold">Итого</span>
+          <span class="text-[15px] font-extrabold">{{ t('bill.totalRow') }}</span>
           <!-- тотал приходит вместе с чеком: пока грузится — скелетон, не «0» -->
           <span v-if="fiscalLoading && !bill.total" class="zap-skeleton h-5 w-24 animate-pulse rounded-md bg-stone/60" />
           <span v-else class="flex items-baseline gap-1.5">
@@ -242,7 +244,7 @@ async function confirmPayWhole() {
         :disabled="fiscalLoading"
         @click="toSplit"
       >
-        Разделить
+        {{ t('bill.split') }}
       </button>
       <button
         type="button"
@@ -250,13 +252,13 @@ async function confirmPayWhole() {
         :disabled="fiscalLoading"
         @click="payWholeSheet = true"
       >
-        Оплатить целиком
+        {{ t('bill.payWhole') }}
       </button>
     </div>
 
     <PinSheet
       :open="payWholeSheet"
-      :hint="`Оплата целиком · ${money(bill.total)} UZS · ${merchant?.name ?? 'Bellissimo'}`"
+      :hint="t('bill.pinHint', { amount: money(bill.total), merchant: merchant?.name ?? 'Bellissimo' })"
       @close="payWholeSheet = false"
       @confirm="confirmPayWhole"
     />

@@ -20,10 +20,12 @@ import AmountField from '@/components/AmountField.vue'
 import AnimatedAmount from '@/components/AnimatedAmount.vue'
 import InvisibleDigits from '@/components/InvisibleDigits.vue'
 import wordmark from '@/assets/brand/logo/zap-wordmark-large.png'
+import { useI18n } from 'vue-i18n'
 
 const isDev = import.meta.env.DEV
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const contacts = useContactsStore()
 const user = useUserStore()
 
@@ -44,7 +46,7 @@ type PublicExtras = {
   memberNames?: Record<string, string>
 }
 const extras = computed(() => (split.value as unknown as PublicExtras | null) ?? {})
-const creatorName = computed(() => extras.value.creatorName || 'Организатор')
+const creatorName = computed(() => extras.value.creatorName || t('participant.organizer'))
 const paidTotal = computed(() => extras.value.paidTotal ?? 0)
 const paidCount = computed(() => extras.value.paidCount ?? 0)
 const memberCount = computed(() => extras.value.memberCount ?? split.value?.members.length ?? 0)
@@ -108,7 +110,9 @@ const remaining = computed(() => Math.max(0, (split.value?.total ?? 0) - paidTot
 const half = computed(() => r1000(myShare.value / 2))
 const double = computed(() => Math.min(myShare.value * 2, remaining.value))
 const quickAmounts = computed(() => [100000, 250000].filter((q) => q < myShare.value))
-const selectionLabel = computed(() => (amount.value === myShare.value ? 'UZS · ВАША ДОЛЯ' : 'UZS · К ОПЛАТЕ'))
+const selectionLabel = computed(() =>
+  amount.value === myShare.value ? t('participant.yourShare') : t('participant.toPayLabel'),
+)
 
 const customSheet = ref(false)
 const customRaw = ref('')
@@ -135,14 +139,14 @@ async function confirmPay() {
     // подтянуть свежий прогресс/кэшбэк
     void api.fetchSplitByCode(String(route.params.code)).then((s) => { if (s) split.value = s })
   } catch (e) {
-    toast(e instanceof Error && e.message ? e.message : 'Оплата не прошла — попробуйте ещё раз')
+    toast(e instanceof Error && e.message ? e.message : t('participant.payFailed'))
   } finally {
     paying.value = false
   }
 }
 
 function later() {
-  toast('Хорошо, напомним вечером')
+  toast(t('participant.laterToast'))
 }
 
 // ---- «Открыть ZAP!»: если нужен PIN — inline-шит, затем на главную ----
@@ -214,7 +218,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
     <template v-else-if="!split">
       <div class="flex flex-1 flex-col items-center justify-center text-center">
         <span class="text-[40px]">🤷</span>
-        <p class="mt-3 text-[16px] font-bold">Сплит не найден или уже закрыт</p>
+        <p class="mt-3 text-[16px] font-bold">{{ t('participant.notFound') }}</p>
       </div>
     </template>
 
@@ -223,19 +227,19 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
       <div class="flex flex-1 flex-col">
         <div class="mt-8 flex flex-col items-center">
           <ConfettiBurst />
-          <h1 class="mt-6 text-center text-[24px] font-extrabold">{{ paid ? 'Ваша доля внесена' : 'Ваша доля уже внесена' }}</h1>
+          <h1 class="mt-6 text-center text-[24px] font-extrabold">{{ paid ? t('participant.paidNow') : t('participant.alreadyPaid') }}</h1>
           <p class="mt-1 text-[30px] font-extrabold tracking-[-0.02em]">{{ money(myShare) }}</p>
           <p class="mt-2 text-center text-[13.5px] font-semibold" :class="isClosed ? 'text-on-lime' : 'text-muted'">
-            <template v-if="isClosed && yourCashback > 0">🎁 Кэшбэк +{{ money(yourCashback) }} начислен</template>
-            <template v-else>Кэшбэк ×2 придёт, когда сплит закроется</template>
+            <template v-if="isClosed && yourCashback > 0">{{ t('participant.cashbackCredited', { amount: money(yourCashback) }) }}</template>
+            <template v-else>{{ t('participant.paidText') }}</template>
           </p>
         </div>
 
         <!-- live-прогресс сплита -->
         <div class="mt-8 rounded-card bg-shell p-[18px]">
           <div class="flex items-baseline justify-between">
-            <span class="text-[14px] font-extrabold">{{ isClosed ? 'Сплит закрыт' : 'Собираем доли' }}</span>
-            <span class="text-[13px] font-bold text-muted">Оплачено {{ paidCount }} из {{ memberCount }}</span>
+            <span class="text-[14px] font-extrabold">{{ isClosed ? t('participant.splitClosed') : t('participant.collecting') }}</span>
+            <span class="text-[13px] font-bold text-muted">{{ t('participant.paidOfCount', { paid: paidCount, total: memberCount }) }}</span>
           </div>
           <div class="mt-3 h-2.5 overflow-hidden rounded-full bg-sand">
             <div class="h-full rounded-full bg-lime transition-[width] duration-700 ease-out" :style="{ width: progress + '%' }" />
@@ -260,7 +264,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
           class="press h-14 rounded-full bg-lime text-[16px] font-extrabold text-on-lime"
           @click="openZap"
         >
-          Открыть ZAP!
+          {{ t('participant.openApp') }}
         </button>
       </div>
     </template>
@@ -272,11 +276,11 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
           <span class="flex h-[34px] w-[34px] items-center justify-center rounded-full bg-ink text-[14px] font-extrabold text-lime">
             {{ creatorName[0]?.toUpperCase() }}
           </span>
-          <span class="text-[13.5px] font-semibold text-muted">{{ creatorName }} просит вашу долю</span>
+          <span class="text-[13.5px] font-semibold text-muted">{{ t('participant.asks', { name: creatorName }) }}</span>
         </div>
         <h1 class="mt-4 text-[26px] font-extrabold tracking-[-0.01em]">{{ split.title }}</h1>
         <p class="mt-[5px] text-[13.5px] font-semibold text-muted">
-          <template v-if="split.bill">заказ #{{ split.bill.orderNo }} · </template>{{ peopleCount(split.members.length) }}
+          <template v-if="split.bill">{{ t('participant.orderNo', { no: split.bill.orderNo }) }}</template>{{ peopleCount(split.members.length) }}
         </p>
         <div class="mt-[22px] flex items-baseline gap-2">
           <AnimatedAmount
@@ -288,7 +292,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
         </div>
       </div>
 
-      <p class="mt-[30px] font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">ВНЕСТИ СРАЗУ</p>
+      <p class="mt-[30px] font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('participant.payNowLabel') }}</p>
       <div class="mt-3 grid grid-cols-3 gap-2.5">
         <button
           type="button"
@@ -297,7 +301,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
           @click="amount = myShare"
         >
           <span class="text-[15px] font-extrabold">{{ money(myShare) }}</span>
-          <span class="text-[10.5px] font-bold text-muted">моя доля</span>
+          <span class="text-[10.5px] font-bold text-muted">{{ t('participant.chipMine') }}</span>
         </button>
         <button
           type="button"
@@ -306,7 +310,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
           @click="amount = half"
         >
           <span class="text-[15px] font-extrabold">{{ money(half) }}</span>
-          <span class="text-[10.5px] font-bold text-muted">половина</span>
+          <span class="text-[10.5px] font-bold text-muted">{{ t('participant.chipHalf') }}</span>
         </button>
         <button
           v-if="double > myShare"
@@ -316,7 +320,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
           @click="amount = double"
         >
           <span class="text-[15px] font-extrabold">{{ money(double) }}</span>
-          <span class="text-[10.5px] font-bold text-muted">за двоих</span>
+          <span class="text-[10.5px] font-bold text-muted">{{ t('participant.chipTwo') }}</span>
         </button>
         <button
           v-for="q in quickAmounts"
@@ -339,7 +343,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
 
       <div class="mt-[18px] flex items-center gap-2">
         <span class="h-[9px] w-[9px] rounded-full border-2 border-on-lime bg-lime" />
-        <span class="text-[12px] font-semibold text-muted">Внесёте всей группой — кэшбэк ×2 каждому</span>
+        <span class="text-[12px] font-semibold text-muted">{{ t('participant.hint') }}</span>
       </div>
 
       <div class="flex-1" />
@@ -351,10 +355,10 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
           :disabled="amount <= 0"
           @click="isRealApi ? void confirmPay() : (pinConfirmSheet = true)"
         >
-          Внести {{ money(amount) }}
+          {{ t('participant.pay', { amount: money(amount) }) }}
         </button>
         <button type="button" class="press h-14 rounded-full bg-sand text-[16px] font-bold text-ink" @click="later">
-          Позже · напомнить вечером
+          {{ t('participant.later') }}
         </button>
       </div>
     </template>
@@ -363,7 +367,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
     <PinSheet
       :open="pinConfirmSheet"
       any-pin
-      :hint="`Оплата вашей доли · ${money(amount)} UZS`"
+      :hint="t('participant.pinHint', { amount: money(amount) })"
       @close="pinConfirmSheet = false"
       @confirm="confirmPay"
     />
@@ -371,8 +375,8 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
     <!-- inline: придумать PIN после первой оплаты -->
     <BottomSheet :open="pinSetupSheet" @close="skipPin">
       <div class="pb-4">
-        <p class="text-center text-[16px] font-extrabold">Придумайте PIN для входа</p>
-        <p class="mt-1 text-center text-[13px] font-semibold text-muted">4 цифры — чтобы быстро заходить в ZAP!</p>
+        <p class="text-center text-[16px] font-extrabold">{{ t('participant.setPinTitle') }}</p>
+        <p class="mt-1 text-center text-[13px] font-semibold text-muted">{{ t('participant.setPinHint') }}</p>
         <div class="mt-5 flex justify-center">
           <InvisibleDigits :length="4" :model-value="pinSetupDigits" autofocus @update:model-value="onPinSetup">
             <div class="flex gap-2.5">
@@ -387,7 +391,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
           </InvisibleDigits>
         </div>
         <button type="button" class="press mt-5 h-12 w-full rounded-full bg-sand text-[15px] font-bold text-muted" @click="skipPin">
-          Позже
+          {{ t('participant.later') }}
         </button>
       </div>
     </BottomSheet>
@@ -397,7 +401,7 @@ const showSuccess = computed(() => paid.value || alreadyPaid.value)
         <AmountField v-if="customSheet" v-model="customRaw" autofocus placeholder-zero display-class="text-[36px] leading-none" class="my-5" />
         <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">UZS</p>
         <button type="button" class="press mt-4 h-12 w-full rounded-full bg-ink text-[15px] font-bold text-paper" @click="customCommit">
-          Готово
+          {{ t('common.done') }}
         </button>
       </div>
     </BottomSheet>

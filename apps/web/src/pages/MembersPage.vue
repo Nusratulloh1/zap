@@ -17,8 +17,10 @@ import BottomSheet from '@/components/BottomSheet.vue'
 import AmountField from '@/components/AmountField.vue'
 import PinSheet from '@/components/PinSheet.vue'
 import AnimatedList from '@/components/AnimatedList.vue'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 const draft = useDraftStore()
 const contacts = useContactsStore()
 const user = useUserStore()
@@ -33,10 +35,10 @@ if (draft.total <= 0) router.replace('/split/scan')
 
 const modeOptions = computed(() => {
   const base: { value: string; label: string }[] = [
-    { value: 'equal', label: 'Поровну' },
-    { value: 'manual', label: 'Вручную' },
+    { value: 'equal', label: 'members.modeEqual' },
+    { value: 'manual', label: 'members.modeManual' },
   ]
-  if (draft.bill) base.push({ value: 'items', label: 'Позиции' })
+  if (draft.bill) base.push({ value: 'items', label: 'members.modeItems' })
   return base
 })
 
@@ -46,7 +48,7 @@ const mode = computed({
 })
 
 function nameOf(id: string): string {
-  return id === 'me' ? (user.user?.name || 'Вы') : (contacts.byId(id)?.name ?? '?')
+  return id === 'me' ? (user.user?.name || t('members.youShort')) : (contacts.byId(id)?.name ?? '?')
 }
 
 function colorOf(id: string): string {
@@ -54,10 +56,10 @@ function colorOf(id: string): string {
 }
 
 function subOf(contactId: string, debt: boolean): string {
-  if (contactId === 'me') return 'оплатите сразу'
-  if (debt) return 'сейчас без денег — беру в долг'
+  if (contactId === 'me') return t('members.youPayNow')
+  if (debt) return t('members.debtNote')
   const handle = contacts.byId(contactId)?.handle
-  return handle ? `${handle} · ссылка в SMS` : 'ссылка в SMS'
+  return handle ? t('members.viaSmsWithHandle', { handle }) : t('members.viaSms')
 }
 
 const notAdded = computed(() => contacts.contacts.filter((c) => !draft.hasMember(c.id)))
@@ -169,10 +171,12 @@ const pendingCashback = computed(() => Math.min(user.settings.pendingCashback ??
 const validationMessage = computed(() => {
   if (draft.mode === 'manual' && draft.sharesSum !== draft.total) {
     const diff = draft.total - draft.sharesSum
-    return diff > 0 ? `Не хватает ${money(diff)} до итога` : `Сумма больше итога на ${money(-diff)}`
+    return diff > 0
+    ? t('members.sumMismatch', { amount: money(diff) })
+    : t('members.sumOver', { amount: money(-diff) })
   }
   if (draft.mode === 'items' && draft.unassignedItems > 0) {
-    return `Не распределено позиций: ${draft.unassignedItems}`
+    return t('members.itemsUnassigned', { n: draft.unassignedItems })
   }
   return ''
 })
@@ -182,13 +186,17 @@ const creating = ref(false)
 
 const merchant = computed(() => contacts.merchantById(draft.merchantId))
 
-const GEN: Record<string, string> = { Али: 'Али', Бек: 'Бека', Азиз: 'Азиза', Тимур: 'Тимура', Мадина: 'Мадины' }
+
 
 const ctaSub = computed(() => {
   const debtor = draft.debtMembers[0]
-  if (!debtor) return `Ваша доля ${money(draft.myShare)}`
+  if (!debtor) return t('members.ctaSub', { mine: money(draft.myShare) })
   const n = nameOf(debtor.contactId)
-  return `Ваша доля ${money(draft.myShare)} + доля ${GEN[n] ?? n} в долг ${money(draft.shares[debtor.contactId] ?? 0)}`
+  return t('members.ctaSubDebt', {
+    mine: money(draft.myShare),
+    name: n,
+    amount: money(draft.shares[debtor.contactId] ?? 0),
+  })
 })
 
 async function createSplit() {
@@ -196,7 +204,7 @@ async function createSplit() {
   if (creating.value) return
   creating.value = true
   const split = await splits.create({
-    title: draft.title.trim() || (draft.bill ? 'Ужин пятница 🍕' : 'Совместный счёт'),
+    title: draft.title.trim() || (draft.bill ? t('members.forWhatPlaceholder') : t('members.defaultTitle')),
     total: draft.total,
     mode: draft.mode,
     merchantId: draft.merchantId,
@@ -216,14 +224,14 @@ async function createSplit() {
   <div class="flex min-h-dvh flex-col bg-paper px-6 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[18px] font-semibold"
       @click="router.back()"
     >
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
 
-    <h1 class="mt-[26px] text-[27px] font-extrabold tracking-[-0.01em]">С кем делим?</h1>
+    <h1 class="mt-[26px] text-[27px] font-extrabold tracking-[-0.01em]">{{ t('members.title') }}</h1>
 
     <div class="mt-3.5 flex items-baseline gap-2">
       <span class="text-[40px] font-extrabold leading-none tracking-[-0.03em]">{{ money(draft.total) }}</span>
@@ -231,18 +239,18 @@ async function createSplit() {
     </div>
 
     <label class="mt-3.5 flex items-center gap-2.5 border-b-2 border-lime pb-2.5">
-      <span class="shrink-0 text-[15.5px] font-extrabold text-muted">За что</span>
+      <span class="shrink-0 text-[15.5px] font-extrabold text-muted">{{ t('members.forWhat') }}</span>
       <input
         v-model="draft.title"
         name="split-title"
         autocomplete="off"
-        placeholder="Ужин пятница 🍕"
+        :placeholder="t('members.forWhatPlaceholder')"
         class="w-full bg-transparent text-[16px] font-bold text-ink outline-none [caret-color:#DDFF33] placeholder:text-faint"
       />
     </label>
 
     <p v-if="draft.mode === 'equal'" class="mt-2 text-[12.5px] font-semibold text-faint">
-      по {{ money(draft.shares['me'] ?? 0) }} на человека
+      {{ t('members.perPerson', { amount: money(draft.shares['me'] ?? 0) }) }}
     </p>
     <p v-else-if="validationMessage" class="mt-2 text-[12.5px] font-semibold text-danger">{{ validationMessage }}</p>
 
@@ -273,7 +281,7 @@ async function createSplit() {
           />
         </button>
         <div class="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span class="text-[16px] font-bold">{{ nameOf(m.contactId) }}<template v-if="m.contactId === 'me'"> · вы</template></span>
+          <span class="text-[16px] font-bold">{{ nameOf(m.contactId) }}<template v-if="m.contactId === 'me'">{{ t('members.youSuffix') }}</template></span>
           <span class="text-[12.5px] font-semibold text-faint">{{ subOf(m.contactId, m.debt) }}</span>
         </div>
         <button type="button" class="press" @click="onAmountTap(m.contactId)">
@@ -281,7 +289,7 @@ async function createSplit() {
             v-if="m.debt"
             class="remind-chip flex h-[30px] items-center rounded-full bg-ink px-3 font-mono text-[10px] font-bold tracking-[0.08em] text-lime"
           >
-            В ДОЛГ
+            {{ t('members.debtToggle') }}
           </span>
           <span v-else class="text-[16px] font-extrabold" :class="draft.mode === 'manual' ? 'rounded-lg bg-sand px-2 py-1' : ''">
             {{ money(draft.shares[m.contactId] ?? 0) }}
@@ -307,7 +315,7 @@ async function createSplit() {
             @click="draft.toggleItem(m.contactId, item.id); tap()"
           >
             <ZapAvatar :name="nameOf(m.contactId)" :color="colorOf(m.contactId)" :contact-id="m.contactId" class="h-6 w-6" size="xs" />
-            {{ m.contactId === 'me' ? 'Вы' : nameOf(m.contactId) }}
+            {{ m.contactId === 'me' ? t('members.youShort') : nameOf(m.contactId) }}
           </button>
         </div>
       </div>
@@ -315,8 +323,8 @@ async function createSplit() {
 
     <!-- добавить -->
     <div class="mt-6 flex items-baseline justify-between">
-      <span class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">ДОБАВИТЬ</span>
-      <button type="button" class="text-[13px] font-bold text-muted" @click="allContactsSheet = true">Все контакты ›</button>
+      <span class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('members.addContacts') }}</span>
+      <button type="button" class="text-[13px] font-bold text-muted" @click="allContactsSheet = true">{{ t('members.allContacts') }}</button>
     </div>
     <div class="no-scrollbar -mx-6 mt-3.5 flex gap-3.5 overflow-x-auto px-6">
       <button
@@ -339,11 +347,11 @@ async function createSplit() {
             <line x1="14.5" y1="14.5" x2="19" y2="19" stroke="#A3A199" stroke-width="2.2" stroke-linecap="round" />
           </svg>
         </span>
-        <span class="text-[11.5px] font-bold text-faint-2">Найти</span>
+        <span class="text-[11.5px] font-bold text-faint-2">{{ t('members.findLabel') }}</span>
       </button>
       <button type="button" class="press flex min-w-[56px] flex-col items-center gap-1.5" @click="phoneSheet = true">
         <span class="flex h-[52px] w-[52px] items-center justify-center rounded-full bg-sand text-[22px] font-semibold text-faint-2">+</span>
-        <span class="text-[11.5px] font-bold text-faint-2">Номер</span>
+        <span class="text-[11.5px] font-bold text-faint-2">{{ t('members.numberLabel') }}</span>
       </button>
     </div>
 
@@ -356,11 +364,11 @@ async function createSplit() {
         :disabled="!draft.isValid || creating"
         @click="pinSheet = true"
       >
-        Сплит · оплатить {{ money(draft.payNow) }}
+        {{ t('members.ctaSplit', { amount: money(draft.payNow) }) }}
       </button>
       <p class="mt-3 text-center text-[12px] font-semibold text-muted">{{ ctaSub }}</p>
       <p v-if="pendingCashback > 0" class="mt-1.5 flex justify-center">
-        <span class="flex h-6 items-center rounded-full bg-lime px-2.5 text-[11px] font-extrabold text-on-lime">кэшбэк −{{ money(pendingCashback) }}</span>
+        <span class="flex h-6 items-center rounded-full bg-lime px-2.5 text-[11px] font-extrabold text-on-lime">{{ t('members.cashbackChip', { amount: money(pendingCashback) }) }}</span>
       </p>
     </div>
 
@@ -371,7 +379,7 @@ async function createSplit() {
         <AmountField v-if="editing" v-model="editRaw" autofocus placeholder-zero display-class="text-[36px] leading-none" class="my-5" />
         <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">UZS</p>
         <button type="button" class="press mt-4 h-12 w-full rounded-full bg-ink text-[15px] font-bold text-paper" @click="commitEdit">
-          Готово
+          {{ t('common.done') }}
         </button>
       </div>
     </BottomSheet>
@@ -379,7 +387,7 @@ async function createSplit() {
     <!-- все контакты -->
     <BottomSheet :open="allContactsSheet" @close="allContactsSheet = false">
       <div class="pb-4">
-        <p class="mb-3 text-center text-[15px] font-extrabold">Контакты</p>
+        <p class="mb-3 text-center text-[15px] font-extrabold">{{ t('members.contactsTitle') }}</p>
         <label class="mb-2 flex h-11 items-center gap-2.5 rounded-full bg-sand px-4">
           <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
             <circle cx="9.5" cy="9.5" r="6.5" stroke="#A3A199" stroke-width="2.2" />
@@ -387,7 +395,7 @@ async function createSplit() {
           </svg>
           <input
             v-model="contactSearch"
-            placeholder="Имя или @username"
+            :placeholder="t('members.contactsSearch')"
             autocapitalize="none"
             autocomplete="off"
             class="w-full bg-transparent text-[16px] font-semibold outline-none placeholder:text-faint"
@@ -396,9 +404,9 @@ async function createSplit() {
 
         <!-- найдено в ZAP! по @username (когда в контактах нет) -->
         <template v-if="contactSearch.trim().length >= 2">
-          <p v-if="searching" class="py-3 text-center text-[12.5px] font-semibold text-muted">Ищем в ZAP!…</p>
+          <p v-if="searching" class="py-3 text-center text-[12.5px] font-semibold text-muted">{{ t('members.searching') }}</p>
           <template v-else-if="userResults.length">
-            <p class="pt-3 font-mono text-[10px] font-bold tracking-[0.14em] text-faint-2">ПОЛЬЗОВАТЕЛИ ZAP!</p>
+            <p class="pt-3 font-mono text-[10px] font-bold tracking-[0.14em] text-faint-2">{{ t('members.zapUsers') }}</p>
             <div
               v-for="u in userResults"
               :key="u.id"
@@ -414,12 +422,12 @@ async function createSplit() {
                 class="press h-8 shrink-0 rounded-full bg-lime px-3.5 text-[12px] font-extrabold text-on-lime"
                 @click="addFoundUser(u)"
               >
-                Добавить
+                {{ t('members.addAction') }}
               </button>
             </div>
           </template>
           <p v-else-if="!filteredContacts.length" class="py-3 text-center text-[12.5px] font-semibold text-muted">
-            Никого не нашли — добавьте по номеру
+            {{ t('members.nothingFound') }}
           </p>
         </template>
 
@@ -439,7 +447,7 @@ async function createSplit() {
             :class="draft.hasMember(c.id) ? 'bg-sand text-muted' : 'bg-ink text-paper'"
             @click="draft.hasMember(c.id) ? draft.removeMember(c.id) : draft.addMember(c.id)"
           >
-            {{ draft.hasMember(c.id) ? 'Убрать' : 'Добавить' }}
+            {{ draft.hasMember(c.id) ? t('members.remove') : t('members.addAction') }}
           </button>
         </div>
       </div>
@@ -448,7 +456,7 @@ async function createSplit() {
     <!-- «+ Номер» -->
     <BottomSheet :open="phoneSheet" @close="phoneSheet = false">
       <div class="pb-4">
-        <p class="text-center text-[15px] font-extrabold">Добавить по номеру</p>
+        <p class="text-center text-[15px] font-extrabold">{{ t('members.addByNumberTitle') }}</p>
         <label class="mt-4 flex items-center gap-3 border-b-2 border-lime pb-3">
           <span class="text-[22px] font-bold text-muted">+998</span>
           <input
@@ -465,7 +473,7 @@ async function createSplit() {
             v-model="phoneName"
             type="text"
             autocomplete="name"
-            placeholder="Имя и фамилия"
+            :placeholder="t('members.namePlaceholder')"
             class="w-full bg-transparent text-[17px] font-bold outline-none [caret-color:#DDFF33] placeholder:text-faint"
             @keydown.enter="addByPhone"
           />
@@ -476,14 +484,16 @@ async function createSplit() {
           :disabled="phoneDigits.length !== 9 || phoneName.trim().length < 2"
           @click="addByPhone"
         >
-          Добавить
+          {{ t('members.addAction') }}
         </button>
       </div>
     </BottomSheet>
 
     <PinSheet
       :open="pinSheet"
-      :hint="`Оплата вашей доли · ${money(draft.payNow)} UZS${merchant ? ' · ' + merchant.name : ''}`"
+      :hint="merchant
+          ? t('members.pinHintMerchant', { amount: money(draft.payNow), merchant: merchant.name })
+          : t('members.pinHint', { amount: money(draft.payNow) })"
       @close="pinSheet = false"
       @confirm="createSplit"
     />

@@ -95,13 +95,13 @@ watch(cardSms, async (v) => {
   await user.addCard(cardNetwork.value, cardDigits.value.slice(-4))
   savingCard.value = false
   cardSheet.value = false
-  toast.success('Карта подтверждена и добавлена')
+  toast.success(t('profile.cardAddedConfirmed'))
 })
 
 // сделать карту основной
 async function makePrimary(cardId: string, last4: string) {
   await setPrimaryCard(cardId)
-  toast.success('Карта ·· ' + last4 + ' теперь основная')
+  toast.success(t('profile.cardNowPrimary', { last4 }))
 }
 
 // смена PIN: старый → новый → повтор
@@ -124,7 +124,7 @@ function openPinFlow() {
 }
 
 const pinTitle = computed(() =>
-  pinStep.value === 'old' ? 'Текущий PIN' : pinStep.value === 'new' ? 'Новый PIN' : 'Повторите PIN',
+  pinStep.value === 'old' ? t('profile.pinOld') : pinStep.value === 'new' ? t('profile.pinNew') : t('profile.pinRepeat'),
 )
 
 const pinModel = computed({
@@ -154,7 +154,7 @@ watch(pinModel, async (v) => {
     setTimeout(() => (pinStep.value = 'repeat'), 220)
   } else {
     if (pinRepeat.value !== pinNew.value) {
-      pinFail('PIN не совпадает')
+      pinFail(t('profile.pinMismatch'))
       return
     }
     const ok = await changePin(pinOld.value, pinNew.value)
@@ -163,11 +163,11 @@ watch(pinModel, async (v) => {
       pinOld.value = ''
       pinNew.value = ''
       pinRepeat.value = ''
-      pinFail('Старый PIN неверный')
+      pinFail(t('profile.pinOldWrong'))
       return
     }
     pinSheet.value = false
-    toast.success('PIN обновлён')
+    toast.success(t('profile.pinUpdated'))
   }
 })
 
@@ -193,7 +193,7 @@ async function confirmLogout() {
     <div class="flex items-center justify-between">
       <button
         type="button"
-        aria-label="Назад"
+        :aria-label="t('common.backAria')"
         class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[18px] font-semibold"
         @click="router.push('/')"
       >
@@ -209,7 +209,7 @@ async function confirmLogout() {
           <h1 class="text-[23px] font-extrabold tracking-[-0.01em]">{{ user.user.name }}</h1>
           <p class="text-[13.5px] font-semibold text-muted">{{ user.user.handle }} · {{ phone(user.user.phone) }}</p>
           <span class="flex h-[26px] w-fit items-center rounded-full bg-lime px-[11px] text-[11px] font-extrabold text-on-lime">
-            ZAP! с {{ user.user.memberSince }}
+            {{ t('profile.since', { date: user.user.memberSince }) }}
           </span>
         </div>
       </div>
@@ -217,20 +217,20 @@ async function confirmLogout() {
       <div class="mt-[22px] flex gap-2.5">
         <div class="flex flex-1 flex-col gap-[3px] rounded-[20px] bg-shell px-4 py-3.5">
           <span class="text-[20px] font-extrabold">{{ user.user.splitsCount }}</span>
-          <span class="text-[11.5px] font-bold text-muted">сплита</span>
+          <span class="text-[11.5px] font-bold text-muted">{{ t('profile.statSplitsUnit') }}</span>
         </div>
         <div class="flex flex-1 flex-col gap-[3px] rounded-[20px] bg-shell px-4 py-3.5">
           <span class="text-[20px] font-extrabold">{{ money(cashback.balance) }}</span>
-          <span class="text-[11.5px] font-bold text-muted">кэшбэк</span>
+          <span class="text-[11.5px] font-bold text-muted">{{ t('profile.statCashbackUnit') }}</span>
         </div>
         <div class="flex flex-1 flex-col gap-[3px] rounded-[20px] bg-shell px-4 py-3.5">
           <span class="text-[20px] font-extrabold">{{ groups.groups.length }}</span>
-          <span class="text-[11.5px] font-bold text-muted">группы</span>
+          <span class="text-[11.5px] font-bold text-muted">{{ t('profile.statGroupsUnit') }}</span>
         </div>
       </div>
 
       <!-- карты -->
-      <p class="mt-[26px] font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">КАРТЫ</p>
+      <p class="mt-[26px] font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('profile.cards') }}</p>
       <div class="mt-1 flex flex-col">
         <button
           v-for="(card, i) in user.cards"
@@ -247,24 +247,24 @@ async function confirmLogout() {
             {{ card.network === 'UZCARD' ? 'UZC' : 'HUMO' }}
           </span>
           <span class="flex-1 text-[15px] font-bold">{{ card.network }} ·· {{ card.last4 }}</span>
-          <span v-if="card.primary" class="flex h-[26px] items-center rounded-full bg-lime px-[11px] text-[11px] font-extrabold text-on-lime">основная</span>
-          <span v-else class="text-[12px] font-bold text-faint-2">сделать основной</span>
+          <span v-if="card.primary" class="flex h-[26px] items-center rounded-full bg-lime px-[11px] text-[11px] font-extrabold text-on-lime">{{ t('profile.primary') }}</span>
+          <span v-else class="text-[12px] font-bold text-faint-2">{{ t('profile.makePrimary') }}</span>
         </button>
         <button type="button" class="flex min-h-[62px] items-center gap-3.5 text-left transition-colors active:bg-sand" @click="openCardSheet">
           <span class="flex h-[30px] w-[42px] items-center justify-center rounded-lg bg-sand text-[16px] font-semibold text-faint-2">+</span>
-          <span class="flex-1 text-[15px] font-bold text-faint-2">Добавить карту</span>
+          <span class="flex-1 text-[15px] font-bold text-faint-2">{{ t('profile.addCardRow') }}</span>
         </button>
       </div>
 
       <!-- настройки -->
-      <p class="mt-[22px] font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">НАСТРОЙКИ</p>
+      <p class="mt-[22px] font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('profile.settings') }}</p>
       <div class="mt-1 flex flex-col">
         <button type="button" class="flex min-h-[56px] items-center border-b border-sand-2 transition-colors active:bg-sand" @click="openPinFlow">
-          <span class="flex-1 text-left text-[15px] font-bold">PIN и вход по Face ID</span>
+          <span class="flex-1 text-left text-[15px] font-bold">{{ t('profile.pinFaceId') }}</span>
           <span class="text-[15px] font-semibold text-mist">›</span>
         </button>
         <div class="flex min-h-[56px] items-center border-b border-sand-2">
-          <span class="flex-1 text-[15px] font-bold">Уведомления о долгах</span>
+          <span class="flex-1 text-[15px] font-bold">{{ t('profile.debtNotifs') }}</span>
           <button
             type="button"
             role="switch"
@@ -282,7 +282,7 @@ async function confirmLogout() {
           <span class="text-[15px] font-semibold text-mist">›</span>
         </button>
         <button type="button" class="flex min-h-[56px] items-center border-b border-sand-2 transition-colors active:bg-sand" @click="groupsSheet = true">
-          <span class="flex-1 text-left text-[15px] font-bold">Мои группы</span>
+          <span class="flex-1 text-left text-[15px] font-bold">{{ t('profile.myGroups') }}</span>
           <span class="mr-2 text-[13px] font-bold text-muted">{{ groups.groups.length }}</span>
           <span class="text-[15px] font-semibold text-mist">›</span>
         </button>
@@ -292,11 +292,11 @@ async function confirmLogout() {
           class="flex min-h-[56px] w-full items-center border-b border-sand-2 text-left transition-colors active:bg-sand"
           @click="install()"
         >
-          <span class="flex-1 text-[15px] font-bold">Установить приложение</span>
+          <span class="flex-1 text-[15px] font-bold">{{ t('profile.installApp') }}</span>
           <span class="text-[15px] font-semibold text-mist">›</span>
         </button>
         <button type="button" class="flex min-h-[56px] items-center text-left transition-colors active:bg-sand" @click="logoutSheet = true">
-          <span class="flex-1 text-[15px] font-bold text-ember">Выйти</span>
+          <span class="flex-1 text-[15px] font-bold text-ember">{{ t('profile.logout') }}</span>
         </button>
       </div>
     </template>
@@ -304,7 +304,7 @@ async function confirmLogout() {
     <!-- новая карта -->
     <BottomSheet :open="cardSheet" @close="cardSheet = false">
       <div class="pb-4">
-        <p class="text-center text-[16px] font-extrabold">Новая карта</p>
+        <p class="text-center text-[16px] font-extrabold">{{ t('profile.addCardTitle') }}</p>
         <div class="mt-4 flex justify-center gap-2">
           <button
             v-for="n in (['UZCARD', 'HUMO'] as const)"
@@ -318,23 +318,23 @@ async function confirmLogout() {
           </button>
         </div>
         <template v-if="cardStep === 'form'">
-          <p class="mt-5 text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">НОМЕР КАРТЫ</p>
+          <p class="mt-5 text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('profile.cardNumberLabel') }}</p>
           <InvisibleDigits v-if="cardSheet" v-model="cardDigits" :length="16" autofocus class="mt-2 py-1">
             <p class="text-center font-mono text-[20px] font-bold tabular-nums tracking-wider">{{ cardMask }}</p>
           </InvisibleDigits>
           <div class="mt-4 flex gap-3">
             <label class="flex-1">
-              <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">СРОК</p>
+              <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('profile.cardExpiry') }}</p>
               <input
                 inputmode="numeric"
-                placeholder="MM/ГГ"
+                :placeholder="t('profile.cardExpiryPlaceholder')"
                 :value="cardExpiry"
                 class="mt-1.5 w-full border-b-2 border-sand-2 bg-transparent pb-2 text-center font-mono text-[17px] font-bold outline-none transition-colors [caret-color:#DDFF33] focus:border-lime placeholder:text-faint"
                 @input="onExpiryInput"
               />
             </label>
             <label class="flex-[1.6]">
-              <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">ВЛАДЕЛЕЦ</p>
+              <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('profile.cardHolder') }}</p>
               <input
                 v-model="cardOwner"
                 autocomplete="cc-name"
@@ -349,13 +349,13 @@ async function confirmLogout() {
             :disabled="!cardFormValid"
             @click="cardContinue"
           >
-            Продолжить
+            {{ t('common.continue') }}
           </button>
         </template>
 
         <template v-else-if="cardStep === 'sms'">
           <p class="mt-5 text-center text-[14px] font-semibold text-muted">
-            Код из SMS на номер {{ phone(user.user?.phone ?? '') }}
+            {{ t('profile.codeToNumber', { phone: phone(user.user?.phone ?? '') }) }}
           </p>
           <InvisibleDigits v-if="cardSheet" v-model="cardSms" :length="6" one-time-code autofocus class="mt-4 py-1">
             <div class="flex justify-center gap-2">
@@ -368,13 +368,13 @@ async function confirmLogout() {
               </span>
             </div>
           </InvisibleDigits>
-          <p class="mt-4 text-center text-[12px] font-semibold text-faint">Подтверждение владельца номера</p>
+          <p class="mt-4 text-center text-[12px] font-semibold text-faint">{{ t('profile.ownerConfirm') }}</p>
         </template>
 
         <template v-else>
           <div class="flex flex-col items-center py-7">
             <span class="h-9 w-9 animate-spin rounded-full border-[3px] border-sand border-t-lime" />
-            <p class="mt-4 text-[15px] font-bold">Проверяем карту…</p>
+            <p class="mt-4 text-[15px] font-bold">{{ t('profile.checkingCard') }}</p>
             <p class="mt-1 text-[12.5px] font-semibold text-muted">{{ cardNetwork }} ·· {{ cardDigits.slice(-4) }}</p>
           </div>
         </template>
@@ -384,7 +384,7 @@ async function confirmLogout() {
     <!-- группы -->
     <BottomSheet :open="groupsSheet" @close="groupsSheet = false">
       <div class="pb-4">
-        <p class="mb-2 text-center text-[16px] font-extrabold">Мои группы</p>
+        <p class="mb-2 text-center text-[16px] font-extrabold">{{ t('profile.myGroups') }}</p>
         <button
           v-for="g in groups.groups"
           :key="g.id"
@@ -403,7 +403,7 @@ async function confirmLogout() {
       <div class="pb-6">
         <p class="text-center text-[16px] font-extrabold">{{ pinTitle }}</p>
         <p class="mt-1 text-center text-[12.5px] font-semibold" :class="pinError ? 'text-danger' : 'text-muted'">
-          {{ pinError || '4 цифры для подтверждения оплат' }}
+          {{ pinError || t('auth.pinHint') }}
         </p>
         <InvisibleDigits :key="pinStep" v-model="pinModel" :length="4" password autofocus class="mx-auto mt-5 w-fit">
           <PinDots :length="4" :filled="pinModel.length" :shake="pinShake" :size="26" :gap="14" :bar-width="146" />
@@ -414,12 +414,12 @@ async function confirmLogout() {
     <!-- выход -->
     <BottomSheet :open="logoutSheet" @close="logoutSheet = false">
       <div class="pb-6 pt-2">
-        <p class="text-center text-[17px] font-extrabold">Выйти?</p>
-        <p class="mt-1 text-center text-[13px] font-semibold text-muted">Демо сбросится к началу</p>
+        <p class="text-center text-[17px] font-extrabold">{{ t('profile.logoutConfirm') }}</p>
+        <p class="mt-1 text-center text-[13px] font-semibold text-muted">{{ t('profile.logoutNote') }}</p>
         <div class="mt-5 grid grid-cols-2 gap-2.5">
-          <button type="button" class="press h-14 rounded-full bg-sand text-[15px] font-bold" @click="logoutSheet = false">Отмена</button>
+          <button type="button" class="press h-14 rounded-full bg-sand text-[15px] font-bold" @click="logoutSheet = false">{{ t('common.cancel') }}</button>
           <button type="button" class="press h-14 rounded-full bg-ink text-[15px] font-extrabold text-paper disabled:opacity-40" :disabled="loggingOut" @click="confirmLogout">
-            Выйти
+            {{ t('profile.logout') }}
           </button>
         </div>
       </div>
