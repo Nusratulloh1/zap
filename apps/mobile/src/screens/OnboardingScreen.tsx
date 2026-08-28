@@ -10,6 +10,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 import { useSession } from '@/store/session';
+import { LanguageSwitcher } from '@/components/LanguageSheet';
 
 const { width } = Dimensions.get('window');
 const SLIDES = 3;
@@ -39,6 +40,7 @@ export function OnboardingScreen() {
   const { t } = useTranslation();
   const { fixed } = useTheme();
   const [index, setIndex] = useState(0);
+  const [langOpen, setLangOpen] = useState(false);
   // в RN 0.87 ScrollView — функциональный компонент, тип инстанса берём из пропсов
   const scroller = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
@@ -60,6 +62,11 @@ export function OnboardingScreen() {
     <Screen background={fixed.lime} darkBar={false} style={styles.root}>
       <Progress index={index} color={fixed.ink} />
 
+      {/* язык — в правом верхнем углу, напротив логотипа; тап по нему не листает сторис */}
+      <View style={styles.topBar}>
+        <LanguageSwitcher onOpenChange={setLangOpen} />
+      </View>
+
       <ScrollView
         ref={scroller}
         horizontal
@@ -73,7 +80,10 @@ export function OnboardingScreen() {
             key={s.stage}
             haptic={false}
             style={[styles.slide, { width }]}
-            onPress={() => goTo(index + 1)}
+            onPress={() => {
+              // пока открыт шит языка, тап по слайду ничего не листает
+              if (!langOpen) goTo(index + 1);
+            }}
           >
             <Animated.View entering={FadeInDown.duration(420)}>
               <Text style={[styles.stage, { color: fixed.ink }]}>{t('onboarding.stage', { n: s.stage })}</Text>
@@ -104,6 +114,7 @@ export function OnboardingScreen() {
 const styles = StyleSheet.create({
   root: { paddingHorizontal: 20 },
   progressRow: { flexDirection: 'row', gap: 6, paddingTop: 8 },
+  topBar: { flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 12 },
   barTrack: { flex: 1, height: 3, borderRadius: 999, overflow: 'hidden' },
   pager: { flex: 1, marginHorizontal: -20 },
   slide: { flex: 1, justifyContent: 'center', paddingHorizontal: 20 },

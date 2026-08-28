@@ -892,3 +892,17 @@ html.theme-xfade * {
   max-height: 100dvh;
   overflow: hidden;
 }
+
+/* Смена языка перезагружает страницу — пока идёт запрос и перезагрузка,
+   гасим экран, чтобы переход не выглядел морганием. */
+.locale-swapping body {
+  opacity: 0.62;
+}
+body {
+  transition: opacity 180ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}

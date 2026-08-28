@@ -33,6 +33,7 @@ import brandLesAiles from '@/assets/brand/partners/lesailes.svg'
 import brandOqtepa from '@/assets/brand/partners/oqtepa.svg'
 import brandClick from '@/assets/brand/partners/click.svg'
 import brandRahmat from '@/assets/brand/partners/rahmat.svg'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 defineOptions({ name: 'LandingPage' })
 
@@ -279,7 +280,10 @@ onBeforeUnmount(() => {
           <a href="#cashback" @click.prevent="goTo('#cashback')">{{ t('landing.navCashback') }}</a>
           <a href="#partners" @click.prevent="goTo('#partners')">{{ t('landing.navPartners') }}</a>
         </nav>
-        <button type="button" class="lp-btn lp-btn--sm" @click="start">{{ t('landing.navStart') }}</button>
+        <div class="lp-nav__actions">
+          <LanguageSwitcher variant="landing" mode="dropdown" align="right" />
+          <button type="button" class="lp-btn lp-btn--sm" @click="start">{{ t('landing.navStart') }}</button>
+        </div>
       </div>
     </header>
 
@@ -534,6 +538,17 @@ onBeforeUnmount(() => {
 .lp-nav__logo {
   height: 42px;
   width: auto;
+}
+.lp-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+@media (max-width: 560px) {
+  /* на узкой шапке кнопка «Начать» и без того плотная — язык прижимаем ближе */
+  .lp-nav__actions {
+    gap: 6px;
+  }
 }
 @media (min-width: 900px) {
   .lp-nav__logo {

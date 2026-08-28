@@ -15,6 +15,7 @@ import cafeBellissimo from '@/assets/brand/partners/bellissimo-logo.png'
 import cafeOqtepa from '@/assets/brand/partners/oqtepa.svg'
 import cafeSafia from '@/assets/brand/partners/safia-sq.png'
 import { useI18n } from 'vue-i18n'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const { t } = useI18n()
 
@@ -60,6 +61,7 @@ let raf = 0
 let elapsed = 0
 let lastTs = 0
 let paused = false
+const langOpen = ref(false)
 let pressStart = 0
 
 function loop(ts: number) {
@@ -92,11 +94,13 @@ function next() {
 }
 
 function onPointerDown() {
+  if (langOpen.value) return
   pressStart = performance.now()
   paused = true
 }
 
 function onPointerUp(e: PointerEvent) {
+  if (langOpen.value) return
   const wasHold = performance.now() - pressStart > 250
   paused = index.value >= SLIDES - 1 && progress.value >= 1
   if (wasHold) return
@@ -105,6 +109,12 @@ function onPointerUp(e: PointerEvent) {
   const { left, width } = (e.currentTarget as HTMLElement).getBoundingClientRect()
   if (x - left < width * 0.35) goTo(index.value - 1)
   else if (index.value < SLIDES - 1) goTo(index.value + 1)
+}
+
+/** Пока открыт список языков, история не листается сама. */
+function onLangOpen(v: boolean) {
+  langOpen.value = v
+  paused = v || (index.value >= SLIDES - 1 && progress.value >= 1)
 }
 
 function start() {
@@ -143,14 +153,19 @@ onBeforeUnmount(() => {
     />
 
     <!-- шапка: прогресс + логотип -->
-    <div class="relative z-10 px-5 pt-[calc(env(safe-area-inset-top)+20px)]">
+    <!-- z-30: слайды ниже — тоже z-10, и при равном уровне выпадающий список
+         языка уходил под их содержимое -->
+    <div class="relative z-30 px-5 pt-[calc(env(safe-area-inset-top)+20px)]">
       <StoryProgress :count="SLIDES" :index="index" :progress="progress" :palette="palette" />
-      <img
-        :src="wordmark"
-        alt="ZAP!"
-        class="mt-[14px] h-14 w-auto"
-        :class="isDark && '[filter:drop-shadow(0_0_6px_rgba(255,255,255,0.35))]'"
-      />
+      <div class="mt-[14px] flex items-center justify-between">
+        <img
+          :src="wordmark"
+          alt="ZAP!"
+          class="h-14 w-auto"
+          :class="isDark && '[filter:drop-shadow(0_0_6px_rgba(255,255,255,0.35))]'"
+        />
+        <LanguageSwitcher variant="onboarding" :on-dark="isDark" align="right" @open-change="onLangOpen" />
+      </div>
     </div>
 
     <!-- слайды -->

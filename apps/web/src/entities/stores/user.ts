@@ -53,14 +53,27 @@ export const useUserStore = defineStore('user', () => {
     session.value = await api.fetchSession()
   }
 
+  /**
+   * Язык, выбранный до входа (переключатель на лендинге/онбординге), живёт
+   * только в localStorage. Как только появился аккаунт — переносим его туда,
+   * иначе на другом устройстве человек снова увидит чужой язык.
+   */
+  function syncLocaleToAccount() {
+    if (session.value.stage !== 'authed') return
+    const chosen = storedLocale()
+    if (chosen) void api.setLocale(chosen).catch(() => undefined)
+  }
+
   async function verifyCode(code: string) {
     await api.verifyCode(code)
     session.value = await api.fetchSession()
+    syncLocaleToAccount()
   }
 
   async function setPin(pin: string) {
     await api.setPin(pin)
     session.value = await api.fetchSession()
+    syncLocaleToAccount()
   }
 
   async function logout() {
@@ -100,5 +113,6 @@ export const useUserStore = defineStore('user', () => {
     toggleDebtNotifications,
     addCard,
     dismissPromo,
+    syncLocaleToAccount,
   }
 })
