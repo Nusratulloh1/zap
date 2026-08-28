@@ -16,5 +16,8 @@
     "db:studio": "node scripts/dev-run.mjs npx prisma studio",
     "dev:fiscal-fixture": "node scripts/fiscal-fixture.mjs",
     "i18n:check": "node scripts/i18n-check.mjs"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.56.1"
   }
 }

@@ -6,7 +6,11 @@ settings:
 
 importers:
 
-  .: {}
+  .:
+    devDependencies:
+      playwright-core:
+        specifier: ^1.56.1
+        version: 1.62.1
 
   apps/backend:
     dependencies:
