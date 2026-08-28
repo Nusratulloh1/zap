@@ -7,6 +7,7 @@ export interface User {
   phone: string
   initials: string
   color: string
+  /** ISO-дата регистрации; человекочитаемый месяц собирает клиент */
   memberSince: string
   splitsCount: number
   /** язык интерфейса аккаунта: uz | ru | en */
@@ -97,7 +98,6 @@ export interface Group {
   ownerId: Id
   memberIds: Id[]
   createdAt: number
-  sinceLabel: string
   cashback: number
   accrueCashback: boolean
   merchantsCount: number

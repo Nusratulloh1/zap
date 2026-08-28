@@ -34,6 +34,7 @@ onMounted(() => {
 if (draft.total <= 0) router.replace('/split/scan')
 
 const modeOptions = computed(() => {
+  // label — ключ перевода, а не готовый текст: пересчёт при смене языка
   const base: { value: string; label: string }[] = [
     { value: 'equal', label: 'members.modeEqual' },
     { value: 'manual', label: 'members.modeManual' },
@@ -263,7 +264,7 @@ async function createSplit() {
         :class="mode === o.value ? 'bg-lime font-extrabold text-on-lime' : 'bg-sand font-bold text-slate'"
         @click="mode = o.value as 'equal' | 'manual' | 'items'"
       >
-        {{ o.label }}
+        {{ t(o.label) }}
       </button>
     </div>
 

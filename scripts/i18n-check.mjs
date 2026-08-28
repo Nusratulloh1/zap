@@ -47,6 +47,15 @@ for (const [name, keys] of locales) {
   }
 }
 
+// vue-i18n трактует «@» как ссылку на другое сообщение — литерал должен быть
+// экранирован как {'@'}, иначе шаблон не компилируется уже на проде
+for (const [name, keys] of locales) {
+  for (const [k, v] of keys) {
+    if (typeof v === 'string' && /(^|[^{'])@/.test(v))
+      errors.push(`${name}: «${k}» — неэкранированная «@», нужно {'@'}`)
+  }
+}
+
 // плюрализация: в ru у форм с «|» должно быть 3 варианта, в uz/en — 1 или 2
 const PLURAL_FORMS = { ru: [3], uz: [1, 2], en: [1, 2] }
 for (const [name, keys] of locales) {

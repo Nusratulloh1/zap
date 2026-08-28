@@ -361,7 +361,7 @@ function splitLetter(s: Split): string {
         </div>
 
         <div class="relative">
-          <div ref="promoRef" class="overflow-hidden" @click="onPromoTap">
+          <div ref="promoRef" data-carousel class="overflow-hidden" @click="onPromoTap">
             <div class="flex">
               <div v-for="(sl, i) in visibleSlides" :key="i" class="min-w-0 shrink-0 grow-0 basis-full px-1">
                 <template v-if="sl.kind === 'hero'">

@@ -28,14 +28,6 @@ import {
   refreshMotion,
 } from '@/lib/landingMotion'
 import wordmark from '@/assets/brand/logo/zap-wordmark-large.png'
-import shotHome from '@/assets/landing/app-home.webp'
-import shotAmount from '@/assets/landing/app-amount.webp'
-import shotMembers from '@/assets/landing/app-members.webp'
-import shotReceipt from '@/assets/landing/app-receipt.webp'
-import shotDone from '@/assets/landing/app-done.webp'
-import shotCashback from '@/assets/landing/app-cashback.webp'
-import shotDebts from '@/assets/landing/app-debts.webp'
-import shotHistory from '@/assets/landing/app-history.webp'
 import brandMaxway from '@/assets/brand/partners/maxway.svg'
 import brandLesAiles from '@/assets/brand/partners/lesailes.svg'
 import brandOqtepa from '@/assets/brand/partners/oqtepa.svg'
@@ -45,7 +37,16 @@ import brandRahmat from '@/assets/brand/partners/rahmat.svg'
 defineOptions({ name: 'LandingPage' })
 
 const router = useRouter()
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+// Скриншоты приложения лежат комплектом на каждый язык: в макете телефона на
+// лендинге должен быть интерфейс на языке посетителя, а не всегда русский.
+// Комплекты снимает scripts/landing-shots.mjs — одним проходом, одинаково.
+const SHOTS = import.meta.glob('../assets/landing/*/*.webp', { eager: true, import: 'default' }) as Record<string, string>
+function shot(name: string): string {
+  const pick = (l: string) => Object.entries(SHOTS).find(([path]) => path.endsWith(`/${l}/app-${name}.webp`))?.[1]
+  return pick(locale.value) ?? pick('uz') ?? ''
+}
 // с лендинг-хоста уводим сразу на платформу — без промежуточного редиректа
 const start = () => {
   const href = appHref('/onboarding')
@@ -58,7 +59,7 @@ const start = () => {
  * бы первый. Считаем позицию слайда по его номеру.
  */
 const goTo = (sel: string) => {
-  const idx = features.findIndex((f) => '#' + f.id === sel)
+  const idx = features.value.findIndex((f) => '#' + f.id === sel)
   const sec = pinSec.value
   if (idx >= 0 && sec && window.matchMedia('(min-width: 900px)').matches) {
     const top = sec.getBoundingClientRect().top + window.scrollY
@@ -111,12 +112,12 @@ const quickTiles = [
 ]
 
 // три фичи живут в одной закреплённой секции и сменяют друг друга по скроллу
-const features = [
+const features = computed(() => [
   {
     id: 'how',
     titleKeys: ['landing.scanTitleA', 'landing.scanTitleB'],
     bodyKey: 'landing.scanBody',
-    shot: shotReceipt,
+    shot: shot('receipt'),
     altKey: 'landing.altReceipt',
     tilt: -14,
     flip: false,
@@ -125,7 +126,7 @@ const features = [
     id: 'cashback',
     titleKeys: ['landing.cashbackTitleA', 'landing.cashbackTitleB'],
     bodyKey: 'landing.cashbackBody',
-    shot: shotCashback,
+    shot: shot('cashback'),
     altKey: 'landing.altCashback',
     tilt: 14,
     flip: true,
@@ -134,12 +135,12 @@ const features = [
     id: 'debts',
     titleKeys: ['landing.debtsTitleA', 'landing.debtsTitleB'],
     bodyKey: 'landing.debtsBody',
-    shot: shotDebts,
+    shot: shot('debts'),
     altKey: 'landing.altDebts',
     tilt: -14,
     flip: false,
   },
-]
+])
 
 const stats = [
   { v: 30, sufKey: 'landing.statSecSuffix', key: 'landing.stat1' },
@@ -151,13 +152,13 @@ const stats = [
 // что-то сообщать, а не просто ехать
 const ticker = ['landing.tick1', 'landing.tick2', 'landing.tick3', 'landing.tick4', 'landing.tick5']
 
-const rail = [
-  { src: shotHome, altKey: 'landing.altHome' },
-  { src: shotAmount, altKey: 'landing.altAmount' },
-  { src: shotMembers, altKey: 'landing.altMembers' },
-  { src: shotDone, altKey: 'landing.altDone' },
-  { src: shotHistory, altKey: 'landing.altHistory' },
-]
+const rail = computed(() => [
+  { src: shot('home'), altKey: 'landing.altHome' },
+  { src: shot('amount'), altKey: 'landing.altAmount' },
+  { src: shot('members'), altKey: 'landing.altMembers' },
+  { src: shot('done'), altKey: 'landing.altDone' },
+  { src: shot('history'), altKey: 'landing.altHistory' },
+])
 
 // --- заявка заведения ---
 // в форме держим только цифры номера, на экране показываем их под маской
@@ -301,7 +302,7 @@ onBeforeUnmount(() => {
 
       <div ref="heroPhone" class="lp-stage lp-stage--hero">
         <div class="lp-device lp-device--hero">
-          <div class="lp-device__screen"><img :src="shotHome" :alt="t('landing.altHomeScreen')" /></div>
+          <div class="lp-device__screen"><img :src="shot('home')" :alt="t('landing.altHomeScreen')" /></div>
         </div>
       </div>
     </section>

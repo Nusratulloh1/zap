@@ -415,14 +415,12 @@ export async function saveGroup(input: SaveGroupInput): Promise<Group> {
     group.memberIds = input.memberIds
     group.accrueCashback = input.accrueCashback
   } else {
-    const d = new Date()
     group = {
       id: uid('g'),
       name: input.name,
       ownerId: 'me',
       memberIds: input.memberIds,
       createdAt: Date.now(),
-      sinceLabel: `${d.getDate()}.${(d.getMonth() + 1).toString().padStart(2, '0')}`,
       cashback: split?.cashback ?? 0,
       accrueCashback: input.accrueCashback,
       merchantsCount: 1,

@@ -30,7 +30,7 @@ const TABLES: Record<Locale, Table> = {
 const table = (): Table => TABLES[currentLocale()] ?? TABLES.uz
 
 /** «12 августа» / «12-avgust» / «August 12» — порядок слов у языков разный. */
-function dayMonth(d: Date): string {
+export function dayMonth(d: Date): string {
   const t = table()
   const m = t.months[d.getMonth()]!
   if (currentLocale() === 'en') return `${m} ${d.getDate()}`
@@ -62,6 +62,11 @@ export function humanDate(ts: number): string {
   const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000)
   if (diffDays < 7) return t.weekdays[d.getDay()]!
   return dayMonth(d)
+}
+
+/** «12 августа» по метке времени — для «группа с …». */
+export function dateShort(ts: number): string {
+  return dayMonth(new Date(ts))
 }
 
 /** Дата в нижнем регистре для подписей карточек. */

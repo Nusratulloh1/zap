@@ -4,7 +4,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from '@/lib/toast'
-import { money, phone } from '@/lib/format'
+import { money, monthYear, phone } from '@/lib/format'
 import { useUserStore } from '@/entities/stores/user'
 import { useGroupsStore } from '@/entities/stores/groups'
 import { useCashbackStore } from '@/entities/stores/cashback'
@@ -176,6 +176,12 @@ const groupsSheet = ref(false)
 const languageSheet = ref(false)
 const { t, locale } = useI18n()
 
+/** memberSince приходит ISO — месяц называем на языке интерфейса. */
+const sinceLabel = computed(() => {
+  const ts = Date.parse(user.user?.memberSince ?? '')
+  return Number.isNaN(ts) ? (user.user?.memberSince ?? '') : monthYear(ts)
+})
+
 // выход
 const logoutSheet = ref(false)
 const loggingOut = ref(false)
@@ -209,7 +215,7 @@ async function confirmLogout() {
           <h1 class="text-[23px] font-extrabold tracking-[-0.01em]">{{ user.user.name }}</h1>
           <p class="text-[13.5px] font-semibold text-muted">{{ user.user.handle }} · {{ phone(user.user.phone) }}</p>
           <span class="flex h-[26px] w-fit items-center rounded-full bg-lime px-[11px] text-[11px] font-extrabold text-on-lime">
-            {{ t('profile.since', { date: user.user.memberSince }) }}
+            {{ t('profile.since', { date: sinceLabel }) }}
           </span>
         </div>
       </div>

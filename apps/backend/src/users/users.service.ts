@@ -7,7 +7,6 @@ import { normalizePhone } from '../common/utils'
 
 const AVATAR_COLORS = ['#3E6E4E', '#3E4A6E', '#B75A3A', '#6E3E5E', '#4A6E3E', '#8A5A2A']
 const colorFor = (s: string) => AVATAR_COLORS[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) % AVATAR_COLORS.length]!
-const MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря']
 
 type FullSplit = Split & {
   members: SplitMember[]
@@ -35,9 +34,10 @@ export class UsersService {
       name: u.name, // пустое имя триггерит онбординг-шит «Как вас зовут?»
       handle: u.handle ? `@${u.handle.replace(/^@/, '')}` : '',
       phone: u.phone.slice(3),
-      initials: (u.name || 'В')[0]!,
+      initials: (u.name || '?')[0]!,
       color: '#111110',
-      memberSince: `${MONTHS[d.getMonth()]} ${d.getFullYear()}`,
+      // ISO: месяц называет клиент на своём языке (см. lib/datetime.ts)
+      memberSince: d.toISOString(),
       splitsCount,
       locale: u.locale,
     }
@@ -212,7 +212,6 @@ export class UsersService {
         ownerId: 'me',
         memberIds: g.members.map((m) => contactId(m.phone)),
         createdAt: g.createdAt.getTime(),
-        sinceLabel: `${g.createdAt.getDate()}.${String(g.createdAt.getMonth() + 1).padStart(2, '0')}`,
         cashback: g.cashbackPool,
         accrueCashback: g.cashbackPoolEnabled,
         merchantsCount: new Set(g.splits.map((s) => s.merchantId).filter(Boolean)).size || 1,

@@ -10,4 +10,4 @@ export function peopleCount(n: number): string {
 }
 
 // Даты — в @/lib/datetime: они тоже зависят от локали.
-export { isSameDay, dayLabel, humanDate, humanDateLc, timeLabel, monthYear } from '@/lib/datetime'
+export { isSameDay, dayLabel, humanDate, humanDateLc, timeLabel, monthYear, dateShort } from '@/lib/datetime'

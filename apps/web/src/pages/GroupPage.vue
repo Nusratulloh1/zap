@@ -5,7 +5,7 @@ import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { toast } from '@/lib/toast'
 import { money, peopleCount } from '@/lib/format'
-import { humanDateLc } from '@/lib/datetime'
+import { dateShort, humanDateLc } from '@/lib/datetime'
 import { useGroupsStore } from '@/entities/stores/groups'
 import { useContactsStore } from '@/entities/stores/contacts'
 import { useSplitsStore } from '@/entities/stores/splits'
@@ -165,7 +165,7 @@ async function applyDelete() {
         </div>
         <div class="flex flex-col gap-0.5">
           <h1 class="text-[22px] font-extrabold tracking-[-0.01em]">{{ group.name }}</h1>
-          <p class="text-[12.5px] font-semibold text-faint">{{ t('group.sinceWith', { people: peopleCount(group.memberIds.length), date: group.sinceLabel }) }}</p>
+          <p class="text-[12.5px] font-semibold text-faint">{{ t('group.sinceWith', { people: peopleCount(group.memberIds.length), date: dateShort(group.createdAt) }) }}</p>
         </div>
       </div>
 
