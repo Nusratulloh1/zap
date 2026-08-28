@@ -542,8 +542,26 @@ export async function repayDebt(debtId: string): Promise<void> {
 
 // ---------- contacts / cards / settings ----------
 
+export interface PartnerLead {
+  company: string
+  contact: string
+  phone: string
+  city?: string
+  message?: string
+}
+/** Заявка партнёра с лендинга (публичная ручка, без авторизации). */
+export async function submitPartnerLead(lead: PartnerLead): Promise<void> {
+  await http('/partners/lead', { method: 'POST', auth: false, body: JSON.stringify(lead) })
+}
+
 export async function updateProfile(name: string, handle?: string): Promise<void> {
   await http('/me', { method: 'PATCH', body: JSON.stringify({ name: name.trim(), handle: handle?.trim() || undefined }) })
+  await refreshBootstrap()
+}
+
+/** Язык интерфейса — на аккаунт, чтобы следовал между устройствами. */
+export async function setLocale(locale: string): Promise<void> {
+  await http('/me', { method: 'PATCH', body: JSON.stringify({ locale }) })
   await refreshBootstrap()
 }
 

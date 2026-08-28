@@ -42,19 +42,35 @@ export class AuthService {
     )
   }
 
-  async requestOtp(phone: string, purpose: OtpPurpose = 'login'): Promise<{ devCode?: string }> {
-    // скользящее окно: 3/час, 1/мин на телефон (по строкам OtpCode)
-    const hourAgo = new Date(Date.now() - 3600_000)
-    const minuteAgo = new Date(Date.now() - 60_000)
-    const [inHour, inMinute] = await Promise.all([
-      this.prisma.otpCode.count({ where: { phone, createdAt: { gt: hourAgo } } }),
-      this.prisma.otpCode.count({ where: { phone, createdAt: { gt: minuteAgo } } }),
+  /**
+   * Скользящее окно на телефон. Пределы вынесены в env: прежние 3/час были
+   * слишком жёсткими — пользователь, у которого не дошла SMS, упирался в
+   * блокировку на час. Минутный интервал оставляем: он защищает от спама SMS.
+   */
+  private async assertOtpAllowed(phone: string) {
+    const perHour = Number(process.env.OTP_HOURLY_LIMIT ?? 8)
+    const perMinute = Number(process.env.OTP_MINUTE_LIMIT ?? 1)
+    const now = Date.now()
+    const [inHour, inMinute, last] = await Promise.all([
+      this.prisma.otpCode.count({ where: { phone, createdAt: { gt: new Date(now - 3600_000) } } }),
+      this.prisma.otpCode.count({ where: { phone, createdAt: { gt: new Date(now - 60_000) } } }),
+      this.prisma.otpCode.findFirst({ where: { phone }, orderBy: { createdAt: 'desc' } }),
     ])
-    if (inHour >= 3 || inMinute >= 1) throw new HttpException('Слишком часто — попробуйте позже', 429)
+    if (inMinute >= perMinute) {
+      const wait = Math.max(1, Math.ceil((60_000 - (now - (last?.createdAt.getTime() ?? now))) / 1000))
+      throw new HttpException(`Код уже отправлен — повторить можно через ${wait} с`, 429)
+    }
+    if (inHour >= perHour) {
+      throw new HttpException('Слишком много попыток — попробуйте через час', 429)
+    }
+  }
 
+  async requestOtp(phone: string, purpose: OtpPurpose = 'login'): Promise<{ devCode?: string }> {
     const isTest = this.testPhones.has(phone)
+    // тестовые номера SMS не отправляют — ограничивать их незачем
+    if (!isTest) await this.assertOtpAllowed(phone)
     const code = isTest ? (process.env.TEST_OTP_CODE ?? '000000') : String(randomInt(100000, 1000000))
-    await this.prisma.otpCode.create({
+    const row = await this.prisma.otpCode.create({
       data: {
         phone,
         purpose,
@@ -65,7 +81,14 @@ export class AuthService {
     if (isTest) {
       this.log.warn(`⚠️  TEST OTP for ${maskPhone(phone)} (${purpose}) — SMS skipped, code from TEST_OTP_CODE`)
     } else {
-      await this.sms.send(phone, `ZAP! Код: ${code}`, 'otp')
+      try {
+        await this.sms.send(phone, `ZAP! Код: ${code}`, 'otp')
+      } catch (e) {
+        // SMS не ушла — попытка не должна съедать часовой лимит, иначе поверх
+        // ошибки отправки пользователь через пару нажатий получает ещё и 429
+        await this.prisma.otpCode.delete({ where: { id: row.id } }).catch(() => undefined)
+        throw e
+      }
     }
     this.log.log(`OTP issued → ${maskPhone(phone)} (${purpose})`)
     // dev-хук: код в ответе ТОЛЬКО при явном флаге (тесты/локалка)

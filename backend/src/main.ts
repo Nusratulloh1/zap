@@ -14,7 +14,9 @@ async function bootstrap() {
   app.enableCors({
     origin:
       process.env.NODE_ENV === 'production'
-        ? (process.env.PWA_ORIGIN ?? 'http://localhost:5173').split(',')
+        ? // CORS_ORIGINS — список хостов через запятую (лендинг + платформа);
+          // PWA_ORIGIN отдельно, он задаёт адрес ссылок в SMS
+          (process.env.CORS_ORIGINS ?? process.env.PWA_ORIGIN ?? 'http://localhost:5173').split(',')
         : (origin, cb) => cb(null, !origin || devOrigin.test(origin)),
     credentials: true,
   })

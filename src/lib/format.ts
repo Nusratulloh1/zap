@@ -1,9 +1,4 @@
-const MONTHS_GEN = [
-  'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
-  'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря',
-]
-
-const WEEKDAYS = ['Воскресенье', 'Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота']
+import { t } from '@/lib/i18n'
 
 /** 1200000 -> "1 200 000" */
 export function money(amount: number): string {
@@ -23,36 +18,6 @@ export function phone(digits: string): string {
   return ('+998 ' + parts.join(' ')).trim()
 }
 
-export function isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-}
-
-/** Day group label: СЕГОДНЯ / ВЧЕРА / 9 АВГУСТА */
-export function dayLabel(ts: number): string {
-  const d = new Date(ts)
-  const now = new Date()
-  const yesterday = new Date(now.getTime() - 86400000)
-  if (isSameDay(d, now)) return 'СЕГОДНЯ'
-  if (isSameDay(d, yesterday)) return 'ВЧЕРА'
-  return `${d.getDate()} ${MONTHS_GEN[d.getMonth()]!.toUpperCase()}`
-}
-
-/** Short human date: Сегодня / Вчера / Пятница / 12 августа */
-export function humanDate(ts: number): string {
-  const d = new Date(ts)
-  const now = new Date()
-  if (isSameDay(d, now)) return 'Сегодня'
-  if (isSameDay(d, new Date(now.getTime() - 86400000))) return 'Вчера'
-  const diffDays = Math.floor((now.getTime() - d.getTime()) / 86400000)
-  if (diffDays < 7) return WEEKDAYS[d.getDay()]!
-  return `${d.getDate()} ${MONTHS_GEN[d.getMonth()]}`
-}
-
-export function timeLabel(ts: number): string {
-  const d = new Date(ts)
-  return `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`
-}
-
 /** Equal shares rounded to 1 000 UZS; remainder goes to the first members. */
 export function equalShares(total: number, count: number): number[] {
   if (count <= 0) return []
@@ -69,11 +34,11 @@ export function equalShares(total: number, count: number): number[] {
   return shares
 }
 
-/** "3 человека" / "5 человек" */
+/** «3 человека» / «5 человек» / «3 kishi» — плюрализация из локали. */
 export function peopleCount(n: number): string {
-  const mod10 = n % 10
-  const mod100 = n % 100
-  if (mod10 === 1 && mod100 !== 11) return `${n} человек`
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return `${n} человека`
-  return `${n} человек`
+  return t('common.people', n, { named: { n } })
 }
+
+// Даты переехали в @/lib/datetime — они зависят от локали.
+// Реэкспорт оставлен, чтобы не переписывать все импорты разом.
+export { isSameDay, dayLabel, humanDate, humanDateLc, timeLabel, monthYear } from '@/lib/datetime'

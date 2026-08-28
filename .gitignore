@@ -5,3 +5,25 @@ shots/
 *.local
 design-reference/
 extract-progress.log
+
+# React Native (mobile/) — своё дерево зависимостей и нативные артефакты
+mobile/node_modules/
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/ios/Pods/
+mobile/ios/build/
+mobile/.bundle/
+
+# Секреты окружения: в репозиторий попадают только *.example
+.env
+.env.*
+!.env.example
+!.env.*.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+!backend/.env.*.example
+
+# Рабочие артефакты сессии (скриншоты, логи, архивы) — не история проекта
+scratchpad/
+tsconfig.*.tsbuildinfo

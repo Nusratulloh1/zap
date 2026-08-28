@@ -61,7 +61,7 @@ export const S = {
     promoTitle: 'Приди с 5 друзьями — получи кэшбэк ×2',
     promoText: 'Групповой кэшбэк начисляется каждому',
     filters: ['Все', 'Кэшбэк', 'Акции', '% Скидки'],
-    searchPlaceholder: 'Имя или номер',
+    searchPlaceholder: 'username или номер',
     split: 'Сплит',
     cashbackCard: 'Накопленные кэшбеки',
     debtorsCard: 'Мои должники',

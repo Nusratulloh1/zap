@@ -91,6 +91,7 @@ router.afterEach((to, from) => {
 })
 
 const showTabBar = computed(() => Boolean(route.meta.tab) && user.isAuthed)
+const isLanding = computed(() => Boolean(route.meta.landing))
 
 // глобальные тосты о событиях сплита
 bus.on('split:event', ({ kind, message }) => {
@@ -122,8 +123,14 @@ watch(
 </script>
 
 <template>
-  <div class="app-root mx-auto min-h-dvh w-full max-w-app bg-cream shadow-2xl shadow-black/5">
-    <div class="relative min-h-dvh overflow-x-clip">
+  <!-- лендинг — полноэкранный сайт, поэтому «карточка» max-w-app снимается -->
+  <div
+    class="app-root mx-auto min-h-dvh w-full bg-cream shadow-2xl shadow-black/5"
+    :class="isLanding ? 'max-w-none shadow-none' : 'max-w-app'"
+  >
+    <!-- у лендинга своя фиксированная шапка со стеклом: клиппинг-контекст
+         предка ломает её backdrop-filter, поэтому там обрезку не включаем -->
+    <div class="relative min-h-dvh" :class="{ 'overflow-x-clip': !isLanding }">
       <RouterView v-slot="{ Component }">
         <Transition
           :name="transitionName"
@@ -148,8 +155,9 @@ watch(
     <TabBar v-if="showTabBar" />
 
     <ToastHost />
-    <InstallBanner />
-    <InstallSheet />
+    <!-- на лендинг-хосте ставить нечего: приложение живёт на use.zapapp.uz -->
+    <InstallBanner v-if="!isLanding" />
+    <InstallSheet v-if="!isLanding" />
     <RealAuthSheets v-if="isRealApi" />
     <NameSheet />
   </div>

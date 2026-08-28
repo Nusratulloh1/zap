@@ -4,7 +4,8 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from '@/lib/toast'
-import { money, isSameDay } from '@/lib/format'
+import { money } from '@/lib/format'
+import { humanDateLc } from '@/lib/datetime'
 import { useCashbackStore } from '@/entities/stores/cashback'
 import { useGroupsStore } from '@/entities/stores/groups'
 import { useUserStore } from '@/entities/stores/user'
@@ -18,6 +19,7 @@ import partnerSafia from '@/assets/brand/partners/safia-sq.png'
 import partnerTexnomart from '@/assets/brand/partners/texnomart-sq.png'
 import partnerIdea from '@/assets/brand/partners/idea-sq.png'
 import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const cashback = useCashbackStore()
@@ -30,10 +32,11 @@ onMounted(() => {
   void user.hydrate()
 })
 
+const { t } = useI18n()
 const filter = ref<string>('all')
 
 const filters = computed(() => [
-  { value: 'all', label: 'Все группы' },
+  { value: 'all', label: t('cashback.allGroups') },
   ...groups.groups.map((g) => ({ value: g.id, label: g.name })),
 ])
 
@@ -57,19 +60,11 @@ function groupName(e: { groupId?: string }): string {
   return e.groupId ? (groups.byId(e.groupId)?.name ?? '') : ''
 }
 
-const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-
-function entryDate(ts: number): string {
-  const d = new Date(ts)
-  const now = new Date()
-  if (isSameDay(d, now)) return 'сегодня'
-  if (isSameDay(d, new Date(now.getTime() - 86400000))) return 'вчера'
-  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`
-}
+const entryDate = (ts: number) => humanDateLc(ts)
 
 async function spend() {
   const reserved = await spendCashbackNext()
-  toast.success('Кэшбэк ' + money(reserved) + ' применим к следующему сплиту')
+  toast.success(t('cashback.spendToastAmount', { amount: money(reserved) }))
 }
 
 // вывод на карту: карта → сумма → PIN → тост + записи
@@ -87,7 +82,7 @@ function withdraw() {
 function withdrawNext() {
   const v = Number(withdrawRaw.value || '0')
   if (v <= 0 || v > cashback.balance) {
-    toast('Сумма должна быть в пределах баланса')
+    toast(t('cashback.outOfRange'))
     return
   }
   withdrawSheet.value = false
@@ -99,7 +94,7 @@ async function confirmWithdraw() {
   const v = Number(withdrawRaw.value || '0')
   await withdrawCashback(withdrawCard.value, v)
   const card = user.cards.find((c) => c.id === withdrawCard.value)
-  toast.success('Вывод ' + money(v) + ' на карту ·· ' + (card?.last4 ?? '') + ' — в течение минуты')
+  toast.success(t('cashback.withdrawToastAmount', { amount: money(v), last4: card?.last4 ?? '' }))
 }
 </script>
 
@@ -107,19 +102,19 @@ async function confirmWithdraw() {
   <div class="flex min-h-dvh flex-col bg-paper px-6 pb-10 pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[18px] font-semibold"
       @click="router.push('/')"
     >
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
 
-    <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">Накопленные кэшбеки</h1>
+    <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">{{ t('home.cashbackCard') }}</h1>
     <div class="mt-3 flex items-baseline gap-2">
       <CountUp :value="cashback.balance" :duration="800" class="text-[44px] font-extrabold leading-none tracking-[-0.03em]" />
-      <span class="font-mono text-[11px] font-bold text-faint-2">UZS · ДОСТУПНО</span>
+      <span class="font-mono text-[11px] font-bold text-faint-2">{{ t('common.currency') }} · {{ t('cashback.available') }}</span>
     </div>
-    <p class="mt-2 text-[13px] font-semibold text-muted">Только групповые — начисляются, когда сплитите вместе</p>
+    <p class="mt-2 text-[13px] font-semibold text-muted">{{ t('cashback.empty') }}</p>
 
     <div class="no-scrollbar -mx-6 mt-5 flex gap-2 overflow-x-auto px-6">
       <button
@@ -156,23 +151,23 @@ async function confirmWithdraw() {
           <span class="text-[16px] font-extrabold">{{ money(e.amount) }}</span>
         </div>
       </AnimatedList>
-      <p v-if="!rows.length" class="py-8 text-center text-[13px] font-semibold text-muted">Пока пусто</p>
+      <p v-if="!rows.length" class="py-8 text-center text-[13px] font-semibold text-muted">{{ t('history.empty') }}</p>
     </div>
 
     <div class="flex-1" />
 
     <div class="mt-5 flex flex-col gap-2.5">
       <button type="button" class="press h-14 rounded-full bg-lime text-[16px] font-extrabold text-on-lime" @click="spend">
-        Потратить на следующий сплит
+        {{ t('cashback.spend') }}
       </button>
       <button type="button" class="press h-14 rounded-full bg-sand text-[16px] font-bold text-ink" @click="withdraw">
-        Вывести на карту
+        {{ t('cashback.withdraw') }}
       </button>
     </div>
     <!-- вывод на карту -->
     <BottomSheet :open="withdrawSheet" @close="withdrawSheet = false">
       <div class="pb-4">
-        <p class="text-center text-[15px] font-extrabold">Вывести на карту</p>
+        <p class="text-center text-[15px] font-extrabold">{{ t('cashback.withdrawTitle') }}</p>
         <div class="mt-4 flex justify-center gap-2">
           <button
             v-for="c in user.cards"
@@ -186,16 +181,16 @@ async function confirmWithdraw() {
           </button>
         </div>
         <AmountField v-model="withdrawRaw" placeholder-zero display-class="text-[36px] leading-none" class="my-5" />
-        <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">UZS · ДОСТУПНО {{ money(cashback.balance) }}</p>
+        <p class="text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('cashback.availableWith', { amount: money(cashback.balance) }) }}</p>
         <button type="button" class="press mt-4 h-12 w-full rounded-full bg-lime text-[15px] font-extrabold text-on-lime" @click="withdrawNext">
-          Продолжить
+          {{ t('common.continue') }}
         </button>
       </div>
     </BottomSheet>
 
     <PinSheet
       :open="withdrawPin"
-      :hint="'Вывод · ' + money(Number(withdrawRaw || '0')) + ' UZS'"
+      :hint="t('cashback.withdrawHint', { amount: money(Number(withdrawRaw || '0')) })"
       @close="withdrawPin = false"
       @confirm="confirmWithdraw"
     />

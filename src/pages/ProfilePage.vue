@@ -15,6 +15,9 @@ import { setPrimaryCard, changePin } from '@/api'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { install, isInstalled } from '@/lib/installPrompt'
 import UserAvatar from '@/components/UserAvatar.vue'
+import LanguageSheet from '@/components/LanguageSheet.vue'
+import { useI18n } from 'vue-i18n'
+import { LOCALE_NAMES, type Locale } from '@/lib/i18n'
 
 const installed = isInstalled()
 
@@ -170,6 +173,8 @@ watch(pinModel, async (v) => {
 
 // группы
 const groupsSheet = ref(false)
+const languageSheet = ref(false)
+const { t, locale } = useI18n()
 
 // выход
 const logoutSheet = ref(false)
@@ -271,6 +276,11 @@ async function confirmLogout() {
             <span class="absolute left-[3px] top-[3px] h-[22px] w-[22px] rounded-full bg-ink transition-transform duration-200 ease-zap" :class="notifs ? 'translate-x-[18px]' : ''" />
           </button>
         </div>
+        <button type="button" class="flex min-h-[56px] items-center border-b border-sand-2 transition-colors active:bg-sand" @click="languageSheet = true">
+          <span class="flex-1 text-left text-[15px] font-bold">{{ t('profile.language') }}</span>
+          <span class="mr-2 text-[13px] font-bold text-muted">{{ LOCALE_NAMES[locale as Locale] }}</span>
+          <span class="text-[15px] font-semibold text-mist">›</span>
+        </button>
         <button type="button" class="flex min-h-[56px] items-center border-b border-sand-2 transition-colors active:bg-sand" @click="groupsSheet = true">
           <span class="flex-1 text-left text-[15px] font-bold">Мои группы</span>
           <span class="mr-2 text-[13px] font-bold text-muted">{{ groups.groups.length }}</span>
@@ -415,4 +425,5 @@ async function confirmLogout() {
       </div>
     </BottomSheet>
   </div>
+    <LanguageSheet :open="languageSheet" @close="languageSheet = false" />
 </template>

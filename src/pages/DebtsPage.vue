@@ -4,12 +4,14 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from '@/lib/toast'
-import { money, isSameDay } from '@/lib/format'
+import { money } from '@/lib/format'
+import { humanDateLc } from '@/lib/datetime'
 import { useDebtsStore } from '@/entities/stores/debts'
 import { useContactsStore } from '@/entities/stores/contacts'
 import ZapAvatar from '@/components/ZapAvatar.vue'
 import AnimatedList from '@/components/AnimatedList.vue'
 import CountUp from '@/components/CountUp.vue'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const debts = useDebtsStore()
@@ -21,18 +23,10 @@ onMounted(() => {
 })
 
 const tab = ref<'owedToMe' | 'iOwe'>('owedToMe')
+const { t } = useI18n()
 
-const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-const WEEKDAYS_LC = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота']
-
-function debtDate(ts: number): string {
-  const d = new Date(ts)
-  const now = new Date()
-  if (isSameDay(d, now)) return 'сегодня'
-  if (isSameDay(d, new Date(now.getTime() - 86400000))) return 'вчера'
-  if ((now.getTime() - d.getTime()) / 86400000 < 7) return WEEKDAYS_LC[d.getDay()]!
-  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`
-}
+// дата в подписи долга — общая локализованная, в нижнем регистре
+const debtDate = (ts: number) => humanDateLc(ts)
 
 // кулдаун кнопки «Напомнить» — 30 секунд
 const cooldowns = ref<Record<string, number>>({})
@@ -48,9 +42,9 @@ async function remind(debtId: string) {
   }, 30500)
   try {
     await debts.remind(debtId)
-    toast.success('Напоминание отправлено')
+    toast.success(t('debts.remindedToast'))
   } catch (e) {
-    toast(e instanceof Error ? e.message : 'Напоминание уже отправлено')
+    toast(e instanceof Error ? e.message : t('debts.alreadyReminded'))
   }
 }
 
@@ -66,10 +60,10 @@ async function remindAll() {
     await debts.remindAll()
     debts.openDebts.forEach((d, i) => {
       const name = contacts.byId(d.contactId)?.name ?? '?'
-      setTimeout(() => toast.success('Напомнили: ' + name), 250 * i)
+      setTimeout(() => toast.success(t('debts.remindedName', { name })), 250 * i)
     })
   } catch (e) {
-    toast(e instanceof Error ? e.message : 'Напоминания уже отправлены')
+    toast(e instanceof Error ? e.message : t('debts.allAlreadyReminded'))
   }
 }
 </script>
@@ -78,17 +72,17 @@ async function remindAll() {
   <div class="flex min-h-dvh flex-col bg-paper px-6 pb-10 pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[18px] font-semibold"
       @click="router.push('/')"
     >
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
 
-    <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">Вам должны</h1>
+    <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">{{ t('debts.title') }}</h1>
     <div class="mt-3 flex items-baseline gap-2">
       <CountUp :value="debts.totalOwedToMe" :duration="800" class="text-[44px] font-extrabold leading-none tracking-[-0.03em]" />
-      <span class="font-mono text-[11px] font-bold text-faint-2">UZS · {{ debts.debtorIds.length }} ЧЕЛОВЕКА</span>
+      <span class="font-mono text-[11px] font-bold text-faint-2">UZS · {{ debts.debtorIds.length }} {{ t('debts.peopleUnit') }}</span>
     </div>
 
     <div class="mt-5 flex gap-2">
@@ -98,7 +92,7 @@ async function remindAll() {
         :class="tab === 'owedToMe' ? 'bg-lime font-extrabold text-on-lime' : 'bg-sand font-bold text-slate'"
         @click="tab = 'owedToMe'"
       >
-        Вам должны
+        {{ t('debts.tabOwedToMe') }}
       </button>
       <button
         type="button"
@@ -106,7 +100,7 @@ async function remindAll() {
         :class="tab === 'iOwe' ? 'bg-lime font-extrabold text-on-lime' : 'bg-sand font-bold text-slate'"
         @click="tab = 'iOwe'"
       >
-        Вы должны · 0
+        {{ t('debts.iOweZero') }}
       </button>
     </div>
 
@@ -148,17 +142,17 @@ async function remindAll() {
                 :disabled="isCooling(d.id)"
                 @click="remind(d.id)"
               >
-                {{ isCooling(d.id) ? 'Отправлено' : 'Напомнить' }}
+                {{ isCooling(d.id) ? t('debts.reminded') : t('debts.remind') }}
               </button>
             </div>
           </div>
         </AnimatedList>
-        <p v-if="!debts.openDebts.length" class="py-8 text-center text-[13px] font-semibold text-muted">Долгов нет — красота</p>
+        <p v-if="!debts.openDebts.length" class="py-8 text-center text-[13px] font-semibold text-muted">{{ t('debts.empty') }}</p>
       </div>
 
       <div class="mt-5 border-t border-sand-2 pt-4">
         <p class="text-[12.5px] font-semibold leading-[1.45] text-muted">
-          Долг закрывается автоматически, когда человек вносит сумму в ZAP! — вы получите пуш и кэшбэк за сплит.
+          {{ t('debts.autoNoteLong') }}
         </p>
       </div>
 
@@ -170,13 +164,13 @@ async function remindAll() {
         class="press mt-5 h-14 rounded-full bg-lime text-[16px] font-extrabold text-on-lime"
         @click="remindAll"
       >
-        Напомнить всем
+        {{ t('debts.remindAll') }}
       </button>
     </div>
 
     <div v-else key="iowe" class="flex flex-1 flex-col items-center justify-center text-center">
       <span class="text-[32px]">🎉</span>
-      <p class="mt-2 text-[14px] font-bold text-muted">Долгов нет — красота</p>
+      <p class="mt-2 text-[14px] font-bold text-muted">{{ t('debts.empty') }}</p>
     </div>
     </Transition>
   </div>

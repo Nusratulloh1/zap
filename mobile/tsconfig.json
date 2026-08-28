@@ -1,0 +1,16 @@
+{
+  "extends": "@react-native/typescript-config",
+  "compilerOptions": {
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@locales/*": ["../src/locales/*"]
+    }
+  },
+  "include": ["**/*.ts", "**/*.tsx", "../src/locales/*.json"],
+  "exclude": ["**/node_modules", "**/Pods"]
+}

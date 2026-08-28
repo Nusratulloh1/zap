@@ -4,6 +4,7 @@ import type { Card, Session, Settings, User } from '@/entities/types'
 import * as api from '@/api'
 import { bus } from '@/lib/bus'
 import { ensureBootstrap, resetBootstrap } from './bootstrap'
+import { applyLocale, storedLocale, LOCALES, type Locale } from '@/lib/i18n'
 
 export const useUserStore = defineStore('user', () => {
   const session = ref<Session>({ stage: 'onboarding' })
@@ -15,11 +16,19 @@ export const useUserStore = defineStore('user', () => {
 
   const isAuthed = computed(() => session.value.stage === 'authed')
 
+  const isKnownLocale = (v: string): v is Locale => (LOCALES as readonly string[]).includes(v)
+
   function refresh() {
     const db = api.snapshot()
     user.value = db.user
     cards.value = db.cards
     settings.value = db.settings
+    // Язык с аккаунта применяем только если пользователь ещё не выбирал его
+    // на этом устройстве: локальный выбор всегда свежее серверного.
+    const fromAccount = db.user?.locale
+    if (fromAccount && !storedLocale() && isKnownLocale(fromAccount)) {
+      applyLocale(fromAccount, { persist: false })
+    }
   }
 
   bus.on('db:changed', ({ domains }) => {

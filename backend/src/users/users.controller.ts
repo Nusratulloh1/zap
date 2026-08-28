@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, UseGuards } from '@nestjs/common'
-import { IsBoolean, IsEnum, IsOptional, IsString, Length, Matches } from 'class-validator'
+import { IsBoolean, IsEnum, IsIn, IsOptional, IsString, Length, Matches } from 'class-validator'
 import { CardBrand } from '@prisma/client'
 import { CurrentUser, JwtAuthGuard, type AuthUser } from '../common/auth.guard'
 import { UsersService } from './users.service'
@@ -31,6 +31,10 @@ class ProfileDto {
   @IsOptional()
   @IsString()
   handle?: string
+
+  @IsOptional()
+  @IsIn(['uz', 'ru', 'en'])
+  locale?: string
 }
 
 class SettingsDto {

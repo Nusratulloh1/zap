@@ -9,6 +9,8 @@ export interface User {
   color: string
   memberSince: string
   splitsCount: number
+  /** язык интерфейса аккаунта: uz | ru | en */
+  locale?: string
 }
 
 export interface Card {

@@ -40,7 +40,9 @@ export class AuthController {
 
   @Post('otp/request')
   @HttpCode(200)
-  @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  // лимит по IP: за одним NAT сидит целый офис, 5/мин упиралось слишком быстро.
+  // Основная защита — окно на телефон в AuthService.assertOtpAllowed
+  @Throttle({ default: { ttl: 60_000, limit: 15 } })
   async requestOtp(@Body() dto: PhoneDto) {
     const phone = normalizePhone(dto.phone)
     const res = await this.auth.requestOtp(phone, 'login')

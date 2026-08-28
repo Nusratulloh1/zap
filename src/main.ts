@@ -1,4 +1,5 @@
 import { createApp } from 'vue'
+import { i18n } from '@/lib/i18n'
 import { createPinia } from 'pinia'
 import App from '@/app/App.vue'
 import router from '@/app/router'
@@ -58,7 +59,7 @@ const updateSW = registerSW({
   },
 })
 
-createApp(App).use(createPinia()).use(router).mount('#app')
+createApp(App).use(createPinia()).use(i18n).use(router).mount('#app')
 initPressFeedback()
 
 // маркер сборки: помогает убедиться, что новая версия действительно доехала

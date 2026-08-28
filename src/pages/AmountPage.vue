@@ -8,15 +8,14 @@ import { toast } from '@/lib/toast'
 import { money } from '@/lib/format'
 import { gsap, reducedMotion } from '@/lib/motion'
 import { useDraftStore } from '@/entities/stores/draft'
-import { useUserStore } from '@/entities/stores/user'
 import { payAlone } from '@/api'
 import AnimatedAmount from '@/components/AnimatedAmount.vue'
 import PayPad from '@/components/PayPad.vue'
 import PinSheet from '@/components/PinSheet.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 
 const router = useRouter()
 const draft = useDraftStore()
-const user = useUserStore()
 
 // черновик суммы живёт до конца сессии: набрал → ушёл → вернулся с пилл-нава
 const DRAFT_KEY = 'zap:amount-draft'
@@ -101,13 +100,13 @@ async function confirmPay() {
 
 <template>
   <!-- pb с запасом под плавающий нав-пилл (дизайн 3a) -->
-  <div class="theme-fixed screen-lock flex flex-col bg-lime px-5 pb-[calc(env(safe-area-inset-bottom)+86px)] pt-[calc(env(safe-area-inset-top)+20px)] text-ink">
+  <div class="theme-fixed screen-lock flex flex-col bg-lime px-5 pb-[calc(env(safe-area-inset-bottom)+86px)] pt-[calc(env(safe-area-inset-top)+16px)] text-ink">
     <!-- шапка -->
     <div class="flex items-center justify-between">
       <button
         type="button"
         aria-label="Сканер"
-        class="press relative hit-area flex h-10 w-10 items-center justify-center"
+        class="press relative hit-area flex h-11 w-11 items-center justify-center"
         @click="router.push('/split/scan')"
       >
         <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
@@ -117,13 +116,8 @@ async function confirmPay() {
           <path d="M8 21H5C3.9 21 3 20.1 3 19V16" stroke="#111110" stroke-width="2.4" stroke-linecap="round" />
         </svg>
       </button>
-      <button
-        type="button"
-        aria-label="Профиль"
-        class="press flex h-9 w-9 items-center justify-center rounded-full bg-ink text-[15px] font-extrabold text-lime"
-        @click="router.push('/profile')"
-      >
-        {{ (user.user?.name?.trim()[0] ?? 'В').toUpperCase() }}
+      <button type="button" aria-label="Профиль" class="press" @click="router.push('/profile')">
+        <UserAvatar :size="44" :border="2" />
       </button>
     </div>
 

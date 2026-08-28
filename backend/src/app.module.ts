@@ -5,6 +5,7 @@ import { LoggerModule } from 'nestjs-pino'
 import { CommonModule } from './common/common.module'
 import { SmsModule } from './sms/sms.module'
 import { AuthModule } from './auth/auth.module'
+import { PartnersModule } from './partners/partners.module'
 import { UsersModule } from './users/users.module'
 import { MerchantsModule } from './merchants/merchants.module'
 import { PaymentsModule } from './payments/payments.module'
@@ -46,6 +47,7 @@ const redactPhone = (v: unknown) =>
     RealtimeModule,
     FiscalModule,
     // dev-ручки не попадают в прод-граф
+    PartnersModule,
     ...(process.env.NODE_ENV !== 'production' ? [DevModule] : []),
   ],
   controllers: [HealthController],

@@ -487,7 +487,7 @@ function splitLetter(s: Split): string {
         </svg>
         <input
           v-model="search"
-          placeholder="Имя или номер"
+          placeholder="username или номер"
           class="min-w-0 flex-1 bg-transparent text-[16px] font-semibold text-white outline-none placeholder:text-faint-2"
         />
         <button
@@ -534,14 +534,6 @@ function splitLetter(s: Split): string {
             <img :src="partnerTexnomart" alt="texnomart" class="-ml-2.5 h-[29px] w-auto rounded-[9px]" />
             <img :src="partnerIdea" alt="idea" class="-ml-2.5 h-[29px] w-auto rounded-[9px]" />
           </span>
-          <span v-else class="mt-auto flex min-h-[60px] items-end">
-            <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-lime/[0.14]">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="8.2" stroke="#B9CF2E" stroke-width="1.8" />
-                <path d="M12 8.2v7.6M9.6 10.1c0-1 1.1-1.6 2.4-1.6s2.4.6 2.4 1.6-1.1 1.6-2.4 1.6-2.4.6-2.4 1.6 1.1 1.6 2.4 1.6 2.4-.6 2.4-1.6" stroke="#B9CF2E" stroke-width="1.6" stroke-linecap="round" />
-              </svg>
-            </span>
-          </span>
         </button>
         <button
           type="button"
@@ -558,13 +550,6 @@ function splitLetter(s: Split): string {
               <span class="text-[10.5px] font-bold">{{ d.name }}</span>
             </span>
           </span>
-          <span v-else class="mt-auto flex min-h-[60px] items-end">
-            <span class="flex h-11 w-11 items-center justify-center rounded-[14px] bg-sand">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12.5l4.5 4.5L19 7.5" stroke="#A3A199" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-              </svg>
-            </span>
-          </span>
         </button>
       </div>
 
@@ -572,16 +557,9 @@ function splitLetter(s: Split): string {
       <div class="rounded-card bg-paper px-[18px] pb-1.5 pt-[18px] shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]">
         <div class="flex items-baseline justify-between">
           <h2 class="text-[18px] font-extrabold tracking-[-0.01em]">Мои группы</h2>
-          <span class="text-[14px] font-bold text-muted">Все ›</span>
+          <span v-if="groups.groups.length" class="text-[14px] font-bold text-muted">Все ›</span>
         </div>
-        <div v-if="loaded && !groups.groups.length" class="flex items-center gap-3 py-4 text-[13px] font-semibold text-faint">
-          <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[14px] bg-sand">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <circle cx="9" cy="9.5" r="3" stroke="#A3A199" stroke-width="1.8" />
-              <path d="M3.5 18.5c0-2.8 2.5-4.5 5.5-4.5s5.5 1.7 5.5 4.5" stroke="#A3A199" stroke-width="1.8" stroke-linecap="round" />
-              <path d="M16 7.2a2.8 2.8 0 0 1 0 5.4M17.5 18.5c0-2-1-3.4-2.6-4.1" stroke="#A3A199" stroke-width="1.8" stroke-linecap="round" />
-            </svg>
-          </span>
+        <div v-if="loaded && !groups.groups.length" class="py-5 text-center text-[13px] font-semibold text-muted">
           Появятся из ваших сплитов
         </div>
         <div v-else-if="loaded" class="mt-1 flex flex-col">
@@ -626,7 +604,14 @@ function splitLetter(s: Split): string {
       <div class="rounded-card bg-paper px-[18px] pb-1.5 pt-[18px] shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]">
         <div class="flex items-baseline justify-between">
           <h2 class="text-[18px] font-extrabold tracking-[-0.01em]">Ваши сплиты</h2>
-          <button type="button" class="text-[14px] font-bold text-muted" @click="router.push('/history')">Все ›</button>
+          <button
+            v-if="splitRows.length"
+            type="button"
+            class="text-[14px] font-bold text-muted"
+            @click="router.push('/history')"
+          >
+            Все ›
+          </button>
         </div>
         <div v-if="loaded" class="mt-1.5">
           <AnimatedList appear class="flex flex-col">

@@ -175,6 +175,12 @@
   .kb-avoid {
     transform: translateY(calc(-1 * var(--kb-inset, 0px)));
     transition: transform 220ms cubic-bezier(0.32, 0.72, 0, 1);
+    /* Клавиатура поднимает лист целиком, и у длинного списка верх (вместе с
+       полем поиска) уезжал за край экрана. Ограничиваем высоту видимой
+       областью и скроллим содержимое внутри листа. */
+    max-height: calc(100dvh - var(--kb-inset, 0px) - 28px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
   }
   /* Расширение зоны нажатия у визуально мелких кнопок до ~44px.
      Не задаёт position — элементу нужен свой relative/absolute,

@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/entities/stores/user'
+import { APP_ORIGIN, LANDING_ORIGIN, siteMode } from '@/lib/site'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -49,7 +50,9 @@ const router = createRouter({
     { path: '/auth/phone', component: () => import('@/pages/AuthPhonePage.vue'), meta: { depth: 1, guest: true } },
     { path: '/auth/code', component: () => import('@/pages/AuthCodePage.vue'), meta: { depth: 2, guest: true } },
 
-    { path: '/', component: () => import('@/pages/HomePage.vue'), meta: { depth: 0, tab: true } },
+    // «/» — приложение для авторизованных; гостей гард уводит на /landing
+    { path: '/', name: 'root', component: () => import('@/pages/HomePage.vue'), meta: { depth: 0, tab: true } },
+    { path: '/landing', component: () => import('@/pages/LandingPage.vue'), meta: { depth: 0, guest: true, landing: true } },
     { path: '/history', component: () => import('@/pages/HistoryPage.vue'), meta: { depth: 0, tab: true } },
     { path: '/cashback', component: () => import('@/pages/CashbackPage.vue'), meta: { depth: 3 } },
     { path: '/profile', component: () => import('@/pages/ProfilePage.vue'), meta: { depth: 3 } },
@@ -85,6 +88,22 @@ router.beforeEach(async (to, from) => {
   if (typeof window !== 'undefined' && from.matched.length && TAB_TRIO.includes(from.path)) {
     tabScroll.set(from.path, window.scrollY)
   }
+
+  // Разделение хостов: zapapp.uz — только лендинг, use.zapapp.uz — платформа.
+  // Уводим жёстко (location.replace), чтобы адрес в строке был правильным.
+  const mode = siteMode()
+  if (mode === 'landing') {
+    // канонический адрес лендинга — корень домена, без /landing в строке
+    if (to.path === '/landing') return '/'
+    if (to.meta.landing) return true
+    location.replace(APP_ORIGIN + to.fullPath)
+    return false
+  }
+  if (mode === 'app' && to.meta.landing) {
+    location.replace(LANDING_ORIGIN + '/')
+    return false
+  }
+
   const user = useUserStore()
   await user.hydrateSession()
 
@@ -97,10 +116,24 @@ router.beforeEach(async (to, from) => {
   }
 
   if (to.meta.guest) return true
+  // гость на главной: на платформе — сразу в онбординг, иначе на лендинг
+  if (to.path === '/') return mode === 'app' ? '/onboarding' : '/landing'
   // не авторизован — ведём на нужный шаг
   if (stage === 'onboarding') return '/onboarding'
   if (stage === 'phone') return '/auth/phone'
   return '/auth/code'
 })
+
+// На лендинг-хосте корень — это сам лендинг: подменяем маршрут '/' целиком,
+// чтобы в адресной строке остался чистый zapapp.uz
+if (siteMode() === 'landing') {
+  // с именем: addRoute заменяет одноимённый маршрут, а не добавляет дубль
+  router.addRoute({
+    path: '/',
+    name: 'root',
+    component: () => import('@/pages/LandingPage.vue'),
+    meta: { depth: 0, guest: true, landing: true },
+  })
+}
 
 export default router

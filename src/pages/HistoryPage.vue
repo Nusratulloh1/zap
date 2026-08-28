@@ -7,23 +7,32 @@ import { money, dayLabel } from '@/lib/format'
 import type { HistoryEntry } from '@/entities/types'
 import { useHistoryStore } from '@/entities/stores/history'
 import ZapAvatar from '@/components/ZapAvatar.vue'
+import UserAvatar from '@/components/UserAvatar.vue'
 import AnimatedList from '@/components/AnimatedList.vue'
 import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
-import myAvatar from '@/assets/brand/avatars/a12.png'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
 const history = useHistoryStore()
+const { t } = useI18n()
 
 onMounted(() => void history.hydrate())
 
-const tab = ref('Все')
-const tabs = ['Все', 'Сплиты', 'Кэшбэк', 'Долги']
+// вкладки держим по ключу, а не по подписи: фильтр не должен зависеть от языка
+type TabKey = 'all' | 'splits' | 'cashback' | 'debts'
+const tab = ref<TabKey>('all')
+const tabs: { key: TabKey; label: string }[] = [
+  { key: 'all', label: 'history.tabAll' },
+  { key: 'splits', label: 'history.tabSplits' },
+  { key: 'cashback', label: 'history.tabCashback' },
+  { key: 'debts', label: 'history.tabDebts' },
+]
 
-const kindByTab: Record<string, HistoryEntry['kind'][]> = {
-  Все: ['split', 'cashback', 'debt', 'payment'],
-  Сплиты: ['split', 'payment'],
-  Кэшбэк: ['cashback'],
-  Долги: ['debt'],
+const kindByTab: Record<TabKey, HistoryEntry['kind'][]> = {
+  all: ['split', 'cashback', 'debt', 'payment'],
+  splits: ['split', 'payment'],
+  cashback: ['cashback'],
+  debts: ['debt'],
 }
 
 const grouped = computed(() => {
@@ -48,32 +57,36 @@ function amountText(e: HistoryEntry): string {
 </script>
 
 <template>
-  <div class="min-h-dvh bg-paper px-6 pb-28 pt-[calc(env(safe-area-inset-top)+24px)]">
+  <!-- отступ сверху общий для трио пилл-нава: кнопки справа не должны
+       прыгать при переключении между главной, падом и историей -->
+  <div class="min-h-dvh bg-paper px-6 pb-28 pt-[calc(env(safe-area-inset-top)+16px)]">
     <div class="flex items-center justify-between">
-      <h1 class="text-[27px] font-extrabold tracking-[-0.01em]">История</h1>
-      <div class="flex items-center gap-3">
-        <button type="button" aria-label="Поиск" class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand">
+      <h1 class="text-[27px] font-extrabold tracking-[-0.01em]">{{ t('history.title') }}</h1>
+      <!-- -mr-1: страница на px-6, а кнопки должны стоять там же, где на
+           главной и на паде (20px от края), иначе при переключении дёргаются -->
+      <div class="-mr-1 flex items-center gap-3">
+        <button type="button" :aria-label="t('common.searchAria')" class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand">
           <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
             <circle cx="8.5" cy="8.5" r="5.8" stroke="#5B594F" stroke-width="2" />
             <line x1="13" y1="13" x2="17" y2="17" stroke="#5B594F" stroke-width="2" stroke-linecap="round" />
           </svg>
         </button>
-        <button type="button" aria-label="Профиль" class="press" @click="router.push('/profile')">
-          <img :src="myAvatar" alt="Профиль" class="h-11 w-11 rounded-full border-2 border-lime object-cover" />
+        <button type="button" :aria-label="t('common.profileAria')" class="press" @click="router.push('/profile')">
+          <UserAvatar :size="44" :border="2" />
         </button>
       </div>
     </div>
 
     <div class="no-scrollbar -mx-6 mt-[18px] flex gap-2 overflow-x-auto px-6">
       <button
-        v-for="t in tabs"
-        :key="t"
+        v-for="tb in tabs"
+        :key="tb.key"
         type="button"
         class="press flex h-[38px] shrink-0 items-center rounded-full px-4 text-[13px] transition-colors"
-        :class="tab === t ? 'bg-lime font-extrabold text-on-lime' : 'bg-sand font-bold text-slate'"
-        @click="tab = t"
+        :class="tab === tb.key ? 'bg-lime font-extrabold text-on-lime' : 'bg-sand font-bold text-slate'"
+        @click="tab = tb.key"
       >
-        {{ t }}
+        {{ t(tb.label) }}
       </button>
     </div>
 
@@ -117,7 +130,7 @@ function amountText(e: HistoryEntry): string {
           </div>
       </AnimatedList>
     </template>
-    <p v-if="!grouped.length" class="mt-16 text-center text-[14px] font-semibold text-muted">Пока пусто</p>
+    <p v-if="!grouped.length" class="mt-16 text-center text-[14px] font-semibold text-muted">{{ t('history.empty') }}</p>
     </div>
     </Transition>
   </div>

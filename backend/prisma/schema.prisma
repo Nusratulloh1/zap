@@ -17,6 +17,9 @@ model User {
   pinHash      String?
   pinFailCount Int      @default(0)
   pinLockedTil DateTime?
+  /** язык интерфейса: uz | ru | en — следует за аккаунтом между устройствами
+      и пригодится для локализации SMS */
+  locale       String   @default("uz")
   createdAt    DateTime @default(now())
 
   cards          Card[]
@@ -321,6 +324,7 @@ enum SmsKind {
   otp
   split_link
   reminder
+  partner_lead
 }
 
 model SmsLog {
@@ -393,4 +397,19 @@ model FiscalEvent {
   createdAt DateTime @default(now())
 
   @@index([kind, createdAt])
+}
+
+/// Заявка партнёра с лендинга (ресторан/магазин хочет подключиться).
+model PartnerLead {
+  id        String   @id @default(cuid())
+  company   String
+  contact   String
+  phone     String
+  city      String?
+  message   String?
+  source    String   @default("landing")
+  status    String   @default("new") // new | contacted | closed
+  createdAt DateTime @default(now())
+
+  @@index([status, createdAt])
 }

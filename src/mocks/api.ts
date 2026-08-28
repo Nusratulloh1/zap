@@ -480,6 +480,24 @@ export async function repayDebt(debtId: string): Promise<void> {
 // ---------- contacts ----------
 
 /** Имя пользователя (онбординг-шит после первого входа) */
+export interface PartnerLead {
+  company: string
+  contact: string
+  phone: string
+  city?: string
+  message?: string
+}
+export async function submitPartnerLead(_lead: PartnerLead): Promise<void> {
+  await fakeLatency(400, 700)
+}
+
+export async function setLocale(locale: string): Promise<void> {
+  await fakeLatency(120, 240)
+  const db = getDb()
+  db.user.locale = locale
+  touch('user')
+}
+
 export async function updateProfile(name: string, handle?: string): Promise<void> {
   await fakeLatency(200, 400)
   const db = getDb()

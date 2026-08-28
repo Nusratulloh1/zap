@@ -39,6 +39,7 @@ export class UsersService {
       color: '#111110',
       memberSince: `${MONTHS[d.getMonth()]} ${d.getFullYear()}`,
       splitsCount,
+      locale: u.locale,
     }
   }
 
@@ -52,9 +53,10 @@ export class UsersService {
     return /^[a-z0-9_]{3,20}$/.test(h)
   }
 
-  async updateProfile(userId: string, data: { name?: string; handle?: string }) {
-    const patch: { name?: string; handle?: string } = {}
+  async updateProfile(userId: string, data: { name?: string; handle?: string; locale?: string }) {
+    const patch: { name?: string; handle?: string; locale?: string } = {}
     if (data.name !== undefined) patch.name = data.name.trim()
+    if (data.locale !== undefined) patch.locale = data.locale
     if (data.handle !== undefined && data.handle !== '') {
       const h = this.normalizeHandle(data.handle)
       if (!this.validHandle(h))

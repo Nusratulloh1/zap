@@ -10,11 +10,29 @@ import wordmark from '@/assets/brand/logo/zap-wordmark-large.png'
 import avatar12 from '@/assets/brand/avatars/a12.png'
 import avatar33 from '@/assets/brand/avatars/a33.png'
 import avatar68 from '@/assets/brand/avatars/a68.png'
-import partnerSafia from '@/assets/brand/partners/safia.png'
-import partnerTexnomart from '@/assets/brand/partners/texnomart.png'
-import partnerIdea from '@/assets/brand/partners/idea.png'
+import cafeEvos from '@/assets/brand/partners/evos-logo.png'
+import cafeFeedup from '@/assets/brand/partners/feedup-logo.png'
+import cafeBellissimo from '@/assets/brand/partners/bellissimo-logo.png'
+import cafeOqtepa from '@/assets/brand/partners/oqtepa.svg'
+import cafeSafia from '@/assets/brand/partners/safia-sq.png'
 
 const router = useRouter()
+
+// Кафе-партнёры на слайде про кэшбэк: стопка чипов внахлёст, как аватарки
+// участников. Размер знака внутри чипа свой у каждого — у квадратной марки
+// и у словесного логотипа при одной высоте разная оптическая масса.
+// bg — фирменный фон знака. Чип красим в него и вписываем логотип целиком:
+// если растянуть логотип на весь чип, соседний чип срезает часть слова.
+const cafes = [
+  { src: cafeSafia, alt: 'Safia café & bakery', w: 'w-[56px]', bg: '#FFDEB7' },
+  // у знака EVOS слово почти во всю ширину — чипу нужен запас, иначе
+  // соседний чип срезает первую букву
+  { src: cafeEvos, alt: 'EVOS', w: 'w-[70px]', bg: '#4AA838' },
+  { src: cafeFeedup, alt: 'Feed Up', w: 'w-[70px]', bg: '#000000' },
+  { src: cafeBellissimo, alt: 'Bellissimo Pizza', w: 'w-[56px]', cls: 'h-[30px]' },
+  // словесный логотип в квадрат не помещается — плашка под него шире
+  { src: cafeOqtepa, alt: 'Oqtepa Lavash', w: 'w-[84px]', cls: 'h-[20px]' },
+]
 
 const SLIDES = 3
 const DURATION = 5000
@@ -197,10 +215,27 @@ onBeforeUnmount(() => {
 
         <!-- 3/3 Кэшбэк ×2 -->
         <div v-else :key="2" class="flex flex-1 flex-col justify-center gap-[18px]">
-          <div class="st flex items-center" style="--d: 0">
-            <img :src="partnerSafia" alt="Safia" class="h-[38px] w-auto rotate-[-4deg] rounded-[11px]" />
-            <img :src="partnerTexnomart" alt="Texnomart" class="-ml-[10px] h-[38px] w-auto rotate-[3deg] rounded-[11px]" />
-            <img :src="partnerIdea" alt="idea" class="-ml-[10px] h-[38px] w-auto rotate-[-2deg] rounded-[11px]" />
+          <!-- кэшбэк начисляют кафе: их знаки лежат стопкой внахлёст.
+               На узких экранах (320px) стопка не помещалась и последний чип
+               срезался краем — там ужимаем её целиком. -->
+          <div class="st" style="--d: 0">
+            <div class="flex origin-left scale-[0.86] items-center min-[360px]:scale-100">
+            <span
+              v-for="(c, ci) in cafes"
+              :key="c.alt"
+              class="relative flex h-[56px] shrink-0 items-center justify-center overflow-hidden rounded-[18px] shadow-[0_6px_18px_rgba(30,28,16,0.14)] ring-1 ring-ink/[0.06]"
+              :class="[c.w, ci ? '-ml-[8px]' : '', c.bg ? '' : 'bg-paper/90 px-2']"
+              :style="{ zIndex: cafes.length - ci, backgroundColor: c.bg }"
+            >
+              <img
+                v-if="c.bg"
+                :src="c.src"
+                :alt="c.alt"
+                class="h-full w-full object-contain p-[3px]"
+              />
+              <img v-else :src="c.src" :alt="c.alt" class="w-auto object-contain" :class="c.cls" />
+              </span>
+            </div>
           </div>
           <p class="st font-mono text-[10.5px] font-bold uppercase tracking-[0.16em] text-ink/55" style="--d: 1">
             {{ S.onboarding.stage(3) }}
