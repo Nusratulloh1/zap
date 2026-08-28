@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Bill, Contact, Merchant } from '@/entities/types'
+import type { Bill, Contact, Merchant } from '@zap/shared/types'
 import * as api from '@/api'
 import { bus } from '@/lib/bus'
 import { ensureBootstrap } from './bootstrap'

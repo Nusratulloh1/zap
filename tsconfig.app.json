@@ -19,9 +19,11 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@zap/locales/*": ["packages/locales/*"]
+      "@zap/locales/*": ["packages/locales/*"],
+      "@zap/shared": ["packages/shared/src/index.ts"],
+      "@zap/shared/*": ["packages/shared/src/*"]
     },
     "types": ["vite/client", "vite-plugin-pwa/client"]
   },
-  "include": ["src/**/*.ts", "src/**/*.vue", "packages/locales/*.json"]
+  "include": ["src/**/*.ts", "src/**/*.vue", "packages/locales/*.json", "packages/shared/src/**/*.ts"]
 }

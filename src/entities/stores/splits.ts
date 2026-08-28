@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Split } from '@/entities/types'
+import type { Split } from '@zap/shared/types'
 import * as api from '@/api'
 import { markSplitCreated } from '@/lib/installPrompt'
 import { simulateSplitProgress, cancelSimulation } from '@/api/events'

@@ -1,7 +1,7 @@
 import { isRealApi } from '@/api'
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Bill, SplitMode } from '@/entities/types'
+import type { Bill, SplitMode } from '@zap/shared/types'
 import { equalShares } from '@/lib/format'
 
 export interface DraftMember {

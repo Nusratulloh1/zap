@@ -14,6 +14,9 @@ importers:
       '@zap/locales':
         specifier: workspace:*
         version: link:packages/locales
+      '@zap/shared':
+        specifier: workspace:*
+        version: link:packages/shared
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -110,6 +113,8 @@ importers:
         version: 2.2.12(typescript@5.7.3)
 
   packages/locales: {}
+
+  packages/shared: {}
 
 packages:
 

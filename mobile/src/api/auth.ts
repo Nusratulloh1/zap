@@ -2,6 +2,7 @@
 // (стадии сессии, ротация токенов, PIN) не разъезжалось между клиентами.
 import { http, setTokens, setPaymentToken } from './client';
 import type { Tokens } from '@/lib/secureStore';
+import type { User } from '@zap/shared/types';
 
 export type Stage = 'onboarding' | 'phone' | 'code' | 'pin' | 'authed';
 
@@ -56,16 +57,8 @@ export async function logout(refreshToken?: string): Promise<void> {
   await setTokens(null);
 }
 
-export interface Me {
-  id: string;
-  name: string;
-  handle: string;
-  phone: string;
-  initials: string;
-  memberSince: string;
-  splitsCount: number;
-  locale?: string;
-}
+// профиль — общий доменный тип монорепо, чтобы поля не разъезжались с вебом
+export type Me = User;
 
 export function me(): Promise<Me> {
   return http<Me>('/me');

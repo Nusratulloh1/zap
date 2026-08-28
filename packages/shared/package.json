@@ -1,0 +1,15 @@
+{
+  "name": "@zap/shared",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Доменные типы, контракт ApiClient и денежные утилиты — общие для веба и мобильного клиента",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./types": "./src/types.ts",
+    "./money": "./src/money.ts",
+    "./api-contract": "./src/api-contract.ts"
+  }
+}

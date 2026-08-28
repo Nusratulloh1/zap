@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Group } from '@/entities/types'
+import type { Group } from '@zap/shared/types'
 import * as api from '@/api'
 import { bus } from '@/lib/bus'
 import { ensureBootstrap } from './bootstrap'

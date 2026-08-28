@@ -4,7 +4,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { money, dayLabel } from '@/lib/format'
-import type { HistoryEntry } from '@/entities/types'
+import type { HistoryEntry } from '@zap/shared/types'
 import { useHistoryStore } from '@/entities/stores/history'
 import ZapAvatar from '@/components/ZapAvatar.vue'
 import UserAvatar from '@/components/UserAvatar.vue'

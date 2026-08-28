@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { CashbackEntry } from '@/entities/types'
+import type { CashbackEntry } from '@zap/shared/types'
 import * as api from '@/api'
 import { bus } from '@/lib/bus'
 import { ensureBootstrap } from './bootstrap'

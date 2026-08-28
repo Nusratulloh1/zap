@@ -1,4 +1,4 @@
-import type { Db } from '@/entities/types'
+import type { Db } from '@zap/shared/types'
 import { fetchBootstrap } from '@/api'
 
 let promise: Promise<Db> | null = null

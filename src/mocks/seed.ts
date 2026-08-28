@@ -1,4 +1,4 @@
-import type { Db } from '@/entities/types'
+import type { Db } from '@zap/shared/types'
 
 const DAY = 86400000
 

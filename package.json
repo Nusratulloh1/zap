@@ -36,7 +36,8 @@
     "vue-router": "^4.5.0",
     "vue-sonner": "^2.0.0",
     "workbox-window": "^7.4.1",
-    "@zap/locales": "workspace:*"
+    "@zap/locales": "workspace:*",
+    "@zap/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.5",

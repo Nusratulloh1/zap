@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import type { SplitMemberStatus } from '@/entities/types'
+import type { SplitMemberStatus } from '@zap/shared/types'
 import { money } from '@/lib/format'
 import { S } from '@/lib/strings'
 import ZapAvatar from './ZapAvatar.vue'

@@ -1,4 +1,4 @@
-import type { Db, Session } from '@/entities/types'
+import type { Db, Session } from '@zap/shared/types'
 import { createSeed } from './seed'
 
 const DB_KEY = 'zap:db:v2'

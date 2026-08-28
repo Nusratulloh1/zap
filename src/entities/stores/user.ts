@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Card, Session, Settings, User } from '@/entities/types'
+import type { Card, Session, Settings, User } from '@zap/shared/types'
 import * as api from '@/api'
 import { bus } from '@/lib/bus'
 import { ensureBootstrap, resetBootstrap } from './bootstrap'

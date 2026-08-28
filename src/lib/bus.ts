@@ -1,5 +1,5 @@
 // Tiny typed event bus used by the mock event simulator and stores.
-import type { Split } from '@/entities/types'
+import type { Split } from '@zap/shared/types'
 
 export interface BusEvents {
   'db:changed': { domains: string[] }

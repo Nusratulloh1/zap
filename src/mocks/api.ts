@@ -8,9 +8,9 @@ import type {
   Split,
   SplitMember,
   SplitMode,
-} from '@/entities/types'
+} from '@zap/shared/types'
 import { getDb, getSession, persistDb, persistSession, resetAll } from './db'
-import type { Contact } from '@/entities/types'
+import type { Contact } from '@zap/shared/types'
 import { bus } from '@/lib/bus'
 import { money } from '@/lib/format'
 

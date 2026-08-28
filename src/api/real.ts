@@ -2,7 +2,7 @@
 // NestJS-бэкенда (VITE_API_URL) + Socket.IO. Кэш Db держится локально и
 // обновляется рефетчем bootstrap после мутаций и по realtime-событиям.
 import { io, type Socket } from 'socket.io-client'
-import type { Bill, Card, Contact, Db, Group, Session, Split } from '@/entities/types'
+import type { Bill, Card, Contact, Db, Group, Session, Split } from '@zap/shared/types'
 import type { CreateSplitInput, SaveGroupInput } from '@/mocks/api'
 import { bus } from '@/lib/bus'
 import { money } from '@/lib/format'
