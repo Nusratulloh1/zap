@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const dir = path.dirname(fileURLToPath(import.meta.url))
-const fx = (n) => readFileSync(path.join(dir, '..', 'backend', 'test', 'fixtures', n), 'utf8')
+const fx = (n) => readFileSync(path.join(dir, '..', 'apps', 'backend', 'test', 'fixtures', n), 'utf8')
 const byTerminal = {
   LG420211638943: fx('ofd-payment-1.json'),
   VG544170047867: fx('ofd-payment-2.json'),

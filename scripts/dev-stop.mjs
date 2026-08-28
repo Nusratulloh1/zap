@@ -5,7 +5,7 @@ import path from 'node:path'
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..')
 
 try {
-  execSync('docker compose -f docker-compose.dev.yml down', { cwd: path.join(ROOT, 'backend'), stdio: 'inherit' })
+  execSync('docker compose -f docker-compose.dev.yml down', { cwd: path.join(ROOT, 'apps', 'backend'), stdio: 'inherit' })
 } catch {
   /* docker недоступен — embedded PG умирает вместе с dev:all */
 }

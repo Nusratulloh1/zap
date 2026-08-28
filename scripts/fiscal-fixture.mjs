@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 
-const html = readFileSync(path.resolve('backend/test/fixtures/ofd-check-1.html'), 'utf8')
+const html = readFileSync(path.resolve('apps/backend/test/fixtures/ofd-check-1.html'), 'utf8')
 
 createServer((req, res) => {
   if (req.url?.startsWith('/fail')) {

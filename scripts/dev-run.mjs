@@ -5,7 +5,7 @@ import { copyFileSync, existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..')
-const BACKEND = path.join(ROOT, 'backend')
+const BACKEND = path.join(ROOT, 'apps', 'backend')
 const envFile = path.join(BACKEND, '.env.development')
 if (!existsSync(envFile)) copyFileSync(path.join(BACKEND, '.env.development.example'), envFile)
 const devEnv = Object.fromEntries(

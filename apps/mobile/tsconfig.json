@@ -8,11 +8,11 @@
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@locales/*": ["../packages/locales/*"],
-      "@zap/shared": ["../packages/shared/src/index.ts"],
-      "@zap/shared/*": ["../packages/shared/src/*"]
+      "@locales/*": ["../../packages/locales/*"],
+      "@zap/shared": ["../../packages/shared/src/index.ts"],
+      "@zap/shared/*": ["../../packages/shared/src/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "../packages/locales/*.json", "../packages/shared/src/**/*.ts"],
+  "include": ["**/*.ts", "**/*.tsx", "../../packages/locales/*.json", "../../packages/shared/src/**/*.ts"],
   "exclude": ["**/node_modules", "**/Pods"]
 }

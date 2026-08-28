@@ -8,7 +8,7 @@ import path from 'node:path'
 import process from 'node:process'
 
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1')), '..')
-const BACKEND = path.join(ROOT, 'backend')
+const BACKEND = path.join(ROOT, 'apps', 'backend')
 const children = []
 const COLORS = { db: '\x1b[35m', api: '\x1b[36m', web: '\x1b[33m' }
 

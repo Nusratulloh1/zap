@@ -17,8 +17,8 @@ model User {
   pinHash      String?
   pinFailCount Int      @default(0)
   pinLockedTil DateTime?
-  /** язык интерфейса: uz | ru | en — следует за аккаунтом между устройствами
-      и пригодится для локализации SMS */
+  /// язык интерфейса: uz | ru | en — следует за аккаунтом между устройствами
+  /// и пригодится для локализации SMS
   locale       String   @default("uz")
   createdAt    DateTime @default(now())
 

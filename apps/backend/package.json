@@ -15,7 +15,8 @@
     "test:e2e": "jest --config test/jest-e2e.json --runInBand --forceExit",
     "lint": "eslint \"src/**/*.ts\"",
     "test:fiscal-parser": "jest --config test/jest-e2e.json --testPathPattern fiscal-parser --forceExit",
-    "test:participant": "jest --config test/jest-e2e.json --testPathPattern participant-chips --forceExit"
+    "test:participant": "jest --config test/jest-e2e.json --testPathPattern participant-chips --forceExit",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",
