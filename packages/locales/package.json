@@ -1,0 +1,10 @@
+{
+  "name": "@zap/locales",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Единственный источник переводов uz/ru/en — общий для веба и мобильного клиента",
+  "exports": {
+    "./*": "./*"
+  },
+  "files": ["*.json"]
+}

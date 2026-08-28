@@ -7,8 +7,8 @@ module.exports = {
         root: ['./src'],
         alias: {
           '@': './src',
-          // локали лежат в веб-приложении — переводим один раз на два клиента
-          '@locales': '../src/locales',
+          // локали — общий пакет монорепо, один источник на веб и мобильный
+          '@locales': '../packages/locales',
         },
         extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
       },

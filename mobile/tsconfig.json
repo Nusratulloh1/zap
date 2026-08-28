@@ -8,9 +8,9 @@
     "resolveJsonModule": true,
     "paths": {
       "@/*": ["./src/*"],
-      "@locales/*": ["../src/locales/*"]
+      "@locales/*": ["../packages/locales/*"]
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "../src/locales/*.json"],
+  "include": ["**/*.ts", "**/*.tsx", "../packages/locales/*.json"],
   "exclude": ["**/node_modules", "**/Pods"]
 }

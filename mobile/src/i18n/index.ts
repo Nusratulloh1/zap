@@ -1,5 +1,5 @@
 // i18n мобильного клиента. Локали НЕ дублируются — читаются те же файлы,
-// что и в вебе (../../src/locales), см. metro.config.js watchFolders.
+// что и в вебе — пакет packages/locales, см. metro.config.js watchFolders.
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { NativeModules, Platform } from 'react-native';

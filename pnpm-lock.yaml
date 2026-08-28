@@ -11,6 +11,9 @@ importers:
       '@vueuse/core':
         specifier: ^13.0.0
         version: 13.9.0(vue@3.5.41(typescript@5.7.3))
+      '@zap/locales':
+        specifier: workspace:*
+        version: link:packages/locales
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -105,6 +108,8 @@ importers:
       vue-tsc:
         specifier: ^2.2.8
         version: 2.2.12(typescript@5.7.3)
+
+  packages/locales: {}
 
 packages:
 

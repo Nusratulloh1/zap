@@ -6,7 +6,7 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'locales')
+const DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'packages', 'locales')
 const BASE = 'ru' // эталон: с него начинали, он полнее всех по формулировкам
 
 /** «home.searchPlaceholder» → плоский список путей до листьев */
@@ -19,7 +19,9 @@ function flatten(obj, prefix = '', out = new Map()) {
   return out
 }
 
-const files = readdirSync(DIR).filter((f) => f.endsWith('.json'))
+// только языковые файлы: в папке пакета лежит ещё package.json
+const KNOWN = ['uz', 'ru', 'en']
+const files = readdirSync(DIR).filter((f) => KNOWN.includes(f.replace(/\.json$/, '')))
 const locales = new Map()
 for (const f of files) {
   const name = f.replace(/\.json$/, '')

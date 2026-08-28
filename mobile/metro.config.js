@@ -1,14 +1,14 @@
 const path = require('path');
 const { getDefaultConfig, mergeConfig } = require('@react-native/metro-config');
 
-// Локали — общие с веб-приложением: mobile/ читает src/locales/*.json из корня
-// репозитория, поэтому корень добавлен в watchFolders, а его node_modules —
-// в резолвер (иначе Metro не найдёт пакеты для файлов вне projectRoot).
+// Локали — общий пакет монорепо (packages/locales). Папка добавлена в
+// watchFolders, иначе Metro не видит файлы вне projectRoot; резолвер при этом
+// продолжает брать зависимости только из mobile/node_modules.
 const repoRoot = path.resolve(__dirname, '..');
 
 /** @type {import('@react-native/metro-config').MetroConfig} */
 const config = {
-  watchFolders: [path.resolve(repoRoot, 'src', 'locales')],
+  watchFolders: [path.resolve(repoRoot, 'packages', 'locales')],
   resolver: {
     nodeModulesPaths: [path.resolve(__dirname, 'node_modules')],
   },

@@ -4,9 +4,9 @@
 // Порядок: сохранённый выбор → профиль пользователя (приходит позже, см.
 // applyLocale) → navigator.language → uz.
 import { createI18n } from 'vue-i18n'
-import uz from '@/locales/uz.json'
-import ru from '@/locales/ru.json'
-import en from '@/locales/en.json'
+import uz from '@zap/locales/uz.json'
+import ru from '@zap/locales/ru.json'
+import en from '@zap/locales/en.json'
 
 export const LOCALES = ['uz', 'ru', 'en'] as const
 export type Locale = (typeof LOCALES)[number]
