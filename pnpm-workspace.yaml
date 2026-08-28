@@ -1,0 +1,6 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+  # RN держит собственное дерево зависимостей: Metro и нативные модули
+  # ломаются на pnpm-симлинках, поэтому mobile ставится своим npm install
+  - '!apps/mobile'
