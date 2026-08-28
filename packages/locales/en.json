@@ -78,7 +78,8 @@
     "resendIn": "Send again · {time}",
     "devNoCode": "DEV: no code sent yet",
     "devNoBackend": "DEV: backend unavailable",
-    "devGetCode": "DEV · get the code"
+    "devGetCode": "DEV · get the code",
+    "smsUnavailable": "Could not send the SMS — please try again later"
   },
   "tabs": {
     "home": "Home",

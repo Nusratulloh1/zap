@@ -78,7 +78,8 @@
     "resendIn": "Qayta yuborish · {time}",
     "devNoCode": "DEV: kod hali yuborilmadi",
     "devNoBackend": "DEV: bekend mavjud emas",
-    "devGetCode": "DEV · kodni olish"
+    "devGetCode": "DEV · kodni olish",
+    "smsUnavailable": "SMS yuborib bo‘lmadi — birozdan so‘ng urinib ko‘ring"
   },
   "tabs": {
     "home": "Bosh sahifa",

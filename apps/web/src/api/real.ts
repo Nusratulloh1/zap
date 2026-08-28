@@ -107,9 +107,12 @@ async function http<T = unknown>(path: string, init: RequestInit & { auth?: bool
     }
   }
   if (!res.ok) {
-    const body = (await res.json().catch(() => ({}))) as { message?: string | string[] }
+    const body = (await res.json().catch(() => ({}))) as { message?: string | string[]; code?: string }
     const msg = Array.isArray(body.message) ? body.message[0] : body.message
-    throw new ApiError(msg ?? t('common.genericError', { status: res.status }), res.status)
+    // машинный код важнее текста: серверные сообщения по-русски, а показать
+    // их надо на языке интерфейса
+    const byCode = body.code ? ERROR_TEXT[body.code] : undefined
+    throw new ApiError(byCode ? t(byCode) : (msg ?? t('common.genericError', { status: res.status })), res.status)
   }
   return (await res.json().catch(() => ({}))) as T
 }
@@ -192,6 +195,11 @@ function joinSplitRoom(code: string) {
 export async function fetchSession(): Promise<Session> {
   if (tokens && session.stage === 'authed') void refreshBootstrap()
   return clone(session)
+}
+
+/** Коды ошибок бэкенда → ключи перевода. */
+const ERROR_TEXT: Record<string, string> = {
+  sms_unavailable: 'auth.smsUnavailable',
 }
 
 export async function startLogin(phone: string): Promise<void> {

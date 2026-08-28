@@ -78,7 +78,8 @@
     "resendIn": "Отправить ещё раз · {time}",
     "devNoCode": "DEV: код ещё не отправлен",
     "devNoBackend": "DEV: бэкенд недоступен",
-    "devGetCode": "DEV · получить код"
+    "devGetCode": "DEV · получить код",
+    "smsUnavailable": "Не удалось отправить SMS — попробуйте позже"
   },
   "tabs": {
     "home": "Главная",
