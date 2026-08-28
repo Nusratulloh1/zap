@@ -3,6 +3,7 @@
 import { http, setTokens, setPaymentToken } from './client';
 import type { Tokens } from '@/lib/secureStore';
 import type { User } from '@zap/shared/types';
+import { currentLocale } from '@/i18n';
 
 export type Stage = 'onboarding' | 'phone' | 'code' | 'pin' | 'authed';
 
@@ -15,7 +16,8 @@ export async function requestOtp(phone: string): Promise<{ devCode?: string }> {
   return http<{ devCode?: string }>('/auth/otp/request', {
     method: 'POST',
     auth: false,
-    body: JSON.stringify({ phone }),
+    // локаль — чтобы SMS пришла на языке интерфейса ещё до создания профиля
+    body: JSON.stringify({ phone, locale: currentLocale() }),
   });
 }
 

@@ -6,6 +6,7 @@ import { SmsKind } from '@prisma/client'
 import { randomUUID } from 'node:crypto'
 import { PrismaService } from '../common/prisma.service'
 import { maskPhone } from '../common/utils'
+import { DEFAULT_SMS_LOCALE, isSmsLocale, resolveSmsLocale, type SmsLocale } from './sms.i18n'
 
 const TIMEOUT_MS = 8000
 
@@ -20,6 +21,24 @@ export class SmsService {
   }
 
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Язык сообщения = язык ПОЛУЧАТЕЛЯ. Ищем его профиль по номеру; если
+   * получателя ещё нет в базе (первый OTP, участник по SMS-ссылке) —
+   * берём язык инициатора, а в последнюю очередь uz.
+   */
+  async localeFor(phone: string, actorLocale?: string | null): Promise<SmsLocale> {
+    if (!/^998\d{9}$/.test(phone)) return resolveSmsLocale(actorLocale)
+    const user = await this.prisma.user
+      .findUnique({ where: { phone }, select: { locale: true } })
+      .catch(() => null)
+    return resolveSmsLocale(user?.locale, actorLocale)
+  }
+
+  /** Локаль без обращения к базе — когда профиль получателя уже загружен. */
+  localeOf(...candidates: (string | null | undefined)[]): SmsLocale {
+    return resolveSmsLocale(...candidates)
+  }
 
   private get dryRun(): boolean {
     return (process.env.SMS_DRY_RUN ?? 'true') !== 'false'

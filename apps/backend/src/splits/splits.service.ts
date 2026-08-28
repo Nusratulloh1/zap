@@ -17,6 +17,7 @@ import { RealtimeGateway } from '../realtime/realtime.gateway'
 import { HistoryService } from '../history/history.service'
 import { PAYMENT_PROVIDER, type PaymentProvider } from '../payments/payment.provider'
 import { makeSplitCode, normalizePhone, round1000 } from '../common/utils'
+import { FRIEND_FALLBACK, smsText } from '../sms/sms.i18n'
 
 export interface CreateSplitMemberInput {
   phone: string
@@ -295,6 +296,15 @@ export class SplitsService {
     }
   }
 
+  /** Локаль организатора — запасной язык SMS участнику, которого ещё нет в базе. */
+  async creatorLocale(code: string): Promise<string | null> {
+    const split = await this.prisma.split.findUnique({
+      where: { code: code.toUpperCase() },
+      select: { creator: { select: { locale: true } } },
+    })
+    return split?.creator?.locale ?? null
+  }
+
   // ---------- участник: открыл / оплатил ----------
 
   async markOpened(code: string, phone: string) {
@@ -442,7 +452,13 @@ export class SplitsService {
     if (member.lastRemindedAt && Date.now() - member.lastRemindedAt.getTime() < REMIND_INTERVAL_MS)
       throw new BadRequestException('Напоминание уже отправлено — подождите 30 минут')
     const origin = process.env.PWA_ORIGIN ?? 'http://localhost:5173'
-    await this.sms.send(member.phone, `ZAP! Напоминание: ваша доля в «${split.title}» — ${origin}/s/${split.code}`, 'reminder')
+    const creator = await this.prisma.user.findUnique({ where: { id: creatorId }, select: { locale: true } })
+    const lang = await this.sms.localeFor(member.phone, creator?.locale)
+    await this.sms.send(
+      member.phone,
+      smsText('splitReminder', lang, { title: split.title, url: `${origin}/s/${split.code}` }),
+      'reminder',
+    )
     await this.prisma.splitMember.update({ where: { id: memberId }, data: { lastRemindedAt: new Date() } })
     return { ok: true }
   }
@@ -464,7 +480,16 @@ export class SplitsService {
     let sent = 0
     for (const m of eligible) {
       try {
-        await this.sms.send(m.phone, `ZAP! ${creator.name || 'Друг'} просит вашу долю в «${split.title}»: ${origin}/s/${split.code}`, 'split_link')
+        const lang = await this.sms.localeFor(m.phone, creator.locale)
+        await this.sms.send(
+          m.phone,
+          smsText('splitLink', lang, {
+            name: creator.name || FRIEND_FALLBACK[lang],
+            title: split.title,
+            url: `${origin}/s/${split.code}`,
+          }),
+          'split_link',
+        )
         await this.prisma.splitMember.update({ where: { id: m.id }, data: { lastRemindedAt: new Date() } })
         sent++
       } catch (e) {

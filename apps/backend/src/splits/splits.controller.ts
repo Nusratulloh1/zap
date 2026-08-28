@@ -198,7 +198,8 @@ export class PublicSplitController {
   async pay(@Param('code') splitCode: string, @Body() dto: PublicPayDto) {
     const phone = normalizePhone(dto.phone)
     if (!dto.code) {
-      const res = await this.auth.requestOtp(phone, 'participant_pay')
+      // участника в базе может ещё не быть — тогда SMS уйдёт на языке организатора
+      const res = await this.auth.requestOtp(phone, 'participant_pay', await this.splits.creatorLocale(splitCode))
       return { otpRequired: true, ...res }
     }
     await this.auth.verifyOtp(phone, dto.code, 'participant_pay')

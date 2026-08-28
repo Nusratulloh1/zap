@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post, Req, UseGuards } from '@nestjs/common'
 import { Throttle } from '@nestjs/throttler'
-import { IsString, Length, Matches } from 'class-validator'
+import { IsIn, IsOptional, IsString, Length, Matches } from 'class-validator'
 import type { Request } from 'express'
 import { AuthService } from './auth.service'
 import { CurrentUser, JwtAuthGuard, type AuthUser } from '../common/auth.guard'
@@ -9,6 +9,11 @@ import { normalizePhone } from '../common/utils'
 class PhoneDto {
   @IsString()
   phone!: string
+
+  /** Язык интерфейса — на нём придёт SMS, если профиля ещё нет. */
+  @IsOptional()
+  @IsIn(['uz', 'ru', 'en'])
+  locale?: string
 }
 class VerifyDto extends PhoneDto {
   @IsString()
@@ -45,7 +50,7 @@ export class AuthController {
   @Throttle({ default: { ttl: 60_000, limit: 15 } })
   async requestOtp(@Body() dto: PhoneDto) {
     const phone = normalizePhone(dto.phone)
-    const res = await this.auth.requestOtp(phone, 'login')
+    const res = await this.auth.requestOtp(phone, 'login', dto.locale)
     // ответ никогда не раскрывает, существует ли номер
     return { ok: true, ...res }
   }

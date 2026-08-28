@@ -6,7 +6,7 @@ import type { Bill, Card, Contact, Db, Group, Session, Split } from '@zap/shared
 import type { CreateSplitInput, SaveGroupInput } from '@/mocks/api'
 import { bus } from '@/lib/bus'
 import { money } from '@/lib/format'
-import { t } from '@/lib/i18n'
+import { currentLocale, t } from '@/lib/i18n'
 
 const BASE = String(import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
 
@@ -198,7 +198,8 @@ export async function startLogin(phone: string): Promise<void> {
   const res = await http<{ devCode?: string }>('/auth/otp/request', {
     method: 'POST',
     auth: false,
-    body: JSON.stringify({ phone }),
+    // локаль — чтобы SMS пришла на языке интерфейса ещё до создания профиля
+    body: JSON.stringify({ phone, locale: currentLocale() }),
   })
   if (import.meta.env.DEV && res.devCode) (window as { __ZAP_DEV_OTP?: string }).__ZAP_DEV_OTP = res.devCode
   session = { stage: 'code', phone }

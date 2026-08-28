@@ -3,6 +3,7 @@ import { HttpException, Injectable, Logger } from '@nestjs/common'
 import { PrismaService } from '../common/prisma.service'
 import { SmsService } from '../sms/sms.service'
 import { normalizePhone } from '../common/utils'
+import { resolveSmsLocale, smsText } from '../sms/sms.i18n'
 
 export interface PartnerLeadInput {
   company: string
@@ -51,7 +52,14 @@ export class PartnersService {
   private async notifySms(company: string, contact: string, phone: string, city?: string) {
     const raw = process.env.PARTNER_LEAD_SMS_TO
     if (!raw) return
-    const text = `ZAP! Заявка партнёра: ${company}. ${contact}, +${phone}${city ? `, ${city}` : ''}`
+    // менеджерская SMS — язык фиксируется в PARTNER_LEAD_SMS_LOCALE (по умолчанию ru)
+    const lang = resolveSmsLocale(process.env.PARTNER_LEAD_SMS_LOCALE, 'ru')
+    const text = smsText('partnerLead', lang, {
+      company,
+      contact,
+      phone,
+      city: city ? `, ${city}` : '',
+    })
     // normalizePhone бросает на мусоре — кривой номер в env не должен ломать приём заявки
     const recipients: string[] = []
     for (const v of raw.split(',')) {

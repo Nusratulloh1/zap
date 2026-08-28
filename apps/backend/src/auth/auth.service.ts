@@ -13,6 +13,7 @@ import { createHash, randomBytes, randomInt, randomUUID, timingSafeEqual } from 
 import { PrismaService } from '../common/prisma.service'
 import { SmsService } from '../sms/sms.service'
 import { maskPhone } from '../common/utils'
+import { smsText } from '../sms/sms.i18n'
 
 const OTP_TTL_MS = 5 * 60_000
 const OTP_MAX_ATTEMPTS = 5
@@ -65,7 +66,11 @@ export class AuthService {
     }
   }
 
-  async requestOtp(phone: string, purpose: OtpPurpose = 'login'): Promise<{ devCode?: string }> {
+  async requestOtp(
+    phone: string,
+    purpose: OtpPurpose = 'login',
+    locale?: string | null,
+  ): Promise<{ devCode?: string }> {
     const isTest = this.testPhones.has(phone)
     // тестовые номера SMS не отправляют — ограничивать их незачем
     if (!isTest) await this.assertOtpAllowed(phone)
@@ -82,7 +87,9 @@ export class AuthService {
       this.log.warn(`⚠️  TEST OTP for ${maskPhone(phone)} (${purpose}) — SMS skipped, code from TEST_OTP_CODE`)
     } else {
       try {
-        await this.sms.send(phone, `ZAP! Код: ${code}`, 'otp')
+        // язык профиля получателя; для нового номера — тот, что прислал клиент
+        const lang = await this.sms.localeFor(phone, locale)
+        await this.sms.send(phone, smsText('otp', lang, { code }), 'otp')
       } catch (e) {
         // SMS не ушла — попытка не должна съедать часовой лимит, иначе поверх
         // ошибки отправки пользователь через пару нажатий получает ещё и 429

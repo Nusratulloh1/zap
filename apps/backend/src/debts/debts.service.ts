@@ -6,6 +6,7 @@ import { SmsService } from '../sms/sms.service'
 import { RealtimeGateway } from '../realtime/realtime.gateway'
 import { HistoryService } from '../history/history.service'
 import { PAYMENT_PROVIDER, type PaymentProvider } from '../payments/payment.provider'
+import { FRIEND_FALLBACK, smsAmount, smsText } from '../sms/sms.i18n'
 
 const REMIND_INTERVAL_MS = 30 * 60_000
 
@@ -39,9 +40,14 @@ export class DebtsService {
     if (debt.lastRemindedAt && Date.now() - debt.lastRemindedAt.getTime() < REMIND_INTERVAL_MS)
       throw new BadRequestException('Напоминание уже отправлено — подождите 30 минут')
     const creditor = await this.prisma.user.findUniqueOrThrow({ where: { id: userId } })
+    const lang = await this.sms.localeFor(debt.debtorPhone, creditor.locale)
     await this.sms.send(
       debt.debtorPhone,
-      `ZAP! ${creditor.name || 'Друг'} напоминает про долг ${debt.amount.toLocaleString('ru')} UZS (${debt.reason})`,
+      smsText('debtReminder', lang, {
+        name: creditor.name || FRIEND_FALLBACK[lang],
+        amount: smsAmount(debt.amount, lang),
+        reason: debt.reason,
+      }),
       'reminder',
     )
     await this.prisma.debt.update({ where: { id: debtId }, data: { lastRemindedAt: new Date() } })
