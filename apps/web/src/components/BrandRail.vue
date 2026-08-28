@@ -1,17 +1,23 @@
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 // Витрина партнёров в стиле маркетплейса: заголовок секции + подзаголовок +
 // «Показать все», горизонтальный рельс карточек. Карточка: фирменная подложка
 // с логотипом, бейдж предложения, рейтинг и категории.
 export interface RailBrand {
   id: string
   name: string
-  tags: string
+  /** ключи кухонь (cuisine.*) — подпись собирает вызывающая сторона */
+  tagKeys: string[]
   rating: number
   logo: string
   bg: string
-  badge: string
+  /** вид бейджа: шаблон берётся из badge.<kind> */
+  badgeKind: 'promo' | 'cashback' | 'discount'
+  /** подставляется в шаблон: «1+1», «10%», «×2» */
+  badgeValue: string
   badgeIcon: string
-  time?: string
+  /** диапазон минут доставки, «20–30» */
+  minutes?: string
 }
 
 defineProps<{
@@ -21,6 +27,7 @@ defineProps<{
   brands: RailBrand[]
 }>()
 const emit = defineEmits<{ pick: [id: string] }>()
+const { t } = useI18n()
 </script>
 
 <template>
@@ -49,13 +56,13 @@ const emit = defineEmits<{ pick: [id: string] }>()
         <span class="relative flex h-[104px] items-center justify-center px-4" :style="{ backgroundColor: b.bg }">
           <img :src="b.logo" :alt="b.name" class="max-h-[46px] w-auto max-w-[124px] object-contain" />
           <span class="absolute left-2 top-2 flex h-[26px] items-center gap-1 rounded-full bg-white/95 pl-2 pr-2.5 text-[11px] font-extrabold text-ink shadow-sm">
-            <span>{{ b.badgeIcon }}</span>{{ b.badge }}
+            <span>{{ b.badgeIcon }}</span>{{ t(`badge.${b.badgeKind}`, { v: b.badgeValue }) }}
           </span>
           <span
-            v-if="b.time"
+            v-if="b.minutes"
             class="absolute bottom-0 right-0 flex h-[24px] items-center rounded-tl-[10px] bg-black/70 px-2 text-[11px] font-bold text-white"
           >
-            {{ b.time }}
+            {{ t('badge.minutes', { v: b.minutes }) }}
           </span>
         </span>
         <span class="flex flex-col gap-1 p-3">
@@ -63,7 +70,7 @@ const emit = defineEmits<{ pick: [id: string] }>()
           <span class="flex items-center gap-1.5 text-[11.5px] font-semibold text-faint">
             <span class="text-[#7FA800]">★</span>
             <span class="font-extrabold text-ink">{{ b.rating.toFixed(1) }}</span>
-            <span class="truncate">· {{ b.tags }}</span>
+            <span class="truncate">· {{ b.tagKeys.map((k) => t(`cuisine.${k}`)).join(' · ') }}</span>
           </span>
         </span>
       </button>

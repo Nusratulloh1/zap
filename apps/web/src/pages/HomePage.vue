@@ -7,7 +7,8 @@ import emblaCarouselVue from 'embla-carousel-vue'
 import Autoplay from 'embla-carousel-autoplay'
 import { fetchFeaturedBill } from '@/api'
 import { useDraftStore } from '@/entities/stores/draft'
-import { money, peopleCount, isSameDay } from '@/lib/format'
+import { money, peopleCount } from '@/lib/format'
+import { humanDateLc } from '@/lib/datetime'
 import { useUserStore } from '@/entities/stores/user'
 import { useContactsStore } from '@/entities/stores/contacts'
 import { useSplitsStore } from '@/entities/stores/splits'
@@ -37,10 +38,12 @@ import { setBarColor, homeSheetColor, HOME_TOP_COLOR } from '@/lib/theme'
 // витрины-рельсы отключены: все предложения показываются в верхней карусели.
 // Компонент BrandRail.vue остаётся в проекте — если решим вернуть секции.
 import { type RailBrand } from '@/components/BrandRail.vue'
+import { useI18n } from 'vue-i18n'
 
 defineOptions({ name: 'HomePage' })
 
 const router = useRouter()
+const { t } = useI18n()
 const user = useUserStore()
 const contacts = useContactsStore()
 const splits = useSplitsStore()
@@ -138,26 +141,14 @@ const venueByBrand: Record<string, string> = Object.fromEntries(
   ]),
 )
 
-// условия предложений для слайдов (ключ = id бренда)
-const OFFER_TERMS: Record<string, string> = {
-  b_evos: 'второй лаваш в подарок — до 30 сентября',
-  b_oqtepa: 'второй лаваш в подарок при сплите',
-  b_maxway: 'кэшбэк баллами на всю компанию',
-  b_lesailes: 'при сплите от 4 человек',
-  b_bellissimo: 'на всё меню, кроме напитков',
-  b_sushitime: 'на сеты от 300 000 сум',
-  b_feedup: 'третий донер в подарок по будням',
-  b_bon: 'на выпечку до 12:00',
-  b_safia: 'при сплите от 3 человек',
-  b_korzinka: 'на продукты каждый день',
-  b_texnomart: 'на технику от 1 млн сум',
-  b_idea: 'третий товар в подарок',
-  b_click: 'кэшбэк за оплату через ZAP!',
-  b_payme: 'кэшбэк за оплату через ZAP!',
-}
+// условия предложений живут в локалях (offers.<id>) — здесь только id
 
 // категория (фильтр) → тип предложения
-const CATEGORY_TO_OFFER: Record<string, OfferType> = { Кэшбэк: 'cashback', Акции: 'promo', Скидки: 'discount' }
+const CATEGORY_TO_OFFER: Partial<Record<CategoryKey, OfferType>> = {
+  cashback: 'cashback',
+  promo: 'promo',
+  discount: 'discount',
+}
 
 /** Стиль чипа под тип предложения. */
 const OFFER_STYLE: Record<OfferType, { chip: string; icon: string }> = {
@@ -172,27 +163,27 @@ interface BrandCard extends RailBrand {
   type: OfferType
 }
 const brands: BrandCard[] = [
-  { id: 'b_evos', name: 'EVOS', tags: 'Лаваш · Бургеры', rating: 4.7, logo: brandEvos, bg: '#E7F3EC', badge: 'Акция 1+1', badgeIcon: '🔥', time: '20–30 мин', type: 'promo' },
-  { id: 'b_oqtepa', name: 'Oqtepa Lavash', tags: 'Лаваш · Шаурма', rating: 4.5, logo: brandOqtepa, bg: '#FFECEC', badge: 'Акция 1+1', badgeIcon: '🔥', time: '20–30 мин', type: 'promo' },
-  { id: 'b_maxway', name: 'Maxway', tags: 'Фастфуд · Бургеры', rating: 4.6, logo: brandMaxway, bg: '#F1EDFA', badge: 'Кэшбэк 10%', badgeIcon: '💸', time: '25–35 мин', type: 'cashback' },
-  { id: 'b_lesailes', name: 'Les Ailes', tags: 'Курица · Бургеры', rating: 4.8, logo: brandLesAiles, bg: '#FFE9F0', badge: 'Скидка 15%', badgeIcon: '%', time: '30–40 мин', type: 'discount' },
-  { id: 'b_bellissimo', name: 'Bellissimo Pizza', tags: 'Пицца · Паста', rating: 4.7, logo: partnerBellissimo, bg: '#FFF0E8', badge: 'Скидка 10%', badgeIcon: '%', time: '35–45 мин', type: 'discount' },
-  { id: 'b_sushitime', name: 'Sushi Time', tags: 'Роллы · Суши', rating: 4.6, logo: brandSushiTime, bg: '#F2F4F7', badge: 'Скидка 30%', badgeIcon: '%', time: '40–50 мин', type: 'discount' },
-  { id: 'b_feedup', name: 'Feed Up', tags: 'Донер · Бургеры', rating: 4.6, logo: '', bg: '#2A2622', badge: 'Акция 2+1', badgeIcon: '🔥', time: '20–30 мин', type: 'promo' },
-  { id: 'b_bon', name: 'Bon!', tags: 'Пекарня · Круассаны', rating: 4.8, logo: '', bg: '#F0E4D8', badge: 'Скидка 20%', badgeIcon: '%', time: '20–30 мин', type: 'discount' },
-  { id: 'b_safia', name: 'Safia café', tags: 'Кофе · Десерты', rating: 4.9, logo: partnerSafia, bg: '#FFF1E2', badge: 'Кэшбэк ×2', badgeIcon: '💸', time: '15–25 мин', type: 'cashback' },
-  { id: 'b_korzinka', name: 'Korzinka', tags: 'Супермаркет', rating: 4.5, logo: brandKorzinka, bg: '#FFECEC', badge: 'Кэшбэк 5%', badgeIcon: '💸', type: 'cashback' },
-  { id: 'b_texnomart', name: 'Texnomart', tags: 'Техника · Электроника', rating: 4.4, logo: partnerTexnomart, bg: '#FFF7DB', badge: 'Скидка 7%', badgeIcon: '%', type: 'discount' },
-  { id: 'b_idea', name: 'idea', tags: 'Товары для дома', rating: 4.5, logo: partnerIdea, bg: '#FFE6F2', badge: 'Акция 2+1', badgeIcon: '🔥', type: 'promo' },
+  { id: 'b_evos', name: 'EVOS', tagKeys: ['lavash', 'burgers'], rating: 4.7, logo: brandEvos, bg: '#E7F3EC', badgeKind: 'promo', badgeValue: '1+1', badgeIcon: '🔥', minutes: '20–30', type: 'promo' },
+  { id: 'b_oqtepa', name: 'Oqtepa Lavash', tagKeys: ['lavash', 'shawarma'], rating: 4.5, logo: brandOqtepa, bg: '#FFECEC', badgeKind: 'promo', badgeValue: '1+1', badgeIcon: '🔥', minutes: '20–30', type: 'promo' },
+  { id: 'b_maxway', name: 'Maxway', tagKeys: ['fastfood', 'burgers'], rating: 4.6, logo: brandMaxway, bg: '#F1EDFA', badgeKind: 'cashback', badgeValue: '10%', badgeIcon: '💸', minutes: '25–35', type: 'cashback' },
+  { id: 'b_lesailes', name: 'Les Ailes', tagKeys: ['chicken', 'burgers'], rating: 4.8, logo: brandLesAiles, bg: '#FFE9F0', badgeKind: 'discount', badgeValue: '15%', badgeIcon: '%', minutes: '30–40', type: 'discount' },
+  { id: 'b_bellissimo', name: 'Bellissimo Pizza', tagKeys: ['pizza', 'pasta'], rating: 4.7, logo: partnerBellissimo, bg: '#FFF0E8', badgeKind: 'discount', badgeValue: '10%', badgeIcon: '%', minutes: '35–45', type: 'discount' },
+  { id: 'b_sushitime', name: 'Sushi Time', tagKeys: ['rolls', 'sushi'], rating: 4.6, logo: brandSushiTime, bg: '#F2F4F7', badgeKind: 'discount', badgeValue: '30%', badgeIcon: '%', minutes: '40–50', type: 'discount' },
+  { id: 'b_feedup', name: 'Feed Up', tagKeys: ['doner', 'burgers'], rating: 4.6, logo: '', bg: '#2A2622', badgeKind: 'promo', badgeValue: '2+1', badgeIcon: '🔥', minutes: '20–30', type: 'promo' },
+  { id: 'b_bon', name: 'Bon!', tagKeys: ['bakery', 'croissants'], rating: 4.8, logo: '', bg: '#F0E4D8', badgeKind: 'discount', badgeValue: '20%', badgeIcon: '%', minutes: '20–30', type: 'discount' },
+  { id: 'b_safia', name: 'Safia café', tagKeys: ['coffee', 'desserts'], rating: 4.9, logo: partnerSafia, bg: '#FFF1E2', badgeKind: 'cashback', badgeValue: '×2', badgeIcon: '💸', minutes: '15–25', type: 'cashback' },
+  { id: 'b_korzinka', name: 'Korzinka', tagKeys: ['supermarket'], rating: 4.5, logo: brandKorzinka, bg: '#FFECEC', badgeKind: 'cashback', badgeValue: '5%', badgeIcon: '💸', type: 'cashback' },
+  { id: 'b_texnomart', name: 'Texnomart', tagKeys: ['tech', 'electronics'], rating: 4.4, logo: partnerTexnomart, bg: '#FFF7DB', badgeKind: 'discount', badgeValue: '7%', badgeIcon: '%', type: 'discount' },
+  { id: 'b_idea', name: 'idea', tagKeys: ['home'], rating: 4.5, logo: partnerIdea, bg: '#FFE6F2', badgeKind: 'promo', badgeValue: '2+1', badgeIcon: '🔥', type: 'promo' },
   // у Click вордмарк БЕЛЫЙ — на светлой плашке он не читается, нужен тёмный фон
-  { id: 'b_click', name: 'Click', tags: 'Платежи · Переводы', rating: 4.8, logo: brandClick, bg: '#0B2140', badge: 'Кэшбэк 3%', badgeIcon: '💸', type: 'cashback' },
-  { id: 'b_payme', name: 'Payme', tags: 'Платежи', rating: 4.7, logo: brandPayme, bg: '#E9FAFB', badge: 'Кэшбэк 3%', badgeIcon: '💸', type: 'cashback' },
+  { id: 'b_click', name: 'Click', tagKeys: ['payments', 'transfers'], rating: 4.8, logo: brandClick, bg: '#0B2140', badgeKind: 'cashback', badgeValue: '3%', badgeIcon: '💸', type: 'cashback' },
+  { id: 'b_payme', name: 'Payme', tagKeys: ['payments'], rating: 4.7, logo: brandPayme, bg: '#E9FAFB', badgeKind: 'cashback', badgeValue: '3%', badgeIcon: '💸', type: 'cashback' },
 ]
 
 // ВСЕ предложения партнёров живут в верхней карусели: hero + слайд на бренд
 // В карусели показываем ТОЛЬКО заведения с иллюстрацией зала — остальные
 // бренды остаются в массиве brands (для витрин/поиска), но в баннеры не идут.
-const promoSlides: PromoSlide[] = [
+const promoSlides = computed<PromoSlide[]>(() => [
   { kind: 'hero', name: '', img: '' },
   ...brands
     .filter((b) => venueByBrand[b.id])
@@ -202,17 +193,18 @@ const promoSlides: PromoSlide[] = [
       img: b.logo,
       bg: b.bg,
       type: b.type,
-      label: b.badge,
+      label: t(`badge.${b.badgeKind}`, { v: b.badgeValue }),
       labelIcon: b.badgeIcon,
-      terms: OFFER_TERMS[b.id],
-      tags: b.tags,
+      terms: t(`offers.${b.id}`),
+      tags: b.tagKeys.map((k) => t(`cuisine.${k}`)).join(' · '),
       rating: b.rating,
       venue: venueByBrand[b.id]!,
     })),
-]
+])
 
 // --- фильтры-категории: реально фильтруют список сплитов ---
-const category = ref('Все')
+type CategoryKey = 'all' | 'cashback' | 'promo' | 'discount'
+const category = ref<CategoryKey>('all')
 
 // --- быстрый сплит из группы: чек + участники группы ---
 async function quickSplit(memberIds: string[]) {
@@ -242,13 +234,18 @@ onMounted(() => {
   void cashback.hydrate()
 })
 
-const categories = ['Все', 'Кэшбэк', 'Акции', 'Скидки']
+const categories: { key: CategoryKey; label: string }[] = [
+  { key: 'all', label: 'home.filterAll' },
+  { key: 'cashback', label: 'home.filterCashback' },
+  { key: 'promo', label: 'home.filterPromo' },
+  { key: 'discount', label: 'home.filterDiscount' },
+]
 
 const visibleSlides = computed(() => {
   const want = CATEGORY_TO_OFFER[category.value]
-  if (!want) return promoSlides // «Все» — включая hero
-  const matched = promoSlides.filter((s) => s.type === want)
-  return matched.length ? matched : promoSlides
+  if (!want) return promoSlides.value // «все» — включая hero
+  const matched = promoSlides.value.filter((s) => s.type === want)
+  return matched.length ? matched : promoSlides.value
 })
 
 // набор слайдов сменился — переинициализируем карусель и сбрасываем позицию
@@ -266,23 +263,17 @@ const debtors = computed(() =>
     .slice(0, 3),
 )
 
-// «5 кэшбэков» с правильным окончанием
-const cashbackWord = computed(() => {
-  const n = cashback.entries.length
-  const mod10 = n % 10
-  const mod100 = n % 100
-  const word = mod10 === 1 && mod100 !== 11 ? 'кэшбэк' : mod10 >= 2 && mod10 <= 4 && (mod100 < 10 || mod100 >= 20) ? 'кэшбэка' : 'кэшбэков'
-  return `${n} ${word}`
-})
+// «5 кэшбэков» — склонение берём из правила локали
+const cashbackWord = computed(() => t('home.cashbackUnit', cashback.entries.length, { named: { n: cashback.entries.length } }))
 
 const splitRows = computed(() => {
   const q = search.value.trim().toLowerCase()
   return splits.splits
     .filter((s) => {
       const merchant = contacts.merchantById(s.merchantId)
-      if (category.value === 'Кэшбэк' && !(s.cashback && s.cashback > 0)) return false
-      if (category.value === 'Акции' && !merchant?.offer?.multiplier) return false
-      if (category.value === 'Скидки' && !merchant?.offer?.percent) return false
+      if (category.value === 'cashback' && !(s.cashback && s.cashback > 0)) return false
+      if (category.value === 'promo' && !merchant?.offer?.multiplier) return false
+      if (category.value === 'discount' && !merchant?.offer?.percent) return false
       if (!q) return true
       return (
         s.title.toLowerCase().includes(q) ||
@@ -293,26 +284,22 @@ const splitRows = computed(() => {
     .slice(0, 5)
 })
 
-const MONTHS_SHORT = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек']
-const WEEKDAYS_LC = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота']
-
-/** «сегодня» / «вчера» / «пятница» / «9 авг» — как в дизайне */
-function homeDate(ts: number): string {
-  const d = new Date(ts)
-  const now = new Date()
-  if (isSameDay(d, now)) return 'сегодня'
-  if (isSameDay(d, new Date(now.getTime() - 86400000))) return 'вчера'
-  if ((now.getTime() - d.getTime()) / 86400000 < 7) return WEEKDAYS_LC[d.getDay()]!
-  return `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`
-}
+const homeDate = (ts: number) => humanDateLc(ts)
 
 function splitSub(s: Split): string {
   const g = s.groupId ? groups.byId(s.groupId) : undefined
-  if (g) return `${g.name.toUpperCase()} · ${s.members.length} чел · ${homeDate(s.createdAt)}`
+  const date = homeDate(s.createdAt)
+  if (g) {
+    return t('home.splitSubGroup', {
+      group: g.name.toUpperCase(),
+      people: peopleCount(s.members.length),
+      date,
+    })
+  }
   const others = s.members
     .filter((m) => m.contactId !== 'me')
     .map((m) => contacts.byId(m.contactId)?.name ?? '?')
-  return `вы + ${others.join(', ')} · ${homeDate(s.createdAt)}`
+  return t('home.splitSubPeople', { names: others.join(', '), date })
 }
 
 function splitLetter(s: Split): string {
@@ -332,7 +319,7 @@ function splitLetter(s: Split): string {
         <div class="flex items-center gap-3">
           <button
             type="button"
-            aria-label="Сканировать QR"
+            :aria-label="t('home.scanAria')"
             class="press flex h-11 w-11 items-center justify-center rounded-full border border-white/[0.14] bg-white/10"
             @click="router.push('/split/scan')"
           >
@@ -344,7 +331,7 @@ function splitLetter(s: Split): string {
               <rect x="6.5" y="6.5" width="7" height="7" rx="1.5" fill="#DDFF33" />
             </svg>
           </button>
-          <button type="button" aria-label="Профиль" class="press" @click="router.push('/profile')">
+          <button type="button" :aria-label="t('common.profileAria')" class="press" @click="router.push('/profile')">
             <UserAvatar :size="44" :border="2" />
           </button>
         </div>
@@ -383,10 +370,10 @@ function splitLetter(s: Split): string {
                   </div>
                   <div class="mt-4 flex flex-col items-center gap-1.5 px-4">
                     <h1 class="text-center text-[27px] font-extrabold leading-[1.15] tracking-[-0.01em] text-white">
-                      Приди с 5 друзьями —<br />получи кэшбэк ×2
+                      {{ t('home.promoHeroTitle') }}
                     </h1>
                     <p class="text-center text-[14.5px] font-semibold text-white/[0.65]">
-                      Сплитьте чек группой до 30 сентября — бонус каждому
+                      {{ t('home.promoHeroTerms') }}
                     </p>
                   </div>
                 </template>
@@ -401,7 +388,7 @@ function splitLetter(s: Split): string {
                     </div>
                     <div class="mt-3 flex flex-col items-center gap-1 px-3">
                       <h1 class="max-w-full truncate whitespace-nowrap text-center text-[20px] font-extrabold tracking-[-0.01em] text-white">
-                        {{ sl.label }} в {{ sl.name }}
+                        {{ t('home.offerAt', { label: sl.label, name: sl.name }) }}
                       </h1>
                       <p class="max-w-full truncate whitespace-nowrap text-center text-[13px] font-semibold text-white/[0.6]">
                         {{ sl.terms }}
@@ -446,25 +433,25 @@ function splitLetter(s: Split): string {
       <div class="flex justify-between px-1.5 pt-1">
         <button
           v-for="c in categories"
-          :key="c"
+          :key="c.key"
           type="button"
           class="press flex flex-col items-center gap-[7px]"
-          @click="category = c"
+          @click="category = c.key"
         >
           <span
             class="flex h-[52px] w-[52px] items-center justify-center rounded-full transition-colors duration-200"
-            :class="category === c ? 'bg-white/[0.24] text-lime' : 'bg-white/[0.12] text-white'"
+            :class="category === c.key ? 'bg-white/[0.24] text-lime' : 'bg-white/[0.12] text-white'"
           >
-            <span v-if="c === 'Все'" class="grid grid-cols-[6px_6px] gap-[5px]">
+            <span v-if="c.key === 'all'" class="grid grid-cols-[6px_6px] gap-[5px]">
               <span v-for="i in 4" :key="i" class="h-1.5 w-1.5 rounded-[2px] bg-current" />
             </span>
-            <svg v-else-if="c === 'Кэшбэк'" width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <svg v-else-if="c.key === 'cashback'" width="24" height="24" viewBox="0 0 24 24" fill="none">
               <rect x="2.5" y="6.5" width="19" height="11" rx="2.5" stroke="currentColor" stroke-width="1.8" />
               <circle cx="12" cy="12" r="2.8" stroke="currentColor" stroke-width="1.8" />
               <line x1="5.8" y1="12" x2="5.8" y2="12.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
               <line x1="18.2" y1="12" x2="18.2" y2="12.01" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
             </svg>
-            <svg v-else-if="c === 'Акции'" width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <svg v-else-if="c.key === 'promo'" width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
                 d="M3 8C3 7.17 3.67 6.5 4.5 6.5H19.5C20.33 6.5 21 7.17 21 8V9.8C19.9 10.2 19.1 11.03 19.1 12C19.1 12.97 19.9 13.8 21 14.2V16C21 16.83 20.33 17.5 19.5 17.5H4.5C3.67 17.5 3 16.83 3 16V14.2C4.1 13.8 4.9 12.97 4.9 12C4.9 11.03 4.1 10.2 3 9.8V8Z"
                 stroke="currentColor"
@@ -475,7 +462,7 @@ function splitLetter(s: Split): string {
             </svg>
             <span v-else class="text-[17px] font-extrabold">%</span>
           </span>
-          <span class="text-[11.5px] font-semibold transition-colors" :class="category === c ? 'text-white' : 'text-white/70'">{{ c }}</span>
+          <span class="text-[11.5px] font-semibold transition-colors" :class="category === c.key ? 'text-white' : 'text-white/70'">{{ t(c.label) }}</span>
         </button>
       </div>
 
@@ -487,7 +474,7 @@ function splitLetter(s: Split): string {
         </svg>
         <input
           v-model="search"
-          placeholder="username или номер"
+          :placeholder="t('home.searchPlaceholder')"
           class="min-w-0 flex-1 bg-transparent text-[16px] font-semibold text-white outline-none placeholder:text-faint-2"
         />
         <button
@@ -495,7 +482,7 @@ function splitLetter(s: Split): string {
           class="press flex h-10 items-center rounded-full bg-lime px-[18px] text-[14.5px] font-extrabold text-on-lime"
           @click="router.push('/split/scan')"
         >
-          Сплит
+          {{ t('home.split') }}
         </button>
       </label>
     </div>
@@ -525,9 +512,9 @@ function splitLetter(s: Split): string {
           class="press flex h-56 flex-col rounded-card bg-paper p-[18px] text-left shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]"
           @click="router.push('/cashback')"
         >
-          <span class="text-[18px] font-extrabold leading-[1.15] tracking-[-0.01em]">Накопленные кэшбеки</span>
+          <span class="text-[18px] font-extrabold leading-[1.15] tracking-[-0.01em]">{{ t('home.cashbackCard') }}</span>
           <span class="mt-[5px] text-[13px] font-semibold leading-[1.3] text-faint">
-            {{ cashback.entries.length ? `${money(cashback.balance)} · ${cashbackWord}` : 'Появится после первого сплита' }}
+            {{ cashback.entries.length ? t('home.cashbackWithCount', { amount: money(cashback.balance), count: cashbackWord }) : t('home.cashbackEmpty') }}
           </span>
           <span v-if="cashback.entries.length" class="mt-auto flex min-h-[60px] items-center">
             <img :src="partnerSafia" alt="Safia" class="h-[29px] w-auto rounded-[9px]" />
@@ -540,9 +527,9 @@ function splitLetter(s: Split): string {
           class="press flex h-56 flex-col rounded-card bg-paper p-[18px] text-left shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]"
           @click="router.push('/debts')"
         >
-          <span class="text-[18px] font-extrabold leading-[1.15] tracking-[-0.01em]">Мои должники</span>
+          <span class="text-[18px] font-extrabold leading-[1.15] tracking-[-0.01em]">{{ t('home.debtorsCard') }}</span>
           <span class="mt-[5px] text-[13px] font-semibold leading-[1.3] text-faint">
-            {{ debtors.length ? `${money(debts.totalOwedToMe)} · ${peopleCount(debtors.length)}` : 'Все долги закрыты' }}
+            {{ debtors.length ? t('home.cashbackWithCount', { amount: money(debts.totalOwedToMe), count: peopleCount(debtors.length) }) : t('home.debtorsEmpty') }}
           </span>
           <span v-if="debtors.length" class="mt-auto flex min-h-[60px] items-end gap-2">
             <span v-for="d in debtors" :key="d.id" class="flex flex-col items-center gap-1">
@@ -556,11 +543,11 @@ function splitLetter(s: Split): string {
       <!-- мои группы -->
       <div class="rounded-card bg-paper px-[18px] pb-1.5 pt-[18px] shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]">
         <div class="flex items-baseline justify-between">
-          <h2 class="text-[18px] font-extrabold tracking-[-0.01em]">Мои группы</h2>
-          <span v-if="groups.groups.length" class="text-[14px] font-bold text-muted">Все ›</span>
+          <h2 class="text-[18px] font-extrabold tracking-[-0.01em]">{{ t('home.myGroups') }}</h2>
+          <span v-if="groups.groups.length" class="text-[14px] font-bold text-muted">{{ t('home.seeAll') }}</span>
         </div>
         <div v-if="loaded && !groups.groups.length" class="py-5 text-center text-[13px] font-semibold text-muted">
-          Появятся из ваших сплитов
+          {{ t('home.groupsEmpty') }}
         </div>
         <div v-else-if="loaded" class="mt-1 flex flex-col">
           <div
@@ -574,7 +561,7 @@ function splitLetter(s: Split): string {
               <ZapAvatar
                 v-for="(cid, i) in g.memberIds.slice(0, 3)"
                 :key="cid"
-                :name="contacts.byId(cid)?.name ?? 'Я'"
+                :name="contacts.byId(cid)?.name ?? t('home.me')"
                 :color="contacts.byId(cid)?.color ?? '#111110'"
                 :contact-id="cid"
                 class="h-8 w-8 border-2 border-paper"
@@ -584,14 +571,14 @@ function splitLetter(s: Split): string {
             </div>
             <div class="flex min-w-0 flex-1 flex-col gap-px">
               <span class="text-[15px] font-bold">{{ g.name }}</span>
-              <span class="text-[12px] font-semibold text-faint">{{ peopleCount(g.memberIds.length) }} · кэшбэк {{ money(g.cashback) }}</span>
+              <span class="text-[12px] font-semibold text-faint">{{ t('home.groupSub', { people: peopleCount(g.memberIds.length), amount: money(g.cashback) }) }}</span>
             </div>
             <button
               type="button"
               class="press flex h-[34px] items-center rounded-full bg-lime px-[15px] text-[13px] font-extrabold text-on-lime"
               @click.stop="quickSplit(g.memberIds)"
             >
-              Сплит
+              {{ t('home.split') }}
             </button>
           </div>
         </div>
@@ -603,14 +590,14 @@ function splitLetter(s: Split): string {
       <!-- ваши сплиты -->
       <div class="rounded-card bg-paper px-[18px] pb-1.5 pt-[18px] shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]">
         <div class="flex items-baseline justify-between">
-          <h2 class="text-[18px] font-extrabold tracking-[-0.01em]">Ваши сплиты</h2>
+          <h2 class="text-[18px] font-extrabold tracking-[-0.01em]">{{ t('home.yourSplits') }}</h2>
           <button
             v-if="splitRows.length"
             type="button"
             class="text-[14px] font-bold text-muted"
             @click="router.push('/history')"
           >
-            Все ›
+            {{ t('home.seeAll') }}
           </button>
         </div>
         <div v-if="loaded" class="mt-1.5">
@@ -636,12 +623,12 @@ function splitLetter(s: Split): string {
                   class="rounded-md px-[7px] py-[3px] font-mono text-[9.5px] font-bold tracking-[0.1em]"
                   :class="s.status === 'closed' ? 'bg-pebble-2 text-muted' : 'bg-lime text-on-lime'"
                 >
-                  {{ s.status === 'closed' ? 'ЗАКРЫТ' : 'АКТИВЕН' }}
+                  {{ s.status === 'closed' ? t('home.closedBadge') : t('home.activeBadge') }}
                 </span>
               </div>
             </div>
           </AnimatedList>
-          <p v-if="!splitRows.length" class="py-5 text-center text-[13px] font-semibold text-muted">Ничего не нашлось</p>
+          <p v-if="!splitRows.length" class="py-5 text-center text-[13px] font-semibold text-muted">{{ t('home.splitsEmpty') }}</p>
         </div>
         <div v-else class="space-y-2 py-3">
           <Skeleton v-for="i in 3" :key="i" class="h-12 w-full rounded-2xl" />

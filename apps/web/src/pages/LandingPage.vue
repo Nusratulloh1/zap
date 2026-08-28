@@ -6,6 +6,7 @@
 // данными и правильными начертаниями.
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { submitPartnerLead } from '@/api'
 import { toast } from '@/lib/toast'
 import { appHref } from '@/lib/site'
@@ -44,6 +45,7 @@ import brandRahmat from '@/assets/brand/partners/rahmat.svg'
 defineOptions({ name: 'LandingPage' })
 
 const router = useRouter()
+const { t } = useI18n()
 // с лендинг-хоста уводим сразу на платформу — без промежуточного редиректа
 const start = () => {
   const href = appHref('/onboarding')
@@ -85,30 +87,25 @@ const brands = [
   { src: brandRahmat, alt: 'Rahmat', h: 20 },
 ]
 
-const partnerPerks = [
-  'Средний чек выше — компания заказывает смелее, когда счёт делится сам',
-  'Новые гости приходят по ссылке от друзей, без затрат на рекламу',
-  'Ваш бренд в ленте предложений: акции, скидки и кэшбэк ×2',
-  'Подключение без оборудования — поверх ваших фискальных чеков',
-]
+const partnerPerks = ['landing.perk1', 'landing.perk2', 'landing.perk3', 'landing.perk4']
 
-const debtPoints = ['Автоучёт долгов и возвратов', 'Напоминание в один тап', 'История каждого сплита']
+const debtPoints = ['landing.debtPoint1', 'landing.debtPoint2', 'landing.debtPoint3']
 
 const quickTiles = [
   {
-    label: 'Скан чека',
+    label: 'landing.tileScan',
     path: '<path d="M3 8V5C3 3.9 3.9 3 5 3H8M16 3H19C20.1 3 21 3.9 21 5V8M21 16V19C21 20.1 20.1 21 19 21H16M8 21H5C3.9 21 3 20.1 3 19V16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />',
   },
   {
-    label: 'Сплит',
+    label: 'landing.tileSplit',
     path: '<circle cx="8" cy="8" r="3.2" stroke="currentColor" stroke-width="1.7" /><circle cx="16" cy="16" r="3.2" stroke="currentColor" stroke-width="1.7" /><path d="M10.5 10.5 13.5 13.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />',
   },
   {
-    label: 'Кэшбэк',
+    label: 'landing.tileCashback',
     path: '<rect x="2.5" y="6.5" width="19" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7" /><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.7" />',
   },
   {
-    label: 'Долги',
+    label: 'landing.tileDebts',
     path: '<circle cx="9" cy="9" r="3.2" stroke="currentColor" stroke-width="1.7" /><path d="M3.5 19c0-3 2.5-4.6 5.5-4.6s5.5 1.6 5.5 4.6M16 6.4a2.9 2.9 0 0 1 0 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />',
   },
 ]
@@ -117,55 +114,49 @@ const quickTiles = [
 const features = [
   {
     id: 'how',
-    title: ['Скан', 'чека'],
-    body: 'QR с фискального чека MySoliq или Rahmat — позиции, суммы и продавец подтянутся сами. Нет QR? Сфотографируйте чек, распознаем.',
+    titleKeys: ['landing.scanTitleA', 'landing.scanTitleB'],
+    bodyKey: 'landing.scanBody',
     shot: shotReceipt,
-    alt: 'Разобранный чек',
+    altKey: 'landing.altReceipt',
     tilt: -14,
     flip: false,
   },
   {
     id: 'cashback',
-    title: ['Кэшбэк', '×2 всем'],
-    body: 'Делите счёт компанией — кэшбэк начисляется каждому участнику, а не одному плательщику. Баллы копятся и тратятся на следующий сплит.',
+    titleKeys: ['landing.cashbackTitleA', 'landing.cashbackTitleB'],
+    bodyKey: 'landing.cashbackBody',
     shot: shotCashback,
-    alt: 'Кэшбэк зачислен',
+    altKey: 'landing.altCashback',
     tilt: 14,
     flip: true,
   },
   {
     id: 'debts',
-    title: ['Долги', 'без споров'],
-    body: 'У друга нет денег — возьмите его долю «в долг». ZAP! запомнит, покажет в истории и вежливо напомнит за вас. Без неловких сообщений.',
+    titleKeys: ['landing.debtsTitleA', 'landing.debtsTitleB'],
+    bodyKey: 'landing.debtsBody',
     shot: shotDebts,
-    alt: 'Вам должны',
+    altKey: 'landing.altDebts',
     tilt: -14,
     flip: false,
   },
 ]
 
 const stats = [
-  { v: 30, suf: ' сек', t: 'на регистрацию по номеру' },
-  { v: 2, suf: '×', t: 'кэшбэк, когда делите группой' },
-  { v: 0, suf: '%', t: 'комиссии для участников' },
+  { v: 30, sufKey: 'landing.statSecSuffix', key: 'landing.stat1' },
+  { v: 2, suf: '×', key: 'landing.stat2' },
+  { v: 0, suf: '%', key: 'landing.stat3' },
 ]
 
 // бегущая строка: короткие тезисы, а не повтор названия — она должна
 // что-то сообщать, а не просто ехать
-const ticker = [
-  'Скан чека за секунду',
-  'Сплит на компанию',
-  'Кэшбэк ×2 всем',
-  'Долги без напоминаний',
-  '0% комиссии',
-]
+const ticker = ['landing.tick1', 'landing.tick2', 'landing.tick3', 'landing.tick4', 'landing.tick5']
 
 const rail = [
-  { src: shotHome, alt: 'Главная' },
-  { src: shotAmount, alt: 'Сумма счёта' },
-  { src: shotMembers, alt: 'С кем делим' },
-  { src: shotDone, alt: 'Сплит закрыт' },
-  { src: shotHistory, alt: 'История' },
+  { src: shotHome, altKey: 'landing.altHome' },
+  { src: shotAmount, altKey: 'landing.altAmount' },
+  { src: shotMembers, altKey: 'landing.altMembers' },
+  { src: shotDone, altKey: 'landing.altDone' },
+  { src: shotHistory, altKey: 'landing.altHistory' },
 ]
 
 // --- заявка заведения ---
@@ -196,9 +187,9 @@ async function sendLead() {
   try {
     await submitPartnerLead({ ...form.value, phone: '+998' + form.value.phone })
     sent.value = true
-    toast.success('Заявка отправлена — свяжемся с вами')
+    toast.success(t('landing.formOkToast'))
   } catch (e) {
-    toast(e instanceof Error && e.message ? e.message : 'Не удалось отправить заявку')
+    toast(e instanceof Error && e.message ? e.message : t('landing.formFailToast'))
   } finally {
     sending.value = false
   }
@@ -283,11 +274,11 @@ onBeforeUnmount(() => {
       <div class="lp-nav__inner">
         <img :src="wordmark" alt="ZAP!" class="lp-nav__logo" />
         <nav class="lp-nav__links">
-          <a href="#how" @click.prevent="goTo('#how')">Возможности</a>
-          <a href="#cashback" @click.prevent="goTo('#cashback')">Кэшбэк</a>
-          <a href="#partners" @click.prevent="goTo('#partners')">Заведениям</a>
+          <a href="#how" @click.prevent="goTo('#how')">{{ t('landing.navFeatures') }}</a>
+          <a href="#cashback" @click.prevent="goTo('#cashback')">{{ t('landing.navCashback') }}</a>
+          <a href="#partners" @click.prevent="goTo('#partners')">{{ t('landing.navPartners') }}</a>
         </nav>
-        <button type="button" class="lp-btn lp-btn--sm" @click="start">Начать</button>
+        <button type="button" class="lp-btn lp-btn--sm" @click="start">{{ t('landing.navStart') }}</button>
       </div>
     </header>
 
@@ -296,22 +287,21 @@ onBeforeUnmount(() => {
       <div class="lp-orb lp-orb--hero" />
       <div ref="heroHead">
         <h1 class="lp-display lp-display--long">
-          <span class="lp-line"><i class="lp-grad">Раздели свой счёт</i></span>
-          <span class="lp-line"><i class="lp-grad lp-grad--fade">с друзьями</i></span>
+          <span class="lp-line"><i class="lp-grad">{{ t('landing.heroA') }}</i></span>
+          <span class="lp-line"><i class="lp-grad lp-grad--fade">{{ t('landing.heroB') }}</i></span>
         </h1>
         <p data-reveal class="lp-lead">
-          Отсканируйте чек, разделите на компанию и отправьте друзьям ссылку.
-          Каждый платит свою долю — кэшбэк ×2 получают все.
+          {{ t('landing.heroLead') }}
         </p>
         <div data-reveal class="lp-cta">
-          <button type="button" class="lp-btn" @click="start">Попробовать бесплатно</button>
-          <a href="#partners" class="lp-btn lp-btn--ghost" @click.prevent="goTo('#partners')">Я — заведение</a>
+          <button type="button" class="lp-btn" @click="start">{{ t('landing.ctaTry') }}</button>
+          <a href="#partners" class="lp-btn lp-btn--ghost" @click.prevent="goTo('#partners')">{{ t('landing.ctaVenue') }}</a>
         </div>
       </div>
 
       <div ref="heroPhone" class="lp-stage lp-stage--hero">
         <div class="lp-device lp-device--hero">
-          <div class="lp-device__screen"><img :src="shotHome" alt="Главный экран ZAP!" /></div>
+          <div class="lp-device__screen"><img :src="shotHome" :alt="t('landing.altHomeScreen')" /></div>
         </div>
       </div>
     </section>
@@ -337,31 +327,31 @@ onBeforeUnmount(() => {
             <template v-if="f.flip">
               <div class="lp-stage lp-stage--left">
                 <div :data-tilt="f.tilt" class="lp-device">
-                  <div class="lp-device__screen"><img :src="f.shot" :alt="f.alt" /></div>
+                  <div class="lp-device__screen"><img :src="f.shot" :alt="t(f.altKey)" /></div>
                 </div>
               </div>
             </template>
 
             <div class="lp-col" :class="{ 'lp-col--end': f.flip }">
               <h2 class="lp-title">
-                <span class="lp-line"><i class="lp-grad">{{ f.title[0] }}</i></span>
-                <span class="lp-line"><i class="lp-grad">{{ f.title[1] }}</i></span>
+                <span class="lp-line"><i class="lp-grad">{{ t(f.titleKeys[0]) }}</i></span>
+                <span class="lp-line"><i class="lp-grad">{{ t(f.titleKeys[1]) }}</i></span>
               </h2>
-              <p class="lp-body">{{ f.body }}</p>
+              <p class="lp-body">{{ t(f.bodyKey) }}</p>
 
               <div v-if="f.id === 'how'" class="lp-tiles">
-                <div v-for="t in quickTiles" :key="t.label" class="lp-tile">
-                  <svg viewBox="0 0 24 24" fill="none" v-html="t.path" />
-                  <span>{{ t.label }}</span>
+                <div v-for="tile in quickTiles" :key="tile.label" class="lp-tile">
+                  <svg viewBox="0 0 24 24" fill="none" v-html="tile.path" />
+                  <span>{{ t(tile.label) }}</span>
                 </div>
               </div>
 
               <div v-else-if="f.id === 'cashback'" class="lp-bigcard">
                 <p class="lp-bigcard__num">
-                  <span data-count="60000">0</span> <span class="lp-bigcard__cur">сум</span>
+                  <span data-count="60000">0</span> <span class="lp-bigcard__cur">{{ t('landing.currencySom') }}</span>
                 </p>
                 <div class="lp-bigcard__row">
-                  <span class="lp-bigcard__field">Групповой кэшбэк · Friday Crew</span>
+                  <span class="lp-bigcard__field">{{ t('landing.bigcardField') }}</span>
                   <span class="lp-bigcard__send" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none">
                       <path d="M5 12h13m-5-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
@@ -371,14 +361,14 @@ onBeforeUnmount(() => {
               </div>
 
               <ul v-else class="lp-list">
-                <li v-for="t in debtPoints" :key="t"><i>✓</i>{{ t }}</li>
+                <li v-for="k in debtPoints" :key="k"><i>✓</i>{{ t(k) }}</li>
               </ul>
             </div>
 
             <template v-if="!f.flip">
               <div class="lp-stage lp-stage--right">
                 <div :data-tilt="f.tilt" class="lp-device">
-                  <div class="lp-device__screen"><img :src="f.shot" :alt="f.alt" /></div>
+                  <div class="lp-device__screen"><img :src="f.shot" :alt="t(f.altKey)" /></div>
                 </div>
               </div>
             </template>
@@ -390,20 +380,20 @@ onBeforeUnmount(() => {
     <!-- ЭКРАНЫ -->
     <section data-snap data-group class="lp-sec lp-sec--tight">
       <h2 data-lines class="lp-mid">
-        <span class="lp-line"><i>Скажи <em class="lp-grad">пока</em> подсчётам</i></span>
+        <span class="lp-line"><i>{{ t('landing.railTitle') }} <em class="lp-grad">{{ t('landing.railAccent') }}</em> {{ t('landing.railRest') }}</i></span>
       </h2>
       <div data-drift class="lp-rail">
-        <div v-for="s in rail" :key="s.alt" class="lp-device lp-device--sm">
-          <div class="lp-device__screen"><img :src="s.src" :alt="s.alt" /></div>
+        <div v-for="s in rail" :key="s.altKey" class="lp-device lp-device--sm">
+          <div class="lp-device__screen"><img :src="s.src" :alt="t(s.altKey)" /></div>
         </div>
       </div>
     </section>
 
     <!-- ЦИФРЫ -->
     <section data-group class="lp-stats">
-      <div v-for="s in stats" :key="s.t" data-reveal class="lp-stat">
-        <p class="lp-stat__num"><span :data-count="s.v" :data-suffix="s.suf">0</span></p>
-        <span class="lp-stat__cap">{{ s.t }}</span>
+      <div v-for="s in stats" :key="s.key" data-reveal class="lp-stat">
+        <p class="lp-stat__num"><span :data-count="s.v" :data-suffix="s.sufKey ? t(s.sufKey) : s.suf">0</span></p>
+        <span class="lp-stat__cap">{{ t(s.key) }}</span>
       </div>
     </section>
 
@@ -412,27 +402,26 @@ onBeforeUnmount(() => {
       <div class="lp-orb lp-orb--right" />
       <div class="lp-row lp-row--top">
         <div class="lp-col">
-          <span data-reveal class="lp-badge">Заведениям и магазинам</span>
+          <span data-reveal class="lp-badge">{{ t('landing.partnersBadge') }}</span>
           <h2 data-lines class="lp-title">
-            <span class="lp-line"><i class="lp-grad">Станьте</i></span>
-            <span class="lp-line"><i class="lp-grad">партнёром</i></span>
+            <span class="lp-line"><i class="lp-grad">{{ t('landing.partnersTitleA') }}</i></span>
+            <span class="lp-line"><i class="lp-grad">{{ t('landing.partnersTitleB') }}</i></span>
           </h2>
           <p data-reveal class="lp-body">
-            Гости делят счёт у вас, а ваши акции видят их друзья.
-            Оставьте заявку — свяжемся и всё настроим.
+            {{ t('landing.partnersBody') }}
           </p>
           <ul class="lp-list">
-            <li v-for="p in partnerPerks" :key="p" data-reveal><i>✓</i>{{ p }}</li>
+            <li v-for="k in partnerPerks" :key="k" data-reveal><i>✓</i>{{ t(k) }}</li>
           </ul>
         </div>
 
         <div data-reveal class="lp-form">
           <template v-if="!sent">
-            <h3>Оставить заявку</h3>
-            <p class="lp-form__sub">Ответим в течение рабочего дня</p>
+            <h3>{{ t('landing.formTitle') }}</h3>
+            <p class="lp-form__sub">{{ t('landing.formSub') }}</p>
             <div class="lp-form__fields">
-              <input v-model="form.company" placeholder="Название заведения" class="lp-input" />
-              <input v-model="form.contact" placeholder="Ваше имя" class="lp-input" />
+              <input v-model="form.company" :placeholder="t('landing.formCompany')" class="lp-input" />
+              <input v-model="form.contact" :placeholder="t('landing.formContact')" class="lp-input" />
               <input
                 v-model="phoneMasked"
                 type="tel"
@@ -442,18 +431,18 @@ onBeforeUnmount(() => {
                 placeholder="+998 90 123 45 67"
                 class="lp-input"
               />
-              <input v-model="form.city" placeholder="Город (необязательно)" class="lp-input" />
-              <textarea v-model="form.message" rows="3" placeholder="Комментарий (необязательно)" class="lp-input lp-input--area" />
+              <input v-model="form.city" :placeholder="t('landing.formCity')" class="lp-input" />
+              <textarea v-model="form.message" rows="3" :placeholder="t('landing.formMessage')" class="lp-input lp-input--area" />
               <button type="button" class="lp-btn lp-btn--block" :disabled="!formValid() || sending" @click="sendLead">
-                {{ sending ? 'Отправляем…' : 'Отправить заявку' }}
+                {{ sending ? t('landing.formSending') : t('landing.formSubmit') }}
               </button>
-              <p class="lp-form__note">Нажимая кнопку, вы соглашаетесь на обработку контактных данных</p>
+              <p class="lp-form__note">{{ t('landing.formNote') }}</p>
             </div>
           </template>
           <div v-else class="lp-form__done">
             <span class="lp-form__check">✓</span>
-            <h3>Заявка отправлена</h3>
-            <p class="lp-form__sub">Свяжемся с вами в ближайшее время</p>
+            <h3>{{ t('landing.formSentTitle') }}</h3>
+            <p class="lp-form__sub">{{ t('landing.formSentText') }}</p>
           </div>
         </div>
       </div>
@@ -464,8 +453,8 @@ onBeforeUnmount(() => {
       <div class="lp-marquee">
         <!-- содержимое продублировано: на -50% лента стыкуется без шва -->
         <span v-for="n in 2" :key="n" class="lp-marquee__set" :aria-hidden="n === 2">
-          <span v-for="t in ticker" :key="t" class="lp-marquee__item">
-            {{ t }}<i aria-hidden="true">✳</i>
+          <span v-for="k in ticker" :key="k" class="lp-marquee__item">
+            {{ t(k) }}<i aria-hidden="true">✳</i>
           </span>
         </span>
       </div>
@@ -475,20 +464,20 @@ onBeforeUnmount(() => {
     <section data-snap data-group class="lp-final">
       <div class="lp-orb lp-orb--hero" />
       <h2 data-lines class="lp-display">
-        <span class="lp-line"><i class="lp-grad">Делите</i></span>
-        <span class="lp-line"><i class="lp-grad lp-grad--fade">легко</i></span>
+        <span class="lp-line"><i class="lp-grad">{{ t('landing.finalA') }}</i></span>
+        <span class="lp-line"><i class="lp-grad lp-grad--fade">{{ t('landing.finalB') }}</i></span>
       </h2>
       <p data-reveal class="lp-lead">
-        Следующий счёт разделите за 30 секунд — без «скинь потом» и подсчётов в заметках
+        {{ t('landing.finalLead') }}
       </p>
       <div data-reveal class="lp-cta">
-        <button type="button" class="lp-btn" @click="start">Начать бесплатно</button>
+        <button type="button" class="lp-btn" @click="start">{{ t('landing.finalCta') }}</button>
       </div>
     </section>
 
     <footer class="lp-foot">
       <img :src="wordmark" alt="ZAP!" />
-      <p>© 2026 ZAP! · Ташкент, Узбекистан</p>
+      <p>{{ t('landing.footer') }}</p>
     </footer>
   </div>
 </template>
