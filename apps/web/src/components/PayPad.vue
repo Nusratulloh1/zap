@@ -3,6 +3,9 @@
 // Нажатие: scale 0.9 + радиальная вспышка ink-8% (GSAP, пружинный отскок).
 import { gsap, reducedMotion } from '@/lib/motion'
 import { tap } from '@/lib/haptics'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const emit = defineEmits<{ key: [value: string]; backspace: [] }>()
 
@@ -37,7 +40,7 @@ function press(e: PointerEvent, key: string) {
         type="button"
         class="relative flex h-14 items-center justify-center overflow-visible font-sans text-[26px] font-bold text-ink"
         :class="k === '000' && 'text-[23px] font-extrabold'"
-        :aria-label="k === '⌫' ? 'Стереть' : k"
+        :aria-label="k === '⌫' ? t('common.eraseAria') : k"
         @pointerdown="press($event, k)"
       >
         <span class="key-glow pointer-events-none absolute inset-x-2 inset-y-0 rounded-2xl bg-ink/[0.08] opacity-0" />

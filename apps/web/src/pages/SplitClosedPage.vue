@@ -13,9 +13,11 @@ import ZapAvatar from '@/components/ZapAvatar.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
 import CountUp from '@/components/CountUp.vue'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const splits = useSplitsStore()
 const groups = useGroupsStore()
 const contacts = useContactsStore()
@@ -37,7 +39,7 @@ onMounted(() => {
 })
 
 function nameOf(cid: string): string {
-  return cid === 'me' ? (user.user?.name ?? 'Вы') : (contacts.byId(cid)?.name ?? '?')
+  return cid === 'me' ? (user.user?.name ?? t('members.youShort')) : (contacts.byId(cid)?.name ?? '?')
 }
 
 function colorOf(cid: string): string {
@@ -49,7 +51,7 @@ function colorOf(cid: string): string {
   <div v-if="split" class="theme-fixed flex min-h-dvh flex-col bg-lime px-6 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)] text-ink">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-ink/[0.08] text-[17px] font-semibold"
       @click="router.push('/')"
     >
@@ -61,16 +63,16 @@ function colorOf(cid: string): string {
       <div v-else class="flex h-[76px] w-[76px] items-center justify-center rounded-full bg-ink text-[26px] font-extrabold text-lime">
         {{ merchant?.letter ?? split.title[0]?.toUpperCase() }}
       </div>
-      <h1 class="mt-2.5 text-[25px] font-extrabold tracking-[-0.01em]">Готово, сплит закрыт</h1>
+      <h1 class="mt-2.5 text-[25px] font-extrabold tracking-[-0.01em]">{{ t('closed.title') }}</h1>
       <p class="mt-[5px] text-[13.5px] font-semibold text-ink/60">
-        {{ merchant?.name ?? split.title }}<template v-if="split.bill"> · заказ #{{ split.bill.orderNo }}</template><template v-if="group"> · {{ group.name }}</template><template v-else-if="isSolo"> · оплачено целиком</template>
+        {{ merchant?.name ?? split.title }}<template v-if="split.bill">{{ t('live.orderNo', { no: split.bill.orderNo }) }}</template><template v-if="group"> · {{ group.name }}</template><template v-else-if="isSolo">{{ t('closed.paidWhole') }}</template>
       </p>
       <div class="mt-6 flex items-baseline gap-2">
         <CountUp :value="split.total" :duration="900" class="text-[48px] font-extrabold leading-none tracking-[-0.03em]" />
         <span class="font-mono text-[11px] font-bold text-ink/55">UZS</span>
       </div>
       <div v-if="split.cashback" class="mt-3.5 flex h-[34px] w-fit items-center gap-2 rounded-full bg-ink px-3.5">
-        <span class="text-[12.5px] font-extrabold text-lime">+{{ money(split.cashback) }} групповой кэшбэк</span>
+        <span class="text-[12.5px] font-extrabold text-lime">{{ t('closed.cashbackBadge', { amount: money(split.cashback) }) }}</span>
       </div>
     </div>
 
@@ -83,15 +85,15 @@ function colorOf(cid: string): string {
       >
         <ZapAvatar :name="nameOf(m.contactId)" :color="colorOf(m.contactId)" :contact-id="m.contactId" class="h-[38px] w-[38px]" size="sm" />
         <div class="flex min-w-0 flex-1 flex-col gap-px">
-          <span class="text-[15px] font-bold">{{ nameOf(m.contactId) }}<template v-if="m.isYou"> · вы</template></span>
-          <span v-if="m.status === 'debt'" class="text-[12px] font-semibold text-ink/55">вы покрыли — он вам должен</span>
+          <span class="text-[15px] font-bold">{{ nameOf(m.contactId) }}<template v-if="m.isYou">{{ t('live.youSuffix') }}</template></span>
+          <span v-if="m.status === 'debt'" class="text-[12px] font-semibold text-ink/55">{{ t('closed.covered') }}</span>
         </div>
         <span class="text-[15px] font-extrabold">{{ money(m.amount) }}</span>
       </div>
     </div>
 
     <div v-if="group" class="mt-5 flex items-baseline justify-between">
-      <span class="text-[14.5px] font-bold text-ink/60">Всего у {{ group.name }}</span>
+      <span class="text-[14.5px] font-bold text-ink/60">{{ t('closed.groupTotalLabel', { name: group.name }) }}</span>
       <span class="text-[19px] font-extrabold">{{ money(group.cashback) }}</span>
     </div>
 
@@ -100,18 +102,18 @@ function colorOf(cid: string): string {
     <!-- групповой сплит: сохранить группу → кэшбэк; соло: только закрыть/чек -->
     <div v-if="!isSolo" class="flex flex-col gap-2.5">
       <button type="button" class="press h-14 rounded-full bg-ink text-[16px] font-extrabold text-paper" @click="router.push(`/split/${id}/save-group`)">
-        Сохранить группу
+        {{ t('closed.saveGroup') }}
       </button>
       <button type="button" class="press h-14 rounded-full bg-white/55 text-[16px] font-bold text-ink" @click="router.push(`/split/${id}/cashback`)">
-        Закрыть
+        {{ t('closed.close') }}
       </button>
     </div>
     <div v-else class="flex flex-col gap-2.5">
       <button type="button" class="press h-14 rounded-full bg-ink text-[16px] font-extrabold text-paper" @click="router.push('/')">
-        Закрыть
+        {{ t('closed.close') }}
       </button>
       <button v-if="split.bill" type="button" class="press h-14 rounded-full bg-white/55 text-[16px] font-bold text-ink" @click="billSheet = true">
-        Посмотреть чек
+        {{ t('closed.viewReceipt') }}
       </button>
     </div>
 
@@ -128,7 +130,7 @@ function colorOf(cid: string): string {
         </div>
         <div class="mt-2 border-t-2 border-dashed border-hairline" />
         <div class="mt-3 flex items-baseline justify-between">
-          <span class="text-[15px] font-extrabold">Итого</span>
+          <span class="text-[15px] font-extrabold">{{ t('closed.totalRow') }}</span>
           <span class="text-[17px] font-extrabold">{{ money(split.bill.total) }}</span>
         </div>
       </div>

@@ -2,7 +2,6 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { setSafeAreaEdge } from '@/lib/theme'
-import { S } from '@/lib/strings'
 import { tap } from '@/lib/haptics'
 import StoryProgress, { type StoryProgressPalette } from '@/components/StoryProgress.vue'
 import CountUp from '@/components/CountUp.vue'
@@ -15,6 +14,12 @@ import cafeFeedup from '@/assets/brand/partners/feedup-logo.png'
 import cafeBellissimo from '@/assets/brand/partners/bellissimo-logo.png'
 import cafeOqtepa from '@/assets/brand/partners/oqtepa.svg'
 import cafeSafia from '@/assets/brand/partners/safia-sq.png'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
+
+/** Чипы второго слайда — ключи, чтобы текст менялся вместе с языком. */
+const chipKeys = ['onboarding.s2ChipEqual', 'onboarding.s2ChipManual', 'onboarding.s2ChipDebt'] as const
 
 const router = useRouter()
 
@@ -170,13 +175,13 @@ onBeforeUnmount(() => {
             </svg>
           </div>
           <p class="st font-mono text-[10.5px] font-bold uppercase tracking-[0.16em] text-ink/55" style="--d: 1">
-            {{ S.onboarding.stage(1) }}
+            {{ t('onboarding.stage', { n: 1 }) }}
           </p>
           <h1 class="st text-[40px] font-extrabold leading-[1.05] tracking-[-0.03em]" style="--d: 2">
-            {{ S.onboarding.s1Title }}
+            {{ t('onboarding.s1Title') }}
           </h1>
           <p class="st max-w-[300px] text-[15px] font-semibold leading-[1.4] text-ink/70" style="--d: 3">
-            {{ S.onboarding.s1Text }}
+            {{ t('onboarding.s1Text') }}
           </p>
         </div>
 
@@ -193,22 +198,22 @@ onBeforeUnmount(() => {
             </span>
           </div>
           <p class="st font-mono text-[10.5px] font-bold uppercase tracking-[0.16em] text-paper/50" style="--d: 1">
-            {{ S.onboarding.stage(2) }}
+            {{ t('onboarding.stage', { n: 2 }) }}
           </p>
           <h1 class="st text-[40px] font-extrabold leading-[1.05] tracking-[-0.03em]" style="--d: 2">
-            {{ S.onboarding.s2TitleA }}<br />{{ S.onboarding.s2TitleB }}
+            {{ t('onboarding.s2TitleA') }}<br />{{ t('onboarding.s2TitleB') }}
           </h1>
           <p class="st max-w-[310px] text-[15px] font-semibold leading-[1.4] text-paper/65" style="--d: 3">
-            {{ S.onboarding.s2Text }}
+            {{ t('onboarding.s2Text') }}
           </p>
           <div class="st flex gap-2" style="--d: 4">
             <span
-              v-for="(chip, i) in S.onboarding.s2Chips"
+              v-for="(chip, i) in chipKeys"
               :key="chip"
               class="flex h-[34px] items-center rounded-full px-[14px] text-[12.5px]"
               :class="i === 0 ? 'bg-lime font-extrabold text-ink' : 'bg-paper/[0.12] font-bold text-paper'"
             >
-              {{ chip }}
+              {{ t(chip) }}
             </span>
           </div>
         </div>
@@ -238,20 +243,20 @@ onBeforeUnmount(() => {
             </div>
           </div>
           <p class="st font-mono text-[10.5px] font-bold uppercase tracking-[0.16em] text-ink/55" style="--d: 1">
-            {{ S.onboarding.stage(3) }}
+            {{ t('onboarding.stage', { n: 3 }) }}
           </p>
           <h1 class="st text-[40px] font-extrabold leading-[1.05] tracking-[-0.03em]" style="--d: 2">
-            {{ S.onboarding.s3TitleA }}<br />{{ S.onboarding.s3TitleB }}
+            {{ t('onboarding.s3TitleA') }}<br />{{ t('onboarding.s3TitleB') }}
           </h1>
           <p class="st max-w-[300px] text-[15px] font-semibold leading-[1.4] text-ink/70" style="--d: 3">
-            {{ S.onboarding.s3Text }}
+            {{ t('onboarding.s3Text') }}
           </p>
           <div class="st flex h-[42px] w-fit items-center gap-2 rounded-full bg-ink px-[18px]" style="--d: 4">
             <span class="text-[14px] font-extrabold text-lime">
               <CountUp :value="60000" prefix="+" :duration="1400" />
             </span>
             <span class="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-paper/80">
-              {{ S.onboarding.s3Counter }}
+              {{ t('onboarding.s3Counter') }}
             </span>
           </div>
         </div>
@@ -268,7 +273,7 @@ onBeforeUnmount(() => {
             style="--d: 0"
             @click="start"
           >
-            {{ S.onboarding.start }}
+            {{ t('onboarding.start') }}
           </button>
           <button
             type="button"
@@ -276,7 +281,7 @@ onBeforeUnmount(() => {
             style="--d: 1"
             @click="start"
           >
-            {{ S.onboarding.haveAccount }}
+            {{ t('onboarding.haveAccount') }}
           </button>
         </div>
         <p
@@ -285,7 +290,7 @@ onBeforeUnmount(() => {
           class="text-center text-[12.5px] font-bold transition-colors duration-300"
           :class="isDark ? 'text-paper/45' : 'text-ink/50'"
         >
-          {{ S.onboarding.tapHint }}
+          {{ t('onboarding.tapHint') }}
         </p>
       </Transition>
     </div>

@@ -13,8 +13,10 @@ import AnimatedAmount from '@/components/AnimatedAmount.vue'
 import PayPad from '@/components/PayPad.vue'
 import PinSheet from '@/components/PinSheet.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 const draft = useDraftStore()
 
 // черновик суммы живёт до конца сессии: набрал → ушёл → вернулся с пилл-нава
@@ -88,7 +90,7 @@ async function confirmPay() {
   if (paying.value) return
   paying.value = true
   await payAlone(amount.value)
-  toast.success('Оплачено · ' + money(amount.value))
+  toast.success(t('amount.paidToast', { amount: money(amount.value) }))
   try {
     sessionStorage.removeItem(DRAFT_KEY)
   } catch {
@@ -105,7 +107,7 @@ async function confirmPay() {
     <div class="flex items-center justify-between">
       <button
         type="button"
-        aria-label="Сканер"
+        :aria-label="t('amount.scannerAria')"
         class="press relative hit-area flex h-11 w-11 items-center justify-center"
         @click="router.push('/split/scan')"
       >
@@ -116,7 +118,7 @@ async function confirmPay() {
           <path d="M8 21H5C3.9 21 3 20.1 3 19V16" stroke="#111110" stroke-width="2.4" stroke-linecap="round" />
         </svg>
       </button>
-      <button type="button" aria-label="Профиль" class="press" @click="router.push('/profile')">
+      <button type="button" :aria-label="t('common.profileAria')" class="press" @click="router.push('/profile')">
         <UserAvatar :size="44" :border="2" />
       </button>
     </div>
@@ -142,7 +144,7 @@ async function confirmPay() {
         :disabled="amount <= 0"
         @click="paySheet = true"
       >
-        Оплатить
+        {{ t('amount.pay') }}
       </button>
       <button
         type="button"
@@ -150,12 +152,12 @@ async function confirmPay() {
         :disabled="amount <= 0"
         @click="toSplit"
       >
-        Сплит
+        {{ t('amount.split') }}
       </button>
     </div>
 
     <!-- нав-пилл общий (TabBar в App-шелле): живёт вне переходов роутов,
          активная точка-раскладка показывается им же -->
-    <PinSheet :open="paySheet" :hint="`Оплата · ${money(amount)} UZS`" @close="paySheet = false" @confirm="confirmPay" />
+    <PinSheet :open="paySheet" :hint="t('amount.pinHint', { amount: money(amount) })" @close="paySheet = false" @confirm="confirmPay" />
   </div>
 </template>

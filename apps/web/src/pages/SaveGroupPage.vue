@@ -15,6 +15,7 @@ import AnimatedList from '@/components/AnimatedList.vue'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const splits = useSplitsStore()
 const groups = useGroupsStore()
 const contacts = useContactsStore()
@@ -25,12 +26,13 @@ const id = computed(() => String(route.params.id))
 const split = computed(() => splits.byId(id.value))
 
 import { isRealApi } from '@/api'
+import { useI18n } from 'vue-i18n'
 const name = ref(isRealApi ? '' : 'Friday Crew')
 
 // реальный режим: предлагаем название из имён участников
 function suggestName(names: string[]) {
   const firsts = names.map((n) => n.split(' ')[0]).filter(Boolean).slice(0, 3)
-  return firsts.length > 1 ? firsts.join(' + ') : (firsts[0] ?? '') + ' и компания'
+  return firsts.length > 1 ? firsts.join(' + ') : t('saveGroup.andCompany', { name: firsts[0] ?? '' })
 }
 const accrue = ref(true)
 const memberIds = ref<string[]>([])
@@ -58,7 +60,7 @@ watch(
 )
 
 function nameOf(cid: string): string {
-  return cid === 'me' ? (user.user?.name ?? 'Вы') : (contacts.byId(cid)?.name ?? '?')
+  return cid === 'me' ? (user.user?.name ?? t('members.youShort')) : (contacts.byId(cid)?.name ?? '?')
 }
 
 function colorOf(cid: string): string {
@@ -69,7 +71,7 @@ function metaOf(cid: string): string {
   if (cid === 'me') return ''
   const handle = contacts.byId(cid)?.handle ?? ''
   const debt = debts.openDebts.filter((d) => d.contactId === cid).reduce((s, d) => s + d.amount, 0)
-  const parts = [handle, debt > 0 ? `должен вам ${money(debt)}` : ''].filter(Boolean)
+  const parts = [handle, debt > 0 ? t('group.owes', { amount: money(debt) }) : ''].filter(Boolean)
   return parts.join(' · ')
 }
 
@@ -87,7 +89,7 @@ async function save() {
     memberIds: memberIds.value,
     accrueCashback: accrue.value,
   })
-  toast.success('Группа сохранена')
+  toast.success(t('saveGroup.saved'))
   router.replace(`/split/${id.value}/cashback`)
 }
 </script>
@@ -96,7 +98,7 @@ async function save() {
   <div class="flex min-h-dvh flex-col bg-dune px-5 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-paper text-[17px] font-semibold shadow-[0_2px_8px_rgba(30,28,16,0.06)]"
       @click="router.push(`/split/${id}/closed`)"
     >
@@ -118,12 +120,12 @@ async function save() {
       </div>
     </div>
 
-    <h1 class="mt-3.5 text-center text-[23px] font-extrabold tracking-[-0.01em]">Сохранить эту компанию?</h1>
-    <p class="mt-[5px] text-center text-[13.5px] font-semibold text-muted">Сплитить с ними снова — в один тап</p>
+    <h1 class="mt-3.5 text-center text-[23px] font-extrabold tracking-[-0.01em]">{{ t('saveGroup.title') }}</h1>
+    <p class="mt-[5px] text-center text-[13.5px] font-semibold text-muted">{{ t('saveGroup.subtitle') }}</p>
 
     <div class="mt-5 rounded-card bg-paper px-[18px] py-1 shadow-[0_10px_24px_rgba(30,28,16,0.05),0_2px_6px_rgba(30,28,16,0.04)]">
       <label class="flex min-h-[56px] items-center gap-3 border-b border-sand-2">
-        <span class="shrink-0 text-[15.5px] font-extrabold">Название</span>
+        <span class="shrink-0 text-[15.5px] font-extrabold">{{ t('saveGroup.nameLabel') }}</span>
         <input
           v-model="name"
           class="w-full bg-transparent text-right text-[16px] font-semibold text-ink outline-none [caret-color:#DDFF33]"
@@ -138,14 +140,14 @@ async function save() {
       >
         <ZapAvatar :name="nameOf(cid)" :color="colorOf(cid)" :contact-id="cid" class="h-[38px] w-[38px]" size="sm" />
         <span class="flex min-w-0 flex-1 flex-col">
-          <span class="truncate text-[15px] font-bold">{{ nameOf(cid) }}<template v-if="cid === 'me'"> · вы</template></span>
+          <span class="truncate text-[15px] font-bold">{{ nameOf(cid) }}<template v-if="cid === 'me'">{{ t('live.youSuffix') }}</template></span>
           <span v-if="metaOf(cid)" class="truncate text-[12px] font-semibold text-faint">{{ metaOf(cid) }}</span>
         </span>
-        <span v-if="cid === 'me'" class="flex h-7 items-center rounded-full bg-dune-2 px-3 text-[11.5px] font-bold text-muted">владелец</span>
+        <span v-if="cid === 'me'" class="flex h-7 items-center rounded-full bg-dune-2 px-3 text-[11.5px] font-bold text-muted">{{ t('group.owner') }}</span>
         <button
           v-else
           type="button"
-          aria-label="Убрать"
+          :aria-label="t('common.removeAria')"
           class="press relative hit-area-y flex h-[30px] w-[30px] items-center justify-center rounded-full bg-dune-2 text-[14px] font-semibold text-muted"
           @click="remove(cid)"
         >
@@ -161,8 +163,8 @@ async function save() {
       @click="accrue = !accrue"
     >
       <span class="flex flex-1 flex-col gap-0.5">
-        <span class="text-[15.5px] font-extrabold">Копить групповой кэшбэк</span>
-        <span class="text-[12.5px] font-semibold text-muted">Бонусы с каждого сплита группы</span>
+        <span class="text-[15.5px] font-extrabold">{{ t('saveGroup.accrue') }}</span>
+        <span class="text-[12.5px] font-semibold text-muted">{{ t('saveGroup.accrueSub') }}</span>
       </span>
       <span class="relative h-8 w-[52px] rounded-full transition-colors duration-200" :class="accrue ? 'bg-lime' : 'bg-stone'">
         <span class="absolute left-1 top-1 h-6 w-6 rounded-full bg-ink transition-transform duration-200 ease-zap" :class="accrue ? 'translate-x-5' : ''" />
@@ -178,14 +180,14 @@ async function save() {
         :disabled="!name.trim() || saving"
         @click="save"
       >
-        Сохранить группу
+        {{ t('saveGroup.save') }}
       </button>
       <button
         type="button"
         class="press h-14 rounded-full bg-paper text-[16px] font-bold text-ink shadow-[0_2px_8px_rgba(30,28,16,0.05)]"
         @click="router.replace(`/split/${id}/cashback`)"
       >
-        Не сейчас
+        {{ t('saveGroup.notNow') }}
       </button>
     </div>
   </div>

@@ -85,7 +85,7 @@ export const useSession = create<SessionState>((set, get) => ({
 
   async verifyCode(code) {
     const phone = get().phone;
-    if (!phone) throw new Error('Нет номера в сессии');
+    if (!phone) throw new Error('no phone in session');
     const { needsPin } = await auth.verifyOtp(phone, code);
     const stage: auth.Stage = needsPin ? 'pin' : 'authed';
     set({ stage });

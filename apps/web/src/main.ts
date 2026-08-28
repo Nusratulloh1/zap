@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { i18n } from '@/lib/i18n'
+import { i18n, t } from '@/lib/i18n'
 import { createPinia } from 'pinia'
 import App from '@/app/App.vue'
 import router from '@/app/router'
@@ -36,7 +36,7 @@ const updateSW = registerSW({
   immediate: true,
   // в autoUpdate этот колбэк вызывается, когда новая версия готова
   onNeedRefresh() {
-    toast.action('Доступно обновление', 'Обновить', () => void updateSW(true))
+    toast.action(t('common.updateAvailable'), t('common.updateAction'), () => void updateSW(true))
   },
   onRegisteredSW(_swUrl, r) {
     if (!r) return
@@ -50,7 +50,7 @@ const updateSW = registerSW({
       nw?.addEventListener('statechange', () => {
         // новая версия скачана, старый SW ещё управляет страницей
         if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-          toast.action('Доступно обновление', 'Обновить', () => void updateSW(true))
+          toast.action(t('common.updateAvailable'), t('common.updateAction'), () => void updateSW(true))
           // и сами применяем через пару секунд, если пользователь не нажал
           setTimeout(() => void updateSW(true).catch(() => hardReload()), 2500)
         }

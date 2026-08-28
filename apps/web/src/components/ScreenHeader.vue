@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{
   title?: string
@@ -10,6 +11,7 @@ const props = defineProps<{
 }>()
 
 const router = useRouter()
+const { t } = useI18n()
 
 function goBack() {
   if (props.backTo) router.push(props.backTo)
@@ -23,7 +25,7 @@ function goBack() {
     <button
       v-if="props.back"
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press -ml-2 flex h-11 w-11 items-center justify-center rounded-full"
       :class="props.light ? 'text-paper' : 'text-ink'"
       @click="goBack"

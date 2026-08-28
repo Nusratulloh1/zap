@@ -17,7 +17,20 @@
     "continue": "Davom etish",
     "searchAria": "Qidirish",
     "profileAria": "Profil",
-    "backAria": "Orqaga"
+    "backAria": "Orqaga",
+    "initialFallback": "S",
+    "removeAria": "Olib tashlash",
+    "hideAria": "Yashirish",
+    "eraseAria": "O‘chirish",
+    "themeLight": "Yorug‘ mavzu",
+    "themeDark": "Tungi mavzu",
+    "gotIt": "Tushunarli",
+    "genericError": "Xato {status}",
+    "and": " va ",
+    "updateAvailable": "Yangilanish mavjud",
+    "updateAction": "Yangilash",
+    "installedToast": "ZAP! o‘rnatildi 🎉",
+    "itemFallback": "Mahsulot"
   },
   "onboarding": {
     "stage": "{n}-BOSQICH",
@@ -53,7 +66,19 @@
     "pinCreate": "PIN o'ylab toping",
     "pinRepeat": "PIN ni takrorlang",
     "pinMismatch": "PIN mos kelmadi — qaytadan urinib ko'ring",
-    "pinHint": "To'lovlarni tasdiqlash uchun 4 raqam"
+    "pinHint": "To'lovlarni tasdiqlash uchun 4 raqam",
+    "sendFailed": "Kodni yuborib bo‘lmadi",
+    "wrongCode": "Kod noto‘g‘ri — qaytadan urinib ko‘ring",
+    "sheetPhoneTitle": "Raqamingiz",
+    "sheetPhoneHint": "Bo‘lishdagi ulushingizni ko‘rsatish uchun",
+    "sheetCodeTitle": "SMS dagi kod",
+    "sheetCodeHint": "Tasdiqlash uchun 6 xonali kod yubordik",
+    "confirmOperation": "Amalni tasdiqlang",
+    "codeSentTo": "{phone} raqamiga yubordik",
+    "resendIn": "Qayta yuborish · {time}",
+    "devNoCode": "DEV: kod hali yuborilmadi",
+    "devNoBackend": "DEV: bekend mavjud emas",
+    "devGetCode": "DEV · kodni olish"
   },
   "tabs": {
     "home": "Bosh sahifa",
@@ -95,7 +120,12 @@
     "groupSub": "{people} · keshbek {amount}",
     "splitSubGroup": "{group} · {people} · {date}",
     "splitSubPeople": "siz + {names} · {date}",
-    "me": "Men"
+    "me": "Men",
+    "activeSplit": "Faol bo‘lish",
+    "waitingFor": "{names} kutilmoqda · {amount}",
+    "allPaid": "hammasi to‘landi",
+    "participantOpened": "{name} havolani ochdi",
+    "participantFallback": "Ishtirokchi"
   },
   "scan": {
     "hint": "Kamerani chekdagi QR kodga qarating",
@@ -167,7 +197,11 @@
     "title": "Summa",
     "yourAmount": "UZS · SUMMA",
     "pay": "To'lash",
-    "split": "Bo'lish"
+    "split": "Bo'lish",
+    "paidToast": "To‘landi · {amount}",
+    "scannerAria": "Skaner",
+    "pinHint": "To‘lov · {amount} UZS",
+    "payAloneTitle": "To‘lov"
   },
   "members": {
     "title": "Kim bilan bo'lamiz?",
@@ -220,7 +254,14 @@
     "subtitle": "Yoki havolani yuboring — to'lov bir necha bosishda",
     "statusPaidWaiting": "Siz to'ladingiz · {names} kutilmoqda",
     "sendSms": "Havolani SMS bilan yuborish",
-    "toStatus": "Bo'lish holatiga"
+    "toStatus": "Bo'lish holatiga",
+    "allCollected": "Barcha ulushlar yig‘ildi",
+    "smsSent": "Havolali SMS yuborildi",
+    "smsSentMany": "{n} ishtirokchiga SMS yuborildi",
+    "smsFailed": "SMS yuborib bo‘lmadi",
+    "subtitleLine": "{merchant} · har biriga {amount}",
+    "subtitleWithOrder": "{merchant} · #{order} · har biriga {amount}",
+    "toStatusArrow": "Bo‘lish holatiga ›"
   },
   "live": {
     "title": "Bo'lish",
@@ -232,7 +273,15 @@
     "remind": "{name} ga eslatish",
     "reminded": "Eslatma yuborildi",
     "coverRest": "Qolganini qoplash — {amount}",
-    "coverNote": "Do'stingizning ulushi uning sizga qarzi bo'lib qoladi"
+    "coverNote": "Do'stingizning ulushi uning sizga qarzi bo'lib qoladi",
+    "paidOfTotal": "{total} dan to‘landi",
+    "openedLink": " · havolani ochdi",
+    "debtBadge": "Qarz",
+    "orderNo": " · buyurtma #{no}",
+    "pinHint": "Qolganini qoplash · {amount} UZS",
+    "pinHintMerchant": "Qolganini qoplash · {amount} UZS · {merchant}",
+    "youSuffix": " · siz",
+    "debtCovered": " · qarzga, siz qopladingiz"
   },
   "closed": {
     "title": "Tayyor, bo'lish yopildi",
@@ -240,16 +289,24 @@
     "cashbackBadge": "+{amount} guruh keshbegi",
     "covered": "siz qopladingiz — u sizga qarzdor",
     "groupTotal": "{name} da jami · {amount}",
-    "saveGroup": "Guruhni saqlash"
+    "saveGroup": "Guruhni saqlash",
+    "groupTotalLabel": "{name} da jami",
+    "close": "Yopish",
+    "viewReceipt": "Chekni ko‘rish",
+    "totalRow": "Jami",
+    "paidWhole": " · to‘liq to‘landi"
   },
   "saveGroup": {
     "title": "Bu davrani saqlaymizmi?",
-    "subtitle": "Bir bosishda bo'ling va umumiy keshbek yig'ing",
+    "subtitle": "Ular bilan yana bo‘lish — bir bosishda",
     "namePlaceholder": "Guruh nomi",
     "accrue": "Guruh keshbegini yig'ish",
     "save": "Guruhni saqlash",
     "notNow": "Hozir emas",
-    "saved": "Guruh saqlandi"
+    "saved": "Guruh saqlandi",
+    "andCompany": "{name} va davra",
+    "nameLabel": "Nomi",
+    "accrueSub": "Guruhning har bo‘lishidan bonus"
   },
   "cashbackAward": {
     "title": "Keshbek hisoblandi",
@@ -258,7 +315,12 @@
     "afterDebt": "qarz qaytarilgandan keyin",
     "spend": "Keshbekni sarflash",
     "keep": "Yig'ishda davom etish",
-    "toast": "Keshbek hisoblandi +{amount}"
+    "toast": "Keshbek hisoblandi +{amount}",
+    "spendToast": "Keshbek keyingi bo‘lishga qo‘llaniladi",
+    "groupTotalLabel": "{name} da jami",
+    "reasonTwo": "×2 — chunki ikkovingiz bo‘lishdingiz",
+    "reasonThree": "×2 — chunki uchovingiz bo‘lishdingiz",
+    "reasonMany": "×2 — chunki birga bo‘lishdingiz"
   },
   "participant": {
     "asks": "{name} ulushingizni so'ramoqda",
@@ -414,13 +476,28 @@
     "title": "ZAP! ni o'rnating",
     "text": "«Bosh ekran» dan tez kirish",
     "cta": "O'rnatish",
-    "hint": "ZAP! ni bosh ekranga qo'shing — ilova kabi ishlaydi"
+    "hint": "ZAP! ni bosh ekranga qo'shing — ilova kabi ishlaydi",
+    "copyFromBar": "Manzilni brauzer qatoridan nusxalang",
+    "titleIos": "ZAP! ni iPhone ga o‘rnating",
+    "subtitle": "To‘liq ekranda, ilova kabi ikonka bilan ochiladi",
+    "iosStep1": "«Ulashish» ni bosing",
+    "iosStep1Hint": "Safari pastida",
+    "iosStep2": "«Bosh ekranga» ni tanlang",
+    "iosStep3": "«Qo‘shish» ni bosing — tayyor",
+    "openInSafari": "Ilovani o‘rnatish uchun {host} ni Safari da oching",
+    "chromeStep1": "Chrome menyusini oching",
+    "chromeStep1Hint": "o‘ng yuqori burchakda",
+    "chromeStep2": "«Ilovani o‘rnatish» ni tanlang"
   },
   "errors": {
     "generic": "Nimadir noto'g'ri ketdi",
     "network": "Aloqa yo'q — internetni tekshiring",
     "smsUnavailable": "SMS vaqtincha ishlamayapti",
-    "tooOften": "Juda tez-tez — keyinroq urinib ko'ring"
+    "tooOften": "Juda tez-tez — keyinroq urinib ko'ring",
+    "payCancelled": "To‘lov bekor qilindi",
+    "demoBillMissing": "Demo chek mavjud emas — seed:demo ni yuklang",
+    "phoneRequired": "Telefon raqami kerak",
+    "photoFailed": "Fotoni o‘qib bo‘lmadi"
   },
   "cuisine": {
     "lavash": "Lavash",
@@ -541,5 +618,49 @@
     "altDebts": "Sizga qarzdor",
     "altHomeScreen": "ZAP! bosh ekrani",
     "statSecSuffix": " son"
+  },
+  "review": {
+    "title": "Taomlarni tekshiring",
+    "fromPhoto": "Taomlarni tekshiring — fotodan o‘qildi",
+    "fromReceipt": "Chekdagi taomlar — noto‘g‘ri bo‘lsa tuzating",
+    "untitled": "Nomsiz",
+    "addItem": "Taom qo‘shish",
+    "matches": "Chek bilan mos",
+    "diff": "Chek bilan farq: {sign}{amount}",
+    "continueWith": "Davom etish · {amount}",
+    "itemTitle": "Taom",
+    "namePlaceholder": "Nomi",
+    "amountLabel": "SUMMA, UZS"
+  },
+  "events": {
+    "opened": "{name} havolani ochdi",
+    "paid": "{name} {amount} to‘ladi",
+    "closed": "Bo‘lish yopildi",
+    "cashback": "Keshbek hisoblandi +{amount}"
+  },
+  "name": {
+    "tooShort": "kamida 3 ta belgi",
+    "checking": "tekshirilmoqda…",
+    "free": "✓ bo‘sh",
+    "taken": "band yoki mos emas",
+    "hint": "do‘stlaringiz shu orqali topadi",
+    "welcome": "Tanishganimizdan xursandmiz, {name}!",
+    "saveFailed": "Saqlab bo‘lmadi — qaytadan urinib ko‘ring",
+    "title": "Profil yarating",
+    "subtitle": "Username — do‘stlaringiz sizni ZAP! da topishi uchun",
+    "placeholder": "Ism va familiya"
+  },
+  "fiscalProbe": {
+    "stepA": "a) Chek sahifasini GET",
+    "stepB": "b) POST JSON-API (imzosiz)",
+    "stepC": "c) POST no-cors (tarmoq vs CORS)",
+    "stepCNote": "mode=no-cors — tanasi ko‘rinmaydi, lekin tarmoq holati bilinadi",
+    "stepD": "d) Parametrli GET JSON-API",
+    "intro": "O‘zbek internetli telefonda oching. Chek ma’lumotlari mijozdan ochiqmi va CORS ruxsat berilganmi — shuni tekshiramiz.",
+    "linkLabel": "CHEK HAVOLASI (QR)",
+    "apiLabel": "API URL (DevTools dan, boshqa bo‘lsa)",
+    "running": "Tekshirilmoqda…",
+    "run": "Tekshiruvni boshlash",
+    "copy": "Natijalarni nusxalash"
   }
 }

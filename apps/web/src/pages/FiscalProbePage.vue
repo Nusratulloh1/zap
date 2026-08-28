@@ -3,6 +3,7 @@
 // какие источники данных чека доступны и открыт ли CORS для нашего origin.
 // Роут регистрируется только в dev-сборке (см. router.ts).
 import { ref } from 'vue'
+import { t } from '@/lib/i18n'
 
 interface Probe {
   name: string
@@ -61,7 +62,7 @@ async function run() {
   const push = (r: Probe) => results.value.push(r)
 
   // a) прямой GET страницы чека (ожидаем CORS-блок — фиксируем факт)
-  push(await timedFetch('a) GET страницы чека', checkUrl.value, checkUrl.value, { method: 'GET' }))
+  push(await timedFetch(t('fiscalProbe.stepA'), checkUrl.value, checkUrl.value, { method: 'GET' }))
 
   // b) JSON-API, который делает сама страница (POST с параметрами из QR)
   const body = JSON.stringify({
@@ -72,7 +73,7 @@ async function run() {
     fiscalSign: p.s,
   })
   push(
-    await timedFetch('b) POST JSON-API (без подписи)', `${pastedApi.value}  body=${body}`, pastedApi.value, {
+    await timedFetch(t('fiscalProbe.stepB'), `${pastedApi.value}  body=${body}`, pastedApi.value, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
       body,
@@ -81,7 +82,7 @@ async function run() {
 
   // c) тот же вызов в no-cors: если он «проходит», значит сеть есть, а мешает CORS
   push(
-    await timedFetch('c) POST no-cors (сеть vs CORS)', 'mode=no-cors — тело недоступно, но видно доступность сети', pastedApi.value, {
+    await timedFetch(t('fiscalProbe.stepC'), t('fiscalProbe.stepCNote'), pastedApi.value, {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
@@ -91,7 +92,7 @@ async function run() {
 
   // d) GET-вариант API (некоторые ОФД отдают чек по GET-параметрам)
   const getUrl = `${pastedApi.value}?terminalId=${encodeURIComponent(p.t)}&paymentNo=${encodeURIComponent(p.r)}&paymentDate=${encodeURIComponent(p.c)}&fiscalSign=${encodeURIComponent(p.s)}`
-  push(await timedFetch('d) GET JSON-API c параметрами', getUrl, getUrl, { method: 'GET', headers: { Accept: 'application/json' } }))
+  push(await timedFetch(t('fiscalProbe.stepD'), getUrl, getUrl, { method: 'GET', headers: { Accept: 'application/json' } }))
 
   running.value = false
 }
@@ -112,11 +113,11 @@ const copyAll = async () => {
   <div class="flex min-h-dvh flex-col gap-4 bg-paper px-5 pb-10 pt-[calc(env(safe-area-inset-top)+20px)]">
     <h1 class="text-[22px] font-extrabold">🔬 Fiscal probe (DEV)</h1>
     <p class="-mt-2 text-[12.5px] font-semibold text-muted">
-      Открой на телефоне с узбекским интернетом. Проверяем, доступны ли данные чека с клиента и открыт ли CORS.
+      {{ t('fiscalProbe.intro') }}
     </p>
 
     <label class="flex flex-col gap-1">
-      <span class="font-mono text-[10px] font-bold tracking-[0.12em] text-faint-2">ССЫЛКА ЧЕКА (QR)</span>
+      <span class="font-mono text-[10px] font-bold tracking-[0.12em] text-faint-2">{{ t('fiscalProbe.linkLabel') }}</span>
       <textarea
         v-model="checkUrl"
         rows="3"
@@ -125,7 +126,7 @@ const copyAll = async () => {
     </label>
 
     <label class="flex flex-col gap-1">
-      <span class="font-mono text-[10px] font-bold tracking-[0.12em] text-faint-2">API URL (из DevTools, если другой)</span>
+      <span class="font-mono text-[10px] font-bold tracking-[0.12em] text-faint-2">{{ t('fiscalProbe.apiLabel') }}</span>
       <textarea
         v-model="pastedApi"
         rows="2"
@@ -139,11 +140,11 @@ const copyAll = async () => {
       :disabled="running"
       @click="run"
     >
-      {{ running ? 'Проверяем…' : 'Запустить проверку' }}
+      {{ running ? t('fiscalProbe.running') : t('fiscalProbe.run') }}
     </button>
 
     <button v-if="results.length" type="button" class="press h-10 rounded-full bg-sand text-[13px] font-bold" @click="copyAll">
-      Скопировать результаты
+      {{ t('fiscalProbe.copy') }}
     </button>
 
     <div v-for="(r, i) in results" :key="i" class="rounded-inner bg-shell p-3">

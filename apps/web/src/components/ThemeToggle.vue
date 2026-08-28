@@ -3,6 +3,9 @@
 // круговое раскрытие темы от центра кнопки (View Transitions в theme.ts).
 import { computed } from 'vue'
 import { themeState, toggleTheme } from '@/lib/theme'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const isDark = computed(() => themeState.theme === 'dark')
 
@@ -16,7 +19,7 @@ function onToggle(e: MouseEvent) {
 <template>
   <button
     type="button"
-    :aria-label="isDark ? 'Светлая тема' : 'Тёмная тема'"
+    :aria-label="isDark ? t('common.themeLight') : t('common.themeDark')"
     class="press relative flex h-11 w-11 items-center justify-center rounded-full bg-sand"
     data-theme-toggle
     @click="onToggle"

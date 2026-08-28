@@ -17,7 +17,20 @@
     "continue": "Continue",
     "searchAria": "Search",
     "profileAria": "Profile",
-    "backAria": "Back"
+    "backAria": "Back",
+    "initialFallback": "U",
+    "removeAria": "Remove",
+    "hideAria": "Hide",
+    "eraseAria": "Erase",
+    "themeLight": "Light theme",
+    "themeDark": "Dark theme",
+    "gotIt": "Got it",
+    "genericError": "Error {status}",
+    "and": " and ",
+    "updateAvailable": "Update available",
+    "updateAction": "Update",
+    "installedToast": "ZAP! installed 🎉",
+    "itemFallback": "Item"
   },
   "onboarding": {
     "stage": "STEP {n}",
@@ -53,7 +66,19 @@
     "pinCreate": "Set a PIN",
     "pinRepeat": "Repeat the PIN",
     "pinMismatch": "PINs don't match — try again",
-    "pinHint": "4 digits to confirm payments"
+    "pinHint": "4 digits to confirm payments",
+    "sendFailed": "Could not send the code",
+    "wrongCode": "Wrong code — try again",
+    "sheetPhoneTitle": "Your number",
+    "sheetPhoneHint": "So we can show your share of the split",
+    "sheetCodeTitle": "Code from SMS",
+    "sheetCodeHint": "We sent a 6-digit confirmation code",
+    "confirmOperation": "Confirm the operation",
+    "codeSentTo": "Sent to {phone}",
+    "resendIn": "Send again · {time}",
+    "devNoCode": "DEV: no code sent yet",
+    "devNoBackend": "DEV: backend unavailable",
+    "devGetCode": "DEV · get the code"
   },
   "tabs": {
     "home": "Home",
@@ -95,7 +120,12 @@
     "groupSub": "{people} · cashback {amount}",
     "splitSubGroup": "{group} · {people} · {date}",
     "splitSubPeople": "you + {names} · {date}",
-    "me": "Me"
+    "me": "Me",
+    "activeSplit": "Active split",
+    "waitingFor": "waiting for {names} · {amount}",
+    "allPaid": "all paid",
+    "participantOpened": "{name} opened the link",
+    "participantFallback": "A participant"
   },
   "scan": {
     "hint": "Point the camera at the QR code on the receipt",
@@ -167,7 +197,11 @@
     "title": "Amount",
     "yourAmount": "UZS · AMOUNT",
     "pay": "Pay",
-    "split": "Split"
+    "split": "Split",
+    "paidToast": "Paid · {amount}",
+    "scannerAria": "Scanner",
+    "pinHint": "Payment · {amount} UZS",
+    "payAloneTitle": "Payment"
   },
   "members": {
     "title": "Who's splitting?",
@@ -220,7 +254,14 @@
     "subtitle": "Or send the link — paying takes a couple of taps",
     "statusPaidWaiting": "You paid · waiting for {names}",
     "sendSms": "Send the link by SMS",
-    "toStatus": "Go to split status"
+    "toStatus": "Go to split status",
+    "allCollected": "All shares collected",
+    "smsSent": "The link was sent by SMS",
+    "smsSentMany": "SMS sent to {n} participant | SMS sent to {n} participants",
+    "smsFailed": "Could not send the SMS",
+    "subtitleLine": "{merchant} · {amount} each",
+    "subtitleWithOrder": "{merchant} · #{order} · {amount} each",
+    "toStatusArrow": "Go to split status ›"
   },
   "live": {
     "title": "Split",
@@ -232,7 +273,15 @@
     "remind": "Remind {name}",
     "reminded": "Reminder sent",
     "coverRest": "Cover the rest — {amount}",
-    "coverNote": "Your friend's share becomes their debt to you"
+    "coverNote": "Your friend's share becomes their debt to you",
+    "paidOfTotal": "paid of {total}",
+    "openedLink": " · opened the link",
+    "debtBadge": "Debt",
+    "orderNo": " · order #{no}",
+    "pinHint": "Cover the rest · {amount} UZS",
+    "pinHintMerchant": "Cover the rest · {amount} UZS · {merchant}",
+    "youSuffix": " · you",
+    "debtCovered": " · on credit, you covered it"
   },
   "closed": {
     "title": "Done, split closed",
@@ -240,16 +289,24 @@
     "cashbackBadge": "+{amount} group cashback",
     "covered": "you covered it — they owe you",
     "groupTotal": "{name} total · {amount}",
-    "saveGroup": "Save the group"
+    "saveGroup": "Save the group",
+    "groupTotalLabel": "{name} total",
+    "close": "Close",
+    "viewReceipt": "View the receipt",
+    "totalRow": "Total",
+    "paidWhole": " · paid in full"
   },
   "saveGroup": {
     "title": "Save this crew?",
-    "subtitle": "Split in one tap and build shared cashback",
+    "subtitle": "Split with them again — in one tap",
     "namePlaceholder": "Group name",
     "accrue": "Build group cashback",
     "save": "Save the group",
     "notNow": "Not now",
-    "saved": "Group saved"
+    "saved": "Group saved",
+    "andCompany": "{name} and crew",
+    "nameLabel": "Name",
+    "accrueSub": "Bonuses from every group split"
   },
   "cashbackAward": {
     "title": "Cashback credited",
@@ -258,7 +315,12 @@
     "afterDebt": "after the debt is repaid",
     "spend": "Spend cashback",
     "keep": "Keep saving",
-    "toast": "Cashback credited +{amount}"
+    "toast": "Cashback credited +{amount}",
+    "spendToast": "Cashback will apply to your next split",
+    "groupTotalLabel": "{name} total",
+    "reasonTwo": "×2 — because two of you split",
+    "reasonThree": "×2 — because three of you split",
+    "reasonMany": "×2 — because you split together"
   },
   "participant": {
     "asks": "{name} is asking for your share",
@@ -414,13 +476,28 @@
     "title": "Install ZAP!",
     "text": "Quick access from your home screen",
     "cta": "Install",
-    "hint": "Add ZAP! to your home screen — it works like an app"
+    "hint": "Add ZAP! to your home screen — it works like an app",
+    "copyFromBar": "Copy the address from your browser bar",
+    "titleIos": "Install ZAP! on your iPhone",
+    "subtitle": "It opens full screen with an app icon",
+    "iosStep1": "Tap «Share»",
+    "iosStep1Hint": "at the bottom of Safari",
+    "iosStep2": "Choose «Add to Home Screen»",
+    "iosStep3": "Tap «Add» — done",
+    "openInSafari": "Open {host} in Safari to install the app",
+    "chromeStep1": "Open the Chrome menu",
+    "chromeStep1Hint": "in the top-right corner",
+    "chromeStep2": "Choose «Install app»"
   },
   "errors": {
     "generic": "Something went wrong",
     "network": "No connection — check your internet",
     "smsUnavailable": "SMS is temporarily unavailable",
-    "tooOften": "Too often — try again later"
+    "tooOften": "Too often — try again later",
+    "payCancelled": "Payment cancelled",
+    "demoBillMissing": "Demo receipt unavailable — run seed:demo",
+    "phoneRequired": "A phone number is required",
+    "photoFailed": "Could not read the photo"
   },
   "cuisine": {
     "lavash": "Lavash",
@@ -541,5 +618,49 @@
     "altDebts": "Owed to you",
     "altHomeScreen": "ZAP! home screen",
     "statSecSuffix": " sec"
+  },
+  "review": {
+    "title": "Check the items",
+    "fromPhoto": "Check the items — read from a photo",
+    "fromReceipt": "Items from the receipt — fix anything that is off",
+    "untitled": "Untitled",
+    "addItem": "Add an item",
+    "matches": "Matches the receipt",
+    "diff": "Difference from the receipt: {sign}{amount}",
+    "continueWith": "Continue · {amount}",
+    "itemTitle": "Item",
+    "namePlaceholder": "Name",
+    "amountLabel": "AMOUNT, UZS"
+  },
+  "events": {
+    "opened": "{name} opened the link",
+    "paid": "{name} paid {amount}",
+    "closed": "Split closed",
+    "cashback": "Cashback credited +{amount}"
+  },
+  "name": {
+    "tooShort": "at least 3 characters",
+    "checking": "checking…",
+    "free": "✓ available",
+    "taken": "taken or not allowed",
+    "hint": "friends will find you by it",
+    "welcome": "Nice to meet you, {name}!",
+    "saveFailed": "Could not save — try again",
+    "title": "Create your profile",
+    "subtitle": "A username so friends can find you on ZAP!",
+    "placeholder": "First and last name"
+  },
+  "fiscalProbe": {
+    "stepA": "a) GET the receipt page",
+    "stepB": "b) POST JSON API (unsigned)",
+    "stepC": "c) POST no-cors (network vs CORS)",
+    "stepCNote": "mode=no-cors — the body is hidden but network reachability shows",
+    "stepD": "d) GET the JSON API with parameters",
+    "intro": "Open it on a phone with Uzbek internet. We check whether receipt data is reachable from the client and whether CORS is open.",
+    "linkLabel": "RECEIPT LINK (QR)",
+    "apiLabel": "API URL (from DevTools, if different)",
+    "running": "Checking…",
+    "run": "Run the check",
+    "copy": "Copy the results"
   }
 }

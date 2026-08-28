@@ -8,9 +8,11 @@ import { useContactsStore } from '@/entities/stores/contacts'
 import { useUserStore } from '@/entities/stores/user'
 import { money } from '@/lib/format'
 import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const splits = useSplitsStore()
 const contacts = useContactsStore()
 const user = useUserStore()
@@ -26,8 +28,8 @@ const waitingNames = computed(() => {
     .filter((m) => m.status === 'waiting' || m.status === 'opened')
     .map((m) => contacts.byId(m.contactId)?.name ?? '?')
   if (!names.length) return ''
-  const gen: Record<string, string> = { Али: 'Али', Бек: 'Бека', Азиз: 'Азиза', Тимур: 'Тимура', Мадина: 'Мадину' }
-  return names.map((n) => gen[n] ?? n).join(' и ')
+  
+  return names.join(t('common.and'))
 })
 
 const remaining = computed(() =>
@@ -66,10 +68,10 @@ const merchant = computed(() => contacts.merchantById(split.value?.merchantId))
       </div>
       <div class="min-w-0 flex-1 space-y-[7px]">
         <div class="flex items-baseline justify-between gap-2">
-          <span class="whitespace-nowrap text-[14.5px] font-extrabold text-paper">Активный сплит</span>
+          <span class="whitespace-nowrap text-[14.5px] font-extrabold text-paper">{{ t('home.activeSplit') }}</span>
           <span class="truncate text-[12px] font-bold text-paper/55">
-            <template v-if="waitingNames">ждём {{ waitingNames }} · {{ money(remaining) }}</template>
-            <template v-else>всё оплачено</template>
+            <template v-if="waitingNames">{{ t('home.waitingFor', { names: waitingNames, amount: money(remaining) }) }}</template>
+            <template v-else>{{ t('home.allPaid') }}</template>
           </span>
         </div>
         <div class="h-[6px] overflow-hidden rounded-full bg-white/[0.18]">

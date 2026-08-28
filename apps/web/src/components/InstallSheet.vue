@@ -5,6 +5,9 @@ import { computed } from 'vue'
 import { installState, closeSheet } from '@/lib/installPrompt'
 import { toast } from '@/lib/toast'
 import BottomSheet from '@/components/BottomSheet.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const location = window.location
 const variant = computed(() => installState.sheetVariant)
@@ -12,9 +15,9 @@ const variant = computed(() => installState.sheetVariant)
 async function copyLink() {
   try {
     await navigator.clipboard.writeText(location.origin)
-    toast.success('Ссылка скопирована')
+    toast.success(t('common.copied'))
   } catch {
-    toast('Скопируйте адрес из строки браузера')
+    toast(t('install.copyFromBar'))
   }
 }
 </script>
@@ -26,10 +29,10 @@ async function copyLink() {
         <img src="/icon-192.png" alt="" class="h-full w-full object-cover" />
       </span>
       <h2 class="mt-3 text-center text-[19px] font-extrabold tracking-[-0.01em]">
-        {{ variant === 'ios-safari' ? 'Установите ZAP! на iPhone' : 'Установите ZAP!' }}
+        {{ variant === 'ios-safari' ? t('install.titleIos') : t('install.title') }}
       </h2>
       <p class="mt-1 text-center text-[13px] font-semibold text-muted">
-        Откроется на весь экран, с иконкой как у приложения
+        {{ t('install.subtitle') }}
       </p>
 
       <!-- iOS Safari: 3 шага -->
@@ -37,18 +40,18 @@ async function copyLink() {
         <div class="st flex items-center gap-3.5" style="--d: 1">
           <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink font-mono text-[13px] font-bold text-paper">1</span>
           <span class="flex-1 text-[15px] font-semibold leading-snug">
-            Нажмите «Поделиться»
+            {{ t('install.iosStep1') }}
             <svg class="-mt-0.5 inline" width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <path d="M10 12.5V2.8M6.6 5.6 10 2.3l3.4 3.3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" />
               <path d="M5.5 9H4.6C4 9 3.5 9.5 3.5 10.1v6.3c0 .6.5 1.1 1.1 1.1h10.8c.6 0 1.1-.5 1.1-1.1v-6.3c0-.6-.5-1.1-1.1-1.1h-.9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
             </svg>
-            внизу Safari
+            {{ t('install.iosStep1Hint') }}
           </span>
         </div>
         <div class="st flex items-center gap-3.5" style="--d: 2">
           <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink font-mono text-[13px] font-bold text-paper">2</span>
           <span class="flex-1 text-[15px] font-semibold leading-snug">
-            Выберите «На экран «Домой»
+            {{ t('install.iosStep2') }}
             <svg class="-mt-0.5 inline" width="17" height="17" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <rect x="2.8" y="2.8" width="14.4" height="14.4" rx="3.6" stroke="currentColor" stroke-width="1.7" />
               <path d="M10 6.6v6.8M6.6 10h6.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />
@@ -57,17 +60,17 @@ async function copyLink() {
         </div>
         <div class="st flex items-center gap-3.5" style="--d: 3">
           <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink font-mono text-[13px] font-bold text-paper">3</span>
-          <span class="flex-1 text-[15px] font-semibold leading-snug">Нажмите «Добавить» — готово</span>
+          <span class="flex-1 text-[15px] font-semibold leading-snug">{{ t('install.iosStep3') }}</span>
         </div>
       </div>
 
       <!-- iOS не-Safari -->
       <div v-else-if="variant === 'ios-other'" class="mt-5 flex w-full flex-col items-center gap-4">
         <p class="text-center text-[15px] font-semibold leading-snug">
-          Откройте <span class="font-mono font-bold">{{ location.host }}</span> в Safari, чтобы установить приложение
+          {{ t('install.openInSafari', { host: location.host }) }}
         </p>
         <button type="button" class="press h-12 w-full rounded-full bg-sand text-[15px] font-bold text-ink" @click="copyLink">
-          Скопировать ссылку
+          {{ t('common.copy') }}
         </button>
       </div>
 
@@ -76,16 +79,16 @@ async function copyLink() {
         <div class="st flex items-center gap-3.5" style="--d: 1">
           <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink font-mono text-[13px] font-bold text-paper">1</span>
           <span class="flex-1 text-[15px] font-semibold leading-snug">
-            Откройте меню Chrome
+            {{ t('install.chromeStep1') }}
             <svg class="-mt-0.5 inline" width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
               <circle cx="10" cy="4" r="1.7" fill="currentColor" /><circle cx="10" cy="10" r="1.7" fill="currentColor" /><circle cx="10" cy="16" r="1.7" fill="currentColor" />
             </svg>
-            в правом верхнем углу
+            {{ t('install.chromeStep1Hint') }}
           </span>
         </div>
         <div class="st flex items-center gap-3.5" style="--d: 2">
           <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink font-mono text-[13px] font-bold text-paper">2</span>
-          <span class="flex-1 text-[15px] font-semibold leading-snug">Выберите «Установить приложение»</span>
+          <span class="flex-1 text-[15px] font-semibold leading-snug">{{ t('install.chromeStep2') }}</span>
         </div>
       </div>
 
@@ -103,7 +106,7 @@ async function copyLink() {
       </svg>
 
       <button type="button" class="press mt-5 h-14 w-full rounded-full bg-lime text-[16px] font-extrabold text-on-lime" @click="closeSheet()">
-        Понятно
+        {{ t('common.gotIt') }}
       </button>
     </div>
   </BottomSheet>

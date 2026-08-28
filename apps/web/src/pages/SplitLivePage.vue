@@ -11,9 +11,11 @@ import { useUserStore } from '@/entities/stores/user'
 import ZapAvatar from '@/components/ZapAvatar.vue'
 import PinSheet from '@/components/PinSheet.vue'
 import CountUp from '@/components/CountUp.vue'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const splits = useSplitsStore()
 const contacts = useContactsStore()
 const user = useUserStore()
@@ -58,14 +60,14 @@ const pendingMembers = computed(() =>
 )
 
 function nameOf(cid: string): string {
-  return cid === 'me' ? (user.user?.name ?? 'Вы') : (contacts.byId(cid)?.name ?? '?')
+  return cid === 'me' ? (user.user?.name ?? t('members.youShort')) : (contacts.byId(cid)?.name ?? '?')
 }
 
 function colorOf(cid: string): string {
   return cid === 'me' ? '#111110' : (contacts.byId(cid)?.color ?? '#8A887E')
 }
 
-const accusative: Record<string, string> = { Али: 'Али', Бек: 'Беку', Азиз: 'Азизу', Тимур: 'Тимуру', Мадина: 'Мадине' }
+
 
 const remindedIds = ref<Set<string>>(new Set())
 
@@ -73,10 +75,10 @@ async function remind(cid: string) {
   remindedIds.value = new Set([...remindedIds.value, cid])
   try {
     await splits.remindMember(id.value, cid)
-    toast.success('Напоминание отправлено')
+    toast.success(t('live.reminded'))
   } catch (e) {
     // сервер троттлит повторы (30 мин) — показываем его сообщение, кнопка остаётся «отправлено»
-    toast(e instanceof Error ? e.message : 'Напоминание уже отправлено')
+    toast(e instanceof Error ? e.message : t('debts.alreadyReminded'))
   }
 }
 
@@ -96,7 +98,7 @@ async function confirmCover() {
   <div class="flex min-h-dvh flex-col bg-paper px-5 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[17px] font-semibold"
       @click="router.push('/')"
     >
@@ -106,10 +108,10 @@ async function confirmCover() {
     <template v-if="split">
       <div class="flex flex-col items-start gap-1.5 px-0.5 pb-1.5 pt-[26px]">
         <p class="text-[13.5px] font-semibold text-muted">
-          {{ merchant?.name ?? split.title }}<template v-if="split.bill"> · заказ #{{ split.bill.orderNo }}</template>
+          {{ merchant?.name ?? split.title }}<template v-if="split.bill">{{ t('live.orderNo', { no: split.bill.orderNo }) }}</template>
         </p>
         <CountUp :value="paidAmount" :duration="600" class="block text-[42px] font-extrabold leading-none tracking-[-0.03em]" />
-        <p class="text-[13px] font-semibold text-faint">оплачено из {{ money(split.total) }}</p>
+        <p class="text-[13px] font-semibold text-faint">{{ t('live.paidOfTotal', { total: money(split.total) }) }}</p>
         <div class="mt-3 flex h-2.5 w-full items-center rounded-full bg-pebble">
           <div class="h-2.5 rounded-full bg-lime transition-all duration-700 ease-zap" :style="{ width: progress * 100 + '%' }" />
           <div class="-ml-[5px] h-2.5 w-2.5 rounded-full bg-ink" />
@@ -133,9 +135,9 @@ async function confirmCover() {
             size="sm"
           />
           <div class="flex min-w-0 flex-1 flex-col gap-px">
-            <span class="text-[15px] font-bold">{{ nameOf(m.contactId) }}<template v-if="m.isYou"> · вы</template></span>
+            <span class="text-[15px] font-bold">{{ nameOf(m.contactId) }}<template v-if="m.isYou">{{ t('live.youSuffix') }}</template></span>
             <span class="text-[12px] font-semibold text-faint">
-              {{ money(m.amount) }}<template v-if="m.status === 'opened'"> · открыл ссылку</template><template v-else-if="m.status === 'debt'"> · в долг, вы покрыли</template>
+              {{ money(m.amount) }}<template v-if="m.status === 'opened'">{{ t('live.openedLink') }}</template><template v-else-if="m.status === 'debt'">{{ t('live.debtCovered') }}</template>
             </span>
           </div>
           <span
@@ -143,10 +145,10 @@ async function confirmCover() {
             class="flex h-[30px] items-center gap-[5px] rounded-full bg-ink px-3"
           >
             <span class="text-[11px] font-extrabold text-lime">✓</span>
-            <span class="text-[12px] font-bold text-paper">{{ m.status === 'debt' ? 'Долг' : 'Готово' }}</span>
+            <span class="text-[12px] font-bold text-paper">{{ m.status === 'debt' ? t('live.debtBadge') : t('live.statusPaid') }}</span>
           </span>
           <span v-else class="flex h-[30px] items-center rounded-full bg-pebble px-3 text-[12px] font-bold text-muted">
-            Ждём
+            {{ t('live.statusWaiting') }}
           </span>
         </div>
       </div>
@@ -162,7 +164,7 @@ async function confirmCover() {
           :disabled="remindedIds.has(m.contactId)"
           @click="remind(m.contactId)"
         >
-          {{ remindedIds.has(m.contactId) ? 'Напоминание отправлено' : `Напомнить ${accusative[nameOf(m.contactId)] ?? nameOf(m.contactId)}` }}
+          {{ remindedIds.has(m.contactId) ? t('live.reminded') : t('live.remind', { name: nameOf(m.contactId) }) }}
         </button>
         <button
           v-if="remainder > 0"
@@ -171,14 +173,16 @@ async function confirmCover() {
           :disabled="covering"
           @click="coverSheet = true"
         >
-          Покрыть остаток — {{ money(remainder) }}
+          {{ t('live.coverRest', { amount: money(remainder) }) }}
         </button>
       </div>
     </template>
 
     <PinSheet
       :open="coverSheet"
-      :hint="`Покрыть остаток · ${money(remainder)} UZS${merchant ? ' · ' + merchant.name : ''}`"
+      :hint="merchant
+        ? t('live.pinHintMerchant', { amount: money(remainder), merchant: merchant.name })
+        : t('live.pinHint', { amount: money(remainder) })"
       @close="coverSheet = false"
       @confirm="confirmCover"
     />

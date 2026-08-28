@@ -6,6 +6,9 @@ import { bus } from '@/lib/bus'
 import PinSheet from '@/components/PinSheet.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import InvisibleDigits from '@/components/InvisibleDigits.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 // --- PIN ---
 const pinOpen = ref(false)
@@ -87,12 +90,12 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <PinSheet :open="pinOpen" hint="Подтвердите операцию" @close="onPinClose" @confirm="onPinConfirm" />
+  <PinSheet :open="pinOpen" :hint="t('auth.confirmOperation')" @close="onPinClose" @confirm="onPinConfirm" />
 
   <BottomSheet :open="phoneOpen" @close="onPhoneClose">
     <div class="pb-4">
-      <p class="text-center text-[16px] font-extrabold">Ваш номер</p>
-      <p class="mt-1 text-center text-[13px] font-semibold text-muted">Чтобы показать вашу долю в сплите</p>
+      <p class="text-center text-[16px] font-extrabold">{{ t('auth.sheetPhoneTitle') }}</p>
+      <p class="mt-1 text-center text-[13px] font-semibold text-muted">{{ t('auth.sheetPhoneHint') }}</p>
       <label class="mx-auto mt-4 flex max-w-[280px] items-center gap-2 border-b-2 border-lime pb-2">
         <span class="text-[18px] font-bold text-muted">+998</span>
         <input
@@ -109,15 +112,15 @@ onBeforeUnmount(() => {
         :disabled="phoneDigits.length !== 9"
         @click="submitPhone"
       >
-        Продолжить
+        {{ t('common.continue') }}
       </button>
     </div>
   </BottomSheet>
 
   <BottomSheet :open="otpOpen" @close="onOtpClose">
     <div class="pb-4">
-      <p class="text-center text-[16px] font-extrabold">Код из SMS</p>
-      <p class="mt-1 text-center text-[13px] font-semibold text-muted">Отправили 6-значный код для подтверждения</p>
+      <p class="text-center text-[16px] font-extrabold">{{ t('auth.sheetCodeTitle') }}</p>
+      <p class="mt-1 text-center text-[13px] font-semibold text-muted">{{ t('auth.sheetCodeHint') }}</p>
       <div class="mt-4 flex justify-center">
         <InvisibleDigits :length="6" :model-value="otpDigits" one-time-code autofocus @update:model-value="onOtpInput">
           <div class="flex gap-2">

@@ -2,11 +2,12 @@
 // Дизайн 5b: белый фон, круг-назад, лаймовое подчёркивание номера, чекбокс, лаймовый CTA.
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { S } from '@/lib/strings'
 import { toast } from '@/lib/toast'
 import { useUserStore } from '@/entities/stores/user'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 const user = useUserStore()
 
 const digits = ref('')
@@ -41,7 +42,7 @@ async function submit() {
     await user.startLogin(digits.value)
     router.push('/auth/code')
   } catch (e) {
-    toast(e instanceof Error && e.message ? e.message : 'Не удалось отправить код')
+    toast(e instanceof Error && e.message ? e.message : t('auth.sendFailed'))
   } finally {
     busy.value = false
   }
@@ -52,15 +53,15 @@ async function submit() {
   <div class="flex min-h-dvh flex-col bg-paper px-6 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[18px] font-semibold"
       @click="router.push('/onboarding')"
     >
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
 
-    <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">{{ S.auth.phoneTitle }}</h1>
-    <p class="mt-1.5 text-[13.5px] font-semibold text-muted">{{ S.auth.phoneHint }}</p>
+    <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">{{ t('auth.phoneTitle') }}</h1>
+    <p class="mt-1.5 text-[13.5px] font-semibold text-muted">{{ t('auth.phoneHint') }}</p>
 
     <label class="mt-[26px] flex items-center gap-3 border-b-2 border-lime pb-3">
       <span class="text-[26px] font-bold text-muted">+998</span>
@@ -89,7 +90,7 @@ async function submit() {
       >
         <span v-if="terms">✓</span>
       </button>
-      <span class="text-[12px] font-semibold text-muted" @click="terms = !terms">{{ S.auth.terms }}</span>
+      <span class="text-[12px] font-semibold text-muted" @click="terms = !terms">{{ t('auth.terms') }}</span>
     </label>
 
     <div class="flex-1" />
@@ -103,7 +104,7 @@ async function submit() {
         :disabled="!valid || busy"
         @click="submit"
       >
-        {{ S.auth.getCode }}
+        {{ t('auth.getCode') }}
       </button>
     </div>
   </div>

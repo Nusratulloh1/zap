@@ -3,6 +3,7 @@
 // Токены живут в Keychain/Keystore, а не в обычном сторидже.
 import { API_URL } from '@/lib/env';
 import { loadTokens, saveTokens, clearTokens, type Tokens } from '@/lib/secureStore';
+import { translate } from '@/i18n';
 
 export class ApiError extends Error {
   constructor(
@@ -86,7 +87,7 @@ export async function http<T = unknown>(path: string, init: Options = {}): Promi
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { message?: string | string[] };
     const msg = Array.isArray(body.message) ? body.message[0] : body.message;
-    throw new ApiError(msg ?? `Ошибка ${res.status}`, res.status);
+    throw new ApiError(msg ?? translate('common.genericError', { status: res.status }), res.status);
   }
   return (await res.json().catch(() => ({}))) as T;
 }

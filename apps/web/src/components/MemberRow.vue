@@ -2,8 +2,10 @@
 import { ref, watch } from 'vue'
 import type { SplitMemberStatus } from '@zap/shared/types'
 import { money } from '@/lib/format'
-import { S } from '@/lib/strings'
 import ZapAvatar from './ZapAvatar.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   name: string
@@ -35,13 +37,13 @@ watch(
     <div class="min-w-0 flex-1">
       <p class="truncate text-[15px] font-bold">
         {{ name }}
-        <span v-if="isYou" class="font-medium text-muted">· {{ S.common.you.toLowerCase() }}</span>
+        <span v-if="isYou" class="font-medium text-muted">· {{ t('common.you').toLowerCase() }}</span>
       </p>
       <p class="text-[12px] font-medium text-muted">
-        <template v-if="status === 'paid'">{{ S.live.statusPaid }}</template>
-        <template v-else-if="status === 'opened'">{{ S.live.statusOpened }}</template>
-        <template v-else-if="status === 'debt'">{{ S.live.statusDebt }}</template>
-        <template v-else>{{ S.live.statusWaiting }}</template>
+        <template v-if="status === 'paid'">{{ t('live.statusPaid') }}</template>
+        <template v-else-if="status === 'opened'">{{ t('live.statusOpened') }}</template>
+        <template v-else-if="status === 'debt'">{{ t('live.statusDebt') }}</template>
+        <template v-else>{{ t('live.statusWaiting') }}</template>
       </p>
     </div>
     <span class="font-mono text-[14px] font-bold tabular-nums">{{ money(amount) }}</span>

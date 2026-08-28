@@ -17,7 +17,20 @@
     "continue": "Продолжить",
     "searchAria": "Поиск",
     "profileAria": "Профиль",
-    "backAria": "Назад"
+    "backAria": "Назад",
+    "initialFallback": "В",
+    "removeAria": "Убрать",
+    "hideAria": "Скрыть",
+    "eraseAria": "Стереть",
+    "themeLight": "Светлая тема",
+    "themeDark": "Тёмная тема",
+    "gotIt": "Понятно",
+    "genericError": "Ошибка {status}",
+    "and": " и ",
+    "updateAvailable": "Доступно обновление",
+    "updateAction": "Обновить",
+    "installedToast": "ZAP! установлен 🎉",
+    "itemFallback": "Товар"
   },
   "onboarding": {
     "stage": "ЭТАП {n}",
@@ -53,7 +66,19 @@
     "pinCreate": "Придумайте PIN",
     "pinRepeat": "Повторите PIN",
     "pinMismatch": "PIN не совпадает — попробуйте ещё раз",
-    "pinHint": "4 цифры для подтверждения оплат"
+    "pinHint": "4 цифры для подтверждения оплат",
+    "sendFailed": "Не удалось отправить код",
+    "wrongCode": "Неверный код — попробуйте ещё раз",
+    "sheetPhoneTitle": "Ваш номер",
+    "sheetPhoneHint": "Чтобы показать вашу долю в сплите",
+    "sheetCodeTitle": "Код из SMS",
+    "sheetCodeHint": "Отправили 6-значный код для подтверждения",
+    "confirmOperation": "Подтвердите операцию",
+    "codeSentTo": "Отправили на {phone}",
+    "resendIn": "Отправить ещё раз · {time}",
+    "devNoCode": "DEV: код ещё не отправлен",
+    "devNoBackend": "DEV: бэкенд недоступен",
+    "devGetCode": "DEV · получить код"
   },
   "tabs": {
     "home": "Главная",
@@ -95,7 +120,12 @@
     "groupSub": "{people} · кэшбэк {amount}",
     "splitSubGroup": "{group} · {people} · {date}",
     "splitSubPeople": "вы + {names} · {date}",
-    "me": "Я"
+    "me": "Я",
+    "activeSplit": "Активный сплит",
+    "waitingFor": "ждём {names} · {amount}",
+    "allPaid": "всё оплачено",
+    "participantOpened": "{name} открыл ссылку",
+    "participantFallback": "Участник"
   },
   "scan": {
     "hint": "Наведите камеру на QR-код на чеке",
@@ -167,7 +197,11 @@
     "title": "Сумма",
     "yourAmount": "UZS · СУММА",
     "pay": "Оплатить",
-    "split": "Сплит"
+    "split": "Сплит",
+    "paidToast": "Оплачено · {amount}",
+    "scannerAria": "Сканер",
+    "pinHint": "Оплата · {amount} UZS",
+    "payAloneTitle": "Оплата"
   },
   "members": {
     "title": "С кем делим?",
@@ -220,7 +254,14 @@
     "subtitle": "Или отправьте ссылку — оплата в пару касаний",
     "statusPaidWaiting": "Вы оплатили · ждём {names}",
     "sendSms": "Отправить SMS со ссылкой",
-    "toStatus": "К статусу сплита"
+    "toStatus": "К статусу сплита",
+    "allCollected": "Все доли собраны",
+    "smsSent": "SMS со ссылкой отправлено",
+    "smsSentMany": "SMS отправлены — {n} участнику | SMS отправлены — {n} участникам | SMS отправлены — {n} участникам",
+    "smsFailed": "Не удалось отправить SMS",
+    "subtitleLine": "{merchant} · по {amount} с человека",
+    "subtitleWithOrder": "{merchant} · #{order} · по {amount} с человека",
+    "toStatusArrow": "К статусу сплита ›"
   },
   "live": {
     "title": "Сплит",
@@ -232,7 +273,15 @@
     "remind": "Напомнить {name}",
     "reminded": "Напоминание отправлено",
     "coverRest": "Покрыть остаток — {amount}",
-    "coverNote": "Доля друга станет его долгом перед вами"
+    "coverNote": "Доля друга станет его долгом перед вами",
+    "paidOfTotal": "оплачено из {total}",
+    "openedLink": " · открыл ссылку",
+    "debtBadge": "Долг",
+    "orderNo": " · заказ #{no}",
+    "pinHint": "Покрыть остаток · {amount} UZS",
+    "pinHintMerchant": "Покрыть остаток · {amount} UZS · {merchant}",
+    "youSuffix": " · вы",
+    "debtCovered": " · в долг, вы покрыли"
   },
   "closed": {
     "title": "Готово, сплит закрыт",
@@ -240,16 +289,24 @@
     "cashbackBadge": "+{amount} групповой кэшбэк",
     "covered": "вы покрыли — он вам должен",
     "groupTotal": "Всего у {name} · {amount}",
-    "saveGroup": "Сохранить группу"
+    "saveGroup": "Сохранить группу",
+    "groupTotalLabel": "Всего у {name}",
+    "close": "Закрыть",
+    "viewReceipt": "Посмотреть чек",
+    "totalRow": "Итого",
+    "paidWhole": " · оплачено целиком"
   },
   "saveGroup": {
     "title": "Сохранить эту компанию?",
-    "subtitle": "Сплитьте в одно касание и копите общий кэшбэк",
+    "subtitle": "Сплитить с ними снова — в один тап",
     "namePlaceholder": "Название группы",
     "accrue": "Копить групповой кэшбэк",
     "save": "Сохранить группу",
     "notNow": "Не сейчас",
-    "saved": "Группа сохранена"
+    "saved": "Группа сохранена",
+    "andCompany": "{name} и компания",
+    "nameLabel": "Название",
+    "accrueSub": "Бонусы с каждого сплита группы"
   },
   "cashbackAward": {
     "title": "Кэшбэк зачислен",
@@ -258,7 +315,12 @@
     "afterDebt": "после возврата долга",
     "spend": "Потратить кэшбэк",
     "keep": "Копить дальше",
-    "toast": "Кэшбэк зачислен +{amount}"
+    "toast": "Кэшбэк зачислен +{amount}",
+    "spendToast": "Кэшбэк применим к следующему сплиту",
+    "groupTotalLabel": "Всего у {name}",
+    "reasonTwo": "×2 — потому что сплитили вдвоём",
+    "reasonThree": "×2 — потому что сплитили втроём",
+    "reasonMany": "×2 — потому что сплитили вместе"
   },
   "participant": {
     "asks": "{name} просит вашу долю",
@@ -414,13 +476,28 @@
     "title": "Установите ZAP!",
     "text": "Быстрый доступ с экрана «Домой»",
     "cta": "Установить",
-    "hint": "Добавьте ZAP! на главный экран — работает как приложение"
+    "hint": "Добавьте ZAP! на главный экран — работает как приложение",
+    "copyFromBar": "Скопируйте адрес из строки браузера",
+    "titleIos": "Установите ZAP! на iPhone",
+    "subtitle": "Откроется на весь экран, с иконкой как у приложения",
+    "iosStep1": "Нажмите «Поделиться»",
+    "iosStep1Hint": "внизу Safari",
+    "iosStep2": "Выберите «На экран «Домой»",
+    "iosStep3": "Нажмите «Добавить» — готово",
+    "openInSafari": "Откройте {host} в Safari, чтобы установить приложение",
+    "chromeStep1": "Откройте меню Chrome",
+    "chromeStep1Hint": "в правом верхнем углу",
+    "chromeStep2": "Выберите «Установить приложение»"
   },
   "errors": {
     "generic": "Что-то пошло не так",
     "network": "Нет связи — проверьте интернет",
     "smsUnavailable": "SMS временно недоступны",
-    "tooOften": "Слишком часто — попробуйте позже"
+    "tooOften": "Слишком часто — попробуйте позже",
+    "payCancelled": "Оплата отменена",
+    "demoBillMissing": "Демо-чек недоступен — загрузите seed:demo",
+    "phoneRequired": "Нужен номер телефона",
+    "photoFailed": "Не удалось распознать фото"
   },
   "cuisine": {
     "lavash": "Лаваш",
@@ -541,5 +618,49 @@
     "altDebts": "Вам должны",
     "altHomeScreen": "Главный экран ZAP!",
     "statSecSuffix": " сек"
+  },
+  "review": {
+    "title": "Проверьте позиции",
+    "fromPhoto": "Проверьте позиции — распознано с фото",
+    "fromReceipt": "Позиции с чека — исправьте, если что-то не так",
+    "untitled": "Без названия",
+    "addItem": "Добавить позицию",
+    "matches": "Совпадает с чеком",
+    "diff": "Разница с чеком: {sign}{amount}",
+    "continueWith": "Продолжить · {amount}",
+    "itemTitle": "Позиция",
+    "namePlaceholder": "Название",
+    "amountLabel": "СУММА, UZS"
+  },
+  "events": {
+    "opened": "{name} открыл ссылку",
+    "paid": "{name} оплатил {amount}",
+    "closed": "Сплит закрыт",
+    "cashback": "Кэшбэк зачислен +{amount}"
+  },
+  "name": {
+    "tooShort": "минимум 3 символа",
+    "checking": "проверяем…",
+    "free": "✓ свободен",
+    "taken": "занят или недопустим",
+    "hint": "по нему вас найдут друзья",
+    "welcome": "Рады знакомству, {name}!",
+    "saveFailed": "Не удалось сохранить — попробуйте ещё раз",
+    "title": "Создайте профиль",
+    "subtitle": "Юзернейм — чтобы друзья находили вас в ZAP!",
+    "placeholder": "Имя и фамилия"
+  },
+  "fiscalProbe": {
+    "stepA": "a) GET страницы чека",
+    "stepB": "b) POST JSON-API (без подписи)",
+    "stepC": "c) POST no-cors (сеть vs CORS)",
+    "stepCNote": "mode=no-cors — тело недоступно, но видно доступность сети",
+    "stepD": "d) GET JSON-API c параметрами",
+    "intro": "Открой на телефоне с узбекским интернетом. Проверяем, доступны ли данные чека с клиента и открыт ли CORS.",
+    "linkLabel": "ССЫЛКА ЧЕКА (QR)",
+    "apiLabel": "API URL (из DevTools, если другой)",
+    "running": "Проверяем…",
+    "run": "Запустить проверку",
+    "copy": "Скопировать результаты"
   }
 }

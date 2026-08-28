@@ -13,6 +13,7 @@
 //     для СОБСТВЕННОГО чека пользователя.
 
 import { sourceForUrl } from './fiscalSources'
+import { t } from '@/lib/i18n'
 
 const OFD_API_URL = 'https://new-ofd.soliq.uz/api/payment'
 // публичная константа подписи из фронт-бандла ofd.soliq.uz (не секрет сервера)
@@ -62,7 +63,7 @@ export function parseOfdJson(raw: string, sourceUrl: string): ClientReceipt | nu
     const qty = typeof it.amount === 'number' && it.amount > 0 ? it.amount : 1
     const lineTotal = Math.round(it.price ?? 0)
     return {
-      name: String(it.name ?? it.productName ?? 'Товар').trim().slice(0, 200),
+      name: String(it.name ?? it.productName ?? t('common.itemFallback')).trim().slice(0, 200),
       qtyMilli: Math.round(qty * 1000),
       unitPrice: Math.round((it.price ?? 0) / qty),
       lineTotal,

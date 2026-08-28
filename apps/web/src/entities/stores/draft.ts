@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
 import type { Bill, SplitMode } from '@zap/shared/types'
 import { equalShares } from '@/lib/format'
+import { t } from '@/lib/i18n'
 
 export interface DraftMember {
   contactId: string
@@ -66,7 +67,7 @@ export const useDraftStore = defineStore('draft', () => {
     bill.value = b
     merchantId.value = b.merchantId
     total.value = b.total
-    title.value = 'Ужин пятница 🍕'
+    title.value = t('members.forWhatPlaceholder')
     mode.value = 'equal'
     // мок-демо стартует с компанией; реальный режим — только вы, участников добавляют явно
     members.value = isRealApi ? [newMember('me')] : [newMember('me'), newMember('c_ali'), newMember('c_bek')]

@@ -12,9 +12,11 @@ import { useUserStore } from '@/entities/stores/user'
 import ZapAvatar from '@/components/ZapAvatar.vue'
 import CountUp from '@/components/CountUp.vue'
 import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const splits = useSplitsStore()
 const groups = useGroupsStore()
 const contacts = useContactsStore()
@@ -44,7 +46,7 @@ const perMember = computed(() => {
 })
 
 function nameOf(cid: string): string {
-  return cid === 'me' ? (user.user?.name ?? 'Вы') : (contacts.byId(cid)?.name ?? '?')
+  return cid === 'me' ? (user.user?.name ?? t('members.youShort')) : (contacts.byId(cid)?.name ?? '?')
 }
 
 function colorOf(cid: string): string {
@@ -53,11 +55,11 @@ function colorOf(cid: string): string {
 
 const reason = computed(() => {
   const n = split.value?.members.length ?? 0
-  return `×2 — потому что сплитили ${n === 2 ? 'вдвоём' : n === 3 ? 'втроём' : 'вместе'}`
+  return n === 2 ? t('cashbackAward.reasonTwo') : n === 3 ? t('cashbackAward.reasonThree') : t('cashbackAward.reasonMany')
 })
 
 function spend() {
-  toast.success('Кэшбэк применим к следующему сплиту')
+  toast.success(t('cashbackAward.spendToast'))
   router.push('/')
 }
 </script>
@@ -66,7 +68,7 @@ function spend() {
   <div v-if="split" class="flex min-h-dvh flex-col bg-paper px-6 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[17px] font-semibold"
       @click="router.push('/')"
     >
@@ -78,9 +80,9 @@ function spend() {
       <div v-else class="remind-chip flex h-[76px] w-[76px] items-center justify-center rounded-full bg-ink text-[26px] font-extrabold text-lime">
         {{ merchant?.letter ?? split.title[0]?.toUpperCase() }}
       </div>
-      <h1 class="mt-2.5 text-[25px] font-extrabold tracking-[-0.01em]">Кэшбэк зачислен</h1>
+      <h1 class="mt-2.5 text-[25px] font-extrabold tracking-[-0.01em]">{{ t('cashbackAward.title') }}</h1>
       <p class="mt-[5px] text-[13.5px] font-semibold text-muted">
-        {{ merchant?.name ?? split.title }}<template v-if="split.bill"> · заказ #{{ split.bill.orderNo }}</template><template v-if="group"> · {{ group.name }}</template>
+        {{ merchant?.name ?? split.title }}<template v-if="split.bill">{{ t('live.orderNo', { no: split.bill.orderNo }) }}</template><template v-if="group"> · {{ group.name }}</template>
       </p>
       <div class="mt-6 flex items-baseline gap-2">
         <span class="text-[48px] font-extrabold leading-none tracking-[-0.03em]">
@@ -102,15 +104,15 @@ function spend() {
       >
         <ZapAvatar :name="nameOf(p.contactId)" :color="colorOf(p.contactId)" :contact-id="p.contactId" class="h-[38px] w-[38px]" size="sm" />
         <div class="flex min-w-0 flex-1 flex-col gap-px">
-          <span class="text-[15px] font-bold">{{ nameOf(p.contactId) }}<template v-if="p.contactId === 'me'"> · вы</template></span>
-          <span v-if="p.held" class="text-[12px] font-semibold text-faint">после возврата долга</span>
+          <span class="text-[15px] font-bold">{{ nameOf(p.contactId) }}<template v-if="p.contactId === 'me'">{{ t('live.youSuffix') }}</template></span>
+          <span v-if="p.held" class="text-[12px] font-semibold text-faint">{{ t('cashbackAward.afterDebt') }}</span>
         </div>
         <span class="text-[15px] font-extrabold" :class="p.held ? 'text-faint' : ''">+{{ money(p.amount) }}</span>
       </div>
     </div>
 
     <div v-if="group" class="mt-5 flex items-baseline justify-between">
-      <span class="text-[14.5px] font-bold text-muted">Всего у {{ group.name }}</span>
+      <span class="text-[14.5px] font-bold text-muted">{{ t('cashbackAward.groupTotalLabel', { name: group.name }) }}</span>
       <span class="text-[19px] font-extrabold">{{ money(group.cashback) }}</span>
     </div>
 
@@ -118,10 +120,10 @@ function spend() {
 
     <div class="flex flex-col gap-2.5">
       <button type="button" class="press h-14 rounded-full bg-lime text-[16px] font-extrabold text-on-lime" @click="spend">
-        Потратить кэшбэк
+        {{ t('cashbackAward.spend') }}
       </button>
       <button type="button" class="press h-14 rounded-full bg-sand text-[16px] font-bold text-ink" @click="router.push('/')">
-        Копить дальше
+        {{ t('cashbackAward.keep') }}
       </button>
     </div>
   </div>

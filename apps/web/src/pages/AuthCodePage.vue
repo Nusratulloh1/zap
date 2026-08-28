@@ -4,14 +4,15 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { toast } from '@/lib/toast'
-import { S } from '@/lib/strings'
 import { phone } from '@/lib/format'
 import { error as hapticError, success as hapticSuccess } from '@/lib/haptics'
 import { useUserStore } from '@/entities/stores/user'
 import InvisibleDigits from '@/components/InvisibleDigits.vue'
 import PinDots from '@/components/PinDots.vue'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 
 // DEV-хелпер: код из dry-run SMS локального бэкенда (тришейкается из прод-сборки)
 const showDevCode = import.meta.env.DEV && Boolean(import.meta.env.VITE_API_URL)
@@ -23,9 +24,9 @@ async function fetchDevCode() {
     )
     const data = (await res.json()) as { code?: string | null }
     if (data.code) code.value = data.code
-    else toast('DEV: код ещё не отправлен')
+    else toast(t('auth.devNoCode'))
   } catch {
-    toast('DEV: бэкенд недоступен')
+    toast(t('auth.devNoBackend'))
   }
 }
 const user = useUserStore()
@@ -64,9 +65,9 @@ async function resend() {
   try {
     await user.startLogin(user.session.phone ?? '')
     startTimer()
-    toast(S.auth.codeResent)
+    toast(t('auth.codeResent'))
   } catch (e) {
-    toast(e instanceof Error && e.message ? e.message : 'Не удалось отправить код')
+    toast(e instanceof Error && e.message ? e.message : t('auth.sendFailed'))
   }
 }
 
@@ -80,7 +81,7 @@ watch(code, async (v) => {
   } catch (e) {
     // неверный код: точки краснеют + трясутся, через 3с — сброс в дефолт
     busy.value = false
-    codeError.value = e instanceof Error && e.message ? e.message : 'Неверный код — попробуйте ещё раз'
+    codeError.value = e instanceof Error && e.message ? e.message : t('auth.wrongCode')
     codeShake.value = true
     hapticError()
     setTimeout(() => (codeShake.value = false), 450)
@@ -132,7 +133,7 @@ watch(pin2, async (v) => {
   <div class="flex min-h-dvh flex-col bg-paper px-6 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[18px] font-semibold"
       @click="router.push('/auth/phone')"
     >
@@ -143,9 +144,9 @@ watch(pin2, async (v) => {
       <Transition name="story">
         <!-- SMS-код -->
         <div v-if="step === 'code'" class="absolute inset-x-0 top-0">
-          <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">{{ S.auth.codeTitle }}</h1>
+          <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">{{ t('auth.codeTitle') }}</h1>
           <p class="mt-1.5 text-[13.5px] font-semibold text-muted">
-            {{ S.auth.codeHint }} {{ phone(user.session.phone ?? '901234221') }}
+            {{ t('auth.codeSentTo', { phone: phone(user.session.phone ?? '901234221') }) }}
           </p>
 
           <InvisibleDigits v-model="code" :length="6" one-time-code autofocus class="mt-[26px] w-fit">
@@ -154,14 +155,14 @@ watch(pin2, async (v) => {
 
           <p v-if="codeError" class="mt-3 text-[13px] font-bold text-danger">{{ codeError }}</p>
           <p class="mt-4 text-[13px] font-semibold text-muted">
-            {{ S.auth.notArrived }}
+            {{ t('auth.notArrived') }}
             <button
               type="button"
               class="font-bold text-ink transition-opacity active:opacity-60"
               @click="resend"
             >
-              <template v-if="seconds > 0">{{ S.auth.resend }} · {{ timerLabel }}</template>
-              <template v-else><span class="underline underline-offset-2">{{ S.auth.resend }}</span></template>
+              <template v-if="seconds > 0">{{ t('auth.resendIn', { time: timerLabel }) }}</template>
+              <template v-else><span class="underline underline-offset-2">{{ t('auth.resend') }}</span></template>
             </button>
           </p>
 
@@ -171,22 +172,22 @@ watch(pin2, async (v) => {
             class="mt-2 rounded-full bg-sand px-3 py-1.5 font-mono text-[11px] font-bold text-muted"
             @click="fetchDevCode"
           >
-            DEV · получить код
+            {{ t('auth.devGetCode') }}
           </button>
 
           <div class="mt-[26px] border-t border-sand-2 pt-5">
-            <p class="text-[15.5px] font-extrabold">{{ S.auth.pinTitle }}</p>
-            <p class="mt-1 text-[13px] font-semibold text-muted">{{ S.auth.pinSectionHint }}</p>
+            <p class="text-[15.5px] font-extrabold">{{ t('auth.pinTitle') }}</p>
+            <p class="mt-1 text-[13px] font-semibold text-muted">{{ t('auth.pinSectionHint') }}</p>
           </div>
         </div>
 
         <!-- Создание PIN -->
         <div v-else :key="step" class="absolute inset-x-0 top-0">
           <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">
-            {{ step === 'pin1' ? S.auth.pinCreate : S.auth.pinRepeat }}
+            {{ step === 'pin1' ? t('auth.pinCreate') : t('auth.pinRepeat') }}
           </h1>
           <p class="mt-1.5 text-[13.5px] font-semibold" :class="mismatch ? 'text-danger' : 'text-muted'">
-            {{ mismatch ? S.auth.pinMismatch : S.auth.pinSectionHint }}
+            {{ mismatch ? t('auth.pinMismatch') : t('auth.pinSectionHint') }}
           </p>
           <InvisibleDigits
             v-if="step === 'pin1'"

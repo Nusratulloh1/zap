@@ -4,6 +4,9 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { installState, install, snooze } from '@/lib/installPrompt'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const route = useRoute()
 // позиционирование: над таббаром (главная), выше нижней подсказки/CTA на
@@ -34,9 +37,9 @@ const bottomClass = computed(() => {
             <img src="/icon-192.png" alt="" class="h-full w-full object-cover" />
           </span>
           <span class="flex min-w-0 flex-1 flex-col gap-0.5">
-            <span class="truncate text-[15px] font-bold leading-tight text-white">Установите ZAP!</span>
+            <span class="truncate text-[15px] font-bold leading-tight text-white">{{ t('install.title') }}</span>
             <span class="install-banner-desc text-[12px] font-semibold leading-snug text-white/[0.65]">
-              Быстрый доступ с экрана «Домой»
+              {{ t('install.text') }}
             </span>
           </span>
           <button
@@ -44,11 +47,11 @@ const bottomClass = computed(() => {
             class="press flex h-[38px] shrink-0 items-center whitespace-nowrap rounded-full bg-lime px-4 text-[13.5px] font-bold text-on-lime"
             @click="install()"
           >
-            Установить
+            {{ t('install.cta') }}
           </button>
           <button
             type="button"
-            aria-label="Скрыть"
+            :aria-label="t('common.hideAria')"
             class="press hit-area absolute -right-1.5 -top-1.5 flex h-7 w-7 items-center justify-center rounded-full border border-white/10 bg-[#2a2a28] text-white/70 shadow-md shadow-black/30"
             @click="snooze()"
           >

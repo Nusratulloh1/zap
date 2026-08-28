@@ -5,9 +5,11 @@ import { onBeforeUnmount, ref, watch } from 'vue'
 import { gsap, reducedMotion } from '@/lib/motion'
 import { verifyPin } from '@/api'
 import { error as hapticError, success as hapticSuccess } from '@/lib/haptics'
-import { S } from '@/lib/strings'
 import InvisibleDigits from './InvisibleDigits.vue'
 import PinDots from './PinDots.vue'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{
   open: boolean
@@ -87,7 +89,7 @@ watch(pin, async (v) => {
       >
         <button
           type="button"
-          aria-label="Отмена"
+          :aria-label="t('common.cancel')"
           class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[16px] font-semibold"
           @click="emit('close')"
         >
@@ -95,10 +97,10 @@ watch(pin, async (v) => {
         </button>
 
         <h2 class="mt-[22px] text-[27px] font-extrabold tracking-[-0.01em]">
-          {{ props.title ?? S.pin.confirmTitle }}
+          {{ props.title ?? t('pin.confirmTitle') }}
         </h2>
         <p class="mt-1.5 text-[13.5px] font-semibold" :class="wrong ? 'text-danger' : 'text-muted'">
-          {{ wrong ? S.pin.wrong : (props.hint ?? S.pin.confirmHint) }}
+          {{ wrong ? t('pin.wrong') : (props.hint ?? t('pin.confirmHint')) }}
         </p>
 
         <div class="relative mt-7 w-fit">

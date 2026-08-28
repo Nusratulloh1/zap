@@ -10,9 +10,11 @@ import { useSplitsStore } from '@/entities/stores/splits'
 import { useContactsStore } from '@/entities/stores/contacts'
 import ZapAvatar from '@/components/ZapAvatar.vue'
 import QrCode from '@/components/QrCode.vue'
+import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
 const router = useRouter()
+const { t } = useI18n()
 const splits = useSplitsStore()
 const contacts = useContactsStore()
 
@@ -36,19 +38,18 @@ const perPerson = computed(() => {
 
 const waitingNames = computed(() => {
   if (!split.value) return ''
-  const gen: Record<string, string> = { Али: 'Али', Бек: 'Бека', Азиз: 'Азиза', Тимур: 'Тимура', Мадина: 'Мадину' }
   return split.value.members
     .filter((m) => m.status === 'waiting' || m.status === 'opened')
-    .map((m) => gen[contacts.byId(m.contactId)?.name ?? '?'] ?? contacts.byId(m.contactId)?.name ?? '?')
-    .join(' и ')
+    .map((m) => contacts.byId(m.contactId)?.name ?? '?')
+    .join(t('common.and'))
 })
 
 async function copyLink() {
   try {
     await navigator.clipboard.writeText(shareUrl.value)
-    toast.success('Ссылка скопирована')
+    toast.success(t('common.copied'))
   } catch {
-    toast('Ссылка скопирована')
+    toast(t('common.copied'))
   }
 }
 
@@ -59,9 +60,9 @@ async function shareSms() {
   smsSending.value = true
   try {
     const sent = await api.sendSplitLinkSms(id.value)
-    toast.success(sent > 1 ? `SMS отправлены — ${sent} участникам` : 'SMS со ссылкой отправлено')
+    toast.success(sent > 1 ? t('share.smsSentMany', sent, { named: { n: sent } }) : t('share.smsSent'))
   } catch (e) {
-    toast(e instanceof Error ? e.message : 'Не удалось отправить SMS')
+    toast(e instanceof Error ? e.message : t('share.smsFailed'))
   } finally {
     smsSending.value = false
   }
@@ -72,7 +73,7 @@ async function shareSms() {
   <div class="flex min-h-dvh flex-col bg-paper px-6 pb-10 pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand text-[18px] font-semibold"
       @click="router.push(`/split/${id}`)"
     >
@@ -80,9 +81,13 @@ async function shareSms() {
     </button>
 
     <template v-if="split">
-      <h1 class="mt-[22px] text-[25px] font-extrabold tracking-[-0.01em]">Покажите QR друзьям</h1>
+      <h1 class="mt-[22px] text-[25px] font-extrabold tracking-[-0.01em]">{{ t('share.title') }}</h1>
       <p class="mt-[5px] text-[13.5px] font-semibold text-muted">
-        {{ merchant?.name ?? split.title }}<template v-if="split.bill"> · #{{ split.bill.orderNo }}</template> · по {{ money(perPerson) }} с человека
+        {{
+          split.bill
+            ? t('share.subtitleWithOrder', { merchant: merchant?.name ?? split.title, order: split.bill.orderNo, amount: money(perPerson) })
+            : t('share.subtitleLine', { merchant: merchant?.name ?? split.title, amount: money(perPerson) })
+        }}
       </p>
 
       <div class="mt-[22px] flex justify-center">
@@ -97,7 +102,7 @@ async function shareSms() {
           <ZapAvatar
             v-for="(m, i) in split.members"
             :key="m.contactId"
-            :name="contacts.byId(m.contactId)?.name ?? 'Вы'"
+            :name="contacts.byId(m.contactId)?.name ?? t('members.youShort')"
             :color="contacts.byId(m.contactId)?.color ?? '#111110'"
             :contact-id="m.contactId"
             class="h-[34px] w-[34px] border-2 border-paper"
@@ -106,8 +111,8 @@ async function shareSms() {
           />
         </div>
         <p class="flex-1 text-[12.5px] font-semibold text-muted">
-          <template v-if="waitingNames">Вы оплатили · ждём {{ waitingNames }}</template>
-          <template v-else>Все доли собраны</template>
+          <template v-if="waitingNames">{{ t('share.statusPaidWaiting', { names: waitingNames }) }}</template>
+          <template v-else>{{ t('share.allCollected') }}</template>
         </p>
       </div>
 
@@ -119,13 +124,13 @@ async function shareSms() {
             <rect x="2" y="4" width="16" height="12" rx="3" stroke="#111110" stroke-width="1.8" />
             <path d="M2.5 6.5L10 11L17.5 6.5" stroke="#111110" stroke-width="1.8" stroke-linejoin="round" />
           </svg>
-          Отправить SMS со ссылкой
+          {{ t('share.sendSms') }}
         </button>
         <button type="button" class="press h-14 rounded-full bg-sand text-[16px] font-bold text-ink" @click="copyLink">
-          Скопировать ссылку
+          {{ t('common.copy') }}
         </button>
         <button type="button" class="press py-1 text-center text-[13px] font-bold text-muted" @click="router.push(`/split/${id}`)">
-          К статусу сплита ›
+          {{ t('share.toStatusArrow') }}
         </button>
       </div>
     </template>

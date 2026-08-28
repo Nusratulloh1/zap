@@ -6,6 +6,7 @@ import { updateProfile, checkHandle } from '@/api'
 import { toast } from '@/lib/toast'
 import { useUserStore } from '@/entities/stores/user'
 import BottomSheet from '@/components/BottomSheet.vue'
+import { t } from '@/lib/i18n'
 
 const user = useUserStore()
 const name = ref('')
@@ -47,11 +48,11 @@ watch(handle, (v) => {
 
 const handleHint = computed(() => {
   switch (handleState.value) {
-    case 'short': return { text: 'минимум 3 символа', cls: 'text-muted' }
-    case 'checking': return { text: 'проверяем…', cls: 'text-muted' }
-    case 'free': return { text: '✓ свободен', cls: 'text-on-lime' }
-    case 'taken': return { text: 'занят или недопустим', cls: 'text-danger' }
-    default: return { text: 'по нему вас найдут друзья', cls: 'text-muted' }
+    case 'short': return { text: t('name.tooShort'), cls: 'text-muted' }
+    case 'checking': return { text: t('name.checking'), cls: 'text-muted' }
+    case 'free': return { text: t('name.free'), cls: 'text-on-lime' }
+    case 'taken': return { text: t('name.taken'), cls: 'text-danger' }
+    default: return { text: t('name.hint'), cls: 'text-muted' }
   }
 })
 
@@ -63,9 +64,9 @@ async function save() {
   try {
     await updateProfile(name.value, handle.value)
     await user.hydrate()
-    toast.success(`Рады знакомству, ${name.value.trim().split(' ')[0]}!`)
+    toast.success(t('name.welcome', { name: name.value.trim().split(' ')[0] ?? '' }))
   } catch (e) {
-    toast(e instanceof Error && e.message ? e.message : 'Не удалось сохранить — попробуйте ещё раз')
+    toast(e instanceof Error && e.message ? e.message : t('name.saveFailed'))
   } finally {
     saving.value = false
   }
@@ -75,9 +76,9 @@ async function save() {
 <template>
   <BottomSheet :open="open" locked>
     <div class="pb-4">
-      <p class="text-center text-[17px] font-extrabold">Создайте профиль</p>
+      <p class="text-center text-[17px] font-extrabold">{{ t('name.title') }}</p>
       <p class="mt-1 text-center text-[13px] font-semibold text-muted">
-        Юзернейм — чтобы друзья находили вас в ZAP!
+        {{ t('name.subtitle') }}
       </p>
 
       <!-- юзернейм (основное поле) -->
@@ -102,7 +103,7 @@ async function save() {
           v-model="name"
           type="text"
           autocomplete="name"
-          placeholder="Имя и фамилия"
+          :placeholder="t('name.placeholder')"
           class="w-full bg-transparent text-[18px] font-bold text-ink outline-none [caret-color:#DDFF33] placeholder:text-faint"
           @keydown.enter="save"
         />
@@ -114,7 +115,7 @@ async function save() {
         :disabled="!valid || saving"
         @click="save"
       >
-        Продолжить
+        {{ t('common.continue') }}
       </button>
     </div>
   </BottomSheet>

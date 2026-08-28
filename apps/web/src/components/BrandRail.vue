@@ -41,7 +41,7 @@ const { t } = useI18n()
         <h2 class="text-[18px] font-extrabold leading-tight tracking-[-0.01em]">{{ title }}</h2>
         <p v-if="subtitle" class="mt-1 text-[12.5px] font-semibold leading-snug text-faint">{{ subtitle }}</p>
       </div>
-      <button type="button" class="press shrink-0 text-[13px] font-bold text-muted">Все ›</button>
+      <button type="button" class="press shrink-0 text-[13px] font-bold text-muted">{{ t('home.seeAll') }}</button>
     </div>
 
     <div class="no-scrollbar -mx-[18px] mt-3.5 flex gap-3 overflow-x-auto px-[18px] pb-1">

@@ -6,6 +6,7 @@ import type { Bill, Card, Contact, Db, Group, Session, Split } from '@zap/shared
 import type { CreateSplitInput, SaveGroupInput } from '@/mocks/api'
 import { bus } from '@/lib/bus'
 import { money } from '@/lib/format'
+import { t } from '@/lib/i18n'
 
 const BASE = String(import.meta.env.VITE_API_URL ?? '').replace(/\/$/, '')
 
@@ -41,7 +42,7 @@ let session: Session = loadJson<Session>(LS_SESSION) ?? { stage: 'onboarding' }
 let paymentToken: string | null = null
 
 const EMPTY_DB: Db = {
-  user: { id: 'me', name: '', handle: '', phone: '', initials: 'В', color: '#111110', memberSince: '', splitsCount: 0 },
+  user: { id: 'me', name: '', handle: '', phone: '', initials: t('common.initialFallback'), color: '#111110', memberSince: '', splitsCount: 0 },
   cards: [],
   contacts: [],
   merchants: [],
@@ -108,7 +109,7 @@ async function http<T = unknown>(path: string, init: RequestInit & { auth?: bool
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { message?: string | string[] }
     const msg = Array.isArray(body.message) ? body.message[0] : body.message
-    throw new ApiError(msg ?? `Ошибка ${res.status}`, res.status)
+    throw new ApiError(msg ?? t('common.genericError', { status: res.status }), res.status)
   }
   return (await res.json().catch(() => ({}))) as T
 }
@@ -164,17 +165,17 @@ export function connectRealtime() {
   // отдельный лёгкий сигнал, чтобы она перезапросила публичный вид для live-прогресса
   socket.on('member_opened', (p: { name?: string }) => {
     bus.emit('public-split:touch', { kind: 'opened' })
-    refetchAnd('opened', `${p.name ?? 'Участник'} открыл ссылку`)
+    refetchAnd('opened', t('events.opened', { name: p.name ?? t('home.participantFallback') }))
   })
   socket.on('member_paid', (p: { name?: string; amount?: number }) => {
     bus.emit('public-split:touch', { kind: 'paid' })
-    refetchAnd('paid', `${p.name ?? 'Участник'} оплатил ${money(p.amount ?? 0)}`)
+    refetchAnd('paid', t('events.paid', { name: p.name ?? t('home.participantFallback'), amount: money(p.amount ?? 0) }))
   })
   socket.on('member_covered', () => void refreshBootstrap())
   socket.on('split_closed', (p: { cashback?: number }) => {
     bus.emit('public-split:touch', { kind: 'closed', cashback: p.cashback })
-    refetchAnd('closed', 'Сплит закрыт')
-    if (p.cashback) refetchAnd('cashback', `Кэшбэк зачислен +${money(p.cashback)}`)
+    refetchAnd('closed', t('events.closed'))
+    if (p.cashback) refetchAnd('cashback', t('events.cashback', { amount: money(p.cashback) }))
   })
   socket.on('debt_settled', () => void refreshBootstrap())
   socket.on('fiscal_ready', (p: { jobId: string }) => bus.emit('fiscal:update', { jobId: p.jobId, status: 'ready' }))
@@ -261,7 +262,7 @@ async function ensurePaymentToken(): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     bus.emit('pin:request', {
       resolve: () => resolve(),
-      reject: () => reject(new ApiError('Оплата отменена', 400)),
+      reject: () => reject(new ApiError(t('errors.payCancelled'), 400)),
     })
   })
 }
@@ -276,7 +277,7 @@ export async function fetchBootstrap(): Promise<Db> {
 
 export async function fetchFeaturedBill(): Promise<Bill> {
   await refreshBootstrap()
-  if (!cache.featuredBill) throw new ApiError('Демо-чек недоступен — загрузите seed:demo', 404)
+  if (!cache.featuredBill) throw new ApiError(t('errors.demoBillMissing'), 404)
   return clone(cache.featuredBill)
 }
 
@@ -365,7 +366,7 @@ async function askGuestPhone(): Promise<string> {
         }
         resolve(phone)
       },
-      reject: () => reject(new ApiError('Нужен номер телефона', 400)),
+      reject: () => reject(new ApiError(t('errors.phoneRequired'), 400)),
     })
   })
 }
@@ -451,7 +452,7 @@ export async function payShare(splitCodeOrId: string, _contactId: string): Promi
       resolve(step1.devCode)
       return
     }
-    bus.emit('guest-otp:request', { resolve, reject: () => reject(new ApiError('Оплата отменена', 400)) })
+    bus.emit('guest-otp:request', { resolve, reject: () => reject(new ApiError(t('errors.payCancelled'), 400)) })
   })
   const paid = await http<PublicView & { auth?: GuestAuth }>(`/s/${encodeURIComponent(code)}/pay`, {
     method: 'POST',
@@ -641,7 +642,7 @@ export function dismissPromo() {
   bus.emit('db:changed', { domains: ['settings'] })
 }
 
-export async function payAlone(amount: number, merchantId?: string, title = 'Оплата'): Promise<void> {
+export async function payAlone(amount: number, merchantId?: string, title = t('amount.payAloneTitle')): Promise<void> {
   await ensurePaymentToken()
   await http('/payments/pay', {
     method: 'POST',
@@ -701,7 +702,7 @@ export async function fiscalOcr(file: File) {
   const res = await doFetch()
   if (!res.ok) {
     const body = (await res.json().catch(() => ({}))) as { message?: string }
-    throw new ApiError(body.message ?? 'Не удалось распознать фото', res.status)
+    throw new ApiError(body.message ?? t('errors.photoFailed'), res.status)
   }
   return (await res.json()) as { status: string; receipt?: FiscalReceiptView; confidence?: string; itemsRecognized?: boolean }
 }

@@ -6,6 +6,7 @@
 // ДО маунта приложения — это лечит «иногда срабатывает».
 import { reactive } from 'vue'
 import { toast } from '@/lib/toast'
+import { t } from '@/lib/i18n'
 
 export type SheetVariant = 'ios-safari' | 'ios-other' | 'android-other'
 
@@ -120,7 +121,7 @@ export function initInstallCapture() {
     installState.canPrompt = false
     installState.banner = false
     installState.sheet = false
-    toast.success('ZAP! установлен 🎉')
+    toast.success(t('common.installedToast'))
   })
 }
 
@@ -193,7 +194,7 @@ export async function install() {
     if (choice.outcome === 'accepted') {
       ls.set(INSTALLED_KEY, '1')
       window.setTimeout(() => {
-        if (ls.get(INSTALLED_KEY) === '1') toast.success('ZAP! установлен 🎉')
+        if (ls.get(INSTALLED_KEY) === '1') toast.success(t('common.installedToast'))
       }, 1500)
     } else {
       snooze()

@@ -10,8 +10,10 @@ import { useDraftStore } from '@/entities/stores/draft'
 import AnimatedList from '@/components/AnimatedList.vue'
 import BottomSheet from '@/components/BottomSheet.vue'
 import AmountField from '@/components/AmountField.vue'
+import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
+const { t } = useI18n()
 const draft = useDraftStore()
 
 interface EditItem {
@@ -89,22 +91,22 @@ function proceed() {
   <div class="flex min-h-dvh flex-col bg-paper px-5 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]">
     <button
       type="button"
-      aria-label="Назад"
+      :aria-label="t('common.backAria')"
       class="press flex h-11 w-11 items-center justify-center rounded-full bg-sand"
       @click="router.back()"
     >
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
 
-    <h1 class="mt-[22px] text-[25px] font-extrabold tracking-[-0.01em]">Проверьте позиции</h1>
+    <h1 class="mt-[22px] text-[25px] font-extrabold tracking-[-0.01em]">{{ t('review.title') }}</h1>
     <div
       v-if="isOcr"
       class="mt-3 flex items-center gap-2.5 rounded-inner bg-lime/25 px-4 py-3 text-[12.5px] font-bold"
     >
       <span>📷</span>
-      <span>Проверьте позиции — распознано с фото</span>
+      <span>{{ t('review.fromPhoto') }}</span>
     </div>
-    <p v-else class="mt-1.5 text-[13px] font-semibold text-muted">Позиции с чека — исправьте, если что-то не так</p>
+    <p v-else class="mt-1.5 text-[13px] font-semibold text-muted">{{ t('review.fromReceipt') }}</p>
 
     <div class="mt-4 flex-1">
       <AnimatedList tag="div">
@@ -114,7 +116,7 @@ function proceed() {
           class="flex min-h-[56px] items-center gap-2.5 border-b border-sand-2"
         >
           <button type="button" class="min-w-0 flex-1 py-2 text-left" @click="openEdit(item)">
-            <span class="block truncate text-[14.5px] font-bold">{{ item.title || 'Без названия' }}</span>
+            <span class="block truncate text-[14.5px] font-bold">{{ item.title || t('review.untitled') }}</span>
             <span class="block text-[11.5px] font-semibold text-faint">{{ money(item.amount) }} UZS</span>
           </button>
           <div class="flex shrink-0 items-center gap-1.5">
@@ -124,7 +126,7 @@ function proceed() {
           </div>
           <button
             type="button"
-            aria-label="Убрать"
+            :aria-label="t('common.removeAria')"
             class="press relative hit-area-y flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-muted"
             @click="remove(item.id)"
           >
@@ -134,7 +136,7 @@ function proceed() {
       </AnimatedList>
       <button type="button" class="press mt-3 flex h-11 items-center gap-2 text-[13.5px] font-bold text-muted" @click="addItem">
         <span class="flex h-7 w-7 items-center justify-center rounded-full bg-sand">+</span>
-        Добавить позицию
+        {{ t('review.addItem') }}
       </button>
     </div>
 
@@ -145,10 +147,10 @@ function proceed() {
           <span class="mr-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-lime align-middle">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#111110" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg>
           </span>
-          Совпадает с чеком
+          {{ t('review.matches') }}
         </template>
         <template v-else>
-          <span class="text-muted">Разница с чеком: {{ diff > 0 ? '+' : '−' }}{{ money(Math.abs(diff)) }}</span>
+          <span class="text-muted">{{ t('review.diff', { sign: diff > 0 ? '+' : '−', amount: money(Math.abs(diff)) }) }}</span>
         </template>
       </span>
       <span class="font-mono text-[14px] font-extrabold">{{ money(itemsSum) }}</span>
@@ -160,25 +162,25 @@ function proceed() {
       :disabled="!items.length || itemsSum <= 0"
       @click="proceed"
     >
-      Продолжить · {{ money(itemsSum) }}
+      {{ t('review.continueWith', { amount: money(itemsSum) }) }}
     </button>
 
     <!-- редактирование позиции -->
     <BottomSheet :open="Boolean(editing)" @close="commitEdit">
       <div class="pb-4">
-        <p class="text-center text-[15px] font-extrabold">Позиция</p>
+        <p class="text-center text-[15px] font-extrabold">{{ t('review.itemTitle') }}</p>
         <label class="mt-4 flex items-center border-b-2 border-lime pb-2.5">
           <input
             v-model="editTitle"
             type="text"
-            placeholder="Название"
+            :placeholder="t('review.namePlaceholder')"
             class="w-full bg-transparent text-[16px] font-bold outline-none [caret-color:#DDFF33] placeholder:text-faint"
           />
         </label>
-        <p class="mt-4 text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">СУММА, UZS</p>
+        <p class="mt-4 text-center font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('review.amountLabel') }}</p>
         <AmountField v-model="editAmount" class="mt-1" display-class="text-[26px]" placeholder-zero />
         <button type="button" class="press mt-5 h-12 w-full rounded-full bg-ink text-[15px] font-bold text-paper" @click="commitEdit">
-          Готово
+          {{ t('common.done') }}
         </button>
       </div>
     </BottomSheet>

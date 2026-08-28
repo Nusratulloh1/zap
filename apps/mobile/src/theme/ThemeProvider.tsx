@@ -47,6 +47,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function useTheme(): ThemeValue {
   const v = useContext(Ctx);
-  if (!v) throw new Error('useTheme вне ThemeProvider');
+  if (!v) throw new Error('useTheme outside ThemeProvider');
   return v;
 }

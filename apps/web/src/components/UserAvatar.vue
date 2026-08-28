@@ -3,10 +3,12 @@
 // Показывает первую букву реального имени (после онбординг-шита «Как вас зовут?»).
 import { computed } from 'vue'
 import { useUserStore } from '@/entities/stores/user'
+import { useI18n } from 'vue-i18n'
 
 const props = withDefaults(defineProps<{ size?: number; border?: number }>(), { size: 44, border: 2 })
 const user = useUserStore()
-const letter = computed(() => (user.user?.name?.trim()[0] ?? 'В').toUpperCase())
+const { t } = useI18n()
+const letter = computed(() => (user.user?.name?.trim()[0] ?? t('common.initialFallback')).toUpperCase())
 </script>
 
 <template>
