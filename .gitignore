@@ -1,18 +1,20 @@
 node_modules/
 dist/
 dev-dist/
+apps/*/dist/
+apps/*/dev-dist/
 shots/
 *.local
 design-reference/
 extract-progress.log
 
-# React Native (mobile/) — своё дерево зависимостей и нативные артефакты
-mobile/node_modules/
-mobile/android/.gradle/
-mobile/android/app/build/
-mobile/ios/Pods/
-mobile/ios/build/
-mobile/.bundle/
+# React Native — своё дерево зависимостей и нативные артефакты
+**/mobile/node_modules/
+**/mobile/android/.gradle/
+**/mobile/android/app/build/
+**/mobile/ios/Pods/
+**/mobile/ios/build/
+**/mobile/.bundle/
 
 # Секреты окружения: в репозиторий попадают только *.example
 .env

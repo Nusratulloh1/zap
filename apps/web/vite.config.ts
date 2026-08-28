@@ -84,8 +84,8 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       // локали — общий пакет монорепо, а не папка внутри веба
-      '@zap/locales': fileURLToPath(new URL('./packages/locales', import.meta.url)),
-      '@zap/shared': fileURLToPath(new URL('./packages/shared/src', import.meta.url)),
+      '@zap/locales': fileURLToPath(new URL('../../packages/locales', import.meta.url)),
+      '@zap/shared': fileURLToPath(new URL('../../packages/shared/src', import.meta.url)),
     },
   },
 })

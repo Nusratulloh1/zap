@@ -1,9 +1,13 @@
-# Netlify: сборка и SPA-фолбэк (дублирует public/_redirects — работает и при
-# деплое из репозитория, и при drag-and-drop папки dist).
+# Netlify: сборка веб-приложения из монорепо.
+# base НЕ задаём: установка должна идти из корня, иначе pnpm не увидит
+# workspace и общие пакеты (@zap/locales, @zap/shared) не разрешатся.
+# publish указывается от корня репозитория.
 [build]
-  command = "pnpm build"
-  publish = "dist"
+  command = "pnpm --filter web build"
+  publish = "apps/web/dist"
 
+# Дублирует apps/web/public/_redirects — правило работает и при деплое из
+# репозитория, и при drag-and-drop готовой папки dist.
 [[redirects]]
   from = "/*"
   to = "/index.html"

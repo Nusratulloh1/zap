@@ -6,17 +6,19 @@ settings:
 
 importers:
 
-  .:
+  .: {}
+
+  apps/web:
     dependencies:
       '@vueuse/core':
         specifier: ^13.0.0
         version: 13.9.0(vue@3.5.41(typescript@5.7.3))
       '@zap/locales':
         specifier: workspace:*
-        version: link:packages/locales
+        version: link:../../packages/locales
       '@zap/shared':
         specifier: workspace:*
-        version: link:packages/shared
+        version: link:../../packages/shared
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
