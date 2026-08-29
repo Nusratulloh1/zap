@@ -19,7 +19,7 @@ import { toast } from '@/lib/toast'
 import { appHref } from '@/lib/site'
 import { phone as formatPhone } from '@/lib/format'
 import { startSmoothScroll, stopSmoothScroll, scrollToTarget, refreshMotion } from '@/lib/landingMotion'
-import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import { applyLocale, type Locale } from '@/lib/i18n'
 
 import wordmark from '@/assets/brand/logo/zap-wordmark-large.png'
 import venueBellissimo from '@/assets/brand/venues/bellissimo.webp'
@@ -59,6 +59,16 @@ const start = () => {
   const href = appHref('/onboarding')
   if (href.startsWith('http')) location.href = href
   else router.push(href)
+}
+
+// Публичная страница говорит на двух языках страны: RU и UZ. Английский в
+// приложении остаётся — на лендинге его нет по решению владельца продукта.
+const LANDING_LOCALES: Locale[] = ['ru', 'uz']
+const setLang = (l: Locale) => {
+  if (locale.value === l) return
+  applyLocale(l, { persist: true })
+  // геометрия зависит от длины строк — после смены языка триггеры пересчитываем
+  requestAnimationFrame(() => refreshMotion())
 }
 
 // --- содержимое ---
@@ -158,6 +168,10 @@ const preNum = ref<HTMLElement | null>(null)
 const root = ref<HTMLElement | null>(null)
 const prog = ref<HTMLElement | null>(null)
 const head = ref<HTMLElement | null>(null)
+const cur = ref<HTMLElement | null>(null)
+const ring = ref<HTMLElement | null>(null)
+const heroSub = ref<HTMLElement | null>(null)
+const heroTilt = ref<HTMLElement | null>(null)
 const pinWrap = ref<HTMLElement | null>(null)
 const pin = ref<HTMLElement | null>(null)
 const marq = ref<HTMLElement | null>(null)
@@ -169,6 +183,7 @@ const activeStep = ref(0)
 
 let ctx: gsap.Context | null = null
 let onScroll: (() => void) | null = null
+let onMove: ((e: MouseEvent) => void) | null = null
 let marqueeTick: ((t: number) => void) | null = null
 
 const fmt = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ')
@@ -207,7 +222,55 @@ onMounted(() => {
   window.addEventListener('scroll', onScroll, { passive: true })
   onScroll()
 
+  // Заголовок героя раскрывается по буквам — разрезаем текстовые узлы на
+  // <span> прямо здесь: держать разметку побуквенно в шаблоне нельзя, строки
+  // приходят из локалей и меняются вместе с языком.
+  const splitChars = (line: HTMLElement) => {
+    const texts: Text[] = []
+    const walk = (el: Node) =>
+      Array.from(el.childNodes).forEach((n) => {
+        if (n.nodeType === 3) {
+          if (n.textContent?.trim()) texts.push(n as Text)
+        } else walk(n)
+      })
+    walk(line)
+    texts.forEach((node) => {
+      const wrap = document.createElement('span')
+      wrap.style.display = 'inline'
+      wrap.innerHTML = (node.textContent ?? '')
+        .split(/(\s+)/)
+        .map((tok) =>
+          tok.trim()
+            ? `<span style="display:inline-block;white-space:nowrap">${tok
+                .split('')
+                .map((c) => `<span data-ch style="display:inline-block">${c}</span>`)
+                .join('')}</span>`
+            : ' ',
+        )
+        .join('')
+      node.parentNode?.replaceChild(wrap, node)
+    })
+  }
+
   ctx = gsap.context(() => {
+    // герой: буквы выезжают из-под строки, подзаголовок открывается маской.
+    // Задержки подобраны под заставку — текст стартует, когда она уходит.
+    gsap.utils.toArray<HTMLElement>('[data-split]').forEach((line, i) => {
+      splitChars(line)
+      gsap.from(line.querySelectorAll('[data-ch]'), {
+        yPercent: 110,
+        opacity: 0,
+        filter: 'blur(8px)',
+        duration: 0.8,
+        ease: 'power3.out',
+        stagger: 0.02,
+        delay: 1.9 + i * 0.12,
+      })
+    })
+    if (heroSub.value) {
+      gsap.from(heroSub.value, { clipPath: 'inset(0 0 100% 0)', y: 16, duration: 0.9, ease: 'power3.out', delay: 2.4 })
+    }
+
     // «как это происходит сейчас»: строки въезжают и перечёркиваются
     const rows = gsap.utils.toArray<HTMLElement>('[data-strike]')
     if (rows.length) {
@@ -339,12 +402,48 @@ onMounted(() => {
     gsap.ticker.add(marqueeTick)
   }
 
+  // Курсор-точка с догоняющим кольцом, магнитные кнопки и наклон телефона за
+  // мышью — только там, где есть настоящий указатель: на тач-устройствах это
+  // мусор в DOM и лишние слушатели.
+  if (window.matchMedia('(pointer: fine)').matches && cur.value && ring.value) {
+    gsap.set([cur.value, ring.value], { opacity: 1, xPercent: -50, yPercent: -50 })
+    const dx = gsap.quickTo(cur.value, 'x', { duration: 0.12 })
+    const dy = gsap.quickTo(cur.value, 'y', { duration: 0.12 })
+    const rx = gsap.quickTo(ring.value, 'x', { duration: 0.4 })
+    const ry = gsap.quickTo(ring.value, 'y', { duration: 0.4 })
+    onMove = (e: MouseEvent) => {
+      dx(e.clientX)
+      dy(e.clientY)
+      rx(e.clientX)
+      ry(e.clientY)
+      if (heroTilt.value) {
+        const px = e.clientX / window.innerWidth - 0.5
+        const py = e.clientY / window.innerHeight - 0.5
+        heroTilt.value.style.transform = `perspective(1400px) rotateY(${-9 + px * 6}deg) rotateX(${4 - py * 6}deg)`
+      }
+    }
+    window.addEventListener('mousemove', onMove)
+
+    root.value?.querySelectorAll('a,button').forEach((el) => {
+      el.addEventListener('mouseenter', () => gsap.to(ring.value, { scale: 1.9, duration: 0.3 }))
+      el.addEventListener('mouseleave', () => gsap.to(ring.value, { scale: 1, duration: 0.3 }))
+    })
+    root.value?.querySelectorAll<HTMLElement>('[data-mag]').forEach((el) => {
+      el.addEventListener('mousemove', (e) => {
+        const r = el.getBoundingClientRect()
+        gsap.to(el, { x: (e.clientX - r.left - r.width / 2) * 0.25, y: (e.clientY - r.top - r.height / 2) * 0.25, duration: 0.3 })
+      })
+      el.addEventListener('mouseleave', () => gsap.to(el, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1,.4)' }))
+    })
+  }
+
   // геометрия меняется после догрузки шрифтов и картинок
   if (document.fonts?.ready) void document.fonts.ready.then(() => refreshMotion())
 })
 
 onBeforeUnmount(() => {
   if (onScroll) window.removeEventListener('scroll', onScroll)
+  if (onMove) window.removeEventListener('mousemove', onMove)
   if (marqueeTick) gsap.ticker.remove(marqueeTick)
   ctx?.revert()
   ScrollTrigger.getAll().forEach((st) => st.kill())
@@ -367,6 +466,11 @@ onBeforeUnmount(() => {
       <div ref="preNum" class="lp-pre__num">000</div>
     </div>
 
+    <!-- курсор-точка с кольцом и зерно поверх страницы -->
+    <div ref="cur" class="lp-cur" aria-hidden="true" />
+    <div ref="ring" class="lp-ring" aria-hidden="true" />
+    <div class="lp-grain" aria-hidden="true" />
+
     <div ref="prog" class="lp-prog" />
 
     <!-- ШАПКА -->
@@ -378,11 +482,14 @@ onBeforeUnmount(() => {
         <a href="#how" @click.prevent="scrollToTarget('#how')">{{ t('landing.navHow') }}</a>
         <a href="#merch" @click.prevent="scrollToTarget('#merch')">{{ t('landing.navMerch') }}</a>
         <a href="#faq" @click.prevent="scrollToTarget('#faq')">{{ t('landing.navFaq') }}</a>
+        <span class="lp-lang">
+          <template v-for="(l, i) in LANDING_LOCALES" :key="l">
+            <span v-if="i" class="lp-lang__sep">/</span>
+            <button type="button" :class="{ 'is-on': locale === l }" @click="setLang(l)">{{ l.toUpperCase() }}</button>
+          </template>
+        </span>
+        <button type="button" data-mag class="lp-head__cta" @click="start">{{ t('landing.navDownload') }}</button>
       </nav>
-      <div class="lp-head__actions">
-        <LanguageSwitcher variant="landing" mode="dropdown" align="right" />
-        <button type="button" class="lp-btn lp-btn--sm" @click="start">{{ t('landing.navDownload') }}</button>
-      </div>
     </header>
 
     <!-- ГЕРОЙ -->
@@ -392,22 +499,22 @@ onBeforeUnmount(() => {
       <div class="lp-hero">
         <div>
           <div class="lp-kicker">{{ t('landing.heroKicker') }}</div>
-          <h1 class="lp-h1">
-            <span>{{ t('landing.heroLine1') }}</span>
-            <span>{{ t('landing.heroLine2') }}</span>
-            <span><em>{{ t('landing.heroLine3Accent') }}</em> {{ t('landing.heroLine3Rest') }}</span>
+          <h1 :key="locale" class="lp-h1">
+            <span data-split>{{ t('landing.heroLine1') }}</span>
+            <span data-split>{{ t('landing.heroLine2') }}</span>
+            <span data-split><em>{{ t('landing.heroLine3Accent') }}</em> {{ t('landing.heroLine3Rest') }}</span>
           </h1>
-          <p class="lp-lead">{{ t('landing.heroSub') }}</p>
+          <p ref="heroSub" class="lp-lead">{{ t('landing.heroSub') }}</p>
           <div class="lp-cta">
-            <button type="button" class="lp-btn" @click="start">{{ t('landing.ctaDownload') }}</button>
-            <a href="#how" class="lp-btn lp-btn--ghost" @click.prevent="scrollToTarget('#how')">{{ t('landing.ctaHow') }}</a>
+            <button type="button" data-mag class="lp-btn" @click="start">{{ t('landing.ctaDownload') }}</button>
+            <a href="#how" data-mag class="lp-btn lp-btn--ghost" @click.prevent="scrollToTarget('#how')">{{ t('landing.ctaHow') }}</a>
           </div>
           <div class="lp-rails">
             <span>PAYME</span><span>CLICK</span><span>UZCARD</span><span>HUMO</span>
           </div>
         </div>
 
-        <div class="lp-phone lp-phone--hero">
+        <div ref="heroTilt" class="lp-phone lp-phone--hero">
           <div class="lp-phone__screen"><img :src="shot('members')" :alt="t('landing.altPhone')" /></div>
         </div>
       </div>
@@ -627,6 +734,45 @@ onBeforeUnmount(() => {
   scroll-margin-top: 96px;
 }
 
+/* ============ КУРСОР И ЗЕРНО ============ */
+/* mix-blend-mode: difference — точка сама инвертируется над светлыми секциями */
+.lp-cur,
+.lp-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  opacity: 0;
+}
+.lp-cur {
+  width: 8px;
+  height: 8px;
+  background: var(--lime);
+  z-index: 9500;
+}
+.lp-ring {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--lime);
+  z-index: 9499;
+}
+@media (pointer: coarse) {
+  .lp-cur,
+  .lp-ring {
+    display: none;
+  }
+}
+.lp-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 8000;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
 /* ============ ЗАСТАВКА ============ */
 .lp-pre {
   position: fixed;
@@ -733,10 +879,39 @@ onBeforeUnmount(() => {
 .lp-head__nav a:hover {
   color: var(--lime);
 }
-.lp-head__actions {
+.lp-lang {
   display: flex;
+  gap: 6px;
   align-items: center;
-  gap: 10px;
+  color: var(--muted);
+}
+.lp-lang button {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.lp-lang button.is-on {
+  color: var(--lime);
+}
+.lp-lang__sep {
+  opacity: 0.4;
+}
+.lp-head__cta {
+  background: var(--lime);
+  color: var(--ink);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 @media (min-width: 901px) {
   .lp-head__nav {

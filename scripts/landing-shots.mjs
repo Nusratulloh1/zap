@@ -51,7 +51,7 @@ for (const locale of LOCALES) {
     // и попадают в случайные кадры — в снимках экранов им не место
     document.addEventListener('DOMContentLoaded', () => {
       const s = document.createElement('style')
-      s.textContent = '[data-sonner-toaster]{display:none !important}'
+      s.textContent = '[data-zap-toast]{display:none !important}'
       document.head.appendChild(s)
     })
   }, locale)
