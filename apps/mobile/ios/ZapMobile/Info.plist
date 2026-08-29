@@ -22,8 +22,21 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>uz.zapapp.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>zap</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -43,23 +56,14 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Face ID заменяет ввод PIN при входе в ZAP!</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Микрофон не используется: доступ требуется библиотеке камеры.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Сканирование чеков — камера нужна для чтения QR-кода</string>
-	<key>NSContactsUsageDescription</key>
-	<string>Контакты нужны, чтобы позвать друзей в сплит</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Фото чека нужно, чтобы распознать сумму и позиции</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>JetBrainsMono-Bold.ttf</string>

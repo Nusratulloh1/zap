@@ -14,6 +14,11 @@ if linkage != nil
   use_frameworks! :linkage => linkage.to_sym
 end
 
+# VisionCamera: геолокация и frame processors не используются — иначе
+# в бандл попадает CoreLocation и App Store требует NSLocation*Usage
+$VCEnableLocation = false
+$VCEnableFrameProcessors = false
+
 target 'ZapMobile' do
   config = use_native_modules!
 
