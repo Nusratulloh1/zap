@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- скан QR-кода чека/сплита -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <!-- разблокировка по отпечатку/лицу вместо повторного ввода PIN -->
     <uses-permission android:name="android.permission.USE_BIOMETRIC" />
     <!-- вибро-отклик на подтверждение оплаты и ввод PIN -->
@@ -25,6 +27,14 @@
         <intent-filter>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+        <!-- диплинки zapapp.uz/s/CODE: ссылка сплита открывает приложение.
+             autoVerify заработает после публикации assetlinks.json на домене -->
+        <intent-filter android:autoVerify="true">
+            <action android:name="android.intent.action.VIEW" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <category android:name="android.intent.category.BROWSABLE" />
+            <data android:scheme="https" android:host="zapapp.uz" android:pathPrefix="/s/" />
         </intent-filter>
       </activity>
     </application>

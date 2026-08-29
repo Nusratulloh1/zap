@@ -471,7 +471,9 @@
     "codeToNumber": "{phone} raqamiga SMS kodi",
     "ownerConfirm": "Raqam egasini tasdiqlash",
     "checkingCard": "Karta tekshirilmoqda…",
-    "logoutConfirm": "Chiqilsinmi?"
+    "logoutConfirm": "Chiqilsinmi?",
+    "theme": "Mavzu",
+    "themeSystem": "Tizim bo‘yicha"
   },
   "install": {
     "title": "ZAP! ni o'rnating",

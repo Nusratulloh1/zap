@@ -471,7 +471,9 @@
     "codeToNumber": "Код из SMS на номер {phone}",
     "ownerConfirm": "Подтверждение владельца номера",
     "checkingCard": "Проверяем карту…",
-    "logoutConfirm": "Выйти?"
+    "logoutConfirm": "Выйти?",
+    "theme": "Тема",
+    "themeSystem": "Как в системе"
   },
   "install": {
     "title": "Установите ZAP!",

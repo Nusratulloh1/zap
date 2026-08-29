@@ -67,8 +67,12 @@ const LANDING_LOCALES: Locale[] = ['ru', 'uz']
 const setLang = (l: Locale) => {
   if (locale.value === l) return
   applyLocale(l, { persist: true })
-  // геометрия зависит от длины строк — после смены языка триггеры пересчитываем
-  requestAnimationFrame(() => refreshMotion())
+  // Перезагружаем страницу целиком. Смена языка меняет тексты шагов, а вместе
+  // с ними — узлы в закреплённой секции: GSAP держит ссылки на старые элементы
+  // и разложенные по ним состояния (все восемь текстов лежат друг на друге и
+  // показываются по одному). Пересобирать таймлайны на лету дороже и хрупче,
+  // чем поднять страницу заново — язык уже сохранён в localStorage.
+  location.reload()
 }
 
 // --- содержимое ---
@@ -189,6 +193,17 @@ let marqueeTick: ((t: number) => void) | null = null
 const fmt = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ')
 
 onMounted(() => {
+  // Лендинг всегда открывается сверху: у него заставка и завязанная на скролл
+  // драматургия, и попасть после перезагрузки в середину закреплённой секции —
+  // это увидеть кадр без начала. Браузер восстанавливает позицию не только
+  // сразу, но и после события load, поэтому сбрасываем трижды: сейчас, на
+  // следующем кадре и по load.
+  const toTop = () => window.scrollTo(0, 0)
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+  toTop()
+  requestAnimationFrame(toTop)
+  if (document.readyState !== 'complete') window.addEventListener('load', toTop, { once: true })
+
   startSmoothScroll()
 
   // заставка
@@ -499,7 +514,7 @@ onBeforeUnmount(() => {
       <div class="lp-hero">
         <div>
           <div class="lp-kicker">{{ t('landing.heroKicker') }}</div>
-          <h1 :key="locale" class="lp-h1">
+          <h1 class="lp-h1">
             <span data-split>{{ t('landing.heroLine1') }}</span>
             <span data-split>{{ t('landing.heroLine2') }}</span>
             <span data-split><em>{{ t('landing.heroLine3Accent') }}</em> {{ t('landing.heroLine3Rest') }}</span>

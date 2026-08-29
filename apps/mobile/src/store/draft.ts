@@ -12,6 +12,15 @@ export interface DraftMember {
   itemIds?: string[];
 }
 
+/** Состояние фискального чека: позиции догружаются после сканирования QR. */
+export interface FiscalMeta {
+  jobId?: string;
+  ocr?: boolean;
+  merchant?: string;
+  receiptTotal?: number;
+  status: 'pending' | 'ready' | 'failed';
+}
+
 interface DraftState {
   total: number;
   title: string;
@@ -19,9 +28,15 @@ interface DraftState {
   bill: Bill | null;
   merchantId?: string;
   members: DraftMember[];
+  /** источник черновика: фискальный чек требует экрана проверки позиций */
+  fiscal: FiscalMeta | null;
+  scannedPayload?: string;
 
   startManual: (total: number) => void;
   startForBill: (bill: Bill, merchantId?: string) => void;
+  startFiscal: (total: number, jobId?: string, payload?: string) => void;
+  applyFiscalItems: (r: { merchant?: string; total: number; items: { id: string; name: string; qty: number; amount: number }[] }, ocr: boolean) => void;
+  fiscalFailed: () => void;
   startForGroup: (bill: Bill | null, memberIds: string[]) => void;
   setMode: (mode: SplitMode) => void;
   setTitle: (title: string) => void;
@@ -40,18 +55,50 @@ export const useDraft = create<DraftState>((set, get) => ({
   mode: 'equal',
   bill: null,
   members: [{ contactId: ME, amount: 0 }],
+  fiscal: null,
+  scannedPayload: undefined,
 
   startManual: (total) =>
-    set({ total, mode: 'equal', bill: null, merchantId: undefined, members: [{ contactId: ME, amount: total }] }),
+    set({ total, mode: 'equal', bill: null, fiscal: null, merchantId: undefined, members: [{ contactId: ME, amount: total }] }),
 
   startForBill: (bill, merchantId) =>
     set({
       total: bill.total,
       mode: 'equal',
       bill,
+      fiscal: null,
       merchantId,
       members: [{ contactId: ME, amount: bill.total }],
     }),
+
+  /** QR фискального чека: тотал может быть неизвестен, позиции догружаются. */
+  startFiscal: (total, jobId, payload) =>
+    set({
+      total,
+      mode: 'equal',
+      merchantId: undefined,
+      scannedPayload: payload,
+      bill: { merchantId: '', orderNo: '', time: '', items: [], total },
+      fiscal: { jobId, status: 'pending' },
+      members: [{ contactId: ME, amount: total }],
+    }),
+
+  /** Позиции пришли (сервер или OCR) — чек заполняется, сплит идёт через проверку. */
+  applyFiscalItems: (r, ocr) =>
+    set((st) => ({
+      total: r.total,
+      bill: {
+        merchantId: st.bill?.merchantId ?? '',
+        orderNo: st.bill?.orderNo ?? '',
+        time: st.bill?.time ?? '',
+        total: r.total,
+        items: r.items.map((i) => ({ id: i.id, title: i.name, qty: i.qty, amount: i.amount })),
+      },
+      fiscal: { ...(st.fiscal ?? { status: 'ready' }), merchant: r.merchant, receiptTotal: r.total, ocr, status: 'ready' },
+      members: [{ contactId: ME, amount: r.total }],
+    })),
+
+  fiscalFailed: () => set((st) => ({ fiscal: st.fiscal ? { ...st.fiscal, status: 'failed' } : { status: 'failed' } })),
 
   startForGroup: (bill, memberIds) => {
     const total = bill?.total ?? 0;
@@ -96,7 +143,7 @@ export const useDraft = create<DraftState>((set, get) => ({
   },
 
   reset: () =>
-    set({ total: 0, title: '', mode: 'equal', bill: null, merchantId: undefined, members: [{ contactId: ME, amount: 0 }] }),
+    set({ total: 0, title: '', mode: 'equal', bill: null, fiscal: null, scannedPayload: undefined, merchantId: undefined, members: [{ contactId: ME, amount: 0 }] }),
 }));
 
 /** Сумма, которую организатор платит сейчас: своя доля + доли взятых в долг. */

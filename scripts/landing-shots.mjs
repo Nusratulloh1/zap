@@ -139,6 +139,13 @@ for (const locale of LOCALES) {
 
     if (code) {
       await go(`/s/${code}`, 1800)
+      // дев-переключатель «смотреть как» есть только в dev-сборке — в кадре
+      // для лендинга это лишний элемент управления
+      await page.evaluate(() => {
+        const logo = document.querySelector('img[alt="ZAP!"]')
+        const row = logo?.parentElement
+        if (row && row.lastElementChild && row.lastElementChild !== logo) row.lastElementChild.remove()
+      })
       await grab('participant')
     }
 
@@ -153,7 +160,8 @@ for (const locale of LOCALES) {
     await page.keyboard.type('7777', { delay: 45 })
     await sleep(2600)
 
-    await go(`${splitPath}/cashback`, 1800)
+    // счётчик кэшбэка набегает 1,2 с — снимаем, когда он уже остановился
+    await go(`${splitPath}/cashback`, 2800)
     await grab('award')
   } catch (e) {
     // не валим весь прогон: у лендинга на такие шаги есть запасные кадры

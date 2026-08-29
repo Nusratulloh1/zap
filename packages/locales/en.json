@@ -471,7 +471,9 @@
     "codeToNumber": "SMS code sent to {phone}",
     "ownerConfirm": "Confirming the number’s owner",
     "checkingCard": "Checking the card…",
-    "logoutConfirm": "Log out?"
+    "logoutConfirm": "Log out?",
+    "theme": "Theme",
+    "themeSystem": "System"
   },
   "install": {
     "title": "Install ZAP!",
