@@ -6,7 +6,28 @@ import { useColorScheme } from 'react-native';
 import { MMKV } from 'react-native-mmkv';
 import { palette, fixedPalette, type Palette, type ThemeName } from './tokens';
 
-export const storage = new MMKV({ id: 'zap' });
+/**
+ * MMKV создаётся на этапе импорта модуля, а его импортирует i18n — то есть это
+ * самый ранний нативный вызов в приложении. Если TurboModule почему-то не
+ * поднялся, без страховки приложение уходит в белый экран ещё до первого
+ * рендера. Падаем в память: язык и тема не переживут перезапуск, но приложение
+ * запустится и покажет, что не так.
+ */
+function createStorage(): Pick<MMKV, 'getString' | 'set' | 'delete'> {
+  try {
+    return new MMKV({ id: 'zap' });
+  } catch (e) {
+    console.warn('[zap] MMKV недоступен, настройки не сохранятся:', e);
+    const mem = new Map<string, string>();
+    return {
+      getString: (k: string) => mem.get(k),
+      set: (k: string, v: string | number | boolean) => void mem.set(k, String(v)),
+      delete: (k: string) => void mem.delete(k),
+    } as Pick<MMKV, 'getString' | 'set' | 'delete'>;
+  }
+}
+
+export const storage = createStorage();
 
 const KEY = 'zap:theme';
 export type ThemePref = ThemeName | 'system';

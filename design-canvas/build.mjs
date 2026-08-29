@@ -1,31 +1,45 @@
-// Собирает Main.dc.html — один артборд со всеми экранами приложения и лендингом.
+// Собирает артборды канваса «ZAP! — Все экраны».
 // Фрагменты лежат в parts/, картинки — в img/ (их подкладывает seed-canvas.mjs).
+//
+// ВАЖНО: холст обрезает артборд по 8000 px, поэтому лендинг живёт отдельными
+// артбордами, а длинный мобильный лендинг разложен в две колонки.
 import { readFileSync, writeFileSync } from 'node:fs'
 
 const part = (n) => readFileSync(new URL(`./parts/${n}.html`, import.meta.url), 'utf8').trim()
 
-const W = 2624
-const H = 14450
+// размеры артбордов — должны совпадать с canvas.json
+const SIZES = {
+  Main: [2624, 6520],
+  Landing: [2160, 6900],
+  LandingMobile: [980, 4900],
+}
 
 const SCREENS = [
   ['01', 'Онбординг · сторис 1/3 — сканируй счёт', 'onboarding1'],
   ['02', 'Онбординг · сторис 2/3 — дели поровну', 'onboarding2'],
-  ['03', 'Вход · номер телефона', 'auth-phone'],
-  ['04', 'Код из SMS · подтверждение номера', 'auth-code'],
-  ['05', 'Придумайте PIN · 4 цифры', 'auth-pin'],
-  ['06', 'Главная · промо, группы, сплиты', 'home'],
-  ['07', 'Сканер · QR фискального чека', 'scan'],
-  ['08', 'Чек · разобранный заказ', 'bill'],
-  ['09', 'С кем делим · доли и «в долг»', 'members'],
-  ['10', 'Подтверждение оплаты · PIN', 'pin-confirm'],
-  ['11', 'Ссылка · QR и SMS друзьям', 'share'],
-  ['12', 'Живой статус сплита', 'split-live'],
-  ['13', 'Сплит закрыт · кэшбэк ×2', 'split-closed'],
-  ['14', 'Кэшбэк · накопления по группам', 'cashback'],
-  ['15', 'Вам должны · долги и напоминания', 'debts'],
-  ['16', 'История · сплиты, кэшбэк, долги', 'history'],
-  ['17', 'Страница участника · zap.uz/s/…', 'participant'],
-  ['18', 'Профиль · карты и настройки', 'profile'],
+  ['03', 'Онбординг · сторис 3/3 — кэшбэк ×2', 'onboarding3'],
+  ['04', 'Вход · номер телефона', 'auth-phone'],
+  ['05', 'Код из SMS · подтверждение номера', 'auth-code'],
+  ['06', 'Придумайте PIN · 4 цифры', 'auth-pin'],
+  ['07', 'Главная · промо, группы, сплиты', 'home'],
+  ['08', 'Сканер · QR фискального чека', 'scan'],
+  ['09', 'Чек · разобранный заказ', 'bill'],
+  ['10', 'Проверьте позиции · правка чека', 'review'],
+  ['11', 'Сумма вручную · пад (вкладка нава)', 'amount'],
+  ['12', 'С кем делим · доли и «в долг»', 'members'],
+  ['13', 'Подтверждение оплаты · PIN', 'pin-confirm'],
+  ['14', 'Ссылка · QR и SMS друзьям', 'share'],
+  ['15', 'Живой статус сплита', 'split-live'],
+  ['16', 'Сплит закрыт · кэшбэк ×2', 'split-closed'],
+  ['17', 'Сохранить группу', 'save-group'],
+  ['18', 'Кэшбэк зачислен · по участникам', 'cashback-award'],
+  ['19', 'Кэшбэк · накопления по группам', 'cashback'],
+  ['20', 'Вам должны · долги и напоминания', 'debts'],
+  ['21', 'История · сплиты, кэшбэк, долги', 'history'],
+  ['22', 'Группа · Friday Crew', 'group'],
+  ['23', 'Страница участника · zap.uz/s/…', 'participant'],
+  ['24', 'Участник · доля внесена', 'participant-done'],
+  ['25', 'Профиль · карты и настройки', 'profile'],
 ]
 
 // Верхняя карусель главной: hero-слайд (см. экран 06) + слайд на каждое
@@ -68,9 +82,9 @@ ${part(file)}
       </div>
     </div>`
 
-const banner = (num, text, file) => `
+const flat = (num, text, file) => `
     <div style="display: flex; flex-direction: column">${label(num, text)}
-      <div style="width: 390px; border-radius: 28px; overflow: hidden; box-shadow: 0 20px 44px -26px rgba(17,17,16,0.5)">
+      <div style="border-radius: 28px; overflow: hidden; box-shadow: 0 20px 44px -26px rgba(17,17,16,0.5); width: fit-content">
 ${part(file)}
       </div>
     </div>`
@@ -88,7 +102,7 @@ const swatch = ([name, hex]) => `
         <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10.5px; font-weight: 700; color: #8A887E; margin-top: -6px">${hex}</div>
       </div>`
 
-const html = `<!doctype html>
+const doc = (name, body) => `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8">
@@ -106,14 +120,22 @@ const html = `<!doctype html>
     a { color: #111110; } a:hover { color: #6B6960; }
   </style>
 </helmet>
-<div style="width: ${W}px; height: ${H}px; background: #EFEDE6; color: #111110; padding: 72px; overflow: hidden">
+<div style="width: ${SIZES[name][0]}px; height: ${SIZES[name][1]}px; background: #EFEDE6; color: #111110; padding: 72px; overflow: hidden">
+${body}
+</div>
+</x-dc>
+</body>
+</html>
+`
 
+// ─── 1 · приложение ────────────────────────────────────────────────────────
+const main = doc('Main', `
   <!-- ШАПКА ДОКУМЕНТА -->
   <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 64px; margin-bottom: 72px">
     <div style="max-width: 900px">
       <img src="zap-wordmark.png" alt="ZAP!" style="height: 96px; width: auto; display: block">
       <div style="margin-top: 20px; font-size: 64px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.02">Все экраны</div>
-      <div style="margin-top: 14px; font-size: 17px; font-weight: 600; line-height: 1.5; color: #5B594F">Сплит-платежи для Узбекистана: веб-приложение (PWA) и публичный лендинг. Экраны, тексты и данные собраны из текущей сборки продукта — интерфейс на русском.</div>
+      <div style="margin-top: 14px; font-size: 17px; font-weight: 600; line-height: 1.5; color: #5B594F">Сплит-платежи для Узбекистана: веб-приложение (PWA) и публичный лендинг. Экраны, тексты и данные собраны из текущей сборки продукта — интерфейс на русском. Лендинг — на соседних артбордах справа.</div>
     </div>
     <div style="display: flex; flex-direction: column; gap: 22px">
       <div>
@@ -136,7 +158,7 @@ ${TOKENS.map(swatch).join('')}
   </div>
 
   <!-- СЕКЦИЯ · ПРИЛОЖЕНИЕ -->
-${sectionTitle('ВЕБ-ПРИЛОЖЕНИЕ · PWA', '18 экранов — от онбординга до профиля')}
+${sectionTitle('ВЕБ-ПРИЛОЖЕНИЕ · PWA', '25 экранов — от онбординга до профиля')}
   <div style="display: flex; flex-wrap: wrap; gap: 56px; align-items: flex-start">
 ${SCREENS.map(([n, t, f]) => phone(n, t, f)).join('')}
   </div>
@@ -145,36 +167,31 @@ ${SCREENS.map(([n, t, f]) => phone(n, t, f)).join('')}
   <div style="margin-top: 96px">
 ${sectionTitle('ГЛАВНАЯ · ПРОМО-КАРУСЕЛЬ', 'Остальные слайды баннера — предложения заведений')}
     <div style="display: flex; flex-wrap: wrap; gap: 56px; align-items: flex-start">
-${BANNERS.map(([n, t, f]) => banner(n, t, f)).join('')}
+${BANNERS.map(([n, t, f]) => flat(n, t, f)).join('')}
     </div>
-  </div>
+  </div>`)
 
-  <!-- СЕКЦИЯ · ЛЕНДИНГ -->
-  <div style="margin-top: 96px">
-${sectionTitle('ПУБЛИЧНЫЙ ЛЕНДИНГ · zapapp.uz', 'Десктоп и мобильная версия')}
-    <div style="display: flex; gap: 56px; align-items: flex-start">
-      <div style="display: flex; flex-direction: column">${label('Д', 'Лендинг · десктоп 1440')}
+// ─── 2 · лендинг, десктоп ──────────────────────────────────────────────────
+const landing = doc('Landing', `
+${sectionTitle('ПУБЛИЧНЫЙ ЛЕНДИНГ · zapapp.uz', 'Десктоп 1440 — вся страница')}
+  <div style="display: flex; gap: 56px; align-items: flex-start">
+    <div style="display: flex; flex-direction: column">${label('Д', 'Лендинг · десктоп')}
 ${part('landing-desktop')}
-      </div>
-      <div style="display: flex; flex-direction: column; gap: 56px">
-        <div style="display: flex; flex-direction: column">${label('С', 'Заявка заведения · отправлено')}
-${part('landing-form-sent')}
-        </div>
-      </div>
-      <div style="display: flex; flex-direction: column">${label('М', 'Лендинг · мобильный 390')}
-        <div style="width: 410px; border-radius: 44px; padding: 10px; background: linear-gradient(155deg, #4A4A4A 0%, #141414 34%, #0B0B0B 62%, #3A3A3A 100%); box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px -30px rgba(17,17,16,0.55)">
-          <div style="overflow: hidden; border-radius: 34px; background: #000">
-${part('landing-mobile')}
-          </div>
-        </div>
-      </div>
     </div>
-  </div>
-</div>
-</x-dc>
-</body>
-</html>
-`
+    <div style="display: flex; flex-direction: column">${label('С', 'Заявка заведения · отправлено')}
+${part('landing-form-sent')}
+    </div>
+  </div>`)
 
-writeFileSync(new URL('./Main.dc.html', import.meta.url), html)
-console.log('Main.dc.html', html.length, 'bytes')
+// ─── 3 · лендинг, мобильный (две колонки) ──────────────────────────────────
+const landingMobile = doc('LandingMobile', `
+${sectionTitle('ПУБЛИЧНЫЙ ЛЕНДИНГ · zapapp.uz', 'Мобильный 390 — страница в две колонки')}
+  <div style="display: flex; gap: 56px; align-items: flex-start">
+${flat('М1', 'Шапка · герой · бренды · скан · кэшбэк', 'landing-mobile-a')}
+${flat('М2', 'Долги · экраны · цифры · заведениям · финал', 'landing-mobile-b')}
+  </div>`)
+
+for (const [name, html] of [['Main', main], ['Landing', landing], ['LandingMobile', landingMobile]]) {
+  writeFileSync(new URL(`./${name}.dc.html`, import.meta.url), html)
+  console.log(`${name}.dc.html`, html.length, 'bytes', SIZES[name].join('×'))
+}
