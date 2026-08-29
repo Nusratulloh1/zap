@@ -51,7 +51,7 @@ export function LanguageSwitcher({ onDark = false, onOpenChange }: Props) {
   const pill = onDark
     ? { backgroundColor: 'rgba(255,255,255,0.16)', borderColor: 'rgba(255,255,255,0.28)' }
     : { backgroundColor: fixed.ink, borderColor: 'transparent' };
-  const pillText = onDark ? '#FFFFFF' : fixed.cream;
+  const pillText = onDark ? fixed.paper : fixed.cream;
 
   return (
     <>
@@ -67,7 +67,11 @@ export function LanguageSwitcher({ onDark = false, onOpenChange }: Props) {
       </PressableScale>
 
       <Modal visible={open} transparent animationType="none" onRequestClose={() => setOpen(false)}>
-        <Animated.View entering={FadeIn.duration(180)} exiting={FadeOut.duration(160)} style={styles.backdropWrap}>
+        <Animated.View
+          entering={FadeIn.duration(180)}
+          exiting={FadeOut.duration(160)}
+          style={[styles.backdropWrap, { backgroundColor: colors.overlay }]}
+        >
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
         </Animated.View>
 
@@ -112,8 +116,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   pillText: { fontFamily: font.extrabold, fontSize: 13 },
-  chevron: { fontSize: 11, marginTop: -1 },
-  backdropWrap: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(17,17,16,0.40)' },
+  chevron: { fontFamily: font.bold, fontSize: 11, marginTop: -1 },
+  backdropWrap: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   sheet: {
     position: 'absolute',
     left: 0,

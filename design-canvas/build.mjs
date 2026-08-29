@@ -4,25 +4,38 @@ import { readFileSync, writeFileSync } from 'node:fs'
 
 const part = (n) => readFileSync(new URL(`./parts/${n}.html`, import.meta.url), 'utf8').trim()
 
-const W = 2420
-const H = 13000
+const W = 2624
+const H = 14450
 
 const SCREENS = [
   ['01', 'Онбординг · сторис 1/3 — сканируй счёт', 'onboarding1'],
   ['02', 'Онбординг · сторис 2/3 — дели поровну', 'onboarding2'],
   ['03', 'Вход · номер телефона', 'auth-phone'],
-  ['04', 'Главная · промо, группы, сплиты', 'home'],
-  ['05', 'Сканер · QR фискального чека', 'scan'],
-  ['06', 'Чек · разобранный заказ', 'bill'],
-  ['07', 'С кем делим · доли и «в долг»', 'members'],
-  ['08', 'Ссылка · QR и SMS друзьям', 'share'],
-  ['09', 'Живой статус сплита', 'split-live'],
-  ['10', 'Сплит закрыт · кэшбэк ×2', 'split-closed'],
-  ['11', 'Кэшбэк · накопления по группам', 'cashback'],
-  ['12', 'Вам должны · долги и напоминания', 'debts'],
-  ['13', 'История · сплиты, кэшбэк, долги', 'history'],
-  ['14', 'Страница участника · zap.uz/s/…', 'participant'],
-  ['15', 'Профиль · карты и настройки', 'profile'],
+  ['04', 'Код из SMS · подтверждение номера', 'auth-code'],
+  ['05', 'Придумайте PIN · 4 цифры', 'auth-pin'],
+  ['06', 'Главная · промо, группы, сплиты', 'home'],
+  ['07', 'Сканер · QR фискального чека', 'scan'],
+  ['08', 'Чек · разобранный заказ', 'bill'],
+  ['09', 'С кем делим · доли и «в долг»', 'members'],
+  ['10', 'Подтверждение оплаты · PIN', 'pin-confirm'],
+  ['11', 'Ссылка · QR и SMS друзьям', 'share'],
+  ['12', 'Живой статус сплита', 'split-live'],
+  ['13', 'Сплит закрыт · кэшбэк ×2', 'split-closed'],
+  ['14', 'Кэшбэк · накопления по группам', 'cashback'],
+  ['15', 'Вам должны · долги и напоминания', 'debts'],
+  ['16', 'История · сплиты, кэшбэк, долги', 'history'],
+  ['17', 'Страница участника · zap.uz/s/…', 'participant'],
+  ['18', 'Профиль · карты и настройки', 'profile'],
+]
+
+// Верхняя карусель главной: hero-слайд (см. экран 06) + слайд на каждое
+// заведение с иллюстрацией зала — здесь остальные пять баннеров.
+const BANNERS = [
+  ['2/6', 'EVOS · акция 1+1', 'banner-evos'],
+  ['3/6', 'Bellissimo Pizza · скидка 10%', 'banner-bellissimo'],
+  ['4/6', 'Feed Up · акция 2+1', 'banner-feedup'],
+  ['5/6', 'Bon! · скидка 20%', 'banner-bon'],
+  ['6/6', 'Safia café · кэшбэк ×2', 'banner-safia'],
 ]
 
 const TOKENS = [
@@ -52,6 +65,13 @@ const phone = (num, text, file) => `
         <div style="overflow: hidden; border-radius: 34px; background: #000">
 ${part(file)}
         </div>
+      </div>
+    </div>`
+
+const banner = (num, text, file) => `
+    <div style="display: flex; flex-direction: column">${label(num, text)}
+      <div style="width: 390px; border-radius: 28px; overflow: hidden; box-shadow: 0 20px 44px -26px rgba(17,17,16,0.5)">
+${part(file)}
       </div>
     </div>`
 
@@ -116,9 +136,17 @@ ${TOKENS.map(swatch).join('')}
   </div>
 
   <!-- СЕКЦИЯ · ПРИЛОЖЕНИЕ -->
-${sectionTitle('ВЕБ-ПРИЛОЖЕНИЕ · PWA', '15 экранов — от онбординга до профиля')}
+${sectionTitle('ВЕБ-ПРИЛОЖЕНИЕ · PWA', '18 экранов — от онбординга до профиля')}
   <div style="display: flex; flex-wrap: wrap; gap: 56px; align-items: flex-start">
 ${SCREENS.map(([n, t, f]) => phone(n, t, f)).join('')}
+  </div>
+
+  <!-- СЕКЦИЯ · ПРОМО-БАННЕРЫ -->
+  <div style="margin-top: 96px">
+${sectionTitle('ГЛАВНАЯ · ПРОМО-КАРУСЕЛЬ', 'Остальные слайды баннера — предложения заведений')}
+    <div style="display: flex; flex-wrap: wrap; gap: 56px; align-items: flex-start">
+${BANNERS.map(([n, t, f]) => banner(n, t, f)).join('')}
+    </div>
   </div>
 
   <!-- СЕКЦИЯ · ЛЕНДИНГ -->
@@ -127,6 +155,11 @@ ${sectionTitle('ПУБЛИЧНЫЙ ЛЕНДИНГ · zapapp.uz', 'Десктоп
     <div style="display: flex; gap: 56px; align-items: flex-start">
       <div style="display: flex; flex-direction: column">${label('Д', 'Лендинг · десктоп 1440')}
 ${part('landing-desktop')}
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 56px">
+        <div style="display: flex; flex-direction: column">${label('С', 'Заявка заведения · отправлено')}
+${part('landing-form-sent')}
+        </div>
       </div>
       <div style="display: flex; flex-direction: column">${label('М', 'Лендинг · мобильный 390')}
         <div style="width: 410px; border-radius: 44px; padding: 10px; background: linear-gradient(155deg, #4A4A4A 0%, #141414 34%, #0B0B0B 62%, #3A3A3A 100%); box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 30px 60px -30px rgba(17,17,16,0.55)">
