@@ -10,8 +10,8 @@ const part = (n) => readFileSync(new URL(`./parts/${n}.html`, import.meta.url), 
 // размеры артбордов — должны совпадать с canvas.json
 const SIZES = {
   Main: [2624, 6520],
-  Landing: [2160, 6900],
-  LandingMobile: [980, 4900],
+  Landing: [5172, 5040],
+  LandingMobile: [1872, 4930],
 }
 
 const SCREENS = [
@@ -171,24 +171,25 @@ ${BANNERS.map(([n, t, f]) => flat(n, t, f)).join('')}
     </div>
   </div>`)
 
-// ─── 2 · лендинг, десктоп ──────────────────────────────────────────────────
+// ─── 2 · лендинг, десктоп (новая версия: пиннинг и анимации) ───────────────
+// Длинная страница разложена в колонки: артборд холста обрезает всё выше 8000 px.
 const landing = doc('Landing', `
-${sectionTitle('ПУБЛИЧНЫЙ ЛЕНДИНГ · zapapp.uz', 'Десктоп 1440 — вся страница')}
+${sectionTitle('ПУБЛИЧНЫЙ ЛЕНДИНГ · zapapp.uz', 'Новая версия — пиннинг и анимации · десктоп 1440')}
   <div style="display: flex; gap: 56px; align-items: flex-start">
-    <div style="display: flex; flex-direction: column">${label('Д', 'Лендинг · десктоп')}
-${part('landing-desktop')}
-    </div>
-    <div style="display: flex; flex-direction: column">${label('С', 'Заявка заведения · отправлено')}
-${part('landing-form-sent')}
-    </div>
+${flat('Д1', 'Шапка · герой · «как сейчас» · шаги 01–03', 'nl-desktop-1')}
+${flat('Д2', 'Шаги 04–08 · бегущая строка', 'nl-desktop-2')}
+${flat('Д3', 'Причины · мерчанты · FAQ · финал', 'nl-desktop-3')}
+${flat('Д4', 'Заявка партнёра · модалка', 'nl-modal')}
   </div>`)
 
-// ─── 3 · лендинг, мобильный (две колонки) ──────────────────────────────────
+// ─── 3 · лендинг, мобильный ────────────────────────────────────────────────
 const landingMobile = doc('LandingMobile', `
-${sectionTitle('ПУБЛИЧНЫЙ ЛЕНДИНГ · zapapp.uz', 'Мобильный 390 — страница в две колонки')}
+${sectionTitle('ПУБЛИЧНЫЙ ЛЕНДИНГ · zapapp.uz', 'Новая версия · мобильный 390 — страница в четыре колонки')}
   <div style="display: flex; gap: 56px; align-items: flex-start">
-${flat('М1', 'Шапка · герой · бренды · скан · кэшбэк', 'landing-mobile-a')}
-${flat('М2', 'Долги · экраны · цифры · заведениям · финал', 'landing-mobile-b')}
+${flat('М1', 'Шапка · герой · «как сейчас» · шаги 01–02', 'nl-mobile-1')}
+${flat('М2', 'Шаги 03–06', 'nl-mobile-2')}
+${flat('М3', 'Шаги 07–08 · причины', 'nl-mobile-3')}
+${flat('М4', 'Мерчанты · FAQ · финал', 'nl-mobile-4')}
   </div>`)
 
 for (const [name, html] of [['Main', main], ['Landing', landing], ['LandingMobile', landingMobile]]) {

@@ -1,6 +1,6 @@
 // i18n мобильного клиента. Локали НЕ дублируются — читаются те же файлы,
 // что и в вебе — пакет packages/locales, см. metro.config.js watchFolders.
-import i18n from 'i18next';
+import i18n, { type PostProcessorModule } from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { NativeModules, Platform } from 'react-native';
 import { storage } from '@/theme/ThemeProvider';
@@ -45,15 +45,48 @@ export function storedLocale(): Locale | null {
 
 export const initialLocale: Locale = storedLocale() ?? deviceLocale();
 
-void i18n.use(initReactI18next).init({
-  lng: initialLocale,
-  fallbackLng: 'ru',
-  resources: { uz: { translation: uz }, ru: { translation: ru }, en: { translation: en } },
-  interpolation: { escapeValue: false },
-  // формат веба: «one | few | many» через vue-i18n-совместимый разделитель
-  compatibilityJSON: 'v4',
-  returnNull: false,
-});
+/**
+ * Общие локали написаны в синтаксисе vue-i18n: подстановки «{n}», плюрализация
+ * «один | два | пять», литералы «{'@'}». i18next ничего из этого не понимает —
+ * он ждёт «{{n}}». Без этого пост-процессора на экране остаётся сырое
+ * «{n}-BOSQICH» (поймано на устройстве).
+ *
+ * Пост-процессор вешается глобально, поэтому работает и для t() из
+ * useTranslation(), и для translate() — иначе часть экранов чинится, а часть нет.
+ */
+const zapFormat: PostProcessorModule = {
+  type: 'postProcessor',
+  name: 'zapFormat',
+  process(value: string, _key, options) {
+    let out = typeof value === 'string' ? value : String(value);
+    const params = (options ?? {}) as Record<string, unknown>;
+
+    if (out.includes('|')) {
+      const n = Number(params.n ?? params.count ?? 0);
+      out = pickPlural(out, n, i18n.language as Locale);
+    }
+    // {'@'} — экранированный литерал vue-i18n
+    out = out.replace(/\{'([^']*)'\}/g, '$1');
+    // {name} → значение; неизвестный ключ оставляем как есть, это заметно
+    out = out.replace(/\{(\w+)\}/g, (m, k: string) =>
+      params[k] === undefined ? m : String(params[k]),
+    );
+    return out;
+  },
+};
+
+void i18n
+  .use(zapFormat)
+  .use(initReactI18next)
+  .init({
+    lng: initialLocale,
+    fallbackLng: 'ru',
+    resources: { uz: { translation: uz }, ru: { translation: ru }, en: { translation: en } },
+    interpolation: { escapeValue: false },
+    compatibilityJSON: 'v4',
+    returnNull: false,
+    postProcess: ['zapFormat'],
+  });
 
 /**
  * Веб-локали используют формат vue-i18n: «1 файл | 2 файла | 5 файлов».
@@ -75,11 +108,8 @@ function pickPlural(message: string, n: number, locale: Locale): string {
 
 /** Перевод с поддержкой веб-формата плюрализации и подстановок. */
 export function translate(key: string, params?: Record<string, unknown>): string {
-  const raw = i18n.t(key, { ...params, postProcess: undefined }) as string;
-  if (!raw.includes('|')) return raw;
-  const n = Number(params?.n ?? params?.count ?? 0);
-  const form = pickPlural(raw, n, i18n.language as Locale);
-  return form.replace(/\{(\w+)\}/g, (_, k: string) => String(params?.[k] ?? ''));
+  // вся обработка формата — в zapFormat, здесь только вызов
+  return i18n.t(key, params ?? {}) as string;
 }
 
 export function currentLocale(): Locale {

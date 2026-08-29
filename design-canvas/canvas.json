@@ -1,8 +1,8 @@
 {
   "artboards": [
     { "file": "Main.dc.html", "x": 0, "y": 0, "w": 2624, "h": 6520, "title": "Приложение · 25 экранов" },
-    { "file": "Landing.dc.html", "x": 2724, "y": 0, "w": 2160, "h": 6900, "title": "Лендинг · десктоп" },
-    { "file": "LandingMobile.dc.html", "x": 4984, "y": 0, "w": 980, "h": 4900, "title": "Лендинг · мобильный" }
+    { "file": "Landing.dc.html", "x": 2724, "y": 0, "w": 5172, "h": 5040, "title": "Лендинг · десктоп" },
+    { "file": "LandingMobile.dc.html", "x": 7996, "y": 0, "w": 1872, "h": 4930, "title": "Лендинг · мобильный" }
   ],
   "launch": { "view": "canvas" }
 }

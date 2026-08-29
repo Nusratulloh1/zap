@@ -16,134 +16,406 @@
     a { color: #111110; } a:hover { color: #6B6960; }
   </style>
 </helmet>
-<div style="width: 980px; height: 4900px; background: #EFEDE6; color: #111110; padding: 72px; overflow: hidden">
+<div style="width: 1872px; height: 4930px; background: #EFEDE6; color: #111110; padding: 72px; overflow: hidden">
 
 
   <div style="border-top: 2px solid #111110; padding-top: 14px; margin-bottom: 28px">
     <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; color: #8A887E">ПУБЛИЧНЫЙ ЛЕНДИНГ · zapapp.uz</div>
-    <div style="margin-top: 6px; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; color: #111110">Мобильный 390 — страница в две колонки</div>
+    <div style="margin-top: 6px; font-size: 30px; font-weight: 800; letter-spacing: -0.02em; color: #111110">Новая версия · мобильный 390 — страница в четыре колонки</div>
   </div>
   <div style="display: flex; gap: 56px; align-items: flex-start">
 
     <div style="display: flex; flex-direction: column">
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px">
         <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 700; background: #E3E1D8; border-radius: 6px; padding: 3px 7px; color: #111110">М1</div>
-        <div style="font-size: 13px; font-weight: 600; color: #8A887E">Шапка · герой · бренды · скан · кэшбэк</div>
+        <div style="font-size: 13px; font-weight: 600; color: #8A887E">Шапка · герой · «как сейчас» · шаги 01–02</div>
       </div>
       <div style="border-radius: 28px; overflow: hidden; box-shadow: 0 20px 44px -26px rgba(17,17,16,0.5); width: fit-content">
-<div style="width: 390px; background: #000000; color: #FFFFFF; overflow: hidden; position: relative">
+<div style="width: 390px; background: #111110; color: #F5F3EE; font-family: 'Manrope', Helvetica, Arial, sans-serif; position: relative; overflow: hidden">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#111110;color:#F5F3EE;font-family:Manrope,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:#DDFF33;text-decoration:none}
+  a:hover{color:#F5F3EE}
+  @keyframes zpulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+  @keyframes zdrift{0%{background-position:0 0}100%{background-position:480px 480px}}
+  
+  
+  
+  
+</style>
+<header id="zhead" style="position: absolute; top: 0px; left: 0px; right: 0px; z-index: 7000; display: flex; align-items: center; justify-content: space-between; padding: 22px 18px; transition: background 0.35s, backdrop-filter 0.35s, padding 0.35s; border-bottom: 1px solid transparent;">
+    <a href="#" style="display:flex;align-items:center;gap:12px;color:#F5F3EE">
+      <img id="zlogo" src="zap-wordmark.png" alt="ZAP!" style="display:block;height:48px;width:auto;transition:height .35s">
+      <span style="font-weight:800;font-style:italic;font-size:20px;letter-spacing:-.03em;display:none">ZAP!</span>
+    </a>
+    <nav data-r="nav" style="display: none; align-items: center; gap: 28px; font-family: &quot;JetBrains Mono&quot;, monospace; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgb(179, 177, 168);">
+      <a href="#how" style="color:#B3B1A8" data-i18n="nav1">как работает</a>
+      <a href="#merch" style="color:#B3B1A8" data-i18n="nav2">мерчантам</a>
+      <a href="#faq" style="color:#B3B1A8" data-i18n="nav3">вопросы</a>
+      <span style="display:flex;gap:6px;align-items:center;color:#8A887E">
+        <button id="zlang-ru" type="button" style="background:none;border:none;padding:0;font:inherit;color:#DDFF33;cursor:pointer">RU</button>
+        <span style="opacity:.4">/</span>
+        <button id="zlang-uz" type="button" style="background:none;border:none;padding:0;font:inherit;color:#8A887E;cursor:pointer">UZ</button>
+      </span>
+      <a href="#" data-mag="1" style="background:#DDFF33;color:#111110;padding:10px 18px;border-radius:999px;font-weight:700" data-i18n="navcta">скачать</a>
+    </nav>
+  </header>
+<section style="position:relative;min-height:844px;overflow:hidden;background:#111110">
+    <div style="position:absolute;inset:0;background:radial-gradient(1100px 620px at 72% 42%, rgba(221,255,51,.10), rgba(221,255,51,0) 62%)"></div>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg, rgba(227,225,216,0) 0%, rgba(227,225,216,.18) 38%, rgba(221,255,51,.35) 70%, rgba(227,225,216,0) 100%)"></div>
 
-  <!-- ШАПКА -->
-  <div style="border-bottom: 1px solid rgba(255,255,255,0.08); background: rgba(10,10,10,0.42)">
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 20px">
-      <img src="zap-wordmark.png" alt="ZAP!" style="height: 42px; width: auto; display: block">
-      <div style="display: flex; align-items: center; gap: 6px">
-        <div style="display: flex; align-items: center; gap: 5px; height: 42px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.13); background: rgba(255,255,255,0.05); padding: 0 13px; font-size: 13.5px; font-weight: 700">
-          <span>RU</span>
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none"><path d="M3 4.5 6 7.5 9 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
-        </div>
-        <div style="display: inline-flex; height: 42px; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; padding: 0 20px; font-size: 14px; font-weight: 800; color: #12140B">Начать</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ГЕРОЙ -->
-  <div style="position: relative; padding: 132px 24px 0; overflow: hidden">
-    <div style="position: absolute; top: 4%; left: 50%; transform: translateX(-50%); height: 320px; width: 480px; border-radius: 9999px; background: rgba(221,255,51,0.12); filter: blur(110px)"></div>
-    <div style="position: relative">
-      <div style="display: flex; flex-direction: column; align-items: center; text-align: center; font-weight: 800; letter-spacing: -0.035em; font-size: 34px; line-height: 0.98">
-        <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">Раздели свой счёт</span>
-        <span style="display: block; background: linear-gradient(180deg, #DDFF33 0%, #7D9A1C 62%, #22280A 100%); -webkit-background-clip: text; background-clip: text; color: transparent">с друзьями</span>
-      </div>
-      <div style="margin: 26px auto 0; font-size: 16.5px; font-weight: 600; line-height: 1.6; color: rgba(255,255,255,0.46); text-align: center">Отсканируйте чек, разделите на компанию и отправьте друзьям ссылку. Каждый платит свою долю — кэшбэк ×2 получают все.</div>
-      <div style="margin-top: 34px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px">
-        <div style="display: inline-flex; height: 54px; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; padding: 0 34px; font-size: 15.5px; font-weight: 800; color: #12140B">Попробовать бесплатно</div>
-        <div style="display: inline-flex; height: 54px; align-items: center; justify-content: center; border-radius: 999px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.13); padding: 0 30px; font-size: 15.5px; font-weight: 700; color: #FFFFFF">Я — заведение</div>
-      </div>
-    </div>
-    <div style="position: relative; margin-top: 74px; display: flex; justify-content: center">
-      <div style="position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); height: 200px; width: 420px; border-radius: 9999px; background: radial-gradient(closest-side, rgba(221,255,51,0.2), transparent 72%); filter: blur(46px)"></div>
-      <div style="position: relative; z-index: 1; width: 316px; border-radius: 46px; padding: 10px; background: linear-gradient(155deg, #4A4A4A 0%, #141414 34%, #0B0B0B 62%, #3A3A3A 100%); box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 70px 130px -46px rgba(0,0,0,1), 0 0 90px -44px rgba(221,255,51,0.4)">
-        <div style="overflow: hidden; border-radius: 37px; background: #000; box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06)">
-          <img src="shot-home.webp" alt="Главный экран ZAP!" style="display: block; width: 100%; height: 644px; object-fit: cover; object-position: top">
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- БРЕНДЫ -->
-  <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 26px 40px; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 34px 24px; opacity: 0.5; margin-top: 60px">
-    <img src="maxway.svg" alt="Maxway" style="height: 20px; width: auto; filter: brightness(0) invert(1)">
-    <img src="lesailes.svg" alt="Les Ailes" style="height: 22px; width: auto; filter: brightness(0) invert(1)">
-    <img src="oqtepa.svg" alt="Oqtepa Lavash" style="height: 36px; width: auto; filter: brightness(0) invert(1)">
-    <img src="click.svg" alt="Click" style="height: 24px; width: auto; filter: brightness(0) invert(1)">
-    <img src="rahmat.svg" alt="Rahmat" style="height: 20px; width: auto; filter: brightness(0) invert(1)">
-  </div>
-
-  <!-- ФИЧА 1 -->
-  <div style="position: relative; padding: 118px 24px; overflow: hidden">
-    <div style="position: absolute; top: 12%; left: -10%; height: 300px; width: 340px; border-radius: 9999px; background: rgba(221,255,51,0.085); filter: blur(110px)"></div>
-    <div style="position: relative; display: flex; flex-direction: column; gap: 56px">
+    <div data-r="hero" style="position: relative; display: grid; grid-template-columns: 354px; gap: 40px; align-items: center; max-width: 1360px; margin: 0px auto; padding: 120px 18px 72px; min-height: 844px;">
       <div>
-        <div style="display: flex; flex-direction: column; font-weight: 800; letter-spacing: -0.03em; font-size: 42px; line-height: 0.94">
-          <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">Скан</span>
-          <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">чека</span>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8A887E;margin-bottom:22px" data-i18n="herokicker">сплит счёта · ташкент</div>
+        <h1 style="margin:0;max-width:11.5em;font-weight:800;letter-spacing:-.03em;line-height:.94;font-size:34px;text-wrap:balance">
+          <span data-split="1" style="display:block">Сканируй чек.</span>
+          <span data-split="1" style="display:block">Дели счёт.</span>
+          <span data-split="1" style="display:block"><span style="color:#DDFF33">Кэшбэк ×2</span> всей компании.</span>
+        </h1>
+        <p id="zhero-sub" style="margin:26px 0 0;max-width:520px;font-weight:500;font-size:16px;line-height:1.5;color:#B3B1A8" data-i18n="herosub">Один скан QR — и каждый платит свою долю сам. Приложение нужно только одному человеку.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:34px">
+          <a href="#" data-mag="1" style="background:#DDFF33;color:#111110;font-weight:800;font-size:16px;padding:18px 30px;border-radius:999px;white-space:nowrap" data-i18n="cta1">Скачать ZAP!</a>
+          <a href="#how" data-mag="1" style="border:1px solid #3E3C35;color:#F5F3EE;font-weight:700;font-size:16px;padding:18px 30px;border-radius:999px;white-space:nowrap" data-i18n="cta2">Как это работает</a>
         </div>
-        <div style="margin-top: 22px; font-size: 15.5px; font-weight: 600; line-height: 1.62; color: rgba(255,255,255,0.46)">QR с фискального чека MySoliq или Rahmat — позиции, суммы и продавец подтянутся сами. Нет QR? Сфотографируйте чек, распознаем.</div>
-        <div style="margin-top: 38px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px">
-          <div style="display: flex; height: 92px; flex-direction: column; justify-content: center; gap: 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.032); padding: 0 20px">
-            <svg viewBox="0 0 24 24" fill="none" style="height: 22px; width: 22px; color: #DDFF33"><path d="M3 8V5C3 3.9 3.9 3 5 3H8M16 3H19C20.1 3 21 3.9 21 5V8M21 16V19C21 20.1 20.1 21 19 21H16M8 21H5C3.9 21 3 20.1 3 19V16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
-            <span style="font-size: 13.5px; font-weight: 700; color: rgba(255,255,255,0.74)">Скан чека</span>
-          </div>
-          <div style="display: flex; height: 92px; flex-direction: column; justify-content: center; gap: 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.032); padding: 0 20px">
-            <svg viewBox="0 0 24 24" fill="none" style="height: 22px; width: 22px; color: #DDFF33"><circle cx="8" cy="8" r="3.2" stroke="currentColor" stroke-width="1.7" /><circle cx="16" cy="16" r="3.2" stroke="currentColor" stroke-width="1.7" /><path d="M10.5 10.5 13.5 13.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
-            <span style="font-size: 13.5px; font-weight: 700; color: rgba(255,255,255,0.74)">Сплит</span>
-          </div>
-          <div style="display: flex; height: 92px; flex-direction: column; justify-content: center; gap: 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.032); padding: 0 20px">
-            <svg viewBox="0 0 24 24" fill="none" style="height: 22px; width: 22px; color: #DDFF33"><rect x="2.5" y="6.5" width="19" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7" /><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.7" /></svg>
-            <span style="font-size: 13.5px; font-weight: 700; color: rgba(255,255,255,0.74)">Кэшбэк</span>
-          </div>
-          <div style="display: flex; height: 92px; flex-direction: column; justify-content: center; gap: 10px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.032); padding: 0 20px">
-            <svg viewBox="0 0 24 24" fill="none" style="height: 22px; width: 22px; color: #DDFF33"><circle cx="9" cy="9" r="3.2" stroke="currentColor" stroke-width="1.7" /><path d="M3.5 19c0-3 2.5-4.6 5.5-4.6s5.5 1.6 5.5 4.6M16 6.4a2.9 2.9 0 0 1 0 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" /></svg>
-            <span style="font-size: 13.5px; font-weight: 700; color: rgba(255,255,255,0.74)">Долги</span>
-          </div>
+        <div style="display:flex;gap:22px;flex-wrap:wrap;margin-top:34px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.16em;color:#8A887E">
+          <span data-pay="1" style="opacity:.5;transition:opacity .25s,color .25s">PAYME</span>
+          <span data-pay="1" style="opacity:.5;transition:opacity .25s,color .25s">CLICK</span>
+          <span data-pay="1" style="opacity:.5;transition:opacity .25s,color .25s">UZCARD</span>
+          <span data-pay="1" style="opacity:.5;transition:opacity .25s,color .25s">HUMO</span>
         </div>
       </div>
-      <div style="position: relative; display: flex; justify-content: center">
-        <div style="position: relative; z-index: 1; width: 296px; border-radius: 46px; padding: 10px; background: linear-gradient(155deg, #4A4A4A 0%, #141414 34%, #0B0B0B 62%, #3A3A3A 100%); box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 70px 130px -46px rgba(0,0,0,1), 0 0 90px -44px rgba(221,255,51,0.4)">
-          <div style="overflow: hidden; border-radius: 37px; background: #000"><img src="shot-receipt.webp" alt="Разобранный чек" style="display: block; width: 100%; height: 600px; object-fit: cover; object-position: top"></div>
-        </div>
+
+      <div data-r="herophone" id="zhero-tilt" style="justify-self: center; height: 520px; width: 246.75px; aspect-ratio: 410 / 864; border-radius: 46px; border: 1px solid rgb(62, 60, 53); background: rgb(14, 14, 12); padding: 10px; transform: none; box-shadow: rgba(0, 0, 0, 0.55) 0px 60px 120px; margin: 0px; position: relative;">
+        <div id="zhero-inner" style="position: absolute; top: 10px; left: 10px; width: 390px; height: 844px; transform-origin: 0px 0px; border-radius: 38px; overflow: hidden; background: rgb(255, 255, 255); transform: scale(0.590047);">
+          <div style="width: 390px; height: 844px; background: #FFFFFF; color: #111110; display: flex; flex-direction: column; padding: 24px 24px 46px; overflow: hidden">
+
+  <div style="display: flex; align-items: center; justify-content: center; height: 44px; width: 44px; border-radius: 999px; background: #F5F3EE">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </div>
+
+  <div style="margin-top: 26px; font-size: 27px; font-weight: 800; letter-spacing: -0.01em">С кем делим?</div>
+
+  <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 14px">
+    <div style="font-size: 40px; font-weight: 800; line-height: 1; letter-spacing: -0.03em">1 200 000</div>
+    <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 700; color: #A3A199">UZS</div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 10px; margin-top: 14px; border-bottom: 2px solid #DDFF33; padding-bottom: 10px">
+    <div style="flex-shrink: 0; font-size: 15.5px; font-weight: 800; color: #8A887E">За что</div>
+    <div style="flex: 1; font-size: 16px; font-weight: 700">Ужин пятница 🍕</div>
+  </div>
+
+  <div style="margin-top: 8px; font-size: 12.5px; font-weight: 600; color: #B3B1A8">по 400 000 на человека</div>
+
+  <div style="display: flex; gap: 8px; margin-top: 22px">
+    <div style="display: flex; align-items: center; height: 40px; border-radius: 999px; padding: 0 18px; font-size: 13.5px; font-weight: 800; background: #DDFF33; color: #111110">Поровну</div>
+    <div style="display: flex; align-items: center; height: 40px; border-radius: 999px; padding: 0 18px; font-size: 13.5px; font-weight: 700; background: #F5F3EE; color: #5B594F">Вручную</div>
+    <div style="display: flex; align-items: center; height: 40px; border-radius: 999px; padding: 0 18px; font-size: 13.5px; font-weight: 700; background: #F5F3EE; color: #5B594F">Позиции</div>
+  </div>
+
+  <!-- участники -->
+  <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 28px">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <img src="a12.png" alt="Ислам" style="height: 48px; width: 48px; border-radius: 999px; object-fit: cover; flex-shrink: 0">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px">
+        <div style="font-size: 16px; font-weight: 700">Ислам · вы</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #B3B1A8">оплатите сразу</div>
       </div>
+      <div style="font-size: 16px; font-weight: 800">400 000</div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px">
+      <img src="a33.png" alt="Али" style="height: 48px; width: 48px; border-radius: 999px; object-fit: cover; flex-shrink: 0">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px">
+        <div style="font-size: 16px; font-weight: 700">Али</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #B3B1A8">@ali · ссылка в SMS</div>
+      </div>
+      <div style="font-size: 16px; font-weight: 800">400 000</div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px">
+      <img src="a68.png" alt="Бек" style="height: 48px; width: 48px; border-radius: 999px; object-fit: cover; flex-shrink: 0; filter: grayscale(1)">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px">
+        <div style="font-size: 16px; font-weight: 700">Бек</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #B3B1A8">сейчас без денег — беру в долг</div>
+      </div>
+      <div style="display: flex; align-items: center; height: 30px; border-radius: 999px; background: #111110; padding: 0 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: #DDFF33">В ДОЛГ</div>
     </div>
   </div>
 
-  <!-- ФИЧА 2 -->
-  <div style="position: relative; padding: 0 24px 118px; overflow: hidden">
-    <div style="position: relative; display: flex; flex-direction: column; gap: 56px">
-      <div>
-        <div style="display: flex; flex-direction: column; font-weight: 800; letter-spacing: -0.03em; font-size: 42px; line-height: 0.94">
-          <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">Кэшбэк</span>
-          <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">×2 всем</span>
+  <!-- добавить -->
+  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 24px">
+    <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; color: #A3A199">ДОБАВИТЬ</div>
+    <div style="font-size: 13px; font-weight: 700; color: #8A887E">Все контакты ›</div>
+  </div>
+  <div style="display: flex; gap: 14px; margin-top: 14px">
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="position: relative; height: 52px; width: 52px">
+        <img src="a11.png" alt="Азиз" style="height: 52px; width: 52px; border-radius: 999px; object-fit: cover">
+        <div style="position: absolute; bottom: -2px; right: -2px; display: flex; align-items: center; justify-content: center; height: 20px; width: 20px; border-radius: 999px; border: 2px solid #FFFFFF; background: #DDFF33; font-size: 12px; font-weight: 700; color: #111110">+</div>
+      </div>
+      <div style="font-size: 11.5px; font-weight: 700">Азиз</div>
+    </div>
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="position: relative; height: 52px; width: 52px">
+        <img src="a15.png" alt="Тимур" style="height: 52px; width: 52px; border-radius: 999px; object-fit: cover">
+        <div style="position: absolute; bottom: -2px; right: -2px; display: flex; align-items: center; justify-content: center; height: 20px; width: 20px; border-radius: 999px; border: 2px solid #FFFFFF; background: #DDFF33; font-size: 12px; font-weight: 700; color: #111110">+</div>
+      </div>
+      <div style="font-size: 11.5px; font-weight: 700">Тимур</div>
+    </div>
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="position: relative; height: 52px; width: 52px">
+        <img src="a47.png" alt="Мадина" style="height: 52px; width: 52px; border-radius: 999px; object-fit: cover">
+        <div style="position: absolute; bottom: -2px; right: -2px; display: flex; align-items: center; justify-content: center; height: 20px; width: 20px; border-radius: 999px; border: 2px solid #FFFFFF; background: #DDFF33; font-size: 12px; font-weight: 700; color: #111110">+</div>
+      </div>
+      <div style="font-size: 11.5px; font-weight: 700">Мадина</div>
+    </div>
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="display: flex; align-items: center; justify-content: center; height: 52px; width: 52px; border-radius: 999px; background: #F5F3EE">
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+          <circle cx="9.5" cy="9.5" r="6.5" stroke="#A3A199" stroke-width="2.2"></circle>
+          <line x1="14.5" y1="14.5" x2="19" y2="19" stroke="#A3A199" stroke-width="2.2" stroke-linecap="round"></line>
+        </svg>
+      </div>
+      <div style="font-size: 11.5px; font-weight: 700; color: #A3A199">Найти</div>
+    </div>
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="display: flex; align-items: center; justify-content: center; height: 52px; width: 52px; border-radius: 999px; background: #F5F3EE; font-size: 22px; font-weight: 600; color: #A3A199">+</div>
+      <div style="font-size: 11.5px; font-weight: 700; color: #A3A199">Номер</div>
+    </div>
+  </div>
+
+  <div style="flex: 1"></div>
+
+  <div style="padding-top: 16px">
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; width: 100%; border-radius: 999px; background: #DDFF33; font-size: 16px; font-weight: 800; color: #111110">Сплит · оплатить 800 000</div>
+    <div style="margin-top: 12px; text-align: center; font-size: 12px; font-weight: 600; color: #8A887E">Ваша доля 400 000 + Бек в долг 400 000</div>
+  </div>
+</div>
         </div>
-        <div style="margin-top: 22px; font-size: 15.5px; font-weight: 600; line-height: 1.62; color: rgba(255,255,255,0.46)">Делите счёт компанией — кэшбэк начисляется каждому участнику, а не одному плательщику. Баллы копятся и тратятся на следующий сплит.</div>
-        <div style="margin-top: 38px; border-radius: 26px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.032); padding: 26px">
-          <div style="font-size: 34px; font-weight: 800; letter-spacing: -0.03em; line-height: 1">60 000 <span style="font-size: 17px; font-weight: 700; color: rgba(255,255,255,0.46)">сум</span></div>
-          <div style="margin-top: 20px; display: flex; align-items: center; gap: 10px">
-            <div style="flex: 1; min-width: 0; border-radius: 999px; background: rgba(255,255,255,0.05); padding: 12px 18px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.42); white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Групповой кэшбэк · Friday Crew</div>
-            <div style="display: flex; height: 42px; width: 42px; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; color: #12140B">
-              <svg viewBox="0 0 24 24" fill="none" style="height: 19px; width: 19px"><path d="M5 12h13m-5-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </div>
+    </div>
+  </section>
+<section style="position:relative;background:#F5F3EE;color:#3E3C35;padding:118.16px 18px">
+    <div style="max-width:1100px;margin:0 auto">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8A887E;margin-bottom:48px">как это происходит сейчас</div>
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div data-strike="1" style="position:relative;align-self:flex-start;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Один платит за всех<span data-sline="1" style="position: absolute; left: 0px; top: 55%; height: 5px; width: 100%; background: rgb(221, 255, 51); transform: scaleX(1); transform-origin: 0px 50%;"></span></div>
+        <div data-strike="1" style="position:relative;align-self:flex-start;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Остальные переведут потом<span data-sline="1" style="position: absolute; left: 0px; top: 55%; height: 5px; width: 100%; background: rgb(221, 255, 51); transform: scaleX(1); transform-origin: 0px 50%;"></span></div>
+        <div data-strike="1" style="position:relative;align-self:flex-start;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Переводы теряются, напоминать неловко<span data-sline="1" style="position: absolute; left: 0px; top: 55%; height: 5px; width: 100%; background: rgb(221, 255, 51); transform: scaleX(1); transform-origin: 0px 50%;"></span></div>
+      </div>
+      <div id="zprob-final" style="margin-top: 70px; font-weight: 800; letter-spacing: -0.03em; font-size: 30px; line-height: 1.02; color: rgb(17, 17, 16); opacity: 1;">ZAP! убирает этот разговор целиком.</div>
+    </div>
+  </section>
+<section style="position: relative; background: rgb(17, 17, 16); padding: 96px 0px 44px;"><div data-r="pinrow" style="display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; max-width: 1440px; margin: 0px auto; padding: 0px 48px; flex-direction: column;">
+
+          <div data-r="dots" style="display: flex; flex-direction: row; gap: 10px; order: 0;">
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(221, 255, 51); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(2);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+          </div>
+
+          <div data-r="pintext" style="position: relative; flex: 1 1 0%; max-width: 100%; min-height: auto; order: 2; text-align: center;">
+            <div data-txt="1" style="position: relative; inset: auto; opacity: 1;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#DDFF33;margin-bottom:20px">01 · СКАН</div>
+              <h3 style="margin:0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Сканируй.</h3>
+              <p style="margin:18px 0 0;font-size:18px;line-height:1.5;color:#B3B1A8;font-weight:500">Наведи камеру на QR на кассе или на счёте. Заказ подтянется сам.</p>
+            </div>
+            
+            
+            
+            
+            
+            
+            
+          </div>
+
+          <div style="position: relative; flex: 0 0 auto; height: 675.188px; width: auto; aspect-ratio: 410 / 864; border-radius: 48px; border: 1px solid rgb(62, 60, 53); background: rgb(14, 14, 12); padding: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 50px 110px;">
+            <div style="position: absolute; top: 10px; left: 10px; width: 390px; height: 844px; transform-origin: 0px 0px; border-radius: 40px; overflow: hidden; background: rgb(245, 243, 238); transform: scale(0.773697);">
+
+              <div data-scr="1" data-screen-label="01" style="position:absolute;inset:0;overflow:hidden;opacity:1"><div style="width: 390px; height: 844px; background: #151513; color: #FFFFFF; position: relative; overflow: hidden; display: flex; flex-direction: column">
+
+  <!-- кадр камеры (в макете — заливка вместо живого видео) -->
+  <div style="position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% 42%, #3A3833 0%, #211F1B 55%, #121110 100%)"></div>
+  <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.25)"></div>
+
+  <!-- верхний скрим -->
+  <div style="position: absolute; left: 0; right: 0; top: 0; height: 180px; background: linear-gradient(to bottom, rgba(0,0,0,0.75), rgba(0,0,0,0.3) 50%, transparent)"></div>
+
+  <!-- ЗОНА 1 — верх -->
+  <div style="position: relative; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 12px 16px 0">
+    <div style="display: flex; align-items: center; justify-content: center; height: 40px; width: 40px; flex-shrink: 0; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.3)">
+      <svg width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="m4.5 4.5 9 9M13.5 4.5l-9 9" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"></path></svg>
+    </div>
+    <div style="position: relative; margin: 0 auto; display: flex; height: 40px; width: 220px; flex-shrink: 0; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.35); padding: 4px">
+      <div style="display: flex; align-items: center; justify-content: center; height: 32px; flex: 1; border-radius: 999px; background: #DDFF33; font-size: 13px; font-weight: 700; color: #111110">Скан</div>
+      <div style="display: flex; align-items: center; justify-content: center; height: 32px; flex: 1; border-radius: 999px; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75)">Фото</div>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: center; height: 40px; width: 40px; flex-shrink: 0; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.3)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M13 2L5 13H11L9 22L19 10H12.5L13 2Z" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round"></path></svg>
+    </div>
+  </div>
+
+  <!-- ЗОНА 2 — рамка сканера -->
+  <div style="position: relative; z-index: 2; flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 16px">
+    <div style="position: relative; height: 232px; width: 232px">
+      <svg width="232" height="232" viewBox="0 0 232 232" fill="none" style="position: absolute; inset: 0">
+        <path d="M6 54V22C6 13.2 13.2 6 22 6H54" stroke="#DDFF33" stroke-width="5" stroke-linecap="round"></path>
+        <path d="M178 6H210C218.8 6 226 13.2 226 22V54" stroke="#DDFF33" stroke-width="5" stroke-linecap="round"></path>
+        <path d="M226 178V210C226 218.8 218.8 226 210 226H178" stroke="#DDFF33" stroke-width="5" stroke-linecap="round"></path>
+        <path d="M54 226H22C13.2 226 6 218.8 6 210V178" stroke="#DDFF33" stroke-width="5" stroke-linecap="round"></path>
+      </svg>
+      <div style="position: absolute; left: 22px; right: 22px; top: 104px; height: 3px; border-radius: 999px; background: rgba(221,255,51,0.6); box-shadow: 0 0 18px rgba(221,255,51,0.5)"></div>
+    </div>
+  </div>
+
+  <!-- нижний скрим -->
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 230px; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.35) 50%, transparent)"></div>
+
+  <!-- ЗОНА 3 — низ -->
+  <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 0 16px 28px">
+    <div style="text-align: center; font-size: 15px; font-weight: 600; color: #FFFFFF">Наведите на QR-код чека</div>
+    <div style="display: flex; align-items: center; gap: 8px">
+      <div style="display: flex; align-items: center; gap: 6px; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.95); padding: 0 12px">
+        <img src="mysoliq.svg" alt="" style="height: 18px; width: auto">
+        <span style="font-size: 11.5px; font-weight: 700; color: #364BA8">MySoliq</span>
+      </div>
+      <div style="display: flex; align-items: center; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.95); padding: 0 12px">
+        <img src="rahmat.svg" alt="Rahmat" style="height: 13px; width: auto">
+      </div>
+    </div>
+    <div style="font-size: 13.5px; font-weight: 700; color: rgba(255,255,255,0.75)">Ввести сумму вручную</div>
+  </div>
+</div></div>
+
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+
             </div>
           </div>
-        </div>
+        </div></section>
+<section style="position: relative; background: rgb(17, 17, 16); padding: 44px 0px;"><div data-r="pinrow" style="display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; max-width: 1440px; margin: 0px auto; padding: 0px 48px; flex-direction: column;">
+
+          <div data-r="dots" style="display: flex; flex-direction: row; gap: 10px; order: 0;">
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(221, 255, 51); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(2);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+          </div>
+
+          <div data-r="pintext" style="position: relative; flex: 1 1 0%; max-width: 100%; min-height: auto; order: 2; text-align: center;">
+            
+            <div data-txt="1" style="position: relative; inset: auto; opacity: 1;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#DDFF33;margin-bottom:20px">02 · ЧЕК</div>
+              <h3 style="margin:0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Один чек на троих.</h3>
+              <p style="margin:18px 0 0;font-size:18px;line-height:1.5;color:#B3B1A8;font-weight:500">ZAP! видит сам счёт: что заказали, сколько стоит, кто что взял.</p>
+            </div>
+            
+            
+            
+            
+            
+            
+          </div>
+
+          <div style="position: relative; flex: 0 0 auto; height: 675.188px; width: auto; aspect-ratio: 410 / 864; border-radius: 48px; border: 1px solid rgb(62, 60, 53); background: rgb(14, 14, 12); padding: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 50px 110px;">
+            <div style="position: absolute; top: 10px; left: 10px; width: 390px; height: 844px; transform-origin: 0px 0px; border-radius: 40px; overflow: hidden; background: rgb(245, 243, 238); transform: scale(0.773697);">
+
+              
+
+              <div data-scr="1" data-screen-label="02" style="position: absolute; inset: 0px; overflow: hidden; opacity: 1;"><div style="width: 390px; height: 844px; background: #FFFFFF; color: #111110; display: flex; flex-direction: column; padding: 24px 20px 46px; overflow: hidden">
+
+  <div style="display: flex; align-items: center; justify-content: center; height: 44px; width: 44px; border-radius: 999px; background: #F5F3EE">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </div>
+
+  <div style="margin-top: 26px; padding: 0 4px">
+    <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px">
+      <img src="bellissimo.png" alt="Bellissimo Pizza" style="height: 84px; width: 84px; object-fit: cover; margin-left: -10px">
+      <div style="font-size: 19px; font-weight: 800">Bellissimo Pizza</div>
+      <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 9.5px; font-weight: 700; letter-spacing: 0.12em; color: #A3A199">ЗАКАЗ #481 · СТОЛ 12 · 21:42</div>
+    </div>
+
+    <div style="margin-top: 16px; border-top: 2px dashed #E8E6DE"></div>
+
+    <div style="margin-top: 10px; display: flex; flex-direction: column">
+      <div style="display: flex; min-height: 34px; align-items: center; justify-content: space-between">
+        <div style="font-size: 14px; font-weight: 600">Пицца Пепперони ×2</div>
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums">380 000</div>
       </div>
-      <div style="position: relative; display: flex; justify-content: center">
-        <div style="position: relative; z-index: 1; width: 296px; border-radius: 46px; padding: 10px; background: linear-gradient(155deg, #4A4A4A 0%, #141414 34%, #0B0B0B 62%, #3A3A3A 100%); box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 70px 130px -46px rgba(0,0,0,1), 0 0 90px -44px rgba(221,255,51,0.4)">
-          <div style="overflow: hidden; border-radius: 37px; background: #000"><img src="shot-cashback.webp" alt="Кэшбэк зачислен" style="display: block; width: 100%; height: 600px; object-fit: cover; object-position: top"></div>
-        </div>
+      <div style="display: flex; min-height: 34px; align-items: center; justify-content: space-between">
+        <div style="font-size: 14px; font-weight: 600">Паста Карбонара</div>
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums">320 000</div>
       </div>
+      <div style="display: flex; min-height: 34px; align-items: center; justify-content: space-between">
+        <div style="font-size: 14px; font-weight: 600">Лимонад ×4</div>
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums">200 000</div>
+      </div>
+      <div style="display: flex; min-height: 34px; align-items: center; justify-content: space-between">
+        <div style="font-size: 14px; font-weight: 600">Тирамису ×3</div>
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12.5px; font-weight: 700; font-variant-numeric: tabular-nums">300 000</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 10px; border-top: 2px dashed #E8E6DE"></div>
+
+    <div style="margin-top: 14px; display: flex; align-items: baseline; justify-content: space-between">
+      <div style="font-size: 15px; font-weight: 800">Итого</div>
+      <div style="display: flex; align-items: baseline; gap: 6px">
+        <div style="font-size: 19px; font-weight: 800; letter-spacing: -0.01em">1 200 000</div>
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 700; color: #A3A199">UZS</div>
+      </div>
+    </div>
+
+    <div style="margin-top: 12px; display: flex; align-items: center; gap: 8px; height: 36px; border-radius: 999px; background: #F7F5F0; padding: 0 14px">
+      <div style="font-size: 12.5px; font-weight: 700">Кэшбэк ×2 — если сплитите вдвоём и больше</div>
     </div>
   </div>
 
+  <div style="flex: 1"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #DDFF33; font-size: 16px; font-weight: 800; color: #111110">Разделить</div>
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #F5F3EE; font-size: 16px; font-weight: 700; color: #111110">Оплатить целиком</div>
+  </div>
+</div></div>
+
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+
+            </div>
+          </div>
+        </div></section>
 </div>
       </div>
     </div>
@@ -151,121 +423,927 @@
     <div style="display: flex; flex-direction: column">
       <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px">
         <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 700; background: #E3E1D8; border-radius: 6px; padding: 3px 7px; color: #111110">М2</div>
-        <div style="font-size: 13px; font-weight: 600; color: #8A887E">Долги · экраны · цифры · заведениям · финал</div>
+        <div style="font-size: 13px; font-weight: 600; color: #8A887E">Шаги 03–06</div>
       </div>
       <div style="border-radius: 28px; overflow: hidden; box-shadow: 0 20px 44px -26px rgba(17,17,16,0.5); width: fit-content">
-<div style="width: 390px; background: #000000; color: #FFFFFF; overflow: hidden; position: relative">  <!-- ФИЧА 3 -->
-  <div style="position: relative; padding: 0 24px 118px; overflow: hidden">
-    <div style="position: relative; display: flex; flex-direction: column; gap: 56px">
+<div style="width: 390px; background: #111110; color: #F5F3EE; font-family: 'Manrope', Helvetica, Arial, sans-serif; position: relative; overflow: hidden">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#111110;color:#F5F3EE;font-family:Manrope,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:#DDFF33;text-decoration:none}
+  a:hover{color:#F5F3EE}
+  @keyframes zpulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+  @keyframes zdrift{0%{background-position:0 0}100%{background-position:480px 480px}}
+  
+  
+  
+  
+</style>
+<section style="position: relative; background: rgb(17, 17, 16); padding: 44px 0px;"><div data-r="pinrow" style="display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; max-width: 1440px; margin: 0px auto; padding: 0px 48px; flex-direction: column;">
+
+          <div data-r="dots" style="display: flex; flex-direction: row; gap: 10px; order: 0;">
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(221, 255, 51); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(2);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+          </div>
+
+          <div data-r="pintext" style="position: relative; flex: 1 1 0%; max-width: 100%; min-height: auto; order: 2; text-align: center;">
+            
+            
+            <div data-txt="1" style="position: relative; inset: auto; opacity: 1;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#DDFF33;margin-bottom:20px">03 · ДЕЛЕНИЕ</div>
+              <h3 style="margin:0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Счёт делится между друзьями.</h3>
+              <p style="margin:18px 0 0;font-size:18px;line-height:1.5;color:#B3B1A8;font-weight:500">Поровну, по позициям или как договорились. Десять секунд — и у каждого своя доля.</p>
+            </div>
+            
+            
+            
+            
+            
+          </div>
+
+          <div style="position: relative; flex: 0 0 auto; height: 675.188px; width: auto; aspect-ratio: 410 / 864; border-radius: 48px; border: 1px solid rgb(62, 60, 53); background: rgb(14, 14, 12); padding: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 50px 110px;">
+            <div style="position: absolute; top: 10px; left: 10px; width: 390px; height: 844px; transform-origin: 0px 0px; border-radius: 40px; overflow: hidden; background: rgb(245, 243, 238); transform: scale(0.773697);">
+
+              
+
+              
+
+              <div data-scr="1" data-screen-label="03" style="position: absolute; inset: 0px; overflow: hidden; opacity: 1;"><div style="width: 390px; height: 844px; background: #FFFFFF; color: #111110; display: flex; flex-direction: column; padding: 24px 24px 46px; overflow: hidden">
+
+  <div style="display: flex; align-items: center; justify-content: center; height: 44px; width: 44px; border-radius: 999px; background: #F5F3EE">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </div>
+
+  <div style="margin-top: 26px; font-size: 27px; font-weight: 800; letter-spacing: -0.01em">С кем делим?</div>
+
+  <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 14px">
+    <div style="font-size: 40px; font-weight: 800; line-height: 1; letter-spacing: -0.03em">1 200 000</div>
+    <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 700; color: #A3A199">UZS</div>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 10px; margin-top: 14px; border-bottom: 2px solid #DDFF33; padding-bottom: 10px">
+    <div style="flex-shrink: 0; font-size: 15.5px; font-weight: 800; color: #8A887E">За что</div>
+    <div style="flex: 1; font-size: 16px; font-weight: 700">Ужин пятница 🍕</div>
+  </div>
+
+  <div style="margin-top: 8px; font-size: 12.5px; font-weight: 600; color: #B3B1A8">по 400 000 на человека</div>
+
+  <div style="display: flex; gap: 8px; margin-top: 22px">
+    <div style="display: flex; align-items: center; height: 40px; border-radius: 999px; padding: 0 18px; font-size: 13.5px; font-weight: 800; background: #DDFF33; color: #111110">Поровну</div>
+    <div style="display: flex; align-items: center; height: 40px; border-radius: 999px; padding: 0 18px; font-size: 13.5px; font-weight: 700; background: #F5F3EE; color: #5B594F">Вручную</div>
+    <div style="display: flex; align-items: center; height: 40px; border-radius: 999px; padding: 0 18px; font-size: 13.5px; font-weight: 700; background: #F5F3EE; color: #5B594F">Позиции</div>
+  </div>
+
+  <!-- участники -->
+  <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 28px">
+    <div style="display: flex; align-items: center; gap: 14px">
+      <img src="a12.png" alt="Ислам" style="height: 48px; width: 48px; border-radius: 999px; object-fit: cover; flex-shrink: 0">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px">
+        <div style="font-size: 16px; font-weight: 700">Ислам · вы</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #B3B1A8">оплатите сразу</div>
+      </div>
+      <div style="font-size: 16px; font-weight: 800">400 000</div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px">
+      <img src="a33.png" alt="Али" style="height: 48px; width: 48px; border-radius: 999px; object-fit: cover; flex-shrink: 0">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px">
+        <div style="font-size: 16px; font-weight: 700">Али</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #B3B1A8">@ali · ссылка в SMS</div>
+      </div>
+      <div style="font-size: 16px; font-weight: 800">400 000</div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 14px">
+      <img src="a68.png" alt="Бек" style="height: 48px; width: 48px; border-radius: 999px; object-fit: cover; flex-shrink: 0; filter: grayscale(1)">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px">
+        <div style="font-size: 16px; font-weight: 700">Бек</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #B3B1A8">сейчас без денег — беру в долг</div>
+      </div>
+      <div style="display: flex; align-items: center; height: 30px; border-radius: 999px; background: #111110; padding: 0 12px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: #DDFF33">В ДОЛГ</div>
+    </div>
+  </div>
+
+  <!-- добавить -->
+  <div style="display: flex; align-items: baseline; justify-content: space-between; margin-top: 24px">
+    <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; color: #A3A199">ДОБАВИТЬ</div>
+    <div style="font-size: 13px; font-weight: 700; color: #8A887E">Все контакты ›</div>
+  </div>
+  <div style="display: flex; gap: 14px; margin-top: 14px">
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="position: relative; height: 52px; width: 52px">
+        <img src="a11.png" alt="Азиз" style="height: 52px; width: 52px; border-radius: 999px; object-fit: cover">
+        <div style="position: absolute; bottom: -2px; right: -2px; display: flex; align-items: center; justify-content: center; height: 20px; width: 20px; border-radius: 999px; border: 2px solid #FFFFFF; background: #DDFF33; font-size: 12px; font-weight: 700; color: #111110">+</div>
+      </div>
+      <div style="font-size: 11.5px; font-weight: 700">Азиз</div>
+    </div>
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="position: relative; height: 52px; width: 52px">
+        <img src="a15.png" alt="Тимур" style="height: 52px; width: 52px; border-radius: 999px; object-fit: cover">
+        <div style="position: absolute; bottom: -2px; right: -2px; display: flex; align-items: center; justify-content: center; height: 20px; width: 20px; border-radius: 999px; border: 2px solid #FFFFFF; background: #DDFF33; font-size: 12px; font-weight: 700; color: #111110">+</div>
+      </div>
+      <div style="font-size: 11.5px; font-weight: 700">Тимур</div>
+    </div>
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="position: relative; height: 52px; width: 52px">
+        <img src="a47.png" alt="Мадина" style="height: 52px; width: 52px; border-radius: 999px; object-fit: cover">
+        <div style="position: absolute; bottom: -2px; right: -2px; display: flex; align-items: center; justify-content: center; height: 20px; width: 20px; border-radius: 999px; border: 2px solid #FFFFFF; background: #DDFF33; font-size: 12px; font-weight: 700; color: #111110">+</div>
+      </div>
+      <div style="font-size: 11.5px; font-weight: 700">Мадина</div>
+    </div>
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="display: flex; align-items: center; justify-content: center; height: 52px; width: 52px; border-radius: 999px; background: #F5F3EE">
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+          <circle cx="9.5" cy="9.5" r="6.5" stroke="#A3A199" stroke-width="2.2"></circle>
+          <line x1="14.5" y1="14.5" x2="19" y2="19" stroke="#A3A199" stroke-width="2.2" stroke-linecap="round"></line>
+        </svg>
+      </div>
+      <div style="font-size: 11.5px; font-weight: 700; color: #A3A199">Найти</div>
+    </div>
+    <div style="display: flex; min-width: 56px; flex-direction: column; align-items: center; gap: 6px">
+      <div style="display: flex; align-items: center; justify-content: center; height: 52px; width: 52px; border-radius: 999px; background: #F5F3EE; font-size: 22px; font-weight: 600; color: #A3A199">+</div>
+      <div style="font-size: 11.5px; font-weight: 700; color: #A3A199">Номер</div>
+    </div>
+  </div>
+
+  <div style="flex: 1"></div>
+
+  <div style="padding-top: 16px">
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; width: 100%; border-radius: 999px; background: #DDFF33; font-size: 16px; font-weight: 800; color: #111110">Сплит · оплатить 800 000</div>
+    <div style="margin-top: 12px; text-align: center; font-size: 12px; font-weight: 600; color: #8A887E">Ваша доля 400 000 + Бек в долг 400 000</div>
+  </div>
+</div></div>
+
+              
+
+              
+
+              
+
+              
+
+              
+
+            </div>
+          </div>
+        </div></section>
+<section style="position: relative; background: rgb(17, 17, 16); padding: 44px 0px;"><div data-r="pinrow" style="display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; max-width: 1440px; margin: 0px auto; padding: 0px 48px; flex-direction: column;">
+
+          <div data-r="dots" style="display: flex; flex-direction: row; gap: 10px; order: 0;">
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(221, 255, 51); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(2);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+          </div>
+
+          <div data-r="pintext" style="position: relative; flex: 1 1 0%; max-width: 100%; min-height: auto; order: 2; text-align: center;">
+            
+            
+            
+            <div data-txt="1" style="position: relative; inset: auto; opacity: 1;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#DDFF33;margin-bottom:20px">04 · ДОЛИ</div>
+              <h3 style="margin:0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Никто не остаётся должен в уме.</h3>
+              <p style="margin:18px 0 0;font-size:18px;line-height:1.5;color:#B3B1A8;font-weight:500">У кого сейчас нет денег — берёт в долг прямо в ZAP!. Ты покрываешь долю, приложение помнит и закроет её само.</p>
+            </div>
+            
+            
+            
+            
+          </div>
+
+          <div style="position: relative; flex: 0 0 auto; height: 675.188px; width: auto; aspect-ratio: 410 / 864; border-radius: 48px; border: 1px solid rgb(62, 60, 53); background: rgb(14, 14, 12); padding: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 50px 110px;">
+            <div style="position: absolute; top: 10px; left: 10px; width: 390px; height: 844px; transform-origin: 0px 0px; border-radius: 40px; overflow: hidden; background: rgb(245, 243, 238); transform: scale(0.773697);">
+
+              
+
+              
+
+              
+
+              <div data-scr="1" data-screen-label="04" style="position: absolute; inset: 0px; overflow: hidden; opacity: 1;"><div style="width: 390px; height: 844px; background: #FFFFFF; color: #111110; display: flex; flex-direction: column; padding: 24px 24px 40px; overflow: hidden">
+  <div style="display: flex; align-items: center; justify-content: center; height: 44px; width: 44px; border-radius: 999px; background: #F5F3EE">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </div>
+
+  <div style="margin-top: 24px; font-size: 27px; font-weight: 800; letter-spacing: -0.01em">Вам должны</div>
+  <div style="margin-top: 12px; display: flex; align-items: baseline; gap: 8px">
+    <div style="font-size: 44px; font-weight: 800; line-height: 1; letter-spacing: -0.03em">633 000</div>
+    <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 700; color: #A3A199">UZS · 3 ЧЕЛОВЕКА</div>
+  </div>
+
+  <div style="display: flex; gap: 8px; margin-top: 20px">
+    <div style="display: flex; align-items: center; height: 38px; border-radius: 999px; padding: 0 16px; font-size: 13px; font-weight: 800; background: #DDFF33; color: #111110">Вам должны</div>
+    <div style="display: flex; align-items: center; height: 38px; border-radius: 999px; padding: 0 16px; font-size: 13px; font-weight: 700; background: #F5F3EE; color: #5B594F">Вы должны · 0</div>
+  </div>
+
+  <div style="margin-top: 22px; display: flex; flex-direction: column">
+    <div style="display: flex; min-height: 74px; align-items: center; gap: 14px; border-bottom: 1px solid #F0EEE8">
+      <img src="a68.png" alt="Бек" style="height: 48px; width: 48px; border-radius: 999px; object-fit: cover">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px">
+        <div style="font-size: 16px; font-weight: 700">Бек</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #B3B1A8">Bellissimo · вы покрыли его долю · сегодня</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px">
+        <div style="font-size: 16px; font-weight: 800">400 000</div>
+        <div style="display: flex; align-items: center; height: 28px; border-radius: 999px; background: #111110; padding: 0 11px; font-size: 11.5px; font-weight: 700; color: #DDFF33">Напомнить</div>
+      </div>
+    </div>
+    <div style="display: flex; min-height: 74px; align-items: center; gap: 14px; border-bottom: 1px solid #F0EEE8">
+      <img src="a11.png" alt="Азиз" style="height: 48px; width: 48px; border-radius: 999px; object-fit: cover">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px">
+        <div style="font-size: 16px; font-weight: 700">Азиз</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #B3B1A8">Yandex Go · в пятницу</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px">
+        <div style="font-size: 16px; font-weight: 800">193 000</div>
+        <div style="display: flex; align-items: center; height: 28px; border-radius: 999px; background: #F5F3EE; padding: 0 11px; font-size: 11.5px; font-weight: 700; color: #8A887E">Обещал в пн</div>
+      </div>
+    </div>
+    <div style="display: flex; min-height: 74px; align-items: center; gap: 14px">
+      <img src="a47.png" alt="Мадина" style="height: 48px; width: 48px; border-radius: 999px; object-fit: cover">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 2px">
+        <div style="font-size: 16px; font-weight: 700">Мадина</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #B3B1A8">Кино · 15 августа</div>
+      </div>
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 5px">
+        <div style="font-size: 16px; font-weight: 800">40 000</div>
+        <div style="display: flex; align-items: center; height: 28px; border-radius: 999px; background: #111110; padding: 0 11px; font-size: 11.5px; font-weight: 700; color: #DDFF33">Напомнить</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; border-top: 1px solid #F0EEE8; padding-top: 16px">
+    <div style="font-size: 12.5px; font-weight: 600; line-height: 1.45; color: #8A887E">Долг закрывается автоматически, когда человек вносит сумму в ZAP! — вы получите пуш и кэшбэк за сплит.</div>
+  </div>
+
+  <div style="flex: 1"></div>
+
+  <div style="margin-top: 20px; display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #DDFF33; font-size: 16px; font-weight: 800; color: #111110">Напомнить всем</div>
+</div></div>
+
+              
+
+              
+
+              
+
+              
+
+            </div>
+          </div>
+        </div></section>
+<section style="position: relative; background: rgb(17, 17, 16); padding: 44px 0px;"><div data-r="pinrow" style="display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; max-width: 1440px; margin: 0px auto; padding: 0px 48px; flex-direction: column;">
+
+          <div data-r="dots" style="display: flex; flex-direction: row; gap: 10px; order: 0;">
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(221, 255, 51); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(2);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+          </div>
+
+          <div data-r="pintext" style="position: relative; flex: 1 1 0%; max-width: 100%; min-height: auto; order: 2; text-align: center;">
+            
+            
+            
+            
+            <div data-txt="1" style="position: relative; inset: auto; opacity: 1;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#DDFF33;margin-bottom:20px">05 · ССЫЛКА</div>
+              <h3 style="margin:0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Приложение нужно только тебе.</h3>
+              <p style="margin:18px 0 0;font-size:18px;line-height:1.5;color:#B3B1A8;font-weight:500">Друзья получают ссылку в SMS и платят прямо из неё. Без установки.</p>
+            </div>
+            
+            
+            
+          </div>
+
+          <div style="position: relative; flex: 0 0 auto; height: 675.188px; width: auto; aspect-ratio: 410 / 864; border-radius: 48px; border: 1px solid rgb(62, 60, 53); background: rgb(14, 14, 12); padding: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 50px 110px;">
+            <div style="position: absolute; top: 10px; left: 10px; width: 390px; height: 844px; transform-origin: 0px 0px; border-radius: 40px; overflow: hidden; background: rgb(245, 243, 238); transform: scale(0.773697);">
+
+              
+
+              
+
+              
+
+              
+
+              <div data-scr="1" data-screen-label="05" style="position: absolute; inset: 0px; overflow: hidden; opacity: 1;"><div style="width: 390px; height: 844px; background: #FFFFFF; color: #111110; display: flex; flex-direction: column; padding: 24px 24px 40px; overflow: hidden">
+  <div style="display: flex; align-items: center; justify-content: center; height: 44px; width: 44px; border-radius: 999px; background: #F5F3EE">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </div>
+
+  <div style="margin-top: 22px; font-size: 25px; font-weight: 800; letter-spacing: -0.01em">Покажите QR друзьям</div>
+  <div style="margin-top: 5px; font-size: 13.5px; font-weight: 600; color: #8A887E">Bellissimo Pizza · #481 · по 400 000 с человека</div>
+
+  <div style="margin-top: 22px; display: flex; justify-content: center">
+    <div style="display: flex; align-items: center; justify-content: center; height: 214px; width: 214px; border-radius: 26px; background: #F7F5F0; padding: 16px">
+      <svg xmlns="http://www.w3.org/2000/svg" width="182" height="182" viewBox="0 0 25 25" shape-rendering="crispEdges"><path fill="#F7F5F0" d="M0 0h25v25H0z"></path><path stroke="#111110" d="M0 0.5h7m2 0h2m1 0h1m2 0h2m1 0h7M0 1.5h1m5 0h1m3 0h1m2 0h3m2 0h1m5 0h1M0 2.5h1m1 0h3m1 0h1m1 0h1m1 0h6m2 0h1m1 0h3m1 0h1M0 3.5h1m1 0h3m1 0h1m1 0h1m6 0h1m2 0h1m1 0h3m1 0h1M0 4.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m3 0h1m1 0h3m1 0h1M0 5.5h1m5 0h1m1 0h6m1 0h2m1 0h1m5 0h1M0 6.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M8 7.5h3m1 0h1m1 0h1M0 8.5h1m1 0h5m2 0h1m3 0h1m1 0h2m1 0h5M2 9.5h1m2 0h1m1 0h1m1 0h2m2 0h1m2 0h1m2 0h1m3 0h1M0 10.5h3m1 0h4m1 0h1m4 0h3m1 0h1m1 0h2m1 0h2M2 11.5h2m1 0h1m3 0h1m1 0h1m2 0h1m1 0h3m1 0h1m3 0h1M1 12.5h2m3 0h1m1 0h1m1 0h1m2 0h1m3 0h4m1 0h3M0 13.5h5m7 0h3m2 0h1m1 0h1m1 0h1m1 0h1M0 14.5h1m1 0h1m2 0h2m1 0h1m1 0h1m3 0h2m2 0h4m1 0h2M0 15.5h1m1 0h1m1 0h1m2 0h4m1 0h1m1 0h1m3 0h3m3 0h1M0 16.5h1m1 0h2m1 0h2m5 0h1m3 0h5m1 0h1M8 17.5h3m3 0h1m1 0h1m3 0h2M0 18.5h7m2 0h5m2 0h1m1 0h1m1 0h1m1 0h3M0 19.5h1m5 0h1m1 0h1m2 0h1m4 0h1m3 0h2m2 0h1M0 20.5h1m1 0h3m1 0h1m1 0h1m1 0h11m1 0h1m1 0h1M0 21.5h1m1 0h3m1 0h1m1 0h2m2 0h1m5 0h1m1 0h5M0 22.5h1m1 0h3m1 0h1m1 0h3m1 0h3m6 0h2m1 0h1M0 23.5h1m5 0h1m2 0h2m1 0h1m3 0h2m1 0h3m2 0h1M0 24.5h7m1 0h2m2 0h1m6 0h6"></path></svg>
+    </div>
+  </div>
+  <div style="margin-top: 12px; text-align: center; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; color: #A3A199">zap.uz/s/481-FRD</div>
+
+  <div style="margin-top: 20px; display: flex; align-items: center; gap: 10px">
+    <div style="display: flex">
+      <img src="a12.png" alt="" style="height: 34px; width: 34px; border-radius: 999px; object-fit: cover; border: 2px solid #FFFFFF">
+      <img src="a33.png" alt="" style="height: 34px; width: 34px; border-radius: 999px; object-fit: cover; border: 2px solid #FFFFFF; margin-left: -10px">
+      <img src="a68.png" alt="" style="height: 34px; width: 34px; border-radius: 999px; object-fit: cover; border: 2px solid #FFFFFF; margin-left: -10px">
+    </div>
+    <div style="flex: 1; font-size: 12.5px; font-weight: 600; color: #8A887E">Вы оплатили · ждём Али</div>
+  </div>
+
+  <div style="flex: 1"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 16px">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; border-radius: 999px; background: #DDFF33; font-size: 16px; font-weight: 800; color: #111110">
+      <svg width="19" height="19" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="4" width="16" height="12" rx="3" stroke="#111110" stroke-width="1.8"></rect>
+        <path d="M2.5 6.5L10 11L17.5 6.5" stroke="#111110" stroke-width="1.8" stroke-linejoin="round"></path>
+      </svg>
+      Отправить SMS со ссылкой
+    </div>
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #F5F3EE; font-size: 16px; font-weight: 700; color: #111110">Скопировать ссылку</div>
+    <div style="text-align: center; padding: 4px 0; font-size: 13px; font-weight: 700; color: #8A887E">К статусу сплита ›</div>
+  </div>
+</div></div>
+
+              
+
+              
+
+              
+
+            </div>
+          </div>
+        </div></section>
+<section style="position: relative; background: rgb(17, 17, 16); padding: 44px 0px;"><div data-r="pinrow" style="display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; max-width: 1440px; margin: 0px auto; padding: 0px 48px; flex-direction: column;">
+
+          <div data-r="dots" style="display: flex; flex-direction: row; gap: 10px; order: 0;">
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(221, 255, 51); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(2);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+          </div>
+
+          <div data-r="pintext" style="position: relative; flex: 1 1 0%; max-width: 100%; min-height: auto; order: 2; text-align: center;">
+            
+            
+            
+            
+            
+            <div data-txt="1" style="position: relative; inset: auto; opacity: 1;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#DDFF33;margin-bottom:20px">06 · УЧАСТНИК</div>
+              <h3 style="margin:0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Друг платит за две секунды.</h3>
+              <p style="margin:18px 0 0;font-size:18px;line-height:1.5;color:#B3B1A8;font-weight:500">Открыл ссылку, увидел свою долю, оплатил картой. Ничего не устанавливал.</p>
+            </div>
+            
+            
+          </div>
+
+          <div style="position: relative; flex: 0 0 auto; height: 675.188px; width: auto; aspect-ratio: 410 / 864; border-radius: 48px; border: 1px solid rgb(62, 60, 53); background: rgb(14, 14, 12); padding: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 50px 110px;">
+            <div style="position: absolute; top: 10px; left: 10px; width: 390px; height: 844px; transform-origin: 0px 0px; border-radius: 40px; overflow: hidden; background: rgb(245, 243, 238); transform: scale(0.773697);">
+
+              
+
+              
+
+              
+
+              
+
+              
+
+              <div data-scr="1" data-screen-label="06" style="position: absolute; inset: 0px; overflow: hidden; opacity: 1;"><div style="width: 390px; height: 844px; background: #FFFFFF; color: #111110; display: flex; flex-direction: column; padding: 24px 24px 46px; overflow: hidden">
+  <div style="display: flex; align-items: center; justify-content: space-between">
+    <img src="zap-wordmark.png" alt="ZAP!" style="height: 48px; width: auto; display: block">
+  </div>
+
+  <div style="margin-top: 26px">
+    <div style="display: flex; align-items: center; gap: 10px">
+      <div style="display: flex; align-items: center; justify-content: center; height: 34px; width: 34px; border-radius: 999px; background: #111110; font-size: 14px; font-weight: 800; color: #DDFF33">И</div>
+      <div style="font-size: 13.5px; font-weight: 600; color: #8A887E">Ислам просит вашу долю</div>
+    </div>
+    <div style="margin-top: 16px; font-size: 26px; font-weight: 800; letter-spacing: -0.01em">Ужин пятница 🍕</div>
+    <div style="margin-top: 5px; font-size: 13.5px; font-weight: 600; color: #8A887E">заказ #481 · 3 человека</div>
+    <div style="margin-top: 22px; display: flex; align-items: baseline; gap: 8px">
+      <div style="font-size: 46px; font-weight: 800; line-height: 1; letter-spacing: -0.03em">400 000</div>
+      <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 700; color: #A3A199">UZS · ВАША ДОЛЯ</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 30px; font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 10px; font-weight: 700; letter-spacing: 0.16em; color: #A3A199">ВНЕСТИ СРАЗУ</div>
+  <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px">
+    <div style="display: flex; height: 62px; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 18px; border: 2px solid #DDFF33">
+      <div style="font-size: 15px; font-weight: 800">400 000</div>
+      <div style="font-size: 10.5px; font-weight: 700; color: #8A887E">моя доля</div>
+    </div>
+    <div style="display: flex; height: 62px; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 18px; background: #F5F3EE">
+      <div style="font-size: 15px; font-weight: 800">200 000</div>
+      <div style="font-size: 10.5px; font-weight: 700; color: #8A887E">половина</div>
+    </div>
+    <div style="display: flex; height: 62px; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-radius: 18px; background: #F5F3EE">
+      <div style="font-size: 15px; font-weight: 800">800 000</div>
+      <div style="font-size: 10.5px; font-weight: 700; color: #8A887E">за двоих</div>
+    </div>
+    <div style="display: flex; height: 62px; align-items: center; justify-content: center; border-radius: 18px; background: #F5F3EE; font-size: 15px; font-weight: 800">100 000</div>
+    <div style="display: flex; height: 62px; align-items: center; justify-content: center; border-radius: 18px; background: #F5F3EE; font-size: 15px; font-weight: 800">250 000</div>
+    <div style="display: flex; height: 62px; align-items: center; justify-content: center; border-radius: 18px; background: #F5F3EE; font-size: 19px; font-weight: 700; color: #A3A199">···</div>
+  </div>
+
+  <div style="margin-top: 18px; display: flex; align-items: center; gap: 8px">
+    <div style="height: 9px; width: 9px; border-radius: 999px; border: 2px solid #111110; background: #DDFF33"></div>
+    <div style="font-size: 12px; font-weight: 600; color: #8A887E">Внесёте всей группой — кэшбэк ×2 каждому</div>
+  </div>
+
+  <div style="flex: 1"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #DDFF33; font-size: 16px; font-weight: 800; color: #111110">Внести 400 000</div>
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #F5F3EE; font-size: 16px; font-weight: 700; color: #111110">Позже</div>
+  </div>
+</div></div>
+
+              
+
+              
+
+            </div>
+          </div>
+        </div></section>
+</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px">
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 700; background: #E3E1D8; border-radius: 6px; padding: 3px 7px; color: #111110">М3</div>
+        <div style="font-size: 13px; font-weight: 600; color: #8A887E">Шаги 07–08 · причины</div>
+      </div>
+      <div style="border-radius: 28px; overflow: hidden; box-shadow: 0 20px 44px -26px rgba(17,17,16,0.5); width: fit-content">
+<div style="width: 390px; background: #111110; color: #F5F3EE; font-family: 'Manrope', Helvetica, Arial, sans-serif; position: relative; overflow: hidden">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#111110;color:#F5F3EE;font-family:Manrope,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:#DDFF33;text-decoration:none}
+  a:hover{color:#F5F3EE}
+  @keyframes zpulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+  @keyframes zdrift{0%{background-position:0 0}100%{background-position:480px 480px}}
+  
+  
+  
+  
+</style>
+<section style="position: relative; background: rgb(17, 17, 16); padding: 44px 0px;"><div data-r="pinrow" style="display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; max-width: 1440px; margin: 0px auto; padding: 0px 48px; flex-direction: column;">
+
+          <div data-r="dots" style="display: flex; flex-direction: row; gap: 10px; order: 0;">
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(221, 255, 51); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(2);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+          </div>
+
+          <div data-r="pintext" style="position: relative; flex: 1 1 0%; max-width: 100%; min-height: auto; order: 2; text-align: center;">
+            
+            
+            
+            
+            
+            
+            <div data-txt="1" style="position: relative; inset: auto; opacity: 1;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#DDFF33;margin-bottom:20px">07 · СТАТУС</div>
+              <h3 style="margin:0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Видно всё в реальном времени.</h3>
+              <p style="margin:18px 0 0;font-size:18px;line-height:1.5;color:#B3B1A8;font-weight:500">Кто оплатил, кто открыл, кому напомнить.</p>
+            </div>
+            
+          </div>
+
+          <div style="position: relative; flex: 0 0 auto; height: 675.188px; width: auto; aspect-ratio: 410 / 864; border-radius: 48px; border: 1px solid rgb(62, 60, 53); background: rgb(14, 14, 12); padding: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 50px 110px;">
+            <div style="position: absolute; top: 10px; left: 10px; width: 390px; height: 844px; transform-origin: 0px 0px; border-radius: 40px; overflow: hidden; background: rgb(245, 243, 238); transform: scale(0.773697);">
+
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+
+              <div data-scr="1" data-screen-label="07" style="position: absolute; inset: 0px; overflow: hidden; opacity: 1;"><div style="width: 390px; height: 844px; background: #FFFFFF; color: #111110; display: flex; flex-direction: column; padding: 24px 20px 46px; overflow: hidden">
+  <div style="display: flex; align-items: center; justify-content: center; height: 44px; width: 44px; border-radius: 999px; background: #F5F3EE">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </div>
+
+  <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 26px 2px 6px">
+    <div style="font-size: 13.5px; font-weight: 600; color: #8A887E">Bellissimo Pizza · заказ #481</div>
+    <div style="font-size: 42px; font-weight: 800; line-height: 1; letter-spacing: -0.03em">800 000</div>
+    <div style="font-size: 13px; font-weight: 600; color: #B3B1A8">оплачено из 1 200 000</div>
+    <div style="display: flex; align-items: center; height: 10px; width: 100%; border-radius: 999px; background: #ECEAE2; margin-top: 12px">
+      <div style="height: 10px; width: 66.7%; border-radius: 999px; background: #DDFF33"></div>
+      <div style="height: 10px; width: 10px; border-radius: 999px; background: #111110; margin-left: -5px"></div>
+    </div>
+  </div>
+
+  <div style="margin-top: 8px; padding: 4px 2px">
+    <div style="display: flex; min-height: 64px; align-items: center; gap: 12px; border-bottom: 1px solid #F0EEE8">
+      <img src="a12.png" alt="Ислам" style="height: 40px; width: 40px; border-radius: 999px; object-fit: cover">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 1px">
+        <div style="font-size: 15px; font-weight: 700">Ислам · вы</div>
+        <div style="font-size: 12px; font-weight: 600; color: #B3B1A8">400 000</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 5px; height: 30px; border-radius: 999px; background: #111110; padding: 0 12px">
+        <span style="font-size: 11px; font-weight: 800; color: #DDFF33">✓</span>
+        <span style="font-size: 12px; font-weight: 700; color: #FFFFFF">Готово</span>
+      </div>
+    </div>
+
+    <div style="display: flex; min-height: 64px; align-items: center; gap: 12px; border-bottom: 1px solid #F0EEE8">
+      <img src="a33.png" alt="Али" style="height: 40px; width: 40px; border-radius: 999px; object-fit: cover; filter: grayscale(1); opacity: 0.8">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 1px">
+        <div style="font-size: 15px; font-weight: 700">Али</div>
+        <div style="font-size: 12px; font-weight: 600; color: #B3B1A8">400 000 · открыл ссылку</div>
+      </div>
+      <div style="display: flex; align-items: center; height: 30px; border-radius: 999px; background: #ECEAE2; padding: 0 12px; font-size: 12px; font-weight: 700; color: #8A887E">Ждём</div>
+    </div>
+
+    <div style="display: flex; min-height: 64px; align-items: center; gap: 12px">
+      <img src="a68.png" alt="Бек" style="height: 40px; width: 40px; border-radius: 999px; object-fit: cover">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 1px">
+        <div style="font-size: 15px; font-weight: 700">Бек</div>
+        <div style="font-size: 12px; font-weight: 600; color: #B3B1A8">400 000 · в долг, вы покрыли</div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 5px; height: 30px; border-radius: 999px; background: #111110; padding: 0 12px">
+        <span style="font-size: 11px; font-weight: 800; color: #DDFF33">✓</span>
+        <span style="font-size: 12px; font-weight: 700; color: #FFFFFF">Долг</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex: 1"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #111110; font-size: 16px; font-weight: 800; color: #FFFFFF">Напомнить Али</div>
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #F5F3EE; font-size: 16px; font-weight: 700; color: #111110">Покрыть остаток — 400 000</div>
+  </div>
+</div></div>
+
+              
+
+            </div>
+          </div>
+        </div></section>
+<section style="position: relative; background: rgb(17, 17, 16); padding: 44px 0px;"><div data-r="pinrow" style="display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; max-width: 1440px; margin: 0px auto; padding: 0px 48px; flex-direction: column;">
+
+          <div data-r="dots" style="display: flex; flex-direction: row; gap: 10px; order: 0;">
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(62, 60, 53); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(1);"></span>
+            <span data-dot="1" style="width: 2px; height: 34px; background: rgb(221, 255, 51); display: block; border-radius: 2px; transition: background 0.3s, transform 0.3s; transform: scaleX(2);"></span>
+          </div>
+
+          <div data-r="pintext" style="position: relative; flex: 1 1 0%; max-width: 100%; min-height: auto; order: 2; text-align: center;">
+            
+            
+            
+            
+            
+            
+            
+            <div data-txt="1" style="position: relative; inset: auto; opacity: 1;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;color:#DDFF33;margin-bottom:20px">08 · КЭШБЭК</div>
+              <h3 style="margin:0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.05">Кэшбэк ×2 всей группе.</h3>
+              <p style="margin:18px 0 0;font-size:18px;line-height:1.5;color:#B3B1A8;font-weight:500">Платили вместе — бонус получает каждый.</p>
+            </div>
+          </div>
+
+          <div style="position: relative; flex: 0 0 auto; height: 675.188px; width: auto; aspect-ratio: 410 / 864; border-radius: 48px; border: 1px solid rgb(62, 60, 53); background: rgb(14, 14, 12); padding: 10px; box-shadow: rgba(0, 0, 0, 0.5) 0px 50px 110px;">
+            <div style="position: absolute; top: 10px; left: 10px; width: 390px; height: 844px; transform-origin: 0px 0px; border-radius: 40px; overflow: hidden; background: rgb(245, 243, 238); transform: scale(0.773697);">
+
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+
+              
+
+              <div data-scr="1" data-screen-label="08" style="position: absolute; inset: 0px; overflow: hidden; opacity: 1;"><div style="width: 390px; height: 844px; background: #FFFFFF; color: #111110; display: flex; flex-direction: column; padding: 24px 24px 46px; overflow: hidden">
+  <div style="display: flex; align-items: center; justify-content: center; height: 44px; width: 44px; border-radius: 999px; background: #F5F3EE">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+  </div>
+
+  <div style="margin-top: 30px">
+    <img src="bellissimo.png" alt="" style="height: 76px; width: 76px; object-fit: cover; margin-left: -8px">
+    <div style="margin-top: 10px; font-size: 25px; font-weight: 800; letter-spacing: -0.01em">Кэшбэк зачислен</div>
+    <div style="margin-top: 5px; font-size: 13.5px; font-weight: 600; color: #8A887E">Bellissimo Pizza · заказ #481 · Friday Crew</div>
+    <div style="margin-top: 24px; display: flex; align-items: baseline; gap: 8px">
+      <div style="font-size: 48px; font-weight: 800; line-height: 1; letter-spacing: -0.03em">+60 000</div>
+      <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 11px; font-weight: 700; color: #A3A199">UZS</div>
+    </div>
+    <div style="margin-top: 14px; display: flex; height: 34px; width: fit-content; align-items: center; border-radius: 999px; background: #DDFF33; padding: 0 14px">
+      <span style="font-size: 12.5px; font-weight: 800; color: #111110">×2 — потому что сплитили втроём</span>
+    </div>
+  </div>
+
+  <div style="margin-top: 26px; border-top: 1px solid #F0EEE8; padding-top: 6px">
+    <div style="display: flex; min-height: 58px; align-items: center; gap: 12px; border-bottom: 1px solid #F0EEE8">
+      <img src="a12.png" alt="Ислам" style="height: 38px; width: 38px; border-radius: 999px; object-fit: cover">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 1px">
+        <div style="font-size: 15px; font-weight: 700">Ислам · вы</div>
+      </div>
+      <div style="font-size: 15px; font-weight: 800">+20 000</div>
+    </div>
+    <div style="display: flex; min-height: 58px; align-items: center; gap: 12px; border-bottom: 1px solid #F0EEE8">
+      <img src="a33.png" alt="Али" style="height: 38px; width: 38px; border-radius: 999px; object-fit: cover">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 1px">
+        <div style="font-size: 15px; font-weight: 700">Али</div>
+      </div>
+      <div style="font-size: 15px; font-weight: 800">+20 000</div>
+    </div>
+    <div style="display: flex; min-height: 58px; align-items: center; gap: 12px">
+      <img src="a68.png" alt="Бек" style="height: 38px; width: 38px; border-radius: 999px; object-fit: cover">
+      <div style="display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 1px">
+        <div style="font-size: 15px; font-weight: 700">Бек</div>
+        <div style="font-size: 12px; font-weight: 600; color: #B3B1A8">после возврата долга</div>
+      </div>
+      <div style="font-size: 15px; font-weight: 800; color: #B3B1A8">+20 000</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 20px; display: flex; align-items: baseline; justify-content: space-between">
+    <div style="font-size: 14.5px; font-weight: 700; color: #8A887E">Всего у Friday Crew</div>
+    <div style="font-size: 19px; font-weight: 800">205 000</div>
+  </div>
+
+  <div style="flex: 1"></div>
+
+  <div style="display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #DDFF33; font-size: 16px; font-weight: 800; color: #111110">Потратить кэшбэк</div>
+    <div style="display: flex; align-items: center; justify-content: center; height: 56px; border-radius: 999px; background: #F5F3EE; font-size: 16px; font-weight: 700; color: #111110">Копить дальше</div>
+  </div>
+</div></div>
+
+            </div>
+          </div>
+        </div></section>
+<section style="position:relative;background:#0E0E0C;border-top:1px solid #26251F;border-bottom:1px solid #26251F;padding:34px 0;overflow:hidden">
+    <div id="zmarq" style="display:flex;gap:0;white-space:nowrap;will-change:transform">
+      <span data-mq="1" style="font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:.02em;color:transparent;-webkit-text-stroke:1px #5B594F;padding-right:40px">СКАН · ДЕЛИ · ССЫЛКА · КЭШБЭК ×2 · БЕЗ УСТАНОВКИ · PAYME · CLICK · UZCARD · HUMO · </span>
+      <span data-mq="1" style="font-family:'JetBrains Mono',monospace;font-size:26px;letter-spacing:.02em;color:transparent;-webkit-text-stroke:1px #5B594F;padding-right:40px">СКАН · ДЕЛИ · ССЫЛКА · КЭШБЭК ×2 · БЕЗ УСТАНОВКИ · PAYME · CLICK · UZCARD · HUMO · </span>
+    </div>
+  </section>
+<section style="background:#F5F3EE;color:#3E3C35;padding:109.72px 18px">
+    <div style="max-width:1180px;margin:0 auto">
+      <h2 style="margin:0 0 60px;font-weight:800;letter-spacing:-.03em;font-size:30px;line-height:1.03;color:#111110;max-width:900px">Четыре причины, по которым это работает.</h2>
+      <div data-r="grid2" style="display: grid; grid-template-columns: 354px; gap: 18px;">
+        <div data-card="1" style="background:#FFFFFF;border:1px solid #E3E1D8;border-radius:24px;padding:34px;transition:transform .3s,background .3s">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="#3E3C35" stroke-width="1.5" aria-hidden="true"><rect x="11" y="2" width="12" height="22" rx="3"></rect><line x1="4" y1="30" x2="30" y2="30"></line></svg>
+          <h3 style="margin:22px 0 10px;font-weight:700;font-size:22px;letter-spacing:-.02em;color:#111110">Приложение — только инициатору.</h3>
+          <p style="margin:0;font-size:16px;line-height:1.5;color:#5B594F;font-weight:500">Участники платят по ссылке из SMS. Барьер входа нулевой.</p>
+        </div>
+        <div data-card="1" style="background:#FFFFFF;border:1px solid #E3E1D8;border-radius:24px;padding:34px;transition:transform .3s,background .3s">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="#3E3C35" stroke-width="1.5" aria-hidden="true"><circle cx="17" cy="17" r="13"></circle><polyline points="17,9 17,17 24,20"></polyline></svg>
+          <h3 style="margin:22px 0 10px;font-weight:700;font-size:22px;letter-spacing:-.02em;color:#111110">Долги закрываются сами.</h3>
+          <p style="margin:0;font-size:16px;line-height:1.5;color:#5B594F;font-weight:500">Взял в долг — ZAP! помнит и списывает при возврате. Напоминать не нужно.</p>
+        </div>
+        <div data-card="1" style="background:#FFFFFF;border:1px solid #E3E1D8;border-radius:24px;padding:34px;transition:transform .3s,background .3s">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="#3E3C35" stroke-width="1.5" aria-hidden="true"><rect x="3" y="9" width="28" height="18" rx="3"></rect><line x1="3" y1="16" x2="31" y2="16"></line></svg>
+          <h3 style="margin:22px 0 10px;font-weight:700;font-size:22px;letter-spacing:-.02em;color:#111110">Локальные рельсы.</h3>
+          <p style="margin:0;font-size:16px;line-height:1.5;color:#5B594F;font-weight:500">Payme, Click, карты Uzcard и Humo. Всё, чем уже платят в Узбекистане.</p>
+        </div>
+        <div data-card="1" style="background:#FFFFFF;border:1px solid #E3E1D8;border-radius:24px;padding:34px;transition:transform .3s,background .3s">
+          <svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="#3E3C35" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="13" r="6"></circle><circle cx="24" cy="19" r="6"></circle></svg>
+          <h3 style="margin:22px 0 10px;font-weight:700;font-size:22px;letter-spacing:-.02em;color:#111110">Кэшбэк только за компанию.</h3>
+          <p style="margin:0;font-size:16px;line-height:1.5;color:#5B594F;font-weight:500">Бонус начисляется, когда сплитите вместе. Один — не считается.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+      </div>
+    </div>
+
+    <div style="display: flex; flex-direction: column">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px">
+        <div style="font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 12px; font-weight: 700; background: #E3E1D8; border-radius: 6px; padding: 3px 7px; color: #111110">М4</div>
+        <div style="font-size: 13px; font-weight: 600; color: #8A887E">Мерчанты · FAQ · финал</div>
+      </div>
+      <div style="border-radius: 28px; overflow: hidden; box-shadow: 0 20px 44px -26px rgba(17,17,16,0.5); width: fit-content">
+<div style="width: 390px; background: #111110; color: #F5F3EE; font-family: 'Manrope', Helvetica, Arial, sans-serif; position: relative; overflow: hidden">
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;background:#111110;color:#F5F3EE;font-family:Manrope,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  a{color:#DDFF33;text-decoration:none}
+  a:hover{color:#F5F3EE}
+  @keyframes zpulse{0%,100%{opacity:.35;transform:scale(1)}50%{opacity:1;transform:scale(1.04)}}
+  @keyframes zdrift{0%{background-position:0 0}100%{background-position:480px 480px}}
+  
+  
+  
+  
+</style>
+<section style="background:#111110;padding:109.72px 0;overflow:hidden">
+    <div style="max-width:1180px;margin:0 auto;padding:0 18px">
+      <h2 style="margin:0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.04;max-width:860px">Компании выбирают, куда пойти. <span style="color:#DDFF33">ZAP! показывает где выгоднее.</span></h2>
+      <p style="margin:22px 0 0;max-width:560px;font-size:17px;line-height:1.5;color:#8A887E;font-weight:500">Заведения-партнёры сами оплачивают промо — вы просто получаете больше за тот же чек.</p>
+    </div>
+    <div id="zmerch" style="display:flex;gap:18px;margin-top:56px;padding:0 18px;will-change:transform">
+      <div data-mc="1" style="flex:0 0 240px;background:#0E0E0C;border:1px solid #26251F;border-radius:24px;overflow:hidden">
+        <div style="height:150px;background:#141410;overflow:hidden"><img src="venue-bellissimo.webp" alt="Bellissimo Pizza" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+        <div style="padding:20px 20px 22px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="bellissimo.png" alt="" style="height:26px;width:26px;object-fit:contain;border-radius:6px;background:#F5F3EE;padding:2px">
+            <div style="font-weight:700;font-size:17px;letter-spacing:-.02em">Bellissimo Pizza</div>
+          </div>
+          <div style="font-size:13px;color:#8A887E;margin-top:8px">пицца · Ташкент</div>
+          <div style="display:inline-block;margin-top:14px;background:#DDFF33;color:#111110;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;padding:6px 10px;border-radius:999px">КЭШБЭК ×2 · ПН-ЧТ · ВСЕЙ ГРУППОЙ</div>
+        </div>
+      </div>
+      <div data-mc="1" style="flex:0 0 240px;background:#0E0E0C;border:1px solid #26251F;border-radius:24px;overflow:hidden">
+        <div style="height:150px;background:#141410;overflow:hidden"><img src="venue-evos.webp" alt="Evos" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+        <div style="padding:20px 20px 22px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="evos.svg" alt="" style="height:26px;width:26px;object-fit:contain;border-radius:6px;background:#F5F3EE;padding:2px">
+            <div style="font-weight:700;font-size:17px;letter-spacing:-.02em">Evos</div>
+          </div>
+          <div style="font-size:13px;color:#8A887E;margin-top:8px">фастфуд · сеть</div>
+          <div style="display:inline-block;margin-top:14px;background:#DDFF33;color:#111110;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;padding:6px 10px;border-radius:999px">ОТ 3 ЧЕЛОВЕК</div>
+        </div>
+      </div>
+      <div data-mc="1" style="flex:0 0 240px;background:#0E0E0C;border:1px solid #26251F;border-radius:24px;overflow:hidden">
+        <div style="height:150px;background:#141410;overflow:hidden"><img src="venue-safia.webp" alt="Safia" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+        <div style="padding:20px 20px 22px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="oqtepa.svg" alt="" style="height:26px;width:26px;object-fit:contain;border-radius:6px;background:#F5F3EE;padding:2px">
+            <div style="font-weight:700;font-size:17px;letter-spacing:-.02em">Safia</div>
+          </div>
+          <div style="font-size:13px;color:#8A887E;margin-top:8px">узбекская кухня</div>
+          <div style="display:inline-block;margin-top:14px;background:#DDFF33;color:#111110;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;padding:6px 10px;border-radius:999px">КЭШБЭК ×2 · ВЕСЬ ДЕНЬ</div>
+        </div>
+      </div>
+      <div data-mc="1" style="flex:0 0 240px;background:#0E0E0C;border:1px solid #26251F;border-radius:24px;overflow:hidden">
+        <div style="height:150px;background:#141410;overflow:hidden"><img src="venue-bon.webp" alt="Bon!" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+        <div style="padding:20px 20px 22px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="maxway.svg" alt="" style="height:26px;width:26px;object-fit:contain;border-radius:6px;background:#F5F3EE;padding:2px">
+            <div style="font-weight:700;font-size:17px;letter-spacing:-.02em">Bon!</div>
+          </div>
+          <div style="font-size:13px;color:#8A887E;margin-top:8px">пекарня · кофе</div>
+          <div style="display:inline-block;margin-top:14px;background:#DDFF33;color:#111110;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;padding:6px 10px;border-radius:999px">ДО 30 СЕН · ОТ 3 ЧЕЛОВЕК</div>
+        </div>
+      </div>
+      <div data-mc="1" style="flex:0 0 240px;background:#0E0E0C;border:1px solid #26251F;border-radius:24px;overflow:hidden">
+        <div style="height:150px;background:#141410;overflow:hidden"><img src="venue-feedup.webp" alt="Feedup" style="display:block;width:100%;height:100%;object-fit:cover"></div>
+        <div style="padding:20px 20px 22px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <img src="lesailes.svg" alt="" style="height:26px;width:26px;object-fit:contain;border-radius:6px;background:#F5F3EE;padding:2px">
+            <div style="font-weight:700;font-size:17px;letter-spacing:-.02em">Feedup</div>
+          </div>
+          <div style="font-size:13px;color:#8A887E;margin-top:8px">доставка и зал</div>
+          <div style="display:inline-block;margin-top:14px;background:#DDFF33;color:#111110;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.1em;padding:6px 10px;border-radius:999px">ОТ 2 ЧЕЛОВЕК</div>
+        </div>
+      </div>
+    </div>
+  </section>
+<section id="merch" style="background:#F5F3EE;color:#3E3C35;padding:109.72px 18px">
+    <div data-r="split" style="max-width: 1180px; margin: 0px auto; display: grid; grid-template-columns: 354px; gap: 30px; align-items: center;">
       <div>
-        <div style="display: flex; flex-direction: column; font-weight: 800; letter-spacing: -0.03em; font-size: 42px; line-height: 0.94">
-          <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">Долги</span>
-          <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">без споров</span>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#8A887E">для заведений</div>
+        <h2 style="margin:24px 0 0;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.04;color:#111110">Групповой трафик, за который вы платите только по факту.</h2>
+        <div style="display:flex;flex-direction:column;gap:22px;margin-top:44px">
+          <div style="display:flex;gap:18px;align-items:baseline;border-top:1px solid #E3E1D8;padding-top:18px">
+            <span style="flex:0 0 130px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.12em;color:#111110">3%</span>
+            <span style="font-size:16px;line-height:1.5;color:#5B594F;font-weight:500">комиссия с фактического сплита. Абонентской платы нет.</span>
+          </div>
+          <div style="display:flex;gap:18px;align-items:baseline;border-top:1px solid #E3E1D8;padding-top:18px">
+            <span style="flex:0 0 130px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.12em;color:#111110">QR-КОМПЛЕКТ</span>
+            <span style="font-size:16px;line-height:1.5;color:#5B594F;font-weight:500">тейбл-тенты и наклейки. Интеграция с кассой не обязательна.</span>
+          </div>
+          <div style="display:flex;gap:18px;align-items:baseline;border-top:1px solid #E3E1D8;padding-top:18px">
+            <span style="flex:0 0 130px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.12em;color:#111110">КАБИНЕТ</span>
+            <span style="font-size:16px;line-height:1.5;color:#5B594F;font-weight:500">статистика групповых визитов и возвратов компаний.</span>
+          </div>
         </div>
-        <div style="margin-top: 22px; font-size: 15.5px; font-weight: 600; line-height: 1.62; color: rgba(255,255,255,0.46)">У друга нет денег — возьмите его долю «в долг». ZAP! запомнит, покажет в истории и вежливо напомнит за вас. Без неловких сообщений.</div>
-        <div style="margin-top: 32px; display: flex; flex-direction: column; gap: 14px">
-          <div style="display: flex; gap: 12px; font-size: 14.5px; font-weight: 600; line-height: 1.55; color: rgba(255,255,255,0.68)"><span style="display: flex; height: 20px; width: 20px; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; color: #12140B; font-size: 11px; font-weight: 900; margin-top: 2px">✓</span>Автоучёт долгов и возвратов</div>
-          <div style="display: flex; gap: 12px; font-size: 14.5px; font-weight: 600; line-height: 1.55; color: rgba(255,255,255,0.68)"><span style="display: flex; height: 20px; width: 20px; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; color: #12140B; font-size: 11px; font-weight: 900; margin-top: 2px">✓</span>Напоминание в один тап</div>
-          <div style="display: flex; gap: 12px; font-size: 14.5px; font-weight: 600; line-height: 1.55; color: rgba(255,255,255,0.68)"><span style="display: flex; height: 20px; width: 20px; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; color: #12140B; font-size: 11px; font-weight: 900; margin-top: 2px">✓</span>История каждого сплита</div>
+        <button type="button" id="zpartner-open" data-mag="1" style="display:inline-block;margin-top:44px;border:1px solid #3E3C35;background:none;color:#111110;font-family:Manrope,sans-serif;font-weight:700;font-size:16px;padding:16px 28px;border-radius:999px;cursor:pointer">Стать партнёром</button>
+      </div>
+      <div style="background:#FFFFFF;border:1px solid #E3E1D8;border-radius:26px;padding:26px">
+        <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:#8A887E"><span>ГРУППОВЫЕ ВИЗИТЫ</span><span>30 ДНЕЙ</span></div>
+        <div style="display:flex;gap:26px;margin-top:20px">
+          <div><div id="zk1" style="font-family:'JetBrains Mono',monospace;font-size:26px;color:#111110">142</div><div style="font-size:11px;color:#8A887E;margin-top:4px">визитов группами</div></div>
+          <div><div id="zk2" style="font-family:'JetBrains Mono',monospace;font-size:26px;color:#111110">860 000</div><div style="font-size:11px;color:#8A887E;margin-top:4px">средний чек, сум</div></div>
         </div>
-      </div>
-      <div style="position: relative; display: flex; justify-content: center">
-        <div style="position: relative; z-index: 1; width: 296px; border-radius: 46px; padding: 10px; background: linear-gradient(155deg, #4A4A4A 0%, #141414 34%, #0B0B0B 62%, #3A3A3A 100%); box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 70px 130px -46px rgba(0,0,0,1), 0 0 90px -44px rgba(221,255,51,0.4)">
-          <div style="overflow: hidden; border-radius: 37px; background: #000"><img src="shot-debts.webp" alt="Вам должны" style="display: block; width: 100%; height: 600px; object-fit: cover; object-position: top"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ЛЕНТА ЭКРАНОВ -->
-  <div style="position: relative; padding: 40px 0 118px; overflow: hidden">
-    <div style="padding: 0 24px; font-size: 32px; font-weight: 800; letter-spacing: -0.03em; text-align: center">Скажи <span style="background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">пока</span> подсчётам</div>
-    <div style="margin-top: 62px; display: flex; gap: 26px; padding: 0 24px 16px">
-      <div style="width: 218px; flex: 0 0 auto; border-radius: 36px; padding: 8px; background: linear-gradient(155deg, #4A4A4A 0%, #141414 34%, #0B0B0B 62%, #3A3A3A 100%); box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 40px 90px -46px rgba(0,0,0,1)">
-        <div style="overflow: hidden; border-radius: 29px; background: #000"><img src="shot-home.webp" alt="Главная" style="display: block; width: 100%; height: 439px; object-fit: cover; object-position: top"></div>
-      </div>
-      <div style="width: 218px; flex: 0 0 auto; border-radius: 36px; padding: 8px; background: linear-gradient(155deg, #4A4A4A 0%, #141414 34%, #0B0B0B 62%, #3A3A3A 100%); box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 40px 90px -46px rgba(0,0,0,1)">
-        <div style="overflow: hidden; border-radius: 29px; background: #000"><img src="shot-amount.webp" alt="Сумма счёта" style="display: block; width: 100%; height: 439px; object-fit: cover; object-position: top"></div>
+        <svg viewBox="0 0 420 200" style="width:100%;height:auto;margin-top:22px" aria-label="График групповых визитов">
+          <line x1="0" y1="160" x2="420" y2="160" stroke="#E3E1D8" stroke-width="1"></line>
+          <line x1="0" y1="100" x2="420" y2="100" stroke="#EFEDE7" stroke-width="1"></line>
+          <line x1="0" y1="40" x2="420" y2="40" stroke="#EFEDE7" stroke-width="1"></line>
+          <polyline id="zchart" points="10,150 70,138 130,120 190,124 250,92 310,66 380,28" fill="none" stroke="#111110" stroke-width="3" stroke-linejoin="round" stroke-dasharray="620" stroke-dashoffset="0"></polyline>
+        </svg>
       </div>
     </div>
-  </div>
-
-  <!-- ЦИФРЫ -->
-  <div style="display: flex; flex-direction: column; gap: 16px; padding: 0 24px 20px">
-    <div style="border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.032); padding: 32px 24px; text-align: center">
-      <div style="font-size: 42px; font-weight: 800; line-height: 1; color: #DDFF33; letter-spacing: -0.02em">30 сек</div>
-      <div style="margin-top: 10px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,0.46)">на регистрацию по номеру</div>
-    </div>
-    <div style="border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.032); padding: 32px 24px; text-align: center">
-      <div style="font-size: 42px; font-weight: 800; line-height: 1; color: #DDFF33; letter-spacing: -0.02em">2×</div>
-      <div style="margin-top: 10px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,0.46)">кэшбэк, когда делите группой</div>
-    </div>
-    <div style="border-radius: 24px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.032); padding: 32px 24px; text-align: center">
-      <div style="font-size: 42px; font-weight: 800; line-height: 1; color: #DDFF33; letter-spacing: -0.02em">0%</div>
-      <div style="margin-top: 10px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,0.46)">комиссии для участников</div>
-    </div>
-  </div>
-
-  <!-- ЗАВЕДЕНИЯМ -->
-  <div style="position: relative; padding: 118px 24px; overflow: hidden">
-    <div style="position: absolute; top: 10%; right: -12%; height: 300px; width: 340px; border-radius: 9999px; background: rgba(221,255,51,0.085); filter: blur(110px)"></div>
-    <div style="position: relative">
-      <div style="display: inline-flex; height: 32px; align-items: center; border-radius: 999px; border: 1px solid rgba(221,255,51,0.26); background: rgba(221,255,51,0.08); padding: 0 16px; margin-bottom: 22px; font-size: 12.5px; font-weight: 800; color: #DDFF33">Заведениям и магазинам</div>
-      <div style="display: flex; flex-direction: column; font-weight: 800; letter-spacing: -0.03em; font-size: 42px; line-height: 0.94">
-        <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">Станьте</span>
-        <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">партнёром</span>
+  </section>
+<section id="faq" style="background:#111110;padding:109.72px 18px">
+    <div style="max-width:960px;margin:0 auto">
+      <h2 style="margin:0 0 56px;font-weight:800;letter-spacing:-.03em;font-size:28px;line-height:1.04">Вопросы.</h2>
+      <div data-acc="1" style="border-top:1px solid #26251F">
+        <button type="button" data-accbtn="1" style="width:100%;background:none;border:none;padding:26px 0;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;color:#F5F3EE;font-family:Manrope,sans-serif;font-weight:700;font-size:17px;cursor:pointer">
+          <span>Нужно ли приложение всем участникам?</span>
+          <span data-plus="1" style="flex: 0 0 auto; font-family: &quot;JetBrains Mono&quot;, monospace; font-size: 22px; color: rgb(245, 243, 238); display: inline-block; transform: rotate(135deg);">+</span>
+        </button>
+        <div data-accbody="1" style="height: auto; overflow: hidden;"><p style="margin:0 0 26px;max-width:640px;font-size:17px;line-height:1.55;color:#8A887E;font-weight:500">Нет. Только тому, кто делит счёт. Остальные платят по ссылке из SMS.</p></div>
       </div>
-      <div style="margin-top: 22px; font-size: 15.5px; font-weight: 600; line-height: 1.62; color: rgba(255,255,255,0.46)">Гости делят счёт у вас, а ваши акции видят их друзья. Оставьте заявку — свяжемся и всё настроим.</div>
-      <div style="margin-top: 32px; display: flex; flex-direction: column; gap: 14px">
-        <div style="display: flex; gap: 12px; font-size: 14.5px; font-weight: 600; line-height: 1.55; color: rgba(255,255,255,0.68)"><span style="display: flex; height: 20px; width: 20px; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; color: #12140B; font-size: 11px; font-weight: 900; margin-top: 2px">✓</span>Средний чек выше — компания заказывает смелее, когда счёт делится сам</div>
-        <div style="display: flex; gap: 12px; font-size: 14.5px; font-weight: 600; line-height: 1.55; color: rgba(255,255,255,0.68)"><span style="display: flex; height: 20px; width: 20px; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; color: #12140B; font-size: 11px; font-weight: 900; margin-top: 2px">✓</span>Новые гости приходят по ссылке от друзей, без затрат на рекламу</div>
-        <div style="display: flex; gap: 12px; font-size: 14.5px; font-weight: 600; line-height: 1.55; color: rgba(255,255,255,0.68)"><span style="display: flex; height: 20px; width: 20px; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; color: #12140B; font-size: 11px; font-weight: 900; margin-top: 2px">✓</span>Ваш бренд в ленте предложений: акции, скидки и кэшбэк ×2</div>
-        <div style="display: flex; gap: 12px; font-size: 14.5px; font-weight: 600; line-height: 1.55; color: rgba(255,255,255,0.68)"><span style="display: flex; height: 20px; width: 20px; flex: 0 0 auto; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; color: #12140B; font-size: 11px; font-weight: 900; margin-top: 2px">✓</span>Подключение без оборудования — поверх ваших фискальных чеков</div>
+      <div data-acc="1" style="border-top:1px solid #26251F">
+        <button type="button" data-accbtn="1" style="width:100%;background:none;border:none;padding:26px 0;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;color:#F5F3EE;font-family:Manrope,sans-serif;font-weight:700;font-size:17px;cursor:pointer">
+          <span>Чем платят участники?</span>
+          <span data-plus="1" style="flex:0 0 auto;font-family:'JetBrains Mono',monospace;font-size:22px;color:#DDFF33;display:inline-block">+</span>
+        </button>
+        <div data-accbody="1" style="height:0;overflow:hidden"><p style="margin:0 0 26px;max-width:640px;font-size:17px;line-height:1.55;color:#8A887E;font-weight:500">Payme, Click или картой Uzcard/Humo прямо со страницы по ссылке.</p></div>
       </div>
-
-      <div style="margin-top: 56px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.09); background: rgba(255,255,255,0.04); padding: 30px">
-        <div style="font-size: 21px; font-weight: 800">Оставить заявку</div>
-        <div style="margin-top: 6px; font-size: 13.5px; font-weight: 600; color: rgba(255,255,255,0.46)">Ответим в течение рабочего дня</div>
-        <div style="margin-top: 26px; display: flex; flex-direction: column; gap: 12px">
-          <div style="display: flex; align-items: center; height: 52px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.11); background: rgba(255,255,255,0.045); padding: 0 16px; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.3)">Название заведения</div>
-          <div style="display: flex; align-items: center; height: 52px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.11); background: rgba(255,255,255,0.045); padding: 0 16px; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.3)">Ваше имя</div>
-          <div style="display: flex; align-items: center; height: 52px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.11); background: rgba(255,255,255,0.045); padding: 0 16px; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.3)">+998 90 123 45 67</div>
-          <div style="display: flex; align-items: center; height: 52px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.11); background: rgba(255,255,255,0.045); padding: 0 16px; font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.3)">Город (необязательно)</div>
-          <div style="border-radius: 16px; border: 1px solid rgba(255,255,255,0.11); background: rgba(255,255,255,0.045); padding: 14px 16px; font-size: 15px; font-weight: 600; line-height: 1.45; color: rgba(255,255,255,0.3); height: 92px">Комментарий (необязательно)</div>
-          <div style="display: flex; align-items: center; justify-content: center; height: 54px; width: 100%; margin-top: 4px; border-radius: 999px; background: #DDFF33; font-size: 15.5px; font-weight: 800; color: #12140B">Отправить заявку</div>
-          <div style="text-align: center; font-size: 12px; font-weight: 600; line-height: 1.4; color: rgba(255,255,255,0.3)">Нажимая кнопку, вы соглашаетесь на обработку контактных данных</div>
-        </div>
+      <div data-acc="1" style="border-top:1px solid #26251F">
+        <button type="button" data-accbtn="1" style="width:100%;background:none;border:none;padding:26px 0;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;color:#F5F3EE;font-family:Manrope,sans-serif;font-weight:700;font-size:17px;cursor:pointer">
+          <span>Что значит «в долг»?</span>
+          <span data-plus="1" style="flex:0 0 auto;font-family:'JetBrains Mono',monospace;font-size:22px;color:#DDFF33;display:inline-block">+</span>
+        </button>
+        <div data-accbody="1" style="height:0;overflow:hidden"><p style="margin:0 0 26px;max-width:640px;font-size:17px;line-height:1.55;color:#8A887E;font-weight:500">Вы покрываете чужую долю, ZAP! запоминает и закрывает её автоматически, когда человек вернёт деньги.</p></div>
+      </div>
+      <div data-acc="1" style="border-top:1px solid #26251F">
+        <button type="button" data-accbtn="1" style="width:100%;background:none;border:none;padding:26px 0;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;color:#F5F3EE;font-family:Manrope,sans-serif;font-weight:700;font-size:17px;cursor:pointer">
+          <span>Как начисляется кэшбэк ×2?</span>
+          <span data-plus="1" style="flex:0 0 auto;font-family:'JetBrains Mono',monospace;font-size:22px;color:#DDFF33;display:inline-block">+</span>
+        </button>
+        <div data-accbody="1" style="height:0;overflow:hidden"><p style="margin:0 0 26px;max-width:640px;font-size:17px;line-height:1.55;color:#8A887E;font-weight:500">За сплиты в заведениях-партнёрах, когда платите группой от двух человек. Бонус получает каждый участник.</p></div>
+      </div>
+      <div data-acc="1" style="border-top:1px solid #26251F">
+        <button type="button" data-accbtn="1" style="width:100%;background:none;border:none;padding:26px 0;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;color:#F5F3EE;font-family:Manrope,sans-serif;font-weight:700;font-size:17px;cursor:pointer">
+          <span>Сколько это стоит мне?</span>
+          <span data-plus="1" style="flex:0 0 auto;font-family:'JetBrains Mono',monospace;font-size:22px;color:#DDFF33;display:inline-block">+</span>
+        </button>
+        <div data-accbody="1" style="height:0;overflow:hidden"><p style="margin:0 0 26px;max-width:640px;font-size:17px;line-height:1.55;color:#8A887E;font-weight:500">Ничего. Комиссию платит заведение.</p></div>
+      </div>
+      <div data-acc="1" style="border-top:1px solid #26251F;border-bottom:1px solid #26251F">
+        <button type="button" data-accbtn="1" style="width:100%;background:none;border:none;padding:26px 0;display:flex;justify-content:space-between;align-items:center;gap:20px;text-align:left;color:#F5F3EE;font-family:Manrope,sans-serif;font-weight:700;font-size:17px;cursor:pointer">
+          <span>Работает ли за пределами Ташкента?</span>
+          <span data-plus="1" style="flex:0 0 auto;font-family:'JetBrains Mono',monospace;font-size:22px;color:#DDFF33;display:inline-block">+</span>
+        </button>
+        <div data-accbody="1" style="height:0;overflow:hidden"><p style="margin:0 0 26px;max-width:640px;font-size:17px;line-height:1.55;color:#8A887E;font-weight:500">Сейчас запускаемся в Ташкенте, расширяемся дальше.</p></div>
       </div>
     </div>
-  </div>
-
-  <!-- БЕГУЩАЯ СТРОКА -->
-  <div style="overflow: hidden; border-top: 1px solid rgba(255,255,255,0.08); border-bottom: 1px solid rgba(255,255,255,0.08); padding: 26px 0">
-    <div style="display: flex; align-items: center; gap: 30px; padding-left: 24px; font-size: 20px; font-weight: 800; letter-spacing: -0.02em; white-space: nowrap; color: rgba(255,255,255,0.62)">
-      <span>Скан чека за секунду</span><span style="font-size: 0.62em; color: #DDFF33">✳</span>
-      <span>Сплит на компанию</span><span style="font-size: 0.62em; color: #DDFF33">✳</span>
-      <span>Кэшбэк ×2 всем</span><span style="font-size: 0.62em; color: #DDFF33">✳</span>
+  </section>
+<section style="background:#DDFF33;color:#111110;padding:135.04px 18px;text-align:center">
+    <h2 style="margin:0 auto;max-width:1000px;font-weight:800;letter-spacing:-.03em;font-size:34px;line-height:.98;text-wrap:balance">Следующий ужин — без разговоров про деньги.</h2>
+    <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:48px">
+      <a href="#" data-mag="1" style="background:#111110;color:#DDFF33;font-weight:800;font-size:16px;padding:18px 32px;border-radius:999px">Скачать для iOS</a>
+      <a href="#" data-mag="1" style="background:#111110;color:#DDFF33;font-weight:800;font-size:16px;padding:18px 32px;border-radius:999px">Скачать для Android</a>
     </div>
-  </div>
-
-  <!-- ФИНАЛ -->
-  <div style="position: relative; padding: 130px 24px 150px; text-align: center; overflow: hidden">
-    <div style="position: absolute; top: 4%; left: 50%; transform: translateX(-50%); height: 320px; width: 480px; border-radius: 9999px; background: rgba(221,255,51,0.12); filter: blur(110px)"></div>
-    <div style="position: relative; display: flex; flex-direction: column; align-items: center; font-weight: 800; letter-spacing: -0.035em; font-size: 56px; line-height: 0.9">
-      <span style="display: block; background: linear-gradient(104deg, #FFFFFF 0%, #DDFF33 42%, #A8CC24 100%); -webkit-background-clip: text; background-clip: text; color: transparent">Делите</span>
-      <span style="display: block; background: linear-gradient(180deg, #DDFF33 0%, #7D9A1C 62%, #22280A 100%); -webkit-background-clip: text; background-clip: text; color: transparent">легко</span>
+    <div style="margin-top:36px;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#111110">zapapp.uz</div>
+  </section>
+<footer style="position:relative;background:#111110;padding:80px 18px 0;overflow:hidden">
+    <div style="max-width:1440px;margin:0 auto">
+      <div style="border-top:1px solid #26251F;padding-top:26px;display:flex;flex-wrap:wrap;gap:24px 40px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase">
+        <a href="#how" style="color:#8A887E">продукт</a>
+        <a href="#merch" style="color:#8A887E">мерчантам</a>
+        <a href="#" style="color:#8A887E">контакты</a>
+        <a href="#" style="color:#8A887E">telegram</a>
+        <a href="#" style="color:#8A887E">instagram</a>
+        <a href="#" style="color:#8A887E">политика конфиденциальности</a>
+        <span style="margin-left:auto;color:#5B594F">zapapp.uz · Ташкент</span>
+      </div>
+      <div id="zfoot" style="font-weight:800;font-style:italic;letter-spacing:-.05em;font-size:120px;line-height:.78;color:#F5F3EE;margin-top:40px;margin-bottom:-.14em;text-align:center">ZAP!</div>
     </div>
-    <div style="position: relative; margin: 26px auto 0; font-size: 16.5px; font-weight: 600; line-height: 1.6; color: rgba(255,255,255,0.46)">Следующий счёт разделите за 30 секунд — без «скинь потом» и подсчётов в заметках</div>
-    <div style="position: relative; margin-top: 34px; display: flex; justify-content: center">
-      <div style="display: inline-flex; height: 54px; align-items: center; justify-content: center; border-radius: 999px; background: #DDFF33; padding: 0 34px; font-size: 15.5px; font-weight: 800; color: #12140B">Начать бесплатно</div>
-    </div>
-  </div>
-
-  <!-- ПОДВАЛ -->
-  <div style="display: flex; flex-direction: column; align-items: center; gap: 18px; border-top: 1px solid rgba(255,255,255,0.08); padding: 38px 24px">
-    <img src="zap-wordmark.png" alt="ZAP!" style="height: 44px; width: auto; opacity: 0.6">
-    <div style="font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.3)">© 2026 ZAP! · Ташкент, Узбекистан</div>
-  </div>
+  </footer>
 </div>
       </div>
     </div>
