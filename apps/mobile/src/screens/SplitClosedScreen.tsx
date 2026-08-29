@@ -84,7 +84,7 @@ export function SplitClosedScreen() {
                 key={m.contactId + i}
                 style={[styles.row, i < split.members.length - 1 && styles.rowBorder]}
               >
-                <Avatar name={nameOf(m.contactId)} color={colorOf(m.contactId)} size={38} />
+                <Avatar name={nameOf(m.contactId)} contactId={m.contactId} color={colorOf(m.contactId)} size={38} />
                 <View style={styles.rowBody}>
                   <Text style={[styles.rowName, { color: fixed.ink }]}>
                     {nameOf(m.contactId)}

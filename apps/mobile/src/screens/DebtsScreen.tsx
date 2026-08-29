@@ -100,7 +100,7 @@ export function DebtsScreen() {
                     entering={FadeInDown.delay(Math.min(i, 8) * 40).duration(240)}
                     style={[styles.row, i < openDebts.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
                   >
-                    <Avatar name={c?.name} letter={c?.initials} color={c?.color ?? '#8A887E'} size={48} />
+                    <Avatar name={c?.name} letter={c?.initials} contactId={d.contactId} color={c?.color ?? '#8A887E'} size={48} />
                     <View style={styles.rowBody}>
                       <Text style={[styles.rowName, { color: colors.ink }]}>{c?.name ?? '?'}</Text>
                       <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>

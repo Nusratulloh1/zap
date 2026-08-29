@@ -294,7 +294,7 @@ onMounted(() => {
     const rows = gsap.utils.toArray<HTMLElement>('[data-strike]')
     if (rows.length) {
       const lines = gsap.utils.toArray<HTMLElement>('[data-sline]')
-      const tl = gsap.timeline({ scrollTrigger: { trigger: rows[0], start: 'top 78%' } })
+      const tl = gsap.timeline({ scrollTrigger: { trigger: rows[0], start: 'top 78%', once: true } })
       rows.forEach((r, i) => {
         tl.fromTo(r, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, i * 0.55)
         tl.to(lines[i]!, { scaleX: 1, duration: 0.5, ease: 'power2.inOut' }, i * 0.55 + 0.45)
@@ -377,16 +377,19 @@ onMounted(() => {
       tl.to({}, { duration: 0.2 })
     }
 
-    // Телефон героя живёт своей жизнью: экран собирается, держится и уходит,
-    // и так по кругу — страница не выглядит застывшей, пока её читают.
+    // Телефон героя собирается ОДИН РАЗ, при первой загрузке, и дальше просто
+    // стоит собранным: зациклённая сборка мельтешит каждый раз, когда читатель
+    // возвращается наверх.
     const heroScreen = root.value?.querySelector<HTMLElement>('[data-hero-screen]')
     if (heroScreen) {
-      const kids = Array.from(heroScreen.children)
-      gsap
-        .timeline({ repeat: -1, repeatDelay: 3, delay: 2 })
-        .fromTo(kids, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: 'power3.out' })
-        .to({}, { duration: 2.2 })
-        .to(kids, { y: -10, opacity: 0, duration: 0.4, stagger: 0.05, ease: 'power2.in' })
+      gsap.from(Array.from(heroScreen.children), {
+        y: 14,
+        opacity: 0,
+        duration: 0.5,
+        stagger: 0.1,
+        ease: 'power3.out',
+        delay: 2,
+      })
     }
 
     // карточки причин выезжают из-под маски
@@ -397,7 +400,7 @@ onMounted(() => {
         duration: 0.8,
         ease: 'power3.out',
         delay: i * 0.08,
-        scrollTrigger: { trigger: c, start: 'top 85%' },
+        scrollTrigger: { trigger: c, start: 'top 85%', once: true },
       })
     })
 
@@ -417,7 +420,7 @@ onMounted(() => {
 
     // дашборд заведения: график рисуется, счётчики набегают
     if (chart.value) {
-      const tl = gsap.timeline({ scrollTrigger: { trigger: chart.value, start: 'top 80%' } })
+      const tl = gsap.timeline({ scrollTrigger: { trigger: chart.value, start: 'top 80%', once: true } })
       tl.to(chart.value, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut' }, 0)
       const count = (el: HTMLElement | null, to: number) => {
         if (!el) return

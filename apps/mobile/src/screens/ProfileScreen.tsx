@@ -200,7 +200,7 @@ export function ProfileScreen() {
         {me ? (
           <>
             <View style={styles.headRow}>
-              <Avatar name={me.name} letter={me.initials} color="#111110" size={76} ring={fixed.lime} />
+              <Avatar name={me.name} letter={me.initials} contactId="me" color="#111110" size={76} ring={fixed.lime} />
               <View style={styles.headBody}>
                 <Text style={[styles.name, { color: colors.ink }]}>{me.name}</Text>
                 <Text style={[styles.handle, { color: colors.muted }]}>

@@ -88,7 +88,7 @@ export function CashbackAwardScreen() {
               key={p.contactId + i}
               style={[styles.row, i < perMember.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
             >
-              <Avatar name={nameOf(p.contactId)} color={colorOf(p.contactId)} size={38} />
+              <Avatar name={nameOf(p.contactId)} contactId={p.contactId} color={colorOf(p.contactId)} size={38} />
               <View style={styles.rowBody}>
                 <Text style={[styles.rowName, { color: colors.ink }]}>
                   {nameOf(p.contactId)}

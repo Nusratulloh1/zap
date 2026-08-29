@@ -94,7 +94,7 @@ export function HistoryScreen() {
                         <Text style={styles.iconPct}>%</Text>
                       </View>
                     ) : e.kind === 'debt' && e.contactId ? (
-                      <Avatar name={e.title} letter={e.letter} color={e.color} size={42} />
+                      <Avatar name={e.title} letter={e.letter} contactId={e.contactId} color={e.color} size={42} />
                     ) : (
                       <View style={[styles.icon, { backgroundColor: colors.ink }]}>
                         <Text style={[styles.iconLetter, { color: colors.cream }]}>{e.letter}</Text>

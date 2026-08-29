@@ -13,6 +13,7 @@ import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } fr
 import { trigger } from 'react-native-haptic-feedback';
 import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
+import { HomeIcon, ClockIcon } from '@/components/icons';
 
 const ICON = { Home: 'home', Amount: 'grid', History: 'clock' } as const;
 type IconKind = (typeof ICON)[keyof typeof ICON];
@@ -105,24 +106,8 @@ function Icon({ kind, focused, lime }: { kind: IconKind; focused: boolean; lime:
     );
   }
 
-  if (kind === 'home') {
-    return (
-      <View style={styles.icon}>
-        <View style={[styles.roof, { borderBottomColor: on }]} />
-        <View style={[styles.house, { borderColor: on }]}>
-          <View style={[styles.door, { backgroundColor: on }]} />
-        </View>
-      </View>
-    );
-  }
-
-  // часы
-  return (
-    <View style={[styles.clock, { borderColor: on }]}>
-      <View style={[styles.handV, { backgroundColor: on }]} />
-      <View style={[styles.handH, { backgroundColor: on }]} />
-    </View>
-  );
+  if (kind === 'home') return <HomeIcon size={22} color={on} />;
+  return <ClockIcon size={23} color={on} />;
 }
 
 const styles = StyleSheet.create({

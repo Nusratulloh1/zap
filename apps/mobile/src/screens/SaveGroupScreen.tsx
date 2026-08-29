@@ -86,6 +86,7 @@ export function SaveGroupScreen() {
             <Avatar
               key={cid}
               name={nameOf(cid)}
+              contactId={cid}
               color={colorOf(cid)}
               size={58}
               ring={colors.dune}
@@ -114,7 +115,7 @@ export function SaveGroupScreen() {
               layout={LinearTransition.springify()}
               style={[styles.memberRow, i < memberIds.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
             >
-              <Avatar name={nameOf(cid)} color={colorOf(cid)} size={38} />
+              <Avatar name={nameOf(cid)} contactId={cid} color={colorOf(cid)} size={38} />
               <View style={styles.memberBody}>
                 <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
                   {nameOf(cid)}

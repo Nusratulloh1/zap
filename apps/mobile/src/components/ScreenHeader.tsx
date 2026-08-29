@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
+import { BackIcon } from '@/components/icons';
 
 interface Props {
   /** куда ведёт «назад»; по умолчанию goBack, 'home' — на главную */
@@ -41,7 +42,7 @@ export function ScreenHeader({ onBack, right, tint = 'sand' }: Props) {
         style={[styles.btn, { backgroundColor: bg }]}
         onPress={back}
       >
-        <Text style={[styles.glyph, { color: fg }]}>←</Text>
+        <BackIcon size={20} color={fg} />
       </PressableScale>
       {right ? (
         <PressableScale

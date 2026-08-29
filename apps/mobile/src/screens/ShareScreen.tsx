@@ -91,7 +91,7 @@ export function ShareScreen() {
           const c = home.contactById(m.contactId);
           return (
             <Animated.View key={m.contactId + i} entering={FadeInDown.delay(i * 45)} style={styles.memberRow}>
-              <Avatar name={c?.name} letter={c?.initials} color={c?.color ?? '#3E3C35'} size={38} />
+              <Avatar name={c?.name} letter={c?.initials} contactId={m.contactId} color={c?.color ?? '#3E3C35'} size={38} />
               <Text style={[styles.memberName, { color: colors.ink }]}>{c?.name ?? t('home.participantFallback')}</Text>
               <Text style={[styles.memberAmount, { color: colors.muted }]}>{money(m.amount)}</Text>
             </Animated.View>

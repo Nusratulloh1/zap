@@ -146,7 +146,7 @@ export function SplitLiveScreen() {
                 style={[styles.row, i < split.members.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
               >
                 <View style={waiting ? styles.dim : undefined}>
-                  <Avatar name={nameOf(m.contactId)} color={colorOf(m.contactId)} size={40} />
+                  <Avatar name={nameOf(m.contactId)} contactId={m.contactId} color={colorOf(m.contactId)} size={40} />
                 </View>
                 <View style={styles.rowBody}>
                   <Text style={[styles.rowName, { color: colors.ink }]}>

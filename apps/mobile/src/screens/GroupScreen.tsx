@@ -116,7 +116,7 @@ export function GroupScreen() {
         <View style={styles.headRow}>
           <View style={styles.stack}>
             {group.memberIds.slice(0, 3).map((cid, i) => (
-              <Avatar key={cid} name={nameOf(cid)} color={colorOf(cid)} size={46} ring={colors.paper} style={i > 0 ? styles.stacked : undefined} />
+              <Avatar key={cid} name={nameOf(cid)} contactId={cid} color={colorOf(cid)} size={46} ring={colors.paper} style={i > 0 ? styles.stacked : undefined} />
             ))}
           </View>
           <View style={styles.headBody}>
@@ -151,7 +151,7 @@ export function GroupScreen() {
           <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.members')}</Text>
           {group.memberIds.map((cid) => (
             <View key={cid} style={styles.memberRow}>
-              <Avatar name={nameOf(cid)} color={colorOf(cid)} size={40} />
+              <Avatar name={nameOf(cid)} contactId={cid} color={colorOf(cid)} size={40} />
               <View style={styles.memberBody}>
                 <Text style={[styles.memberName, { color: colors.ink }]}>
                   {nameOf(cid)}

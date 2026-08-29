@@ -16,6 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { trigger } from 'react-native-haptic-feedback';
 import { PressableScale } from '@/components/PressableScale';
 import { toast } from '@/components/ToastHost';
+import { CloseIcon, BoltIcon } from '@/components/icons';
 import { resolveQr, fiscalOcr } from '@/api/actions';
 import { fetchFeaturedBill } from '@/api/actions';
 import { useDraft } from '@/store/draft';
@@ -164,7 +165,7 @@ export function ScanScreen() {
       {/* верх: × · режимы · фонарик */}
       <View style={[styles.topBar, { paddingTop: 12 }]}>
         <PressableScale small style={styles.roundBtn} onPress={() => nav.goBack()}>
-          <Text style={styles.roundGlyph}>✕</Text>
+          <CloseIcon size={17} color="#FFFFFF" />
         </PressableScale>
 
         <View style={styles.modeSwitch}>
@@ -182,7 +183,7 @@ export function ScanScreen() {
         </View>
 
         <PressableScale small style={styles.roundBtn} onPress={() => setTorch((v) => !v)}>
-          <Text style={styles.roundGlyph}>⚡</Text>
+          <BoltIcon size={17} color="#FFFFFF" />
         </PressableScale>
       </View>
 

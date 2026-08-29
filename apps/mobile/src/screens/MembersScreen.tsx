@@ -88,7 +88,9 @@ export function MembersScreen() {
         <Text style={[styles.title, { color: colors.ink }]}>{t('members.title')}</Text>
 
         <View style={styles.totalRow}>
-          <Text style={[styles.total, { color: colors.ink }]}>{money(draft.total)}</Text>
+          <Text style={[styles.total, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
+            {money(draft.total)}
+          </Text>
           <Text style={[styles.currency, { color: colors.faint }]}>{t('common.currency')}</Text>
         </View>
 
@@ -129,6 +131,7 @@ export function MembersScreen() {
                 <Avatar
                   name={nameOf(m.contactId)}
                   letter={home.contactById(m.contactId)?.initials}
+                  contactId={m.contactId}
                   color={m.contactId === ME ? '#111110' : (home.contactById(m.contactId)?.color ?? '#3E3C35')}
                   size={44}
                 />
@@ -187,7 +190,12 @@ export function MembersScreen() {
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickRow}>
           {rest.slice(0, 8).map((c) => (
             <PressableScale key={c.id} style={styles.quick} onPress={() => draft.toggleMember(c.id)}>
-              <Avatar name={c.name} letter={c.initials} color={c.color} size={54} />
+              <View>
+                <Avatar name={c.name} letter={c.initials} contactId={c.id} color={c.color} size={54} />
+                <View style={styles.plusBadge}>
+                  <Text style={styles.plusBadgeText}>+</Text>
+                </View>
+              </View>
               <Text style={[styles.quickName, { color: colors.muted }]} numberOfLines={1}>{c.name}</Text>
             </PressableScale>
           ))}
@@ -219,7 +227,7 @@ export function MembersScreen() {
                 setContactsOpen(false);
               }}
             >
-              <Avatar name={c.name} letter={c.initials} color={c.color} size={40} />
+              <Avatar name={c.name} letter={c.initials} contactId={c.id} color={c.color} size={40} />
               <Text style={[styles.sheetName, { color: colors.ink }]}>{c.name}</Text>
               {c.handle ? <Text style={[styles.sheetHandle, { color: colors.faint }]}>{c.handle}</Text> : null}
             </PressableScale>
@@ -269,6 +277,11 @@ const styles = StyleSheet.create({
   quickRow: { gap: 14, paddingTop: 12, paddingRight: 20 },
   quick: { alignItems: 'center', gap: 6, width: 60 },
   quickName: { fontFamily: font.semibold, fontSize: 11.5 },
+  plusBadge: {
+    position: 'absolute', right: -1, bottom: -1, width: 18, height: 18, borderRadius: 999,
+    backgroundColor: '#DDFF33', alignItems: 'center', justifyContent: 'center',
+  },
+  plusBadgeText: { fontFamily: font.extrabold, fontSize: 12, color: '#111110', marginTop: -1 },
   cta: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingHorizontal: 20, paddingTop: 12 },
   ctaBtn: { height: 58, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   ctaText: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
