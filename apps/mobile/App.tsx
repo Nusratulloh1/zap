@@ -1,6 +1,6 @@
 // Корень приложения: жесты → тема → i18n → сеть → навигация.
 // Порядок важен: gesture-handler обязан быть самым внешним.
-import React, { useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -18,6 +18,7 @@ const queryClient = new QueryClient({
 });
 
 export default function App() {
+  const lastBackground = useRef(0);
   const hydrate = useSession((s) => s.hydrate);
 
   useEffect(() => {
@@ -30,8 +31,11 @@ export default function App() {
     const sub = AppState.addEventListener('change', (state) => {
       if (state === 'active') {
         connectRealtime();
-        void queryClient.invalidateQueries({ queryKey: qk.bootstrap });
+        // короткий свайп в другое приложение не должен перезагружать базу
+        const away = Date.now() - lastBackground.current;
+        if (away > 30_000) void queryClient.invalidateQueries({ queryKey: qk.bootstrap });
       } else if (state === 'background') {
+        lastBackground.current = Date.now();
         disconnectRealtime();
       }
     });
