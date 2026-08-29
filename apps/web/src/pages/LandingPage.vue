@@ -17,9 +17,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { submitPartnerLead } from '@/api'
 import { toast } from '@/lib/toast'
 import { appHref } from '@/lib/site'
-import { phone as formatPhone } from '@/lib/format'
+import { phone as formatPhone, money } from '@/lib/format'
 import { startSmoothScroll, stopSmoothScroll, scrollToTarget, refreshMotion } from '@/lib/landingMotion'
 import { applyLocale, type Locale } from '@/lib/i18n'
+import PhoneScreen from '@/components/landing/PhoneScreen.vue'
 
 import wordmark from '@/assets/brand/logo/zap-wordmark-large.png'
 import venueBellissimo from '@/assets/brand/venues/bellissimo.webp'
@@ -38,22 +39,6 @@ gsap.registerPlugin(ScrollTrigger)
 
 const router = useRouter()
 const { t, locale } = useI18n()
-
-// Снимки приложения лежат комплектом на каждый язык: в макете телефона должен
-// быть интерфейс на языке посетителя. Комплекты снимает scripts/landing-shots.mjs.
-// Второй аргумент — запасной кадр: пока комплект не переснят, шаг показывает
-// ближайший существующий экран вместо «битой» картинки.
-const SHOTS = import.meta.glob('../assets/landing/*/*.webp', { eager: true, import: 'default' }) as Record<string, string>
-function shot(name: string, fallback = ''): string {
-  const pick = (l: string, n: string) =>
-    Object.entries(SHOTS).find(([path]) => path.endsWith(`/${l}/app-${n}.webp`))?.[1]
-  return (
-    pick(locale.value, name) ??
-    pick('uz', name) ??
-    (fallback ? (pick(locale.value, fallback) ?? pick('uz', fallback)) : undefined) ??
-    ''
-  )
-}
 
 const start = () => {
   const href = appHref('/onboarding')
@@ -78,14 +63,14 @@ const setLang = (l: Locale) => {
 // --- содержимое ---
 
 const steps = computed(() => [
-  { label: t('landing.step1Label'), title: t('landing.step1Title'), text: t('landing.step1Text'), src: shot('scan', 'receipt') },
-  { label: t('landing.step2Label'), title: t('landing.step2Title'), text: t('landing.step2Text'), src: shot('receipt') },
-  { label: t('landing.step3Label'), title: t('landing.step3Title'), text: t('landing.step3Text'), src: shot('members') },
-  { label: t('landing.step4Label'), title: t('landing.step4Title'), text: t('landing.step4Text'), src: shot('debts') },
-  { label: t('landing.step5Label'), title: t('landing.step5Title'), text: t('landing.step5Text'), src: shot('share', 'done') },
-  { label: t('landing.step6Label'), title: t('landing.step6Title'), text: t('landing.step6Text'), src: shot('participant', 'amount') },
-  { label: t('landing.step7Label'), title: t('landing.step7Title'), text: t('landing.step7Text'), src: shot('live', 'members') },
-  { label: t('landing.step8Label'), title: t('landing.step8Title'), text: t('landing.step8Text'), src: shot('award', 'cashback') },
+  { label: t('landing.step1Label'), title: t('landing.step1Title'), text: t('landing.step1Text'), kind: 'scan' },
+  { label: t('landing.step2Label'), title: t('landing.step2Title'), text: t('landing.step2Text'), kind: 'bill' },
+  { label: t('landing.step3Label'), title: t('landing.step3Title'), text: t('landing.step3Text'), kind: 'members' },
+  { label: t('landing.step4Label'), title: t('landing.step4Title'), text: t('landing.step4Text'), kind: 'debts' },
+  { label: t('landing.step5Label'), title: t('landing.step5Title'), text: t('landing.step5Text'), kind: 'share' },
+  { label: t('landing.step6Label'), title: t('landing.step6Title'), text: t('landing.step6Text'), kind: 'participant' },
+  { label: t('landing.step7Label'), title: t('landing.step7Title'), text: t('landing.step7Text'), kind: 'live' },
+  { label: t('landing.step8Label'), title: t('landing.step8Title'), text: t('landing.step8Text'), kind: 'award' },
 ])
 
 const problems = computed(() => [t('landing.problem1'), t('landing.problem2'), t('landing.problem3')])
@@ -176,6 +161,9 @@ const cur = ref<HTMLElement | null>(null)
 const ring = ref<HTMLElement | null>(null)
 const heroSub = ref<HTMLElement | null>(null)
 const heroTilt = ref<HTMLElement | null>(null)
+const heroInner = ref<HTMLElement | null>(null)
+const stepPhone = ref<HTMLElement | null>(null)
+const stepInner = ref<HTMLElement | null>(null)
 const pinWrap = ref<HTMLElement | null>(null)
 const pin = ref<HTMLElement | null>(null)
 const marq = ref<HTMLElement | null>(null)
@@ -188,6 +176,7 @@ const activeStep = ref(0)
 let ctx: gsap.Context | null = null
 let onScroll: (() => void) | null = null
 let onMove: ((e: MouseEvent) => void) | null = null
+let fitScreens: (() => void) | null = null
 let marqueeTick: ((t: number) => void) | null = null
 
 const fmt = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ')
@@ -205,6 +194,21 @@ onMounted(() => {
   if (document.readyState !== 'complete') window.addEventListener('load', toTop, { once: true })
 
   startSmoothScroll()
+
+  // Экран внутри телефона свёрстан в натуральных 390×844 — вписываем его в
+  // рамку масштабом, как это делает приложение на узком вьюпорте.
+  fitScreens = () => {
+    const fit = (frame: HTMLElement | null, inner: HTMLElement | null) => {
+      if (!frame || !inner) return
+      const h = frame.clientHeight - 20
+      if (h < 120) return
+      inner.style.transform = `scale(${h / 844})`
+    }
+    fit(heroTilt.value, heroInner.value)
+    fit(stepPhone.value, stepInner.value)
+  }
+  fitScreens()
+  window.addEventListener('resize', fitScreens)
 
   // заставка
   if (preRoot.value) {
@@ -336,6 +340,15 @@ onMounted(() => {
         },
       })
 
+      // крупная сумма на экране набегает счётчиком, как в приложении
+      const countTo = (tl: gsap.core.Timeline, el: HTMLElement, pos: number, dur: number) => {
+        const to = Number(el.dataset.count ?? 0)
+        const prefix = el.dataset.prefix ?? ''
+        const o = { v: 0 }
+        el.textContent = prefix + money(0)
+        tl.to(o, { v: to, duration: dur, ease: 'none', onUpdate: () => (el.textContent = prefix + money(o.v)) }, pos)
+      }
+
       let at = 0
       units.forEach((u, i) => {
         const startAt = at
@@ -345,9 +358,35 @@ onMounted(() => {
             .fromTo(screens[i]!, { xPercent: 40, opacity: 0, scale: 0.98 }, { xPercent: 0, opacity: 1, scale: 1, duration: 0.3, ease: 'power3.out' }, startAt - 0.1)
             .fromTo(texts[i]!, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: 'power3.out' }, startAt)
         }
+        // экран собирается по блокам сверху вниз — это и есть «как оно работает»
+        const body = startAt + 0.28
+        const dur = Math.max(u - 0.42, 0.3)
+        const blocks = Array.from(screens[i]!.children) as HTMLElement[]
+        if (blocks.length) {
+          tl.fromTo(
+            blocks,
+            { y: 22, opacity: 0 },
+            { y: 0, opacity: 1, duration: dur * 0.34, stagger: Math.min(dur * 0.12, 0.18), ease: 'power3.out' },
+            body,
+          )
+        }
+        const num = screens[i]!.querySelector<HTMLElement>('[data-count]')
+        if (num) countTo(tl, num, body + dur * 0.3, dur * 0.45)
         at += u
       })
       tl.to({}, { duration: 0.2 })
+    }
+
+    // Телефон героя живёт своей жизнью: экран собирается, держится и уходит,
+    // и так по кругу — страница не выглядит застывшей, пока её читают.
+    const heroScreen = root.value?.querySelector<HTMLElement>('[data-hero-screen]')
+    if (heroScreen) {
+      const kids = Array.from(heroScreen.children)
+      gsap
+        .timeline({ repeat: -1, repeatDelay: 3, delay: 2 })
+        .fromTo(kids, { y: 14, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.1, ease: 'power3.out' })
+        .to({}, { duration: 2.2 })
+        .to(kids, { y: -10, opacity: 0, duration: 0.4, stagger: 0.05, ease: 'power2.in' })
     }
 
     // карточки причин выезжают из-под маски
@@ -459,6 +498,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
   if (onScroll) window.removeEventListener('scroll', onScroll)
   if (onMove) window.removeEventListener('mousemove', onMove)
+  if (fitScreens) window.removeEventListener('resize', fitScreens)
   if (marqueeTick) gsap.ticker.remove(marqueeTick)
   ctx?.revert()
   ScrollTrigger.getAll().forEach((st) => st.kill())
@@ -530,7 +570,9 @@ onBeforeUnmount(() => {
         </div>
 
         <div ref="heroTilt" class="lp-phone lp-phone--hero">
-          <div class="lp-phone__screen"><img :src="shot('members')" :alt="t('landing.altPhone')" /></div>
+          <div class="lp-phone__screen">
+            <div ref="heroInner" class="lp-phone__inner"><PhoneScreen data-hero-screen kind="members" /></div>
+          </div>
         </div>
       </div>
     </section>
@@ -564,9 +606,11 @@ onBeforeUnmount(() => {
             </div>
           </div>
 
-          <div class="lp-phone lp-phone--step">
+          <div ref="stepPhone" class="lp-phone lp-phone--step">
             <div class="lp-phone__screen">
-              <img v-for="s in steps" :key="s.label" data-screen :src="s.src" :alt="s.title" />
+              <div ref="stepInner" class="lp-phone__inner">
+                <PhoneScreen v-for="s in steps" :key="s.kind" data-screen :kind="s.kind" />
+              </div>
             </div>
           </div>
         </div>
@@ -1113,12 +1157,14 @@ onBeforeUnmount(() => {
   overflow: hidden;
   background: #fff;
 }
-.lp-phone__screen img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: top;
+/* экран свёрстан в натуральных 390×844 и вписывается масштабом (см. fitScreens) */
+.lp-phone__inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 390px;
+  height: 844px;
+  transform-origin: 0 0;
 }
 .lp-phone--hero {
   justify-self: center;
@@ -1142,11 +1188,7 @@ onBeforeUnmount(() => {
   border-radius: 40px;
   background: var(--cream);
 }
-/* экраны шага лежат стопкой: показывается тот, что сейчас активен */
-.lp-phone--step .lp-phone__screen img {
-  position: absolute;
-  inset: 0;
-}
+
 
 /* ============ КАК СЕЙЧАС ============ */
 .lp-problem {
