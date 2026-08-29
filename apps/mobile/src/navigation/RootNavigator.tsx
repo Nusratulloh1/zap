@@ -10,6 +10,8 @@ import { PhoneScreen } from '@/screens/PhoneScreen';
 import { CodeScreen } from '@/screens/CodeScreen';
 import { PinScreen } from '@/screens/PinScreen';
 import { SoonScreen } from '@/screens/SoonScreen';
+import { MembersScreen } from '@/screens/MembersScreen';
+import { ShareScreen } from '@/screens/ShareScreen';
 import { TabNavigator } from '@/navigation/TabNavigator';
 import { useSession } from '@/store/session';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -23,6 +25,8 @@ export type RootStackParamList = {
   // экраны следующих чанков — маршруты объявлены заранее, чтобы переходы с
   // главной уже работали и вели назад, а не были мёртвыми нажатиями
   Scan: undefined;
+  Members: undefined;
+  Share: { id: string };
   SplitLive: { id: string };
   Group: { id: string };
   Debts: undefined;
@@ -71,6 +75,8 @@ export function RootNavigator() {
             <Stack.Screen name="Tabs" component={TabNavigator} />
             {/* сканер — полноэкранный «захват», поэтому выезжает снизу */}
             <Stack.Screen name="Scan" component={SoonScreen} options={{ animation: 'slide_from_bottom' }} />
+            <Stack.Screen name="Members" component={MembersScreen} />
+            <Stack.Screen name="Share" component={ShareScreen} />
             <Stack.Screen name="SplitLive" component={SoonScreen} />
             <Stack.Screen name="Group" component={SoonScreen} />
             <Stack.Screen name="Debts" component={SoonScreen} />

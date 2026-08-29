@@ -1,0 +1,78 @@
+// Ручки сплита. Контракт тот же, что у веба (web/src/api/real.ts): участники
+// уходят телефоном и именем, а не нашим локальным contactId, сумма — только
+// когда сплит не привязан к чеку.
+import { http } from './client';
+import type { Contact, Split, SplitMode } from '@zap/shared/types';
+
+export interface DraftMemberInput {
+  contactId: string;
+  amount: number;
+  debt?: boolean;
+  itemIds?: string[];
+}
+
+export interface CreateSplitInput {
+  total: number;
+  title: string;
+  mode: SplitMode;
+  merchantId?: string;
+  billId?: string;
+  members: DraftMemberInput[];
+}
+
+/**
+ * Организатор («me») в запрос не попадает — сервер добавляет его сам.
+ * Idempotency-Key защищает от двойного создания при ретрае.
+ */
+export async function createSplit(input: CreateSplitInput, contacts: Contact[] = []): Promise<Split> {
+  const byId = new Map(contacts.map((c) => [c.id, c]));
+  const members = input.members
+    .filter((m) => m.contactId !== 'me')
+    .map((m) => {
+      const c = byId.get(m.contactId);
+      return {
+        phone: c?.phone ?? m.contactId,
+        name: c?.name ?? '?',
+        shareAmount: m.amount,
+        inDebt: m.debt || undefined,
+        itemIds: m.itemIds,
+      };
+    });
+
+  return http<Split>('/splits', {
+    method: 'POST',
+    pt: true,
+    headers: { 'Idempotency-Key': `create-${Date.now().toString(36)}` },
+    body: JSON.stringify({
+      billId: input.billId,
+      totalAmount: input.billId ? undefined : input.total,
+      title: input.title,
+      mode: input.mode,
+      merchantId: input.merchantId,
+      members,
+    }),
+  });
+}
+
+export function fetchSplit(id: string): Promise<Split> {
+  return http<Split>(`/splits/${id}`);
+}
+
+export function remindMember(splitId: string, memberId: string): Promise<{ ok: boolean }> {
+  return http(`/splits/${splitId}/remind/${memberId}`, { method: 'POST' });
+}
+
+export function sendSplitLinkSms(splitId: string): Promise<{ sent: number }> {
+  return http(`/splits/${splitId}/send-link`, { method: 'POST' });
+}
+
+export function coverRemainder(splitId: string): Promise<Split> {
+  return http(`/splits/${splitId}/cover`, { method: 'POST', pt: true });
+}
+
+export function saveGroup(splitId: string, name: string, accrueCashback: boolean): Promise<{ id: string }> {
+  return http(`/splits/${splitId}/save-group`, {
+    method: 'POST',
+    body: JSON.stringify({ name, accrueCashback }),
+  });
+}

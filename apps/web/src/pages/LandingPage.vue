@@ -146,6 +146,15 @@ async function sendLead() {
 
 // --- движение ---
 
+// Заставка первой загрузки: счёт 1 200 000 распадается на три доли и улетает —
+// метафора сплита ещё до того, как посетитель что-то прочитал. Живёт 2,6 с и
+// снимается сама; страница под ней уже собрана, ScrollTrigger меряет её как
+// обычно (заставка на position: fixed и в поток не входит).
+const preloading = ref(true)
+const preRoot = ref<HTMLElement | null>(null)
+const preSum = ref<HTMLElement | null>(null)
+const preNum = ref<HTMLElement | null>(null)
+
 const root = ref<HTMLElement | null>(null)
 const prog = ref<HTMLElement | null>(null)
 const head = ref<HTMLElement | null>(null)
@@ -166,6 +175,28 @@ const fmt = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, 
 
 onMounted(() => {
   startSmoothScroll()
+
+  // заставка
+  if (preRoot.value) {
+    const parts = preRoot.value.querySelectorAll('[data-pre-part]')
+    const o = { v: 0 }
+    gsap
+      .timeline({ onComplete: () => (preloading.value = false) })
+      .to(o, {
+        v: 100,
+        duration: 1.1,
+        ease: 'none',
+        onUpdate: () => {
+          if (preNum.value) preNum.value.textContent = String(Math.round(o.v)).padStart(3, '0')
+        },
+      })
+      .to(preSum.value, { opacity: 0, y: -14, duration: 0.35, ease: 'power2.out' }, 0.9)
+      .to(parts, { opacity: 1, y: -24, duration: 0.45, stagger: 0.06, ease: 'power3.out' }, 1.05)
+      .to(parts, { x: (i: number) => [-260, 0, 260][i], opacity: 0, duration: 0.5, ease: 'power2.inOut' }, 1.5)
+      .to(preRoot.value, { yPercent: -100, duration: 0.7, ease: 'power4.inOut' }, 1.55)
+  } else {
+    preloading.value = false
+  }
 
   // полоса прогресса + «стеклянная» шапка при прокрутке
   onScroll = () => {
@@ -323,6 +354,19 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="root" class="lp">
+    <!-- ЗАСТАВКА: счёт распадается на доли -->
+    <div v-if="preloading" ref="preRoot" class="lp-pre" aria-hidden="true">
+      <div class="lp-pre__stack">
+        <div ref="preSum" class="lp-pre__sum">1 200 000</div>
+        <div class="lp-pre__parts">
+          <div data-pre-part class="lp-pre__part">400 000</div>
+          <div data-pre-part class="lp-pre__part">400 000</div>
+          <div data-pre-part class="lp-pre__part">400 000</div>
+        </div>
+      </div>
+      <div ref="preNum" class="lp-pre__num">000</div>
+    </div>
+
     <div ref="prog" class="lp-prog" />
 
     <!-- ШАПКА -->
@@ -581,6 +625,50 @@ onBeforeUnmount(() => {
 }
 .lp :where(#how, #merch, #faq) {
   scroll-margin-top: 96px;
+}
+
+/* ============ ЗАСТАВКА ============ */
+.lp-pre {
+  position: fixed;
+  inset: 0;
+  z-index: 9800;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lp-pre__stack {
+  position: relative;
+  text-align: center;
+}
+.lp-pre__sum {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-size: clamp(28px, 6vw, 64px);
+  letter-spacing: 0.06em;
+  color: #3e3c35;
+}
+.lp-pre__parts {
+  display: flex;
+  gap: clamp(12px, 3vw, 40px);
+  justify-content: center;
+  margin-top: 18px;
+}
+.lp-pre__part {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(16px, 2.4vw, 28px);
+  letter-spacing: 0.06em;
+  color: #3e3c35;
+  opacity: 0;
+}
+.lp-pre__num {
+  position: absolute;
+  bottom: 28px;
+  right: 32px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
 }
 
 /* полоса прогресса чтения */
