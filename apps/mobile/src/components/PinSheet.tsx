@@ -72,7 +72,7 @@ export function PinSheet({ open, hint, title, onClose, onConfirm }: Props) {
     })();
   }, [pin, busy, onConfirm]);
 
-  const useBiometrics = async () => {
+  const promptBiometrics = async () => {
     try {
       const rnb = new ReactNativeBiometrics();
       const { available } = await rnb.isSensorAvailable();
@@ -100,7 +100,7 @@ export function PinSheet({ open, hint, title, onClose, onConfirm }: Props) {
           <Text style={[styles.reopen, { color: colors.muted }]}>{t('auth.tapToType')}</Text>
         ) : null}
 
-        <Pressable onPress={() => void useBiometrics()} style={styles.bio}>
+        <Pressable onPress={() => void promptBiometrics()} style={styles.bio}>
           <Text style={[styles.bioText, { color: colors.muted }]}>{t('profile.pinFaceId')}</Text>
         </Pressable>
 
