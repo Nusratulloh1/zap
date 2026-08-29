@@ -183,15 +183,20 @@ const triggerClass = computed(() => {
   border: 1px solid rgb(0 0 0 / 7%);
 }
 
-/* Тёмная шапка лендинга: стекло вместо кремовой таблетки */
-:global(.lp) .lang-trigger--landing {
+/* Тёмная шапка лендинга: стекло вместо кремовой таблетки.
+   БЕЗ :global(.lp) — Vue схлопывал «:global(.lp) .lang-trigger--landing»
+   в просто «.lp», и backdrop-filter уезжал на корень лендинга. Там он
+   создавал containing block для position:fixed, из-за чего закреплённая
+   GSAP-секция улетала за экран и на её месте была чёрная пустота.
+   Класс и так вешается только при variant="landing", предок не нужен. */
+.lang-trigger--landing {
   background: rgb(255 255 255 / 14%);
   color: #fff;
   border: 1px solid rgb(255 255 255 / 26%);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
 }
-:global(.lp) .lang-trigger--landing:hover {
+.lang-trigger--landing:hover {
   background: rgb(255 255 255 / 20%);
 }
 
