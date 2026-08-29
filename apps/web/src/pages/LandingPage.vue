@@ -99,11 +99,16 @@ const faq = computed(() => [
   { q: t('landing.q6'), a: t('landing.a6') },
 ])
 
+// Закрепление шагов живёт только на широком экране: на телефоне оно не влезает
+// (текст + аппарат сразу) и конфликтует с плавающей адресной строкой.
+const DESKTOP = '(min-width: 901px)'
+const isDesktop = ref(typeof window !== 'undefined' ? window.matchMedia(DESKTOP).matches : true)
+
 const openFaq = ref<number | null>(null)
 const toggleFaq = (i: number) => {
   openFaq.value = openFaq.value === i ? null : i
   // высота ответа меняет геометрию страницы — иначе триггеры ниже съезжают
-  requestAnimationFrame(() => refreshMotion())
+  if (isDesktop.value) requestAnimationFrame(() => refreshMotion())
 }
 
 // --- заявка заведения ---
@@ -163,7 +168,6 @@ const heroSub = ref<HTMLElement | null>(null)
 const heroTilt = ref<HTMLElement | null>(null)
 const heroInner = ref<HTMLElement | null>(null)
 const stepPhone = ref<HTMLElement | null>(null)
-const stepInner = ref<HTMLElement | null>(null)
 const pinWrap = ref<HTMLElement | null>(null)
 const pin = ref<HTMLElement | null>(null)
 const marq = ref<HTMLElement | null>(null)
@@ -177,9 +181,42 @@ let ctx: gsap.Context | null = null
 let onScroll: (() => void) | null = null
 let onMove: ((e: MouseEvent) => void) | null = null
 let fitScreens: (() => void) | null = null
+// сборка экрана в телефоне героя: ждёт, пока уедет заставка, иначе проходит
+// под ней и посетитель её просто не видит
+let heroTl: gsap.core.Timeline | null = null
 let marqueeTick: ((t: number) => void) | null = null
 
 const fmt = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ')
+
+/** Экран 390×844 вписывается в рамку телефона масштабом. */
+function fitAllScreens() {
+  document.querySelectorAll<HTMLElement>('.lp-phone').forEach((frame) => {
+    const inner = frame.querySelector<HTMLElement>('.lp-phone__inner')
+    if (!inner) return
+    const h = frame.clientHeight - 20
+    if (h < 120) return
+    inner.style.transform = `scale(${h / 844})`
+  })
+}
+
+/** Конечные состояния того, что на десктопе доводит анимация. */
+function settleStatic() {
+  const chartEl = document.querySelector('#zchart, [data-chart]') as SVGPolylineElement | null
+  chartEl?.setAttribute('stroke-dashoffset', '0')
+  const k1El = document.querySelector<HTMLElement>('[data-k1]')
+  const k2El = document.querySelector<HTMLElement>('[data-k2]')
+  if (k1El) k1El.textContent = money(142)
+  if (k2El) k2El.textContent = money(860000)
+}
+
+/** Крупная сумма на экране телефона набегает счётчиком, как в приложении. */
+const countTo = (tl: gsap.core.Timeline, el: HTMLElement, pos: number, dur: number) => {
+  const to = Number(el.dataset.count ?? 0)
+  const prefix = el.dataset.prefix ?? ''
+  const o = { v: 0 }
+  el.textContent = prefix + money(0)
+  tl.to(o, { v: to, duration: dur, ease: 'none', onUpdate: () => (el.textContent = prefix + money(o.v)) }, pos)
+}
 
 onMounted(() => {
   // Лендинг всегда открывается сверху: у него заставка и завязанная на скролл
@@ -193,19 +230,39 @@ onMounted(() => {
   requestAnimationFrame(toTop)
   if (document.readyState !== 'complete') window.addEventListener('load', toTop, { once: true })
 
+  // ── ТЕЛЕФОН: без GSAP ────────────────────────────────────────────────────
+  // На мобильных скролл-анимации и пиннинг дают рывки и подвисания: их дерут
+  // плавающая адресная строка, инерционная прокрутка и слабый GPU. Поэтому
+  // здесь страница просто статичная и лёгкая — ни ScrollTrigger, ни Lenis,
+  // ни заставки. Десктоп при этом не меняется.
+  if (!isDesktop.value) {
+    preloading.value = false
+    settleStatic()
+    fitScreens = () => fitAllScreens()
+    fitScreens()
+    window.addEventListener('resize', fitScreens)
+    onScroll = () => {
+      const h = document.documentElement.scrollHeight - window.innerHeight
+      if (prog.value) prog.value.style.transform = `scaleX(${h > 0 ? window.scrollY / h : 0})`
+      head.value?.classList.toggle('is-scrolled', window.scrollY > 40)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    onScroll()
+    return
+  }
+
   startSmoothScroll()
 
   // Экран внутри телефона свёрстан в натуральных 390×844 — вписываем его в
   // рамку масштабом, как это делает приложение на узком вьюпорте.
   fitScreens = () => {
-    const fit = (frame: HTMLElement | null, inner: HTMLElement | null) => {
-      if (!frame || !inner) return
+    root.value?.querySelectorAll<HTMLElement>('.lp-phone').forEach((frame) => {
+      const inner = frame.querySelector<HTMLElement>('.lp-phone__inner')
+      if (!inner) return
       const h = frame.clientHeight - 20
       if (h < 120) return
       inner.style.transform = `scale(${h / 844})`
-    }
-    fit(heroTilt.value, heroInner.value)
-    fit(stepPhone.value, stepInner.value)
+    })
   }
   fitScreens()
   window.addEventListener('resize', fitScreens)
@@ -215,7 +272,12 @@ onMounted(() => {
     const parts = preRoot.value.querySelectorAll('[data-pre-part]')
     const o = { v: 0 }
     gsap
-      .timeline({ onComplete: () => (preloading.value = false) })
+      .timeline({
+        onComplete: () => {
+          preloading.value = false
+          heroTl?.play()
+        },
+      })
       .to(o, {
         v: 100,
         duration: 1.1,
@@ -340,15 +402,6 @@ onMounted(() => {
         },
       })
 
-      // крупная сумма на экране набегает счётчиком, как в приложении
-      const countTo = (tl: gsap.core.Timeline, el: HTMLElement, pos: number, dur: number) => {
-        const to = Number(el.dataset.count ?? 0)
-        const prefix = el.dataset.prefix ?? ''
-        const o = { v: 0 }
-        el.textContent = prefix + money(0)
-        tl.to(o, { v: to, duration: dur, ease: 'none', onUpdate: () => (el.textContent = prefix + money(o.v)) }, pos)
-      }
-
       let at = 0
       units.forEach((u, i) => {
         const startAt = at
@@ -382,14 +435,9 @@ onMounted(() => {
     // возвращается наверх.
     const heroScreen = root.value?.querySelector<HTMLElement>('[data-hero-screen]')
     if (heroScreen) {
-      gsap.from(Array.from(heroScreen.children), {
-        y: 14,
-        opacity: 0,
-        duration: 0.5,
-        stagger: 0.1,
-        ease: 'power3.out',
-        delay: 2,
-      })
+      heroTl = gsap
+        .timeline({ paused: true })
+        .from(Array.from(heroScreen.children), { y: 14, opacity: 0, duration: 0.5, stagger: 0.1, ease: 'power3.out' })
     }
 
     // карточки причин выезжают из-под маски
@@ -459,6 +507,9 @@ onMounted(() => {
     gsap.ticker.add(marqueeTick)
   }
 
+  // если заставки нет — экран героя собирается сразу после сборки сцены
+  if (!preRoot.value) heroTl?.play()
+
   // Курсор-точка с догоняющим кольцом, магнитные кнопки и наклон телефона за
   // мышью — только там, где есть настоящий указатель: на тач-устройствах это
   // мусор в DOM и лишние слушатели.
@@ -512,7 +563,7 @@ onBeforeUnmount(() => {
 <template>
   <div ref="root" class="lp">
     <!-- ЗАСТАВКА: счёт распадается на доли -->
-    <div v-if="preloading" ref="preRoot" class="lp-pre" aria-hidden="true">
+    <div v-if="preloading && isDesktop" ref="preRoot" class="lp-pre" aria-hidden="true">
       <div class="lp-pre__stack">
         <div ref="preSum" class="lp-pre__sum">1 200 000</div>
         <div class="lp-pre__parts">
@@ -525,9 +576,11 @@ onBeforeUnmount(() => {
     </div>
 
     <!-- курсор-точка с кольцом и зерно поверх страницы -->
-    <div ref="cur" class="lp-cur" aria-hidden="true" />
-    <div ref="ring" class="lp-ring" aria-hidden="true" />
-    <div class="lp-grain" aria-hidden="true" />
+    <template v-if="isDesktop">
+      <div ref="cur" class="lp-cur" aria-hidden="true" />
+      <div ref="ring" class="lp-ring" aria-hidden="true" />
+      <div class="lp-grain" aria-hidden="true" />
+    </template>
 
     <div ref="prog" class="lp-prog" />
 
@@ -593,8 +646,8 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
-    <!-- ВОСЕМЬ ШАГОВ · ЗАКРЕПЛЁННАЯ СЕКЦИЯ -->
-    <section id="how" ref="pinWrap" class="lp-how">
+    <!-- ВОСЕМЬ ШАГОВ · на десктопе секция закрепляется, на телефоне идёт лентой -->
+    <section v-if="isDesktop" id="how" ref="pinWrap" class="lp-how">
       <div ref="pin" class="lp-pin">
         <div class="lp-pinrow">
           <div class="lp-dots">
@@ -611,7 +664,7 @@ onBeforeUnmount(() => {
 
           <div ref="stepPhone" class="lp-phone lp-phone--step">
             <div class="lp-phone__screen">
-              <div ref="stepInner" class="lp-phone__inner">
+              <div class="lp-phone__inner">
                 <PhoneScreen v-for="s in steps" :key="s.kind" data-screen :kind="s.kind" />
               </div>
             </div>
@@ -620,9 +673,29 @@ onBeforeUnmount(() => {
       </div>
     </section>
 
+    <!-- На телефоне закрепление не работает: экран слишком мал, чтобы вместить
+         текст и аппарат разом, а пиннинг ещё и дерётся с плавающей адресной
+         строкой. Поэтому те же восемь шагов идут обычной лентой, и каждый
+         собирается один раз, когда доходит до экрана. -->
+    <section v-else id="how" class="lp-how">
+      <div v-for="(s, i) in steps" :key="s.kind" data-mstep class="lp-mstep">
+        <div class="lp-mstep__head">
+          <span class="lp-mdots"><i v-for="(x, j) in steps" :key="x.kind" :class="{ 'is-on': j === i }" /></span>
+          <div class="lp-step__label">{{ s.label }}</div>
+          <h3 class="lp-step__title">{{ s.title }}</h3>
+          <p class="lp-step__text">{{ s.text }}</p>
+        </div>
+        <div class="lp-phone lp-phone--m">
+          <div class="lp-phone__screen">
+            <div class="lp-phone__inner"><PhoneScreen data-screen :kind="s.kind" /></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- БЕГУЩАЯ СТРОКА -->
     <section class="lp-marq-sec">
-      <div ref="marq" class="lp-marq">
+      <div ref="marq" class="lp-marq" :class="{ 'is-css': !isDesktop }">
         <span>{{ t('landing.marquee') }}</span>
         <span aria-hidden="true">{{ t('landing.marquee') }}</span>
       </div>
@@ -685,8 +758,8 @@ onBeforeUnmount(() => {
         <div class="lp-dash">
           <div class="lp-dash__head"><span>{{ t('landing.dashVisits') }}</span><span>{{ t('landing.dashDays') }}</span></div>
           <div class="lp-dash__nums">
-            <div><div ref="k1" class="lp-dash__num">0</div><div class="lp-dash__cap">{{ t('landing.dashK1') }}</div></div>
-            <div><div ref="k2" class="lp-dash__num">0</div><div class="lp-dash__cap">{{ t('landing.dashK2') }}</div></div>
+            <div><div ref="k1" data-k1 class="lp-dash__num">0</div><div class="lp-dash__cap">{{ t('landing.dashK1') }}</div></div>
+            <div><div ref="k2" data-k2 class="lp-dash__num">0</div><div class="lp-dash__cap">{{ t('landing.dashK2') }}</div></div>
           </div>
           <svg viewBox="0 0 420 200" class="lp-dash__chart" :aria-label="t('landing.chartAria')">
             <line x1="0" y1="160" x2="420" y2="160" stroke="#E3E1D8" stroke-width="1" />
@@ -694,6 +767,7 @@ onBeforeUnmount(() => {
             <line x1="0" y1="40" x2="420" y2="40" stroke="#EFEDE7" stroke-width="1" />
             <polyline
               ref="chart"
+              data-chart
               points="10,150 70,138 130,120 190,124 250,92 310,66 380,28"
               fill="none"
               stroke="#111110"
@@ -925,9 +999,9 @@ onBeforeUnmount(() => {
   height: 40px;
 }
 .lp-head__nav {
-  display: none;
+  display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 14px;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.14em;
@@ -975,9 +1049,17 @@ onBeforeUnmount(() => {
   text-transform: uppercase;
   cursor: pointer;
 }
+/* на телефоне из шапки остаются только язык и кнопка: якоря туда не влезают,
+   а переключатель RU/UZ нужен — продукт двуязычный */
+.lp-head__nav > a {
+  display: none;
+}
 @media (min-width: 901px) {
   .lp-head__nav {
-    display: flex;
+    gap: 28px;
+  }
+  .lp-head__nav > a {
+    display: inline;
   }
 }
 
@@ -1106,7 +1188,9 @@ onBeforeUnmount(() => {
 /* ============ ГЕРОЙ ============ */
 .lp-hero-sec {
   position: relative;
-  min-height: 100vh;
+  /* dvh, а не vh: на телефоне плавающая адресная строка меняет высоту вьюпорта
+     и секция на 100vh прыгает при каждом её появлении */
+  min-height: 100dvh;
   overflow: hidden;
   background: var(--ink);
 }
@@ -1133,7 +1217,7 @@ onBeforeUnmount(() => {
   max-width: 1360px;
   margin: 0 auto;
   padding: 120px clamp(18px, 4vw, 48px) 72px;
-  min-height: 100vh;
+  min-height: 100dvh;
 }
 @media (min-width: 901px) {
   .lp-hero {
@@ -1193,6 +1277,17 @@ onBeforeUnmount(() => {
 }
 
 
+/* Начальные состояния для анимаций — только на десктопе: на телефоне GSAP не
+   запускается, и элементы должны быть сразу в конечном виде. */
+@media (min-width: 901px) {
+  .lp-strike__line {
+    transform: scaleX(0);
+  }
+  .lp-problem__final {
+    opacity: 0;
+  }
+}
+
 /* ============ КАК СЕЙЧАС ============ */
 .lp-problem {
   position: relative;
@@ -1225,7 +1320,6 @@ onBeforeUnmount(() => {
   height: 5px;
   width: 100%;
   background: var(--lime);
-  transform: scaleX(0);
   transform-origin: 0 50%;
 }
 .lp-problem__final {
@@ -1235,13 +1329,58 @@ onBeforeUnmount(() => {
   font-size: clamp(30px, 5.6vw, 72px);
   line-height: 1.02;
   color: var(--ink);
-  opacity: 0;
 }
 
 /* ============ ВОСЕМЬ ШАГОВ ============ */
 .lp-how {
   position: relative;
   background: var(--ink);
+}
+
+/* мобильная лента: шаг = текст сверху, аппарат под ним */
+.lp-mstep {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 34px;
+  padding: 72px clamp(18px, 4vw, 48px);
+}
+.lp-mstep:first-child {
+  padding-top: 96px;
+}
+.lp-mstep:last-child {
+  padding-bottom: 96px;
+}
+.lp-mstep__head {
+  width: 100%;
+  max-width: 460px;
+  text-align: center;
+}
+.lp-mdots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.lp-mdots i {
+  display: block;
+  width: 22px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--stone);
+}
+.lp-mdots i.is-on {
+  background: var(--lime);
+}
+.lp-phone--m {
+  width: min(272px, 74vw);
+  height: auto;
+  border-radius: 42px;
+  box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+}
+.lp-phone--m .lp-phone__screen {
+  border-radius: 34px;
+  background: var(--cream);
 }
 .lp-pin {
   min-height: 100vh;
@@ -1357,6 +1496,15 @@ onBeforeUnmount(() => {
   display: flex;
   white-space: nowrap;
   will-change: transform;
+}
+/* на телефоне лента едет чистым CSS: тикер GSAP каждый кадр там лишний */
+.lp-marq.is-css {
+  animation: lp-marq 26s linear infinite;
+}
+@keyframes lp-marq {
+  to {
+    transform: translateX(-50%);
+  }
 }
 .lp-marq span {
   font-family: 'JetBrains Mono', monospace;
