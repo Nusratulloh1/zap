@@ -1591,6 +1591,24 @@ onBeforeUnmount(() => {
   padding: 0 clamp(18px, 4vw, 48px);
   will-change: transform;
 }
+/* На телефоне ленту двигает палец, а не параллакс: там GSAP не работает, и без
+   собственной прокрутки карточки просто обрезались краем секции. */
+@media (max-width: 900px) {
+  .lp-rail {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    will-change: auto;
+  }
+  .lp-rail::-webkit-scrollbar {
+    display: none;
+  }
+  .lp-mcard {
+    scroll-snap-align: center;
+  }
+}
 .lp-mcard {
   flex: 0 0 clamp(240px, 22vw, 300px);
   background: var(--deep);
