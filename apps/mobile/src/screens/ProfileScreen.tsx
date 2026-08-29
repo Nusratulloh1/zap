@@ -2,17 +2,20 @@
 // чип «ZAP! с мая 2026», стат-тайлы, КАРТЫ (добавление: форма → SMS → проверка),
 // НАСТРОЙКИ (смена PIN, уведомления, язык, тема, мои группы, выйти).
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import Animated, { interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
-import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinDots } from '@/components/PinDots';
+import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
+import { SunIcon, MoonIcon, BackIcon } from '@/components/icons';
+import { refocus, useKeyboardLock } from '@/lib/keyboard';
 import { Toggle } from '@/components/Toggle';
 import { toast } from '@/components/ToastHost';
 import { LanguagePickerSheet } from '@/components/LanguageSheet';
@@ -20,15 +23,15 @@ import { addCard, setPrimaryCard, changePin, toggleDebtNotifications } from '@/a
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { useSession } from '@/store/session';
-import { money, phone, dayMonth } from '@/lib/format';
+import { money, phone, monthYear } from '@/lib/format';
 import { LOCALE_NAMES, currentLocale } from '@/i18n';
-import { useTheme, type ThemePref } from '@/theme/ThemeProvider';
+import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 import type { Card } from '@zap/shared/types';
 
 export function ProfileScreen() {
   const { t } = useTranslation();
-  const { colors, fixed, pref, setPref } = useTheme();
+  const { colors, fixed, name, setPref } = useTheme();
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const qc = useQueryClient();
@@ -46,8 +49,7 @@ export function ProfileScreen() {
   const sinceLabel = (() => {
     const ts = Date.parse(me?.memberSince ?? '');
     if (Number.isNaN(ts)) return me?.memberSince ?? '';
-    const d = new Date(ts);
-    return `${dayMonth(d).split('-').pop()} ${d.getFullYear()}`.trim();
+    return monthYear(ts);
   })();
 
   // ---- добавление карты: форма → SMS → «проверяем карту» ----
@@ -110,6 +112,7 @@ export function ProfileScreen() {
   const [pinShake, setPinShake] = useState(false);
   const [pinError, setPinError] = useState('');
   const pinInput = useRef<React.ComponentRef<typeof TextInput>>(null);
+  const cardNumberInput = useRef<React.ComponentRef<typeof TextInput>>(null);
 
   const pinModel = pinStep === 'old' ? pinOld : pinStep === 'new' ? pinNew : pinRepeat;
   const setPinModel = (v: string) => {
@@ -174,12 +177,6 @@ export function ProfileScreen() {
   const [logoutSheet, setLogoutSheet] = useState(false);
   const loggingOut = useRef(false);
 
-  const themeLabel =
-    pref === 'system' ? t('profile.themeSystem') : pref === 'dark' ? t('common.themeDark') : t('common.themeLight');
-  const cycleTheme = () => {
-    const next: ThemePref = pref === 'system' ? 'light' : pref === 'light' ? 'dark' : 'system';
-    setPref(next);
-  };
 
   const confirmLogout = async () => {
     if (loggingOut.current) return;
@@ -187,20 +184,40 @@ export function ProfileScreen() {
     await logout();
   };
 
+  // Modal ещё анимируется — autoFocus Android глотает; фокусим с паузой
+  useEffect(() => {
+    if (!pinSheet) return;
+    const id = setTimeout(() => pinInput.current?.focus(), 420);
+    return () => clearTimeout(id);
+  }, [pinSheet, pinStep]);
+  useKeyboardLock(pinInput, pinSheet);
+
+  useEffect(() => {
+    if (!cardSheet || cardStep !== 'form') return;
+    const id = setTimeout(() => cardNumberInput.current?.focus(), 420);
+    return () => clearTimeout(id);
+  }, [cardSheet, cardStep]);
+  useKeyboardLock(cardNumberInput, cardSheet && cardStep === 'form');
+
+  // стекло шапки: проявляется, когда контент уезжает под кнопки (как на главной)
+  const scrollY = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler((e) => {
+    scrollY.value = e.contentOffset.y;
+  });
+  const glassStyle = useAnimatedStyle(() => ({ opacity: interpolate(scrollY.value, [0, 24], [0, 1], 'clamp') }));
+
   const toggleNotifs = (v: boolean) => {
     setNotifs(v);
     void toggleDebtNotifications(v).catch(() => setNotifs(!v));
   };
 
   return (
-    <Screen style={styles.root}>
-      <ScreenHeader />
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
+    <Screen style={styles.root} edges={['bottom']}>
+      <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingTop: insets.top + 64, paddingBottom: insets.bottom + 16 }}>
         {me ? (
           <>
             <View style={styles.headRow}>
-              <Avatar name={me.name} letter={me.initials} contactId="me" color="#111110" size={76} ring={fixed.lime} />
+              <Avatar name={me.name} letter={me.initials} color="#111110" size={76} ring={fixed.lime} ringWidth={3} />
               <View style={styles.headBody}>
                 <Text style={[styles.name, { color: colors.ink }]}>{me.name}</Text>
                 <Text style={[styles.handle, { color: colors.muted }]}>
@@ -279,11 +296,6 @@ export function ProfileScreen() {
               <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
             </PressableScale>
 
-            <PressableScale haptic={false} style={[styles.settingRow, { borderBottomColor: colors.sand2 }]} onPress={cycleTheme}>
-              <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.theme')}</Text>
-              <Text style={[styles.settingValue, { color: colors.muted }]}>{themeLabel}</Text>
-              <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
-            </PressableScale>
 
             <PressableScale haptic={false} style={[styles.settingRow, { borderBottomColor: colors.sand2 }]} onPress={() => setGroupsSheet(true)}>
               <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.myGroups')}</Text>
@@ -296,7 +308,39 @@ export function ProfileScreen() {
             </PressableScale>
           </>
         ) : null}
-      </ScrollView>
+      </Animated.ScrollView>
+
+      {/* шапка поверх скролла: кнопка «назад» и тема — на одной линии */}
+      <View style={[styles.topRow, { paddingTop: insets.top + 6 }]} pointerEvents="box-none">
+        <Animated.View style={[styles.topGlass, glassStyle]} pointerEvents="none">
+          <View style={[styles.topGlassFill, { backgroundColor: colors.paper }]} />
+          <Svg style={styles.topGlassFade} width="100%" height={22}>
+            <Defs>
+              <LinearGradient id="hdrFade" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor={colors.paper} stopOpacity={1} />
+                <Stop offset="1" stopColor={colors.paper} stopOpacity={0} />
+              </LinearGradient>
+            </Defs>
+            <SvgRect x={0} y={0} width="100%" height={22} fill="url(#hdrFade)" />
+          </Svg>
+        </Animated.View>
+        <PressableScale
+          small
+          accessibilityLabel={t('common.backAria')}
+          style={[styles.topBtn, { backgroundColor: colors.sand }]}
+          onPress={() => nav.goBack()}
+        >
+          <BackIcon size={20} color={colors.ink} />
+        </PressableScale>
+        <PressableScale
+          small
+          accessibilityLabel={name === 'dark' ? t('common.themeLight') : t('common.themeDark')}
+          style={[styles.topBtn, { backgroundColor: colors.sand }]}
+          onPress={() => setPref(name === 'dark' ? 'light' : 'dark')}
+        >
+          {name === 'dark' ? <MoonIcon size={19} color={colors.slate} /> : <SunIcon size={19} color={colors.slate} />}
+        </PressableScale>
+      </View>
 
       {/* новая карта */}
       <BottomSheet open={cardSheet} onClose={() => setCardSheet(false)} locked={cardStep === 'check'}>
@@ -318,13 +362,13 @@ export function ProfileScreen() {
             <>
               <Text style={[styles.fieldMono, { color: colors.faint2 }]}>{t('profile.cardNumberLabel')}</Text>
               <TextInput
+                ref={cardNumberInput}
                 value={cardDigits}
                 onChangeText={(v) => setCardDigits(v.replace(/\D/g, '').slice(0, 16))}
                 keyboardType="number-pad"
                 style={styles.hiddenField}
-                autoFocus
               />
-              <Text style={[styles.cardMask, { color: colors.ink }]}>{cardMask}</Text>
+              <Text style={[styles.cardMask, { color: colors.ink }]} onPress={() => refocus(cardNumberInput)}>{cardMask}</Text>
               <View style={styles.fieldRow}>
                 <View style={styles.fieldCol}>
                   <Text style={[styles.fieldMono, { color: colors.faint2 }]}>{t('profile.cardExpiry')}</Text>
@@ -386,6 +430,8 @@ export function ProfileScreen() {
             </>
           ) : (
             <View style={styles.checking}>
+              {/* кольцо-спиннер, как border-t-lime в вебе */}
+              <ActivityIndicator size="large" color={colors.lime} style={styles.checkingSpinner} />
               <Text style={[styles.checkingTitle, { color: colors.ink }]}>{t('profile.checkingCard')}</Text>
               <Text style={[styles.checkingSub, { color: colors.muted }]}>
                 {cardNetwork} ·· {cardDigits.slice(-4)}
@@ -398,11 +444,11 @@ export function ProfileScreen() {
       {/* мои группы */}
       <BottomSheet open={groupsSheet} onClose={() => setGroupsSheet(false)}>
         <Text style={[styles.sheetTitle, { color: colors.ink }]}>{t('profile.myGroups')}</Text>
-        {groups.map((g) => (
+        {groups.map((g, gi) => (
           <PressableScale
             key={g.id}
             haptic={false}
-            style={[styles.groupRow, { borderBottomColor: colors.sand2 }]}
+            style={[styles.groupRow, gi < (home.db?.groups?.length ?? 0) - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
             onPress={() => {
               setGroupsSheet(false);
               nav.navigate('Group', { id: g.id });
@@ -416,13 +462,13 @@ export function ProfileScreen() {
 
       {/* смена PIN */}
       <BottomSheet open={pinSheet} onClose={() => setPinSheet(false)}>
-        <View style={styles.pinBody}>
+        <Pressable onPress={() => refocus(pinInput)} style={styles.pinBody}>
           <Text style={[styles.sheetTitle, { color: colors.ink }]}>{pinTitle}</Text>
           <Text style={[styles.pinHint, { color: pinError ? colors.danger : colors.muted }]}>
             {pinError || t('auth.pinHint')}
           </Text>
           <View style={styles.pinDots}>
-            <PinDots filled={pinModel.length} length={4} error={pinShake} />
+            <PinDots filled={pinModel.length} length={4} error={pinShake} size={26} gap={14} barWidth={146} />
           </View>
           <TextInput
             ref={pinInput}
@@ -434,7 +480,7 @@ export function ProfileScreen() {
             autoFocus
             style={styles.hiddenField}
           />
-        </View>
+        </Pressable>
       </BottomSheet>
 
       {/* выход */}
@@ -459,15 +505,30 @@ export function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  topRow: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    paddingHorizontal: 24,
+    paddingBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  topBtn: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  topGlass: { position: 'absolute', left: 0, right: 0, top: 0, bottom: -22 },
+  topGlassFill: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 22 },
+  topGlassFade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   root: { paddingHorizontal: 24 },
-  headRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 22 },
+  headRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   headBody: { flex: 1, gap: 3 },
   name: { fontFamily: font.extrabold, fontSize: 23, letterSpacing: -0.2 },
   handle: { fontFamily: font.semibold, fontSize: 13.5 },
   sinceChip: { alignSelf: 'flex-start', height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center', marginTop: 2 },
   sinceText: { fontFamily: font.extrabold, fontSize: 11, color: '#111110' },
   stats: { flexDirection: 'row', gap: 10, marginTop: 22 },
-  stat: { flex: 1, borderRadius: 20, paddingHorizontal: 14, paddingVertical: 14, gap: 3 },
+  stat: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 14, gap: 3 },
   statValue: { fontFamily: font.extrabold, fontSize: 20 },
   statLabel: { fontFamily: font.bold, fontSize: 11.5 },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 26 },
@@ -504,6 +565,7 @@ const styles = StyleSheet.create({
   smsDigit: { fontFamily: font.extrabold, fontSize: 18 },
   ownerNote: { fontFamily: font.semibold, fontSize: 12, textAlign: 'center', marginTop: 14 },
   checking: { alignItems: 'center', paddingVertical: 26, gap: 4 },
+  checkingSpinner: { marginBottom: 10 },
   checkingTitle: { fontFamily: font.bold, fontSize: 15 },
   checkingSub: { fontFamily: font.semibold, fontSize: 12.5 },
   groupRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 52, borderBottomWidth: 1 },

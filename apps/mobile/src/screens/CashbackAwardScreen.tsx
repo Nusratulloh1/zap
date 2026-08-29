@@ -1,11 +1,10 @@
 // «Кэшбэк зачислен» — порт CashbackAwardPage.vue (дизайн 3i): каунт-ап
 // «+60 000», лаймовый пилл «×2 …», по-участникам, итог группы, CTA.
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
@@ -14,6 +13,7 @@ import { CountUp } from '@/components/CountUp';
 import { toast } from '@/components/ToastHost';
 import { fetchSplit } from '@/api/splits';
 import { qk } from '@/api/data';
+import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { money, equalShares } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -22,13 +22,20 @@ import { font } from '@/theme/tokens';
 export function CashbackAwardScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
+  const qc = useQueryClient();
   const route = useRoute<any>();
   const home = useHomeData();
   const id = route.params?.id as string;
 
-  const { data: split } = useQuery({ queryKey: qk.split(id), queryFn: () => fetchSplit(id), enabled: !!id });
+  const { data: split } = useQuery({
+    queryKey: qk.split(id),
+    queryFn: () => fetchSplit(id),
+    enabled: !!id,
+    // сплит уже есть в загруженном /bootstrap — рисуем сразу, сеть догоняет
+    initialData: () => qc.getQueryData<Db>(qk.bootstrap)?.splits.find((s) => s.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(qk.bootstrap)?.dataUpdatedAt,
+  });
 
   if (!split) {
     return (
@@ -58,13 +65,17 @@ export function CashbackAwardScreen() {
     <Screen style={styles.root}>
       <ScreenHeader onBack={() => nav.navigate('Tabs')} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>
-          <View style={[styles.logo, { backgroundColor: colors.ink }]}>
+          {split?.merchantId === 'm_bellissimo' ? (
+            <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.logo} />
+          ) : (
+          <View style={[styles.logo, { backgroundColor: fixed.ink }]}>
             <Text style={[styles.logoLetter, { color: fixed.lime }]}>
               {merchant?.letter ?? split.title[0]?.toUpperCase() ?? 'Z'}
             </Text>
           </View>
+          )}
           <Text style={[styles.title, { color: colors.ink }]}>{t('cashbackAward.title')}</Text>
           <Text style={[styles.sub, { color: colors.muted }]}>
             {merchant?.name ?? split.title}
@@ -88,15 +99,16 @@ export function CashbackAwardScreen() {
               key={p.contactId + i}
               style={[styles.row, i < perMember.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
             >
-              <Avatar name={nameOf(p.contactId)} contactId={p.contactId} color={colorOf(p.contactId)} size={38} />
+              <Avatar name={nameOf(p.contactId)} contactId={p.contactId} color={colorOf(p.contactId)} size={38} solid
+              />
               <View style={styles.rowBody}>
-                <Text style={[styles.rowName, { color: colors.ink }]}>
+                <Text style={[styles.rowName, { color: colors.ink }]} numberOfLines={1}>
                   {nameOf(p.contactId)}
                   {p.contactId === 'me' ? t('live.youSuffix') : ''}
                 </Text>
                 {p.held ? <Text style={[styles.rowSub, { color: colors.faint }]}>{t('cashbackAward.afterDebt')}</Text> : null}
               </View>
-              <Text style={[styles.rowAmount, { color: p.held ? colors.faint : colors.ink }]}>+{money(p.amount)}</Text>
+              <Text style={[styles.rowAmount, { color: p.held ? colors.faint : colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>+{money(p.amount)}</Text>
             </View>
           ))}
         </View>

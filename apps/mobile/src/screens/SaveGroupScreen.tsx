@@ -3,7 +3,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -15,6 +14,7 @@ import { Toggle } from '@/components/Toggle';
 import { toast } from '@/components/ToastHost';
 import { fetchSplit, saveGroup } from '@/api/splits';
 import { qk } from '@/api/data';
+import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font, radius } from '@/theme/tokens';
@@ -22,14 +22,20 @@ import { font, radius } from '@/theme/tokens';
 export function SaveGroupScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const qc = useQueryClient();
   const home = useHomeData();
   const id = route.params?.id as string;
 
-  const { data: split } = useQuery({ queryKey: qk.split(id), queryFn: () => fetchSplit(id), enabled: !!id });
+  const { data: split } = useQuery({
+    queryKey: qk.split(id),
+    queryFn: () => fetchSplit(id),
+    enabled: !!id,
+    // сплит уже есть в загруженном /bootstrap — рисуем сразу, сеть догоняет
+    initialData: () => qc.getQueryData<Db>(qk.bootstrap)?.splits.find((s) => s.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(qk.bootstrap)?.dataUpdatedAt,
+  });
 
   const nameOf = (cid: string) =>
     cid === 'me' ? (home.db?.user?.name ?? t('members.youShort')) : (home.contactById(cid)?.name ?? '?');
@@ -67,7 +73,7 @@ export function SaveGroupScreen() {
     if (saving || !name.trim()) return;
     setSaving(true);
     try {
-      await saveGroup(id, name.trim(), accrue);
+      await saveGroup(id, name.trim(), accrue, memberIds);
       await qc.invalidateQueries({ queryKey: qk.bootstrap });
       toast.success(t('saveGroup.saved'));
       nav.replace('CashbackAward', { id });
@@ -80,7 +86,7 @@ export function SaveGroupScreen() {
     <Screen style={styles.root} background={colors.dune}>
       <ScreenHeader onBack={() => nav.navigate('SplitClosed', { id })} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.stack}>
           {memberIds.slice(0, 4).map((cid, i) => (
             <Avatar
@@ -111,7 +117,7 @@ export function SaveGroupScreen() {
           {memberIds.map((cid, i) => (
             <Animated.View
               key={cid}
-              entering={FadeInDown.delay(i * 40)}
+              entering={FadeInDown.delay(Math.min(i, 8) * 40)}
               layout={LinearTransition.springify()}
               style={[styles.memberRow, i < memberIds.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
             >
@@ -173,7 +179,7 @@ const styles = StyleSheet.create({
   stacked: { marginLeft: -16 },
   title: { fontFamily: font.extrabold, fontSize: 23, letterSpacing: -0.3, textAlign: 'center', marginTop: 14 },
   sub: { fontFamily: font.semibold, fontSize: 13.5, textAlign: 'center', marginTop: 5 },
-  card: { borderRadius: radius.card, paddingHorizontal: 18, paddingVertical: 4, marginTop: 20 },
+  card: { borderRadius: radius.card, paddingHorizontal: 18, paddingVertical: 4, marginTop: 20 , shadowColor: '#1E1C10', shadowOpacity: 0.05, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 3 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, borderBottomWidth: 1 },
   nameLabel: { fontFamily: font.extrabold, fontSize: 15.5 },
   nameInput: { flex: 1, fontFamily: font.semibold, fontSize: 16, textAlign: 'right', padding: 0 },
@@ -184,7 +190,7 @@ const styles = StyleSheet.create({
   ownerText: { fontFamily: font.bold, fontSize: 11.5 },
   remove: { width: 30, height: 30, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   removeGlyph: { fontSize: 14, fontFamily: font.semibold },
-  accrueCard: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: radius.card, paddingHorizontal: 18, paddingVertical: 16, marginTop: 12 },
+  accrueCard: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: radius.card, paddingHorizontal: 18, paddingVertical: 16, marginTop: 12 , shadowColor: '#1E1C10', shadowOpacity: 0.05, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 3 },
   accrueBody: { flex: 1, gap: 2 },
   accrueTitle: { fontFamily: font.extrabold, fontSize: 15.5 },
   accrueSub: { fontFamily: font.semibold, fontSize: 12.5 },

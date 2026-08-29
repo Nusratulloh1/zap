@@ -1,45 +1,93 @@
-// Точки PIN: заполняются по мере ввода, при ошибке — короткая тряска.
-import React, { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring, withTiming } from 'react-native-reanimated';
+// Точки PIN/кода — порт web/src/components/PinDots.vue:
+// заполненные — чернила (при ошибке — danger), пустые — pebble-2,
+// под ними лаймовый прогресс-бар; при ошибке короткая тряска.
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 import { useTheme } from '@/theme/ThemeProvider';
 
-export function PinDots({ filled, error, length = 4 }: { filled: number; error?: boolean; length?: number }) {
-  const shake = useSharedValue(0);
+interface Props {
+  filled: number;
+  length?: number;
+  error?: boolean;
+  shake?: boolean;
+  /** PIN принят: точки и бар загораются лаймом */
+  success?: boolean;
+  /** диаметр точки: 26 — SMS-код, 34 — PIN (как в вебе) */
+  size?: number;
+  gap?: number;
+  /** ширина полного лаймового бара; 0 — не показывать */
+  barWidth?: number;
+}
+
+export function PinDots({ filled, length = 4, error, shake, success, size = 34, gap = 22, barWidth = 0 }: Props) {
+  const shakeX = useSharedValue(0);
   const { colors } = useTheme();
 
   useEffect(() => {
-    if (!error) return;
-    shake.value = withSequence(
-      withTiming(-8, { duration: 50 }),
-      withTiming(8, { duration: 50 }),
-      withTiming(-6, { duration: 50 }),
-      withTiming(0, { duration: 60 }),
+    if (!(error || shake)) return;
+    shakeX.value = withSequence(
+      withTiming(-8, { duration: 72 }),
+      withTiming(8, { duration: 72 }),
+      withTiming(-6, { duration: 72 }),
+      withTiming(6, { duration: 72 }),
+      withTiming(0, { duration: 72 }),
     );
-  }, [error, shake]);
+  }, [error, shake, shakeX]);
 
-  const rowStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shake.value }] }));
+  const rootStyle = useAnimatedStyle(() => ({ transform: [{ translateX: shakeX.value }] }));
 
   return (
-    <Animated.View style={[styles.row, rowStyle]}>
-      {Array.from({ length }, (_, i) => (
-        <Dot key={i} on={i < filled} color={error ? colors.danger : colors.ink} idle={colors.sand} />
-      ))}
+    <Animated.View style={[styles.col, rootStyle]}>
+      <View style={[styles.row, { gap }]}>
+        {Array.from({ length }, (_, i) => (
+          <Dot
+            key={i}
+            on={success || i < filled}
+            size={size}
+            color={error ? colors.danger : success ? colors.lime : colors.ink}
+            idle={colors.pebble2}
+          />
+        ))}
+      </View>
+      {barWidth ? (
+        <Bar width={success ? barWidth : (filled / length) * barWidth} color={error ? colors.danger : colors.lime} />
+      ) : null}
     </Animated.View>
   );
 }
 
-function Dot({ on, color, idle }: { on: boolean; color: string; idle: string }) {
-  const s = useSharedValue(on ? 1 : 0);
-  s.value = withSpring(on ? 1 : 0, { damping: 16, stiffness: 380 });
-  const style = useAnimatedStyle(() => ({
-    transform: [{ scale: 0.85 + 0.15 * s.value }],
-    backgroundColor: s.value > 0.5 ? color : idle,
-  }));
-  return <Animated.View style={[styles.dot, style]} />;
+function Bar({ width, color }: { width: number; color: string }) {
+  const w = useSharedValue(width);
+  useEffect(() => {
+    w.value = withTiming(width, { duration: 200 });
+  }, [width, w]);
+  const style = useAnimatedStyle(() => ({ width: w.value }));
+  return <Animated.View style={[styles.bar, { backgroundColor: color }, style]} />;
+}
+
+function Dot({ on, size, color, idle }: { on: boolean; size: number; color: string; idle: string }) {
+  // пустые точки полноразмерные (меняется только цвет); заполнение — поп
+  // 0.6 -> 1.25 -> 1 за 180 мс, как @keyframes dot-pop в вебе
+  const pop = useSharedValue(1);
+  const prev = useRef(on);
+  useEffect(() => {
+    if (on && !prev.current) {
+      pop.value = 0.6;
+      pop.value = withSequence(withTiming(1.25, { duration: 100 }), withTiming(1, { duration: 80 }));
+    }
+    prev.current = on;
+  }, [on, pop]);
+  const style = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
+  return (
+    <Animated.View
+      style={[{ width: size, height: size, borderRadius: 999, backgroundColor: on ? color : idle }, style]}
+    />
+  );
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: 14 },
-  dot: { width: 18, height: 18, borderRadius: 999 },
+  col: { gap: 14 },
+  row: { flexDirection: 'row' },
+  bar: { height: 3, borderRadius: 999 },
 });

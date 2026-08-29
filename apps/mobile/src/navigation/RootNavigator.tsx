@@ -2,7 +2,7 @@
 // onboarding → phone → code → pin → authed. После входа — вкладки + экраны
 // «вглубь». Диплинки zapapp.uz/s/CODE ведут на экран участника.
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Platform, ActivityIndicator, StyleSheet, View } from 'react-native';
 import { NavigationContainer, DefaultTheme, DarkTheme, type LinkingOptions } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { OnboardingScreen } from '@/screens/OnboardingScreen';
@@ -57,6 +57,7 @@ const linking: LinkingOptions<RootStackParamList> = {
   config: {
     screens: {
       Participant: 's/:code',
+          Group: 'g/:id',
     },
   },
 };
@@ -87,8 +88,12 @@ export function RootNavigator() {
       <Stack.Navigator
         screenOptions={{
           headerShown: false,
-          animation: 'slide_from_right',
+          // iOS получает системный push с параллаксом и полноэкранным
+          // свайпом назад, Android — быстрый слайд
+          animation: Platform.OS === 'ios' ? 'default' : 'slide_from_right',
+          ...(Platform.OS === 'ios' ? { fullScreenGestureEnabled: true } : { animationDuration: 220 }),
           gestureEnabled: true,
+          freezeOnBlur: true,
         }}
       >
         {stage === 'onboarding' && <Stack.Screen name="Onboarding" component={OnboardingScreen} />}
@@ -99,15 +104,15 @@ export function RootNavigator() {
           <Stack.Group>
             <Stack.Screen name="Tabs" component={TabNavigator} />
             {/* сканер и итоги — полноэкранные «захваты», выезжают снизу */}
-            <Stack.Screen name="Scan" component={ScanScreen} options={{ animation: 'slide_from_bottom' }} />
+            <Stack.Screen name="Scan" component={ScanScreen} options={Platform.OS === 'ios' ? { presentation: 'modal' } : { animation: 'slide_from_bottom' }} />
             <Stack.Screen name="Bill" component={BillScreen} />
             <Stack.Screen name="ReviewItems" component={ReviewItemsScreen} />
             <Stack.Screen name="Members" component={MembersScreen} />
             <Stack.Screen name="Share" component={ShareScreen} />
             <Stack.Screen name="SplitLive" component={SplitLiveScreen} />
-            <Stack.Screen name="SplitClosed" component={SplitClosedScreen} options={{ animation: 'slide_from_bottom' }} />
+            <Stack.Screen name="SplitClosed" component={SplitClosedScreen} options={Platform.OS === 'ios' ? { presentation: 'modal' } : { animation: 'slide_from_bottom' }} />
             <Stack.Screen name="SaveGroup" component={SaveGroupScreen} />
-            <Stack.Screen name="CashbackAward" component={CashbackAwardScreen} options={{ animation: 'slide_from_bottom' }} />
+            <Stack.Screen name="CashbackAward" component={CashbackAwardScreen} options={Platform.OS === 'ios' ? { presentation: 'modal' } : { animation: 'slide_from_bottom' }} />
             <Stack.Screen name="Group" component={GroupScreen} />
             <Stack.Screen name="Debts" component={DebtsScreen} />
             <Stack.Screen name="Cashback" component={CashbackScreen} />

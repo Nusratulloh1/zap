@@ -54,8 +54,16 @@ export async function createSplit(input: CreateSplitInput, contacts: Contact[] =
   });
 }
 
-export function fetchSplit(id: string): Promise<Split> {
-  return http<Split>(`/splits/${id}`);
+/**
+ * Как в вебе: сплит читается из /bootstrap — сервер там уже отдал сплиты в
+ * локальной форме (total/amount/contactId + memberNames). Прямая ручка
+ * /splits/:id отдаёт сырую форму (totalAmount/shareAmount) и ломала экран.
+ */
+export async function fetchSplit(id: string): Promise<Split> {
+  const db = await http<{ splits: Split[] }>('/bootstrap');
+  const split = db.splits.find((s) => s.id === id);
+  if (!split) throw new Error('split not found');
+  return split;
 }
 
 export function remindMember(splitId: string, memberId: string): Promise<{ ok: boolean }> {
@@ -70,9 +78,14 @@ export function coverRemainder(splitId: string): Promise<Split> {
   return http(`/splits/${splitId}/cover`, { method: 'POST', pt: true });
 }
 
-export function saveGroup(splitId: string, name: string, accrueCashback: boolean): Promise<{ id: string }> {
+export function saveGroup(
+  splitId: string,
+  name: string,
+  accrueCashback: boolean,
+  memberIds?: string[],
+): Promise<{ id: string }> {
   return http(`/splits/${splitId}/save-group`, {
     method: 'POST',
-    body: JSON.stringify({ name, accrueCashback }),
+    body: JSON.stringify({ name, accrueCashback, memberIds }),
   });
 }

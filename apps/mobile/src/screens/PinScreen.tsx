@@ -1,19 +1,19 @@
-// PIN: создание (ввод + повтор) и разблокировка по биометрии на повторных
-// запусках. Клавиатура своя — как в вебе, где системная ломала вёрстку.
-import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+// Создание PIN — порт шага pin1/pin2 в AuthCodePage.vue: круг-назад,
+// заголовок «Придумайте PIN» → «Повторите PIN», 4 точки с лаймовым баром,
+// системная клавиатура (скрытое поле + тап-ловушка, как на экране кода).
+import React, { useEffect, useRef, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import { trigger } from 'react-native-haptic-feedback';
 import { Screen } from '@/components/Screen';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { PinDots } from '@/components/PinDots';
-import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 import { useSession } from '@/store/session';
+import { refocus, useKeyboardLock } from '@/lib/keyboard';
 
-const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', '⌫'];
-const biometrics = new ReactNativeBiometrics({ allowDeviceCredentials: true });
+const LEN = 4;
 
 export function PinScreen() {
   const { t } = useTranslation();
@@ -22,104 +22,96 @@ export function PinScreen() {
 
   const [first, setFirst] = useState('');
   const [pin, setPin] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [mismatch, setMismatch] = useState(false);
+  const [shake, setShake] = useState(false);
+  const busy = useRef(false);
+  const input = useRef<React.ComponentRef<typeof TextInput>>(null);
 
-  const repeating = first.length === 4;
+  const repeating = first.length === LEN;
 
-  // на повторных открытиях предлагаем разблокировку отпечатком/лицом
   useEffect(() => {
-    void (async () => {
-      const { available } = await biometrics.isSensorAvailable();
-      if (!available) return;
-      await biometrics
-        .simplePrompt({ promptMessage: t('auth.pinHint') })
-        .catch(() => undefined);
-    })();
-  }, [t]);
+    const id = setTimeout(() => input.current?.focus(), 250);
+    return () => clearTimeout(id);
+  }, []);
 
-  const submit = useCallback(
-    async (value: string) => {
-      if (!repeating) {
-        setFirst(value);
+  useKeyboardLock(input, true);
+
+  useEffect(() => {
+    if (pin.length !== LEN || busy.current) return;
+    if (!repeating) {
+      // первый ввод принят — через паузу переходим к повтору (как в вебе)
+      const id = setTimeout(() => {
+        setFirst(pin);
         setPin('');
-        return;
-      }
-      if (value !== first) {
-        trigger('notificationError', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
-        setError(t('auth.pinMismatch'));
+      }, 250);
+      return () => clearTimeout(id);
+    }
+    if (pin !== first) {
+      trigger('notificationError', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
+      setMismatch(true);
+      setShake(true);
+      const id = setTimeout(() => {
+        setShake(false);
         setFirst('');
         setPin('');
-        return;
-      }
-      setBusy(true);
+      }, 450);
+      return () => clearTimeout(id);
+    }
+    busy.current = true;
+    void (async () => {
       try {
-        await createPin(value);
+        await createPin(pin);
         trigger('notificationSuccess', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
-      } catch (e) {
-        setError(e instanceof Error ? e.message : t('errors.generic'));
+      } catch {
         setFirst('');
         setPin('');
       } finally {
-        setBusy(false);
+        busy.current = false;
       }
-    },
-    [createPin, first, repeating, t],
-  );
+    })();
+  }, [pin, first, repeating, createPin]);
 
-  function press(k: string) {
-    if (busy || !k) return;
-    setError(null);
-    if (k === '⌫') {
-      setPin((p) => p.slice(0, -1));
-      return;
-    }
-    setPin((p) => {
-      const next = (p + k).slice(0, 4);
-      if (next.length === 4) setTimeout(() => void submit(next), 120);
-      return next;
-    });
-  }
+  const focusInput = () => refocus(input);
 
   return (
     <Screen style={styles.root} background={colors.paper}>
+      <Pressable style={styles.tapCatcher} onPress={focusInput} accessibilityRole="button" />
+
+      <ScreenHeader onBack={() => useSession.setState({ stage: 'phone' })} />
+
       <Text style={[styles.title, { color: colors.ink }]}>
         {repeating ? t('auth.pinRepeat') : t('auth.pinCreate')}
       </Text>
-      <Text style={[styles.hint, { color: colors.muted }]}>{t('auth.pinSectionHint')}</Text>
+      <Text style={[styles.hint, { color: mismatch ? colors.danger : colors.muted }]}>
+        {mismatch ? t('auth.pinMismatch') : t('auth.pinSectionHint')}
+      </Text>
 
-      <View style={styles.dots}>
-        <PinDots filled={pin.length} error={Boolean(error)} />
-      </View>
-      {error ? <Text style={[styles.error, { color: colors.danger }]}>{error}</Text> : null}
+      <Pressable style={styles.dots} onPress={focusInput}>
+        <PinDots length={LEN} filled={pin.length} shake={shake} size={34} gap={22} barWidth={186} />
+      </Pressable>
 
-      <View style={styles.spacer} />
-      <View style={styles.pad}>
-        {KEYS.map((k, i) => (
-          <PressableScale
-            key={i}
-            small
-            haptic={Boolean(k)}
-            disabled={!k}
-            onPress={() => press(k)}
-            style={styles.key}
-          >
-            <Text style={[styles.keyLabel, { color: colors.ink, opacity: k ? 1 : 0 }]}>{k}</Text>
-          </PressableScale>
-        ))}
-      </View>
+      <TextInput
+        ref={input}
+        value={pin}
+        onChangeText={(v) => {
+          setMismatch(false);
+          setPin(v.replace(/\D/g, '').slice(0, LEN));
+        }}
+        keyboardType="number-pad"
+        secureTextEntry
+        maxLength={LEN}
+        style={styles.hiddenInput}
+        caretHidden
+      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 24, paddingTop: 24 },
-  title: { fontFamily: font.extrabold, fontSize: 34, letterSpacing: -1 },
-  hint: { fontFamily: font.semibold, fontSize: 15, marginTop: 8 },
-  dots: { marginTop: 36 },
-  error: { fontFamily: font.semibold, fontSize: 14, marginTop: 16 },
-  spacer: { flex: 1 },
-  pad: { flexDirection: 'row', flexWrap: 'wrap', paddingBottom: 12 },
-  key: { width: '33.333%', height: 68, alignItems: 'center', justifyContent: 'center' },
-  keyLabel: { fontFamily: font.extrabold, fontSize: 26 },
+  root: { paddingHorizontal: 24 },
+  tapCatcher: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
+  title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3, marginTop: 24 },
+  hint: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 6 },
+  dots: { marginTop: 28, alignSelf: 'flex-start' },
+  hiddenInput: { position: 'absolute', opacity: 0, height: 1, width: 1 },
 });

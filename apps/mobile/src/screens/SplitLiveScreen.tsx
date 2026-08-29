@@ -5,7 +5,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -18,23 +17,31 @@ import { PinSheet } from '@/components/PinSheet';
 import { toast } from '@/components/ToastHost';
 import { fetchSplit, remindMember, coverRemainder } from '@/api/splits';
 import { qk } from '@/api/data';
+import type { Db } from '@zap/shared/types';
 import { joinSplitRoom, onRealtime } from '@/lib/realtime';
 import { useHomeData } from '@/store/bootstrap';
 import { money } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
+import { EASE_ZAP } from '@/lib/motion';
 
 export function SplitLiveScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const qc = useQueryClient();
   const home = useHomeData();
   const id = route.params?.id as string;
 
-  const { data: split, refetch } = useQuery({ queryKey: qk.split(id), queryFn: () => fetchSplit(id), enabled: !!id });
+  const { data: split, refetch } = useQuery({
+    queryKey: qk.split(id),
+    queryFn: () => fetchSplit(id),
+    enabled: !!id,
+    // сплит уже есть в загруженном /bootstrap — рисуем сразу, сеть догоняет
+    initialData: () => qc.getQueryData<Db>(qk.bootstrap)?.splits.find((s) => s.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(qk.bootstrap)?.dataUpdatedAt,
+  });
 
   // был ли активен при открытии — закрытие анимируем переходом на «Готово»
   const wasActive = useRef<boolean | null>(null);
@@ -71,10 +78,11 @@ export function SplitLiveScreen() {
         .reduce((s, m) => s + m.amount, 0),
     [split],
   );
-  const pending = (split?.members ?? []).filter((m) => m.status === 'waiting' || m.status === 'opened');
 
   const bar = useSharedValue(0);
-  bar.value = withTiming(progress, { duration: 700 });
+  useEffect(() => {
+    bar.value = withTiming(progress, { duration: 700, easing: EASE_ZAP });
+  }, [progress, bar]);
   const barStyle = useAnimatedStyle(() => ({ width: `${Math.min(100, bar.value * 100)}%` }));
 
   const [reminded, setReminded] = useState<Set<string>>(new Set());
@@ -122,7 +130,7 @@ export function SplitLiveScreen() {
     <Screen style={styles.root}>
       <ScreenHeader onBack={() => nav.navigate('Tabs')} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 20, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>
           <Text style={[styles.sub, { color: colors.muted }]}>
             {merchant?.name ?? split.title}
@@ -133,7 +141,7 @@ export function SplitLiveScreen() {
 
           <View style={[styles.track, { backgroundColor: colors.pebble }]}>
             <Animated.View style={[styles.fill, { backgroundColor: fixed.lime }, barStyle]} />
-            <View style={[styles.dot, { backgroundColor: colors.ink }]} />
+            <View style={[styles.dot, { backgroundColor: fixed.ink }]} />
           </View>
         </View>
 
@@ -146,7 +154,7 @@ export function SplitLiveScreen() {
                 style={[styles.row, i < split.members.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
               >
                 <View style={waiting ? styles.dim : undefined}>
-                  <Avatar name={nameOf(m.contactId)} contactId={m.contactId} color={colorOf(m.contactId)} size={40} />
+                  <Avatar name={nameOf(m.contactId)} letter={home.contactById(m.contactId)?.initials} contactId={m.contactId} color={colorOf(m.contactId)} size={40} />
                 </View>
                 <View style={styles.rowBody}>
                   <Text style={[styles.rowName, { color: colors.ink }]}>
@@ -159,16 +167,41 @@ export function SplitLiveScreen() {
                   </Text>
                 </View>
                 {m.status === 'paid' || m.status === 'debt' ? (
-                  <View style={[styles.badge, { backgroundColor: colors.ink }]}>
-                    <Text style={[styles.badgeCheck, { color: fixed.lime }]}>✓</Text>
-                    <Text style={[styles.badgeText, { color: colors.cream }]}>
-                      {m.status === 'debt' ? t('live.debtBadge') : t('live.statusPaid')}
+
+                  <View style={[styles.badge, { backgroundColor: fixed.ink }]}>
+
+                    <Text style={[styles.badgeText, { color: fixed.paper }]}>
+
+                      <Text style={{ color: fixed.lime }}>✓ </Text>
+
+                      {t('live.statusPaid')}
+
                     </Text>
+
                   </View>
+
                 ) : (
-                  <View style={[styles.badge, { backgroundColor: colors.pebble }]}>
-                    <Text style={[styles.badgeText, { color: colors.muted }]}>{t('live.statusWaiting')}</Text>
-                  </View>
+
+                  <PressableScale
+
+                    small
+
+                    disabled={reminded.has(m.contactId)}
+
+                    style={[styles.badge, { backgroundColor: reminded.has(m.contactId) ? colors.sand : fixed.ink }]}
+
+                    onPress={() => void remind(m)}
+
+                  >
+
+                    <Text style={[styles.badgeText, { color: reminded.has(m.contactId) ? colors.muted : fixed.lime }]}>
+
+                      {reminded.has(m.contactId) ? t('live.reminded') : t('live.remindShort')}
+
+                    </Text>
+
+                  </PressableScale>
+
                 )}
               </View>
             );
@@ -179,19 +212,7 @@ export function SplitLiveScreen() {
 
         {split.status === 'active' ? (
           <View style={styles.ctas}>
-            {pending.map((m) => (
-              <PressableScale
-                key={m.contactId}
-                disabled={reminded.has(m.contactId)}
-                style={[styles.cta, { backgroundColor: colors.ink }, reminded.has(m.contactId) && styles.disabled]}
-                onPress={() => void remind(m as never)}
-              >
-                <Text style={[styles.ctaText, { color: colors.cream }]}>
-                  {reminded.has(m.contactId) ? t('live.reminded') : t('live.remind', { name: nameOf(m.contactId) })}
-                </Text>
-              </PressableScale>
-            ))}
-            {remainder > 0 ? (
+                        {remainder > 0 ? (
               <PressableScale
                 disabled={covering}
                 style={[styles.cta, { backgroundColor: colors.sand }, covering && styles.disabled]}

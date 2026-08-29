@@ -12,8 +12,9 @@ interface Props {
 }
 
 export function CountUp({ value, duration = 800, prefix = '', style }: Props) {
-  const [shown, setShown] = useState(value);
-  const from = useRef(value);
+  // как в вебе: на маунте бежим 0 -> value
+  const [shown, setShown] = useState(0);
+  const from = useRef(0);
 
   useEffect(() => {
     const start = from.current;
@@ -32,7 +33,7 @@ export function CountUp({ value, duration = 800, prefix = '', style }: Props) {
   }, [value, duration]);
 
   return (
-    <Text style={style} numberOfLines={1} adjustsFontSizeToFit>
+    <Text style={[{ fontVariant: ['tabular-nums'] }, style]} numberOfLines={1}>
       {prefix}
       {money(shown)}
     </Text>

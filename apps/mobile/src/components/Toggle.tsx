@@ -1,6 +1,6 @@
 // Тумблер из веба: лаймовая дорожка + чернильный кругляш, пружинный сдвиг.
 import React from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { Platform, Pressable, StyleSheet } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { trigger } from 'react-native-haptic-feedback';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -32,7 +32,7 @@ export function Toggle({ value, onChange, size = 'sm' }: Props) {
       accessibilityRole="switch"
       accessibilityState={{ checked: value }}
       onPress={() => {
-        trigger('impactLight', { enableVibrateFallback: false, ignoreAndroidSystemSettings: false });
+        trigger(Platform.OS === 'ios' ? 'selection' : 'impactLight', { enableVibrateFallback: false, ignoreAndroidSystemSettings: false });
         onChange(!value);
       }}
     >

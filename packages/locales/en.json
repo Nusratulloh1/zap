@@ -273,6 +273,7 @@
     "statusWaiting": "Waiting",
     "statusDebt": "on credit · you covered it",
     "remind": "Remind {name}",
+    "remindShort": "Remind",
     "reminded": "Reminder sent",
     "coverRest": "Cover the rest — {amount}",
     "coverNote": "Your friend's share becomes their debt to you",

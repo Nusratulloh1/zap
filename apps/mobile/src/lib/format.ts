@@ -47,6 +47,12 @@ export function dayMonth(d: Date): string {
   return `${d.getDate()} ${m}`;
 }
 
+/** «мая 2026» / «may 2026» — для чипа «ZAP! с …». */
+export function monthYear(ts: number): string {
+  const d = new Date(ts);
+  return `${table().months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 export function isSameDay(a: Date, b: Date): boolean {
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }

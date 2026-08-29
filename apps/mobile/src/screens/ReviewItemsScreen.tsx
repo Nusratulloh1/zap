@@ -1,10 +1,9 @@
 // Проверка позиций фискального/OCR-чека — порт ReviewItemsPage.vue:
 // правка названия и суммы, степпер количества, удаление, добавление,
 // живой индикатор «сумма позиций vs итог чека».
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
@@ -28,9 +27,14 @@ let addSeq = 0;
 export function ReviewItemsScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
+
   const nav = useNavigation<any>();
   const draft = useDraft();
+
+  // как в вебе: без фискального чека проверять нечего
+  useEffect(() => {
+    if (!draft.bill) nav.replace('Scan');
+  }, [draft.bill, nav]);
 
   const [items, setItems] = useState<EditItem[]>(
     (draft.bill?.items ?? []).map((i) => ({ id: i.id, title: i.title, qty: i.qty, amount: i.amount })),
@@ -150,7 +154,7 @@ export function ReviewItemsScreen() {
         </PressableScale>
       </ScrollView>
 
-      <View style={{ paddingBottom: insets.bottom + 14 }}>
+      <View style={{ paddingBottom: 10 }}>
         <View style={[styles.indicator, { backgroundColor: diff === 0 ? 'rgba(221,255,51,0.25)' : colors.shell }]}>
           <Text style={[styles.indicatorText, { color: diff === 0 ? colors.ink : colors.muted }]}>
             {diff === 0

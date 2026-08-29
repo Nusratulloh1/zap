@@ -3,12 +3,11 @@
 // Компонент отдаёт и таблетку-триггер, и сам шит: на онбординге он ставится
 // одним элементом в правый верхний угол.
 import React, { useEffect, useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { StyleSheet, Text } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { trigger } from 'react-native-haptic-feedback';
 import { PressableScale } from '@/components/PressableScale';
+import { BottomSheet } from '@/components/BottomSheet';
 import { FlagIcon } from '@/components/FlagIcon';
 import { LOCALES, LOCALE_NAMES, applyLocale, currentLocale, type Locale } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -25,9 +24,8 @@ type Props = {
 
 /** Шит выбора языка — используется и таблеткой онбординга, и профилем. */
 export function LanguagePickerSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { t, i18n } = useTranslation();
   const { colors } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { t, i18n } = useTranslation();
   const stage = useSession((s) => s.stage);
   const current = (i18n.language as Locale) ?? currentLocale();
 
@@ -42,32 +40,22 @@ export function LanguagePickerSheet({ open, onClose }: { open: boolean; onClose:
   };
 
   return (
-    <Modal visible={open} transparent animationType="none" onRequestClose={onClose}>
-      <Animated.View entering={FadeIn.duration(180)} exiting={FadeOut.duration(160)} style={[styles.backdropWrap, { backgroundColor: colors.overlay }]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
-      </Animated.View>
-      <Animated.View
-        entering={SlideInDown.springify().damping(20).stiffness(240)}
-        exiting={SlideOutDown.duration(180)}
-        style={[styles.sheet, { backgroundColor: colors.paper, paddingBottom: insets.bottom + 12 }]}
-      >
-        <View style={[styles.grabber, { backgroundColor: colors.stone }]} />
-        <Text style={[styles.title, { color: colors.ink }]}>{t('profile.languageTitle')}</Text>
-        {LOCALES.map((l) => (
-          <PressableScale
-            key={l}
-            accessibilityRole="button"
-            accessibilityState={{ selected: l === current }}
-            style={[styles.row, l === current && { backgroundColor: colors.limeSoft }]}
-            onPress={() => void pick(l)}
-          >
-            <FlagIcon locale={l} size={26} />
-            <Text style={[styles.rowText, { color: colors.ink }]}>{LOCALE_NAMES[l]}</Text>
-            {l === current ? <Text style={[styles.check, { color: colors.ink }]}>✓</Text> : null}
-          </PressableScale>
-        ))}
-      </Animated.View>
-    </Modal>
+    <BottomSheet open={open} onClose={onClose}>
+      <Text style={[styles.title, { color: colors.ink }]}>{t('profile.languageTitle')}</Text>
+      {LOCALES.map((l) => (
+        <PressableScale
+          key={l}
+          accessibilityRole="button"
+          accessibilityState={{ selected: l === current }}
+          style={[styles.row, l === current && { backgroundColor: 'rgba(221,255,51,0.25)' }]}
+          onPress={() => void pick(l)}
+        >
+          <FlagIcon locale={l} size={26} />
+          <Text style={[styles.rowText, { color: colors.ink }]}>{LOCALE_NAMES[l]}</Text>
+          {l === current ? <Text style={[styles.check, { color: colors.ink }]}>✓</Text> : null}
+        </PressableScale>
+      ))}
+    </BottomSheet>
   );
 }
 
@@ -82,7 +70,7 @@ export function LanguageSwitcher({ onDark = false, onOpenChange }: Props) {
   const pill = onDark
     ? { backgroundColor: 'rgba(255,255,255,0.16)', borderColor: 'rgba(255,255,255,0.28)' }
     : { backgroundColor: fixed.ink, borderColor: 'transparent' };
-  const pillText = onDark ? fixed.paper : fixed.cream;
+  const pillText = onDark ? '#FFFFFF' : '#FFFFFF';
 
   return (
     <>
@@ -111,30 +99,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     height: 44,
+    minWidth: 68,
     paddingHorizontal: 12,
     borderRadius: 999,
     borderWidth: 1,
+    justifyContent: 'center',
   },
   pillText: { fontFamily: font.extrabold, fontSize: 13 },
   chevron: { fontFamily: font.bold, fontSize: 11, marginTop: -1 },
-  backdropWrap: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
-  sheet: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    borderTopLeftRadius: 26,
-    borderTopRightRadius: 26,
-  },
-  grabber: { alignSelf: 'center', width: 40, height: 4, borderRadius: 999, marginBottom: 12 },
   title: { fontFamily: font.extrabold, fontSize: 15, textAlign: 'center', marginBottom: 12 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
     minHeight: 58,
+    marginBottom: 4,
     paddingHorizontal: 12,
     borderRadius: 16,
   },

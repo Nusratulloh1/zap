@@ -273,6 +273,7 @@
     "statusWaiting": "Kutilmoqda",
     "statusDebt": "qarzga · siz qopladingiz",
     "remind": "{name} ga eslatish",
+    "remindShort": "Eslatish",
     "reminded": "Eslatma yuborildi",
     "coverRest": "Qolganini qoplash — {amount}",
     "coverNote": "Do'stingizning ulushi uning sizga qarzi bo'lib qoladi",

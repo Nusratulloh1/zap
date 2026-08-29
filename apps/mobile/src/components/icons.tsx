@@ -15,13 +15,14 @@ export function BackIcon({ size = 20, color = '#111110' }: P) {
 }
 
 /** Скан-рамка (шапка главной, пад суммы). */
-export function ScanIcon({ size = 24, color = '#FFFFFF', strokeWidth = 2.4 }: P) {
+export function ScanIcon({ size = 24, color = '#FFFFFF', strokeWidth = 2.4, center }: P & { center?: boolean }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
       <Path d="M3 8V5C3 3.9 3.9 3 5 3H8" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
       <Path d="M16 3H19C20.1 3 21 3.9 21 5V8" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
       <Path d="M21 16V19C21 20.1 20.1 21 19 21H16" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
       <Path d="M8 21H5C3.9 21 3 20.1 3 19V16" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
+      {center ? <Rect x={7.8} y={7.8} width={8.4} height={8.4} rx={1.8} fill="#DDFF33" /> : null}
     </Svg>
   );
 }
@@ -105,6 +106,40 @@ export function CheckIcon({ size = 14, color = '#111110', strokeWidth = 2.2 }: P
   return (
     <Svg width={size} height={(size * 11) / 14} viewBox="0 0 14 11" fill="none">
       <Path d="M1.4 5.6 5 9.2 12.6 1.6" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+/** Конверт — кнопка «Отправить SMS со ссылкой» (SharePage). */
+export function MailIcon({ size = 19, color = '#111110' }: P) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 20 20" fill="none">
+      <Rect x={2} y={4} width={16} height={12} rx={3} stroke={color} strokeWidth={1.8} />
+      <Path d="M2.5 6.5L10 11L17.5 6.5" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
+/** Солнце — переключатель темы (ThemeToggle). */
+export function SunIcon({ size = 19, color = '#5B594F' }: P) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 20 20" fill="none">
+      <Circle cx={10} cy={10} r={2.6} stroke={color} strokeWidth={1.8} />
+      <Path
+        d="M10 2.5V5M10 15V17.5M2.5 10H5M15 10H17.5M4.7 4.7L6.4 6.4M13.6 13.6L15.3 15.3M15.3 4.7L13.6 6.4M6.4 13.6L4.7 15.3"
+        stroke={color}
+        strokeWidth={1.8}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+/** Луна — переключатель темы (ThemeToggle). */
+export function MoonIcon({ size = 19, color = '#5B594F' }: P) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 20 20" fill="none">
+      <Path d="M16.5 12.2A6.8 6.8 0 0 1 7.8 3.5a6.8 6.8 0 1 0 8.7 8.7Z" stroke={color} strokeWidth={1.8} strokeLinejoin="round" />
     </Svg>
   );
 }

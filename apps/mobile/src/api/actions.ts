@@ -1,7 +1,7 @@
 // Остальные ручки приложения — формы запросов один в один с web/src/api/real.ts,
 // чтобы поведение клиентов не разъезжалось.
 import { http } from './client';
-import type { Bill, Card } from '@zap/shared/types';
+import type { Bill, Card, Contact } from '@zap/shared/types';
 
 // ---------- долги ----------
 
@@ -160,5 +160,29 @@ export async function payPublic(
     method: 'POST',
     auth: false,
     body: JSON.stringify({ phone, amount, code: otp }),
+  });
+}
+
+// ---------- поиск и контакты (MembersPage) ----------
+
+/** результат поиска пользователей ZAP! по @username / имени */
+export interface UserSearchResult {
+  id: string;
+  name: string;
+  handle: string;
+  phone: string;
+  initials: string;
+  color: string;
+}
+
+export function searchUsers(query: string): Promise<UserSearchResult[]> {
+  return http(`/users/search?q=${encodeURIComponent(query)}`);
+}
+
+/** Новый контакт по номеру; bootstrap инвалидирует вызывающий экран. */
+export function addContact(phoneDigits: string, fullName?: string): Promise<Contact> {
+  return http('/contacts', {
+    method: 'POST',
+    body: JSON.stringify({ phone: phoneDigits, name: fullName?.trim() || undefined }),
   });
 }

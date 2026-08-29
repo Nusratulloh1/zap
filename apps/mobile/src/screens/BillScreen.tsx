@@ -2,8 +2,7 @@
 // позиции, итого, CTA «Разделить» / «Оплатить целиком». Фискальный чек:
 // позиции догружаются (поллинг статуса), при неудаче — фото/ручной ввод.
 import React, { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -25,7 +24,6 @@ import { font } from '@/theme/tokens';
 export function BillScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const qc = useQueryClient();
   const home = useHomeData();
@@ -101,6 +99,7 @@ export function BillScreen() {
           total: bill.total,
           mode: 'equal',
           merchantId: bill.merchantId || undefined,
+          billId: (bill as typeof bill & { billId?: string }).billId,
           members: [{ contactId: 'me', amount: bill.total }],
         },
         home.db?.contacts ?? [],
@@ -117,13 +116,18 @@ export function BillScreen() {
     <Screen style={styles.root}>
       <ScreenHeader onBack={() => nav.navigate('Scan')} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>
-          <View style={[styles.logo, { backgroundColor: colors.ink }]}>
-            <Text style={[styles.logoLetter, { color: fixed.lime }]}>
-              {(draft.fiscal?.merchant ?? merchant?.name ?? 'B')[0]?.toUpperCase()}
-            </Text>
-          </View>
+          {/* демо-счёт Bellissimo — фирменный логотип, как в вебе */}
+          {!isFiscal ? (
+            <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.merchantImg} />
+          ) : (
+            <View style={[styles.logo, { backgroundColor: colors.ink }]}>
+              <Text style={[styles.logoLetter, { color: fixed.lime }]}>
+                {(draft.fiscal?.merchant ?? merchant?.name ?? t('bill.merchantInitialFallback'))[0]?.toUpperCase()}
+              </Text>
+            </View>
+          )}
           <Text style={[styles.merchant, { color: colors.ink }]}>
             {draft.fiscal?.merchant ?? merchant?.name ?? t('bill.fiscalTitle')}
           </Text>
@@ -221,7 +225,7 @@ export function BillScreen() {
 
       <PinSheet
         open={paySheet}
-        hint={t('bill.pinHint', { amount: money(bill.total), merchant: merchant?.name ?? '' })}
+        hint={t('bill.pinHint', { amount: money(bill.total), merchant: merchant?.name ?? 'Bellissimo' })}
         onClose={() => setPaySheet(false)}
         onConfirm={() => void confirmPayWhole()}
       />
@@ -232,6 +236,7 @@ export function BillScreen() {
 const styles = StyleSheet.create({
   root: { paddingHorizontal: 20 },
   head: { marginTop: 26, paddingHorizontal: 4, gap: 6 },
+  merchantImg: { width: 84, height: 84, marginLeft: -10 },
   logo: { width: 64, height: 64, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   logoLetter: { fontFamily: font.extrabold, fontSize: 24 },
   merchant: { fontFamily: font.extrabold, fontSize: 19 },

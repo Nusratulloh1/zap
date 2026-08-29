@@ -16,7 +16,7 @@ export function Skeleton({ height = 48, width = '100%', radius = 16, style }: Pr
   const v = useSharedValue(0.5);
 
   useEffect(() => {
-    v.value = withRepeat(withTiming(1, { duration: 900, easing: Easing.inOut(Easing.quad) }), -1, true);
+    v.value = withRepeat(withTiming(1, { duration: 1000, easing: Easing.inOut(Easing.quad) }), -1, true);
   }, [v]);
 
   const { colors } = useTheme();

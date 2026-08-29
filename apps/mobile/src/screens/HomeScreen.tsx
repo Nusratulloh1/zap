@@ -1,10 +1,11 @@
 // Главная — порт web/src/pages/HomePage.vue один в один: тёмный герой
 // (hero-иллюстрация / фото залов, категории с теми же SVG, поиск + «Сплит»),
 // светлый лист (стат-карты, «Мои группы» вертикальным списком, сплиты).
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useDeferredValue, useMemo, useState } from 'react';
 import {
   Image,
   RefreshControl,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -22,6 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
+import Svg, { Circle as SvgCircle, Defs, Pattern, Rect as SvgRect } from 'react-native-svg';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { Skeleton } from '@/components/Skeleton';
@@ -36,7 +38,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { font, radius } from '@/theme/tokens';
 import type { Split } from '@zap/shared/types';
 
-const wordmark = require('../../assets/brand/zap-wordmark-light.png');
+const wordmark = require('../../assets/brand/zap-wordmark-large.png');
 
 type CategoryKey = 'all' | 'cashback' | 'promo' | 'discount';
 const CATEGORIES: { key: CategoryKey; label: string }[] = [
@@ -58,6 +60,8 @@ export function HomeScreen() {
   const home = useHomeData();
   const [category, setCategory] = useState<CategoryKey>('all');
   const [search, setSearch] = useState('');
+  // фильтрация идёт по отложенному значению: ввод не тормозит на каждом символе
+  const query = useDeferredValue(search);
   const [refreshing, setRefreshing] = useState(false);
 
   const scrollY = useSharedValue(0);
@@ -76,7 +80,7 @@ export function HomeScreen() {
   }, [qc]);
 
   // живой поиск по контактам (имя/номер) — как в вебе
-  const q = search.trim().toLowerCase();
+  const q = query.trim().toLowerCase();
   const contactMatches = useMemo(() => {
     if (!q) return [];
     const digits = q.replace(/\D/g, '');
@@ -85,18 +89,39 @@ export function HomeScreen() {
       .slice(0, 6);
   }, [home.db?.contacts, q]);
 
-  const splitRows = useMemo(() => home.splits.slice(0, 6), [home.splits]);
+  const splitRows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return home.splits
+      .filter((sp) => {
+        const merchant = home.db?.merchants.find((m) => m.id === sp.merchantId);
+        if (category === 'cashback' && !(sp.cashback && sp.cashback > 0)) return false;
+        if (category === 'promo' && !merchant?.offer?.multiplier) return false;
+        if (category === 'discount' && !merchant?.offer?.percent) return false;
+        if (!q) return true;
+        return (
+          sp.title.toLowerCase().includes(q) ||
+          (merchant?.name.toLowerCase().includes(q) ?? false) ||
+          sp.members.some((m) => home.contactById(m.contactId)?.name.toLowerCase().includes(q))
+        );
+      })
+      .slice(0, 5);
+  }, [category, query, home]);
   const me = home.db?.user;
 
   const splitSub = (s: Split) => {
-    const others = s.members
-      .filter((m) => !m.isYou)
-      .map((m) => home.contactById(m.contactId)?.name?.split(' ')[0] ?? '')
-      .filter(Boolean);
+    const g = s.groupId ? home.groups.find((gg) => gg.id === s.groupId) : undefined;
     const date = humanDateLc(s.createdAt);
-    const g = s.groupId ? home.db?.groups.find((x) => x.id === s.groupId) : undefined;
-    if (g) return t('home.splitSubGroup', { group: g.name, date });
-    return t('home.splitSubPeople', { names: others.slice(0, 2).join(', '), date });
+    if (g) {
+      return t('home.splitSubGroup', {
+        group: g.name.toUpperCase(),
+        people: peopleCount(s.members.length),
+        date,
+      });
+    }
+    const others = s.members
+      .filter((m) => m.contactId !== 'me')
+      .map((m) => home.contactById(m.contactId)?.name ?? '?');
+    return t('home.splitSubPeople', { names: others.join(', '), date });
   };
 
   const quickSplit = (memberIds: string[]) => {
@@ -106,9 +131,9 @@ export function HomeScreen() {
   };
 
   return (
-    <View style={[styles.root, { backgroundColor: colors.cream }]}>
+    <View style={[styles.root, { backgroundColor: colors.dune }]}>
       {/* липкая шапка поверх контента */}
-      <View style={[styles.header, { paddingTop: insets.top + 10 }]} pointerEvents="box-none">
+      <View style={[styles.header, { paddingTop: insets.top + 12 }]} pointerEvents="box-none">
         <Animated.View style={[styles.headerGlass, headerBg]} pointerEvents="none" />
         <View style={styles.headerRow}>
           <Image source={wordmark} style={styles.wordmark} resizeMode="contain" />
@@ -120,7 +145,7 @@ export function HomeScreen() {
               style={styles.circleBtn}
               onPress={() => nav.navigate('Scan')}
             >
-              <ScanIcon size={22} color="#FFFFFF" />
+              <ScanIcon size={20} color="#FFFFFF" strokeWidth={1.8} center />
             </PressableScale>
             <PressableScale
               small
@@ -128,7 +153,7 @@ export function HomeScreen() {
               accessibilityLabel={t('common.profileAria')}
               onPress={() => nav.navigate('Profile')}
             >
-              <Avatar name={me?.name} letter={me?.initials} contactId="me" color="#111110" size={40} ring={fixed.lime} />
+              <Avatar name={me?.name} letter={me?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
             </PressableScale>
           </View>
         </View>
@@ -142,14 +167,17 @@ export function HomeScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.muted} />}
       >
         {/* ── тёмный герой ── */}
-        <View style={[styles.hero, { paddingTop: insets.top + 68 }]}>
-          {home.loading ? (
-            <View style={styles.heroSkeleton}>
-              <Skeleton height={218} radius={20} />
-            </View>
-          ) : (
-            <PromoCarousel category={category} onPress={() => nav.navigate('Scan')} />
-          )}
+        <View style={[styles.hero, { paddingTop: insets.top + 84 }]}>
+          {/* точечная сетка фона — radial-gradient 16px из веба */}
+          <Svg style={StyleSheet.absoluteFill as object} pointerEvents="none">
+            <Defs>
+              <Pattern id="heroDots" width={16} height={16} patternUnits="userSpaceOnUse">
+                <SvgCircle cx={2} cy={2} r={1.25} fill="rgba(255,255,255,0.07)" />
+              </Pattern>
+            </Defs>
+            <SvgRect x={0} y={0} width="100%" height="100%" fill="url(#heroDots)" />
+          </Svg>
+          <PromoCarousel category={category} />
 
           {/* категории — SVG-иконки из веба */}
           <View style={styles.categories}>
@@ -189,53 +217,44 @@ export function HomeScreen() {
             })}
           </View>
 
-          {/* поиск + Сплит */}
-          <View style={styles.searchRow}>
-            <View style={styles.searchField}>
-              <SearchIcon size={17} color="rgba(255,255,255,0.55)" />
-              <TextInput
-                value={search}
-                onChangeText={setSearch}
-                placeholder={t('home.searchPlaceholder')}
-                placeholderTextColor="rgba(255,255,255,0.45)"
-                style={styles.searchInput}
-                returnKeyType="search"
-                autoCorrect={false}
-              />
-            </View>
-            <PressableScale style={[styles.splitBtn, { backgroundColor: fixed.lime }]} onPress={() => nav.navigate('Scan')}>
-              <Text style={styles.splitBtnText}>{t('home.split')}</Text>
+          {/* поиск + Сплит: один пилл, лаймовая кнопка внутри */}
+          <View style={styles.searchPill}>
+            <SearchIcon size={20} color="#A3A199" />
+            <TextInput
+              value={search}
+              onChangeText={setSearch}
+              placeholder={t('home.searchPlaceholder')}
+              placeholderTextColor={colors.faint2}
+              style={styles.searchInput}
+            />
+            <PressableScale style={[styles.splitBtn, { backgroundColor: colors.lime }]} onPress={() => nav.navigate('Scan')}>
+              <Text style={[styles.splitBtnText, { color: colors.onLime }]}>{t('home.split')}</Text>
             </PressableScale>
           </View>
 
-          {/* результаты по контактам */}
-          {contactMatches.map((c, i) => (
-            <Animated.View key={c.id} entering={FadeInDown.delay(i * 30).duration(220)}>
-              <PressableScale
-                haptic={false}
-                style={styles.contactRow}
-                onPress={() => nav.navigate('Tabs', { screen: 'Amount' })}
-              >
-                <Avatar name={c.name} letter={c.initials} contactId={c.id} color={c.color} size={38} />
-                <View style={styles.flex1}>
-                  <Text style={styles.contactName}>{c.name}</Text>
-                  {c.handle ? <Text style={styles.contactHandle}>{c.handle}</Text> : null}
-                </View>
-              </PressableScale>
-            </Animated.View>
-          ))}
+          {/* результаты по контактам: горизонтальная лента аватаров */}
+          {contactMatches.length ? (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.matchRow}>
+              {contactMatches.map((c) => (
+                <PressableScale key={c.id} style={styles.matchCol} onPress={() => nav.navigate('Tabs', { screen: 'Amount' })}>
+                  <Avatar name={c.name} letter={c.initials} contactId={c.id} color={c.color} size={48} />
+                  <Text style={styles.matchName} numberOfLines={1}>{c.name}</Text>
+                </PressableScale>
+              ))}
+            </ScrollView>
+          ) : null}
         </View>
 
         {/* ── светлый лист ── */}
-        <View style={[styles.sheet, { backgroundColor: colors.cream }]}>
+        <View style={[styles.sheet, { backgroundColor: colors.dune }]}>
           {/* стат-карты */}
           <View style={styles.stats}>
             <PressableScale
-              style={[styles.statCard, { backgroundColor: colors.paper, width: (width - 52) / 2 }]}
+              style={[styles.statCard, styles.cardShadow, { backgroundColor: colors.paper, width: (width - 40) / 2 }]}
               onPress={() => nav.navigate('Cashback')}
             >
               <Text style={[styles.statTitle, { color: colors.ink }]}>{t('home.cashbackCard')}</Text>
-              <Text style={[styles.statSub, { color: colors.muted }]} numberOfLines={2}>
+              <Text style={[styles.statSub, { color: colors.faint }]} numberOfLines={2}>
                 {home.cashbackCount
                   ? t('home.cashbackWithCount', {
                       amount: money(home.cashbackBalance),
@@ -243,14 +262,21 @@ export function HomeScreen() {
                     })
                   : t('home.cashbackEmpty')}
               </Text>
+              {home.cashbackCount ? (
+                <View style={styles.partnerRow}>
+                  <Image source={require('../../assets/brand/partners/safia.png')} style={styles.partnerLogo} />
+                  <Image source={require('../../assets/brand/partners/texnomart.png')} style={[styles.partnerLogoWide, styles.partnerOverlap]} resizeMode="cover" />
+                  <Image source={require('../../assets/brand/partners/idea.png')} style={[styles.partnerLogoWide, styles.partnerOverlap]} resizeMode="cover" />
+                </View>
+              ) : null}
             </PressableScale>
 
             <PressableScale
-              style={[styles.statCard, { backgroundColor: colors.paper, width: (width - 52) / 2 }]}
+              style={[styles.statCard, styles.cardShadow, { backgroundColor: colors.paper, width: (width - 40) / 2 }]}
               onPress={() => nav.navigate('Debts')}
             >
               <Text style={[styles.statTitle, { color: colors.ink }]}>{t('home.debtorsCard')}</Text>
-              <Text style={[styles.statSub, { color: colors.muted }]} numberOfLines={2}>
+              <Text style={[styles.statSub, { color: colors.faint }]} numberOfLines={2}>
                 {home.debtors.length
                   ? t('home.cashbackWithCount', {
                       amount: money(home.totalOwedToMe),
@@ -258,24 +284,21 @@ export function HomeScreen() {
                     })
                   : t('home.debtorsEmpty')}
               </Text>
+              {home.debtors.length ? (
               <View style={styles.debtorRow}>
-                {home.debtors.slice(0, 4).map((d) => (
-                  <Avatar
-                    key={d.id}
-                    name={d.name}
-                    letter={d.initials}
-                    contactId={d.id}
-                    color={d.color}
-                    size={28}
-                    ring={colors.paper}
-                    style={styles.debtorAvatar}
-                  />
+                {home.debtors.slice(0, 3).map((d) => (
+                  <View key={d.id} style={styles.debtorCol}>
+                    <Avatar name={d.name} letter={d.initials} contactId={d.id} color={d.color} size={38} />
+                    <Text style={[styles.debtorName, { color: colors.ink }]} numberOfLines={1}>{d.name}</Text>
+                  </View>
                 ))}
               </View>
+              ) : null}
             </PressableScale>
           </View>
 
-          {/* мои группы — вертикальный список, как в вебе */}
+          {/* мои группы — белая карточка, как rounded-card в вебе */}
+          <View style={[styles.sectionCard, styles.cardShadow, { backgroundColor: colors.paper }]}>
           <View style={styles.sectionHead}>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>{t('home.myGroups')}</Text>
             {home.groups.length ? <Text style={[styles.seeAll, { color: colors.muted }]}>{t('home.seeAll')}</Text> : null}
@@ -288,7 +311,7 @@ export function HomeScreen() {
             </View>
           ) : home.groups.length ? (
             home.groups.map((g, gi) => (
-              <Animated.View key={g.id} entering={FadeInDown.delay(gi * 45).duration(260)}>
+              <Animated.View key={g.id} entering={FadeInDown.delay(Math.min(gi, 8) * 45).duration(260)}>
                 <PressableScale
                   haptic={false}
                   style={[styles.groupRow, gi < home.groups.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
@@ -304,8 +327,9 @@ export function HomeScreen() {
                           letter={c?.initials}
                           contactId={cid}
                           color={c?.color ?? '#111110'}
-                          size={38}
-                          ring={colors.cream}
+                          size={32}
+                          ring={colors.paper}
+                          ringWidth={2}
                           style={i > 0 ? styles.groupStacked : undefined}
                         />
                       );
@@ -330,12 +354,17 @@ export function HomeScreen() {
             <Text style={[styles.empty, { color: colors.muted }]}>{t('home.groupsEmpty')}</Text>
           )}
 
-          {/* ваши сплиты */}
+          </View>
+
+          {/* ваши сплиты — белая карточка */}
+          <View style={[styles.sectionCard, styles.cardShadow, { backgroundColor: colors.paper }]}>
           <View style={styles.sectionHead}>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>{t('home.yourSplits')}</Text>
-            <PressableScale onPress={() => nav.navigate('Tabs', { screen: 'History' })}>
-              <Text style={[styles.seeAll, { color: colors.muted }]}>{t('home.seeAll')}</Text>
-            </PressableScale>
+            {splitRows.length ? (
+              <PressableScale onPress={() => nav.navigate('Tabs', { screen: 'History' })}>
+                <Text style={[styles.seeAll, { color: colors.muted }]}>{t('home.seeAll')}</Text>
+              </PressableScale>
+            ) : null}
           </View>
 
           {home.loading ? (
@@ -346,20 +375,27 @@ export function HomeScreen() {
             </View>
           ) : splitRows.length ? (
             splitRows.map((s, i) => (
-              <Animated.View key={s.id} entering={FadeInDown.delay(i * 40).duration(240)}>
+              <Animated.View key={s.id} entering={FadeInDown.delay(Math.min(i, 8) * 40).duration(240)}>
                 <PressableScale
                   haptic={false}
                   style={[styles.splitRow, i < splitRows.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
                   onPress={() => nav.navigate('SplitLive', { id: s.id })}
                 >
+                  <View style={[styles.splitIcon, { backgroundColor: colors.ink }]}>
+                    <Text style={[styles.splitIconText, { color: colors.paper }]}>
+                      {(home.db?.merchants.find((mm) => mm.id === s.merchantId)?.letter ?? s.title[0] ?? '?').toUpperCase()}
+                    </Text>
+                  </View>
                   <View style={styles.flex1}>
-                    <Text style={[styles.splitTitle, { color: colors.ink }]} numberOfLines={1}>{s.title}</Text>
-                    <Text style={[styles.splitSub, { color: colors.faint }]} numberOfLines={1}>{splitSub(s)}</Text>
+                    <Text style={[styles.splitTitle, { color: colors.ink }]} numberOfLines={1}>
+                      {home.db?.merchants.find((mm) => mm.id === s.merchantId)?.name ?? s.title}
+                    </Text>
+                    <Text style={[styles.splitSub, { color: colors.muted }]} numberOfLines={1}>{splitSub(s)}</Text>
                   </View>
                   <View style={styles.splitRight}>
                     <Text style={[styles.splitAmount, { color: colors.ink }]}>{money(s.total)}</Text>
-                    <View style={[styles.badge, { backgroundColor: s.status === 'closed' ? colors.sand : fixed.lime }]}>
-                      <Text style={[styles.badgeText, { color: s.status === 'closed' ? colors.muted : '#111110' }]}>
+                    <View style={[styles.badge, { backgroundColor: s.status === 'closed' ? colors.pebble2 : colors.lime }]}>
+                      <Text style={[styles.badgeText, { color: s.status === 'closed' ? colors.muted : colors.onLime }]}>
                         {s.status === 'closed' ? t('home.closedBadge') : t('home.activeBadge')}
                       </Text>
                     </View>
@@ -370,11 +406,13 @@ export function HomeScreen() {
           ) : (
             <Text style={[styles.empty, { color: colors.muted }]}>{t('home.splitsEmpty')}</Text>
           )}
+          </View>
         </View>
       </Animated.ScrollView>
 
       {home.activeSplit ? (
         <ActiveSplitPill
+          merchant={home.db?.merchants.find((m) => m.id === home.activeSplit?.merchantId)}
           split={home.activeSplit}
           nameOf={(id) => home.contactById(id)?.name?.split(' ')[0] ?? ''}
           onPress={() => nav.navigate('SplitLive', { id: home.activeSplit!.id })}
@@ -385,23 +423,36 @@ export function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
+  matchRow: { gap: 12, paddingHorizontal: 20, paddingTop: 14 },
+  matchCol: { alignItems: 'center', gap: 6, maxWidth: 64 },
+  matchName: { fontFamily: font.bold, fontSize: 11, color: 'rgba(255,255,255,0.8)' },
+  searchPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    height: 54,
+    marginTop: 16,
+    marginHorizontal: 20,
+    paddingLeft: 16,
+    paddingRight: 7,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.14)',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  searchInput: { flex: 1, minWidth: 0, fontFamily: font.semibold, fontSize: 15.5, color: '#FFFFFF', padding: 0 },
+  splitBtn: { height: 40, paddingHorizontal: 15, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  splitBtnText: { fontFamily: font.extrabold, fontSize: 14.5 },
   root: { flex: 1 },
   flex1: { flex: 1 },
   header: { position: 'absolute', left: 0, right: 0, top: 0, zIndex: 20, paddingHorizontal: 20, paddingBottom: 10 },
-  headerGlass: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(14,14,12,0.92)' },
+  headerGlass: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(14,14,12,0.96)' },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  wordmark: { height: 40, width: 104 },
+  wordmark: { height: 52, width: 78 },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  circleBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.12)',
-  },
+  circleBtn: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' },
 
-  hero: { backgroundColor: '#0E0E0C', paddingBottom: 28 },
+  hero: { backgroundColor: '#0E0E0C', paddingBottom: 44 },
   heroSkeleton: { paddingHorizontal: 24 },
   categories: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, paddingHorizontal: 20, marginTop: 26 },
   category: { alignItems: 'center', gap: 7, flex: 1 },
@@ -411,55 +462,50 @@ const styles = StyleSheet.create({
   pctGlyph: { fontFamily: font.extrabold, fontSize: 17 },
   categoryLabel: { fontFamily: font.semibold, fontSize: 11, textAlign: 'center', lineHeight: 13 },
 
-  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, marginTop: 22 },
-  searchField: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    height: 54,
-    paddingLeft: 18,
-    paddingRight: 8,
-    borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.10)',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.14)',
-  },
-  searchInput: { flex: 1, fontFamily: font.semibold, fontSize: 14.5, color: '#FFFFFF', padding: 0 },
-  splitBtn: { height: 54, paddingHorizontal: 22, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  splitBtnText: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },
 
-  contactRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 20, paddingVertical: 10 },
-  contactName: { fontFamily: font.bold, fontSize: 15, color: '#FFFFFF' },
-  contactHandle: { fontFamily: font.semibold, fontSize: 12.5, color: 'rgba(255,255,255,0.5)' },
 
-  sheet: { borderTopLeftRadius: 30, borderTopRightRadius: 30, marginTop: -22, paddingTop: 24, paddingHorizontal: 20 },
+  sheet: { borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: -28, paddingTop: 18, paddingHorizontal: 14 },
   stats: { flexDirection: 'row', gap: 12 },
-  statCard: { borderRadius: radius.card, padding: 16, minHeight: 132, justifyContent: 'flex-start' },
+  statCard: { borderRadius: radius.card, padding: 18, height: 224, justifyContent: 'flex-start' },
   statTitle: { fontFamily: font.extrabold, fontSize: 18, letterSpacing: -0.2, lineHeight: 21 },
-  statSub: { fontFamily: font.semibold, fontSize: 12.5, marginTop: 6, lineHeight: 17 },
-  debtorRow: { flexDirection: 'row', marginTop: 'auto', paddingTop: 10 },
-  debtorAvatar: { marginRight: -8 },
+  statSub: { fontFamily: font.semibold, fontSize: 13, marginTop: 5, lineHeight: 17 },
+  partnerRow: { flexDirection: 'row', alignItems: 'center', marginTop: 'auto', minHeight: 60 },
+  partnerLogo: { height: 29, width: 29, borderRadius: 9 },
+  partnerLogoWide: { height: 29, width: 58, borderRadius: 9 },
+  partnerOverlap: { marginLeft: -10 },
+  debtorRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 'auto', minHeight: 60 },
+  debtorCol: { alignItems: 'center', gap: 4, maxWidth: 52 },
+  debtorName: { fontFamily: font.bold, fontSize: 10.5 },
 
-  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 26, marginBottom: 6 },
+  sectionCard: { borderRadius: 28, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 6, marginTop: 12 },
+  cardShadow: {
+    shadowColor: '#1E1C10',
+    shadowOpacity: 0.05,
+    shadowRadius: 24,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 3,
+  },
+  sectionHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 },
   sectionTitle: { fontFamily: font.extrabold, fontSize: 18, letterSpacing: -0.2 },
   seeAll: { fontFamily: font.bold, fontSize: 14 },
 
-  groupRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 64 },
+  groupRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 62 },
   groupAvatars: { flexDirection: 'row' },
   groupStacked: { marginLeft: -12 },
   groupName: { fontFamily: font.bold, fontSize: 15 },
   groupSub: { fontFamily: font.semibold, fontSize: 12, marginTop: 1 },
-  groupSplitBtn: { height: 36, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  groupSplitBtn: { height: 34, paddingHorizontal: 15, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   groupSplitText: { fontFamily: font.extrabold, fontSize: 13, color: '#111110' },
 
-  splitRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 60, paddingVertical: 8 },
-  splitTitle: { fontFamily: font.bold, fontSize: 15 },
-  splitSub: { fontFamily: font.semibold, fontSize: 12, marginTop: 2 },
+  splitRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 62 },
+  splitIcon: { width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  splitIconText: { fontFamily: font.extrabold, fontSize: 15 },
+  splitTitle: { fontFamily: font.bold, fontSize: 15.5 },
+  splitSub: { fontFamily: font.semibold, fontSize: 12.5, marginTop: 1 },
   splitRight: { alignItems: 'flex-end', gap: 5 },
-  splitAmount: { fontFamily: font.extrabold, fontSize: 15 },
-  badge: { paddingHorizontal: 10, height: 22, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  badgeText: { fontFamily: font.extrabold, fontSize: 11 },
+  splitAmount: { fontFamily: font.extrabold, fontSize: 16 },
+  badge: { borderRadius: 6, paddingHorizontal: 7, paddingVertical: 3 },
+  badgeText: { fontFamily: font.monoBold, fontSize: 9.5, letterSpacing: 0.95 },
 
   empty: { fontFamily: font.semibold, fontSize: 13, textAlign: 'center', paddingVertical: 18 },
   gap10: { gap: 10 },

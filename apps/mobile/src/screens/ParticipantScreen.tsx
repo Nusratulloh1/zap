@@ -2,29 +2,44 @@
 // сплита, чипы суммы (доля/половина/за двоих/своя), оплата через OTP-lite,
 // успех с прогрессом. Открывается диплинком или сканом QR сплита.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
-import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
+import { AnimatedAmount } from '@/components/AnimatedAmount';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { BottomSheet } from '@/components/BottomSheet';
 import { toast } from '@/components/ToastHost';
 import { fetchPublicSplit, markOpened, payPublic, type PublicView } from '@/api/actions';
 import { joinSplitRoom, onRealtime } from '@/lib/realtime';
 import { useSession } from '@/store/session';
-import { money } from '@/lib/format';
+import { money, peopleCount } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
 const r1000 = (n: number) => Math.round(n / 1000) * 1000;
 
+/** Плитка суммы 62px: значение и (опционально) подпись; выбранная — в лаймовой рамке. */
+function Tile({ value, label, active, onPress }: { value: number; label?: string; active: boolean; onPress: () => void }) {
+  const { colors } = useTheme();
+  return (
+    <PressableScale
+      style={[
+        styles.tile,
+        active ? { borderWidth: 2, borderColor: colors.lime } : { backgroundColor: colors.sand },
+      ]}
+      onPress={onPress}
+    >
+      <Text style={[styles.tileValue, { color: colors.ink }]}>{money(value)}</Text>
+      {label ? <Text style={[styles.tileLabel, { color: colors.muted }]}>{label}</Text> : null}
+    </PressableScale>
+  );
+}
+
 export function ParticipantScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const code = route.params?.code as string;
@@ -57,14 +72,11 @@ export function ParticipantScreen() {
   const isClosed = view?.status === 'closed';
   const myShare = view?.yourShare ?? 0;
   const remaining = Math.max(0, (view?.totalAmount ?? 0) - (view?.paidTotal ?? 0));
-  const progress = view?.totalAmount ? Math.min(100, Math.round(((view.paidTotal ?? 0) / view.totalAmount) * 100)) : 0;
   const alreadyPaid = view?.yourStatus === 'paid' || view?.yourStatus === 'debt';
 
-  const chips = [
-    { key: 'mine', label: t('participant.chipMine'), value: myShare },
-    { key: 'half', label: t('participant.chipHalf'), value: r1000(myShare / 2) },
-    { key: 'two', label: t('participant.chipTwo'), value: Math.min(myShare * 2, remaining || myShare * 2) },
-  ].filter((c) => c.value > 0);
+  const half = r1000(myShare / 2);
+  const double = Math.min(myShare * 2, remaining || myShare * 2);
+  const quickAmounts = [100000, 250000].filter((q) => q < myShare);
 
   // своя сумма
   const [customSheet, setCustomSheet] = useState(false);
@@ -134,89 +146,114 @@ export function ParticipantScreen() {
     );
   }
 
-  // успех / уже оплачено
-  if (paid || alreadyPaid || isClosed) {
+  // успех / уже оплачено — как в вебе: заголовок и сумма по центру,
+  // shell-карточка с прогресс-баром и кружками участников, лаймовый CTA
+  if (paid || alreadyPaid) {
+    const progressPct = view.totalAmount ? Math.min(100, Math.round(((view.paidTotal ?? 0) / view.totalAmount) * 100)) : 0;
     return (
       <Screen style={styles.root}>
-        <ScreenHeader onBack={() => nav.navigate('Tabs')} />
-        <View style={styles.center}>
-          <View style={[styles.bigCheck, { backgroundColor: fixed.lime }]}>
-            <Text style={styles.bigCheckGlyph}>✓</Text>
-          </View>
+        <Image source={require('../../assets/brand/zap-wordmark-large.png')} style={styles.wordmark} resizeMode="contain" />
+        <View style={styles.doneWrap}>
           <Text style={[styles.doneTitle, { color: colors.ink }]}>
-            {paid ? t('participant.paidNow') : isClosed ? t('participant.splitClosed') : t('participant.alreadyPaid')}
+            {paid ? t('participant.paidNow') : t('participant.alreadyPaid')}
           </Text>
+          {myShare > 0 ? (
+            <Text style={[styles.doneAmount, { color: colors.ink }]}>{money(myShare)}</Text>
+          ) : null}
           <Text style={[styles.doneSub, { color: colors.muted }]}>
             {isClosed && (view.yourCashback ?? 0) > 0
               ? t('participant.cashbackCredited', { amount: money(view.yourCashback ?? 0) })
               : t('participant.paidText')}
           </Text>
+        </View>
 
-          <View style={styles.progressBlock}>
-            <Text style={[styles.progressLabel, { color: colors.faint }]}>
+        <View style={[styles.statusCard, { backgroundColor: colors.shell }]}>
+          <View style={styles.statusHead}>
+            <Text style={[styles.statusTitle, { color: colors.ink }]}>
+              {isClosed ? t('participant.splitClosed') : t('participant.collecting')}
+            </Text>
+            <Text style={[styles.statusRight, { color: colors.muted }]}>
               {t('participant.paidOfCount', { paid: view.paidCount, total: view.memberCount })}
             </Text>
-            <View style={[styles.track, { backgroundColor: colors.pebble }]}>
-              <View style={[styles.fill, { backgroundColor: fixed.lime, width: `${progress}%` }]} />
-            </View>
           </View>
-
-          <PressableScale style={[styles.cta, styles.doneCta, { backgroundColor: colors.ink }]} onPress={() => nav.navigate('Tabs')}>
-            <Text style={[styles.ctaText, { color: colors.cream }]}>{t('participant.openApp')}</Text>
-          </PressableScale>
+          <View style={[styles.statusTrack, { backgroundColor: colors.sand }]}>
+            <View style={[styles.statusBar, { backgroundColor: colors.lime, width: `${progressPct}%` }]} />
+          </View>
+          <View style={styles.statusDots}>
+            {view.members.map((m, i) => {
+              const done = m.status === 'paid' || m.status === 'debt';
+              return (
+                <View key={m.id + i} style={[styles.statusDot, { backgroundColor: done ? colors.ink : colors.sand }]}>
+                  <Text style={[styles.statusDotCheck, { color: done ? fixed.lime : colors.faint2 }]}>
+                    {done ? '✓' : (m.initial || m.name[0] || '?').toUpperCase()}
+                  </Text>
+                </View>
+              );
+            })}
+          </View>
         </View>
+
+        <View style={styles.doneSpacer} />
+        <PressableScale style={[styles.cta, styles.doneCta, { backgroundColor: fixed.lime }]} onPress={() => nav.navigate('Tabs')}>
+          <Text style={styles.ctaDark}>{t('participant.openApp')}</Text>
+        </PressableScale>
       </Screen>
     );
   }
 
   return (
     <Screen style={styles.root}>
-      <ScreenHeader onBack={() => nav.navigate('Tabs')} />
+      <Image source={require('../../assets/brand/zap-wordmark-large.png')} style={styles.wordmark} resizeMode="contain" />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16, flexGrow: 1 }}>
-        <Text style={[styles.asks, { color: colors.ink }]}>
-          {t('participant.asks', { name: view.creatorName || t('participant.organizer') })}
-        </Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
+        {/* организатор просит долю */}
+        <View style={styles.asksRow}>
+          <View style={[styles.creatorDot, { backgroundColor: colors.ink }]}>
+            <Text style={[styles.creatorLetter, { color: fixed.lime }]}>
+              {(view.creatorName || t('participant.organizer'))[0]?.toUpperCase()}
+            </Text>
+          </View>
+          <Text style={[styles.asks, { color: colors.muted }]} numberOfLines={2}>
+            {t('participant.asks', { name: view.creatorName || t('participant.organizer') })}
+          </Text>
+        </View>
+
+        <Text style={[styles.splitTitle, { color: colors.ink }]}>{view.title}</Text>
         <Text style={[styles.meta, { color: colors.muted }]}>
-          {view.merchant?.name ?? view.title}
           {view.bill ? t('participant.orderNo', { no: view.bill.orderNo }) : ''}
+          {peopleCount(view.memberCount)}
         </Text>
 
-        <View style={styles.amountBlock}>
+        <View style={styles.amountRow}>
+          <AnimatedAmount digits={amount ? String(amount) : ''} color={colors.ink} fontSize={46} />
           <Text style={[styles.selLabel, { color: colors.faint2 }]}>
             {amount === myShare ? t('participant.yourShare') : t('participant.toPayLabel')}
           </Text>
-          <Text style={[styles.amount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
-            {money(amount)}
-          </Text>
         </View>
 
-        <View style={styles.chips}>
-          {chips.map((c, i) => (
-            <Animated.View key={c.key} entering={FadeInDown.delay(i * 45)}>
-              <PressableScale
-                style={[styles.chip, { backgroundColor: amount === c.value ? fixed.lime : colors.sand }]}
-                onPress={() => setAmount(c.value)}
-              >
-                <Text style={[styles.chipLabel, { color: amount === c.value ? '#111110' : colors.slate }]}>{c.label}</Text>
-                <Text style={[styles.chipValue, { color: amount === c.value ? '#111110' : colors.muted }]}>{money(c.value)}</Text>
-              </PressableScale>
-            </Animated.View>
+        <Text style={[styles.payNowLabel, { color: colors.faint2 }]}>{t('participant.payNowLabel')}</Text>
+        <View style={styles.tiles}>
+          <Tile
+            value={myShare}
+            label={t('participant.chipMine')}
+            active={amount === myShare}
+            onPress={() => setAmount(myShare)}
+          />
+          <Tile value={half} label={t('participant.chipHalf')} active={amount === half} onPress={() => setAmount(half)} />
+          {double > myShare ? (
+            <Tile value={double} label={t('participant.chipTwo')} active={amount === double} onPress={() => setAmount(double)} />
+          ) : null}
+          {quickAmounts.map((q) => (
+            <Tile key={q} value={q} active={amount === q} onPress={() => setAmount(q)} />
           ))}
-          <PressableScale style={[styles.chip, { backgroundColor: colors.sand }]} onPress={() => setCustomSheet(true)}>
-            <Text style={[styles.chipLabel, { color: colors.slate }]}>{t('participant.custom')}</Text>
+          <PressableScale style={[styles.tile, { backgroundColor: colors.sand }]} onPress={() => setCustomSheet(true)}>
+            <Text style={[styles.tileDots, { color: colors.faint2 }]}>···</Text>
           </PressableScale>
         </View>
 
-        <Text style={[styles.hint, { color: colors.muted }]}>{t('participant.hint')}</Text>
-
-        <View style={styles.progressBlock}>
-          <Text style={[styles.progressLabel, { color: colors.faint }]}>
-            {t('participant.paidOfCount', { paid: view.paidCount, total: view.memberCount })} · {t('participant.collecting')}
-          </Text>
-          <View style={[styles.track, { backgroundColor: colors.pebble }]}>
-            <View style={[styles.fill, { backgroundColor: fixed.lime, width: `${progress}%` }]} />
-          </View>
+        <View style={styles.hintRow}>
+          <View style={[styles.hintDot, { backgroundColor: fixed.lime, borderColor: fixed.ink }]} />
+          <Text style={[styles.hint, { color: colors.muted }]}>{t('participant.hint')}</Text>
         </View>
 
         <View style={styles.spacer} />
@@ -228,14 +265,16 @@ export function ParticipantScreen() {
         >
           <Text style={styles.ctaDark}>{t('participant.pay', { amount: money(amount) })}</Text>
         </PressableScale>
-        <PressableScale style={styles.laterBtn} onPress={() => nav.navigate('Tabs')}>
-          <Text style={[styles.laterText, { color: colors.muted }]}>{t('participant.later')}</Text>
+        <PressableScale
+          style={[styles.cta, styles.laterBtn, { backgroundColor: colors.sand }]}
+          onPress={() => toast(t('participant.laterToast'))}
+        >
+          <Text style={[styles.laterText, { color: colors.ink }]}>{t('participant.later')}</Text>
         </PressableScale>
       </ScrollView>
 
       {/* своя сумма */}
       <BottomSheet open={customSheet} onClose={() => setCustomSheet(false)}>
-        <Text style={[styles.sheetTitle, { color: colors.ink }]}>{t('participant.toPayLabel')}</Text>
         <TextInput
           value={customRaw}
           onChangeText={(v) => setCustomRaw(v.replace(/\D/g, '').slice(0, 9))}
@@ -244,8 +283,9 @@ export function ParticipantScreen() {
           style={[styles.customInput, { color: colors.ink }]}
           selectionColor={fixed.lime}
         />
+        <Text style={[styles.customCurrency, { color: colors.faint2 }]}>UZS</Text>
         <PressableScale
-          style={[styles.sheetCta, { backgroundColor: fixed.lime }]}
+          style={[styles.sheetCta, { backgroundColor: colors.ink }]}
           onPress={() => {
             const v = Number(customRaw || '0');
             if (v > 0) setAmount(remaining > 0 ? Math.min(v, remaining) : v);
@@ -253,7 +293,7 @@ export function ParticipantScreen() {
             setCustomRaw('');
           }}
         >
-          <Text style={styles.ctaDark}>{t('common.done')}</Text>
+          <Text style={[styles.sheetCtaText, { color: colors.paper }]}>{t('common.done')}</Text>
         </PressableScale>
       </BottomSheet>
 
@@ -283,34 +323,58 @@ export function ParticipantScreen() {
 }
 
 const styles = StyleSheet.create({
+  asksRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 26 },
+  creatorDot: { width: 34, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  creatorLetter: { fontFamily: font.extrabold, fontSize: 14 },
+  asks: { flex: 1, fontFamily: font.semibold, fontSize: 13.5 },
+  splitTitle: { fontFamily: font.extrabold, fontSize: 26, letterSpacing: -0.3, marginTop: 16 },
+  amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 22 },
+  selLabel: { fontFamily: font.monoBold, fontSize: 11 },
+  payNowLabel: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 30 },
+  tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
+  tile: {
+    height: 62,
+    flexBasis: '31%',
+    flexGrow: 1,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
+  tileValue: { fontFamily: font.extrabold, fontSize: 15 },
+  tileLabel: { fontFamily: font.bold, fontSize: 10.5 },
+  tileDots: { fontFamily: font.bold, fontSize: 19 },
+  hintRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 18 },
+  hintDot: { width: 9, height: 9, borderRadius: 999, borderWidth: 2 },
+  hint: { flex: 1, fontFamily: font.semibold, fontSize: 12 },
+  customCurrency: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, textAlign: 'center', marginTop: 6 },
+  sheetCtaText: { fontFamily: font.bold, fontSize: 15 },
   root: { paddingHorizontal: 24 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 60 },
   notFound: { fontFamily: font.bold, fontSize: 15 },
-  asks: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.4, marginTop: 24, lineHeight: 30 },
   meta: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 6 },
-  amountBlock: { alignItems: 'center', marginTop: 30, gap: 6 },
-  selLabel: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
-  amount: { fontFamily: font.extrabold, fontSize: 52, letterSpacing: -1.6 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 24, justifyContent: 'center' },
-  chip: { minHeight: 52, paddingHorizontal: 16, paddingVertical: 8, borderRadius: 16, alignItems: 'center', justifyContent: 'center', gap: 1 },
-  chipLabel: { fontFamily: font.bold, fontSize: 12.5 },
-  chipValue: { fontFamily: font.monoBold, fontSize: 11.5 },
-  hint: { fontFamily: font.semibold, fontSize: 12.5, textAlign: 'center', marginTop: 18 },
-  progressBlock: { marginTop: 22, gap: 8, alignSelf: 'stretch' },
-  progressLabel: { fontFamily: font.semibold, fontSize: 12.5, textAlign: 'center' },
-  track: { height: 8, borderRadius: 999, overflow: 'hidden' },
-  fill: { height: 8, borderRadius: 999 },
   spacer: { flexGrow: 1, minHeight: 24 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
   ctaText: { fontFamily: font.extrabold, fontSize: 16 },
-  laterBtn: { alignItems: 'center', paddingVertical: 14 },
-  laterText: { fontFamily: font.bold, fontSize: 14 },
+  laterBtn: { marginTop: 10 },
+  laterText: { fontFamily: font.bold, fontSize: 16 },
   disabled: { opacity: 0.4 },
-  bigCheck: { width: 84, height: 84, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  bigCheckGlyph: { fontSize: 38, fontFamily: font.extrabold, color: '#111110' },
-  doneTitle: { fontFamily: font.extrabold, fontSize: 23, marginTop: 18, textAlign: 'center' },
+  wordmark: { height: 48, width: 72, marginTop: 12 },
+  doneWrap: { alignItems: 'center', marginTop: 32 },
+  doneSpacer: { flex: 1 },
+  doneTitle: { fontFamily: font.extrabold, fontSize: 24, textAlign: 'center' },
+  doneAmount: { fontFamily: font.extrabold, fontSize: 30, letterSpacing: -0.6, marginTop: 4 },
   doneSub: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 6, textAlign: 'center' },
+  statusCard: { alignSelf: 'stretch', borderRadius: 28, padding: 18, marginTop: 32 },
+  statusHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  statusTitle: { fontFamily: font.extrabold, fontSize: 15 },
+  statusRight: { fontFamily: font.semibold, fontSize: 13 },
+  statusTrack: { height: 10, borderRadius: 999, marginTop: 12, overflow: 'hidden' },
+  statusBar: { height: '100%', borderRadius: 999 },
+  statusDots: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  statusDot: { width: 32, height: 32, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  statusDotCheck: { fontFamily: font.extrabold, fontSize: 12 },
   doneCta: { alignSelf: 'stretch', marginTop: 28 },
   sheetTitle: { fontFamily: font.extrabold, fontSize: 15, textAlign: 'center' },
   customInput: { fontFamily: font.extrabold, fontSize: 36, textAlign: 'center', marginVertical: 18, padding: 0 },

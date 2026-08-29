@@ -273,6 +273,7 @@
     "statusWaiting": "Ждём",
     "statusDebt": "в долг · вы покрыли",
     "remind": "Напомнить {name}",
+    "remindShort": "Напомнить",
     "reminded": "Напоминание отправлено",
     "coverRest": "Покрыть остаток — {amount}",
     "coverNote": "Доля друга станет его долгом перед вами",

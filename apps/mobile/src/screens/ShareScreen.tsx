@@ -1,37 +1,46 @@
 // Экран ссылки на сплит: QR, нативный шэр, копирование, отправка SMS
 // сервером. Порт web/src/pages/SharePage.vue.
 import React, { useState } from 'react';
-import { Clipboard, Share, StyleSheet, Text, View } from 'react-native';
+import { Clipboard, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { PressableScale } from '@/components/PressableScale';
+import { ScreenHeader } from '@/components/ScreenHeader';
 import { Avatar } from '@/components/Avatar';
+import { MailIcon } from '@/components/icons';
+import { toast } from '@/components/ToastHost';
 import { fetchSplit, sendSplitLinkSms } from '@/api/splits';
 import { qk } from '@/api/data';
+import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
-import { money } from '@/lib/format';
+import { money, equalShares } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { font, fixedPalette } from '@/theme/tokens';
 
 const ORIGIN = 'https://zapapp.uz';
 
 export function ShareScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
+  const qc = useQueryClient();
   const route = useRoute<any>();
   const home = useHomeData();
   const id = route.params?.id as string;
 
-  const { data: split } = useQuery({ queryKey: qk.split(id), queryFn: () => fetchSplit(id), enabled: !!id });
+  const { data: split } = useQuery({
+    queryKey: qk.split(id),
+    queryFn: () => fetchSplit(id),
+    enabled: !!id,
+    // сплит уже есть в загруженном /bootstrap — рисуем сразу, сеть догоняет
+    initialData: () => qc.getQueryData<Db>(qk.bootstrap)?.splits.find((s) => s.id === id),
+    initialDataUpdatedAt: () => qc.getQueryState(qk.bootstrap)?.dataUpdatedAt,
+  });
   const [sending, setSending] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   if (!split) {
     return (
@@ -42,22 +51,25 @@ export function ShareScreen() {
   }
 
   const url = `${ORIGIN}/s/${split.code}`;
-  const perPerson = split.members.length
-    ? Math.round(split.total / split.members.length)
-    : split.total;
+  const perPerson = equalShares(split.total, split.members.length)[0] ?? 0;
   const merchant = home.db?.merchants.find((m) => m.id === split.merchantId);
+  const waitingNames = split.members
+    .filter((m) => m.status === 'waiting' || m.status === 'opened')
+    .map((m) => home.contactById(m.contactId)?.name ?? '?')
+    .join(t('common.and'));
 
-  const onShare = () => void Share.share({ message: url });
   const onCopy = () => {
     Clipboard.setString(url);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+    toast.success(t('common.copied'));
   };
   const onSms = async () => {
     if (sending) return;
     setSending(true);
     try {
-      await sendSplitLinkSms(split.id);
+      const res = await sendSplitLinkSms(split.id);
+      toast.success(res.sent > 1 ? t('share.smsSentMany', { n: res.sent }) : t('share.smsSent'));
+    } catch (e) {
+      toast(e instanceof Error && e.message ? e.message : t('share.smsFailed'));
     } finally {
       setSending(false);
     }
@@ -65,9 +77,7 @@ export function ShareScreen() {
 
   return (
     <Screen style={styles.root}>
-      <PressableScale small style={[styles.back, { backgroundColor: colors.sand }]} onPress={() => nav.goBack()}>
-        <Text style={[styles.backGlyph, { color: colors.ink }]}>←</Text>
-      </PressableScale>
+      <ScreenHeader onBack={() => nav.replace('SplitLive', { id })} />
 
       <Text style={[styles.title, { color: colors.ink }]}>{t('share.title')}</Text>
       <Text style={[styles.sub, { color: colors.muted }]}>
@@ -80,43 +90,47 @@ export function ShareScreen() {
           : t('share.subtitleLine', { merchant: merchant?.name ?? split.title, amount: money(perPerson) })}
       </Text>
 
-      <Animated.View entering={FadeInDown.duration(320)} style={[styles.qrBox, { backgroundColor: colors.shell }]}>
+      <Animated.View entering={FadeInDown.duration(320)} style={[styles.qrBox, { backgroundColor: fixedPalette.shell }]}>
         <QRCode value={url} size={182} backgroundColor="#F7F5F0" color="#111110" />
       </Animated.View>
 
       <Text style={[styles.link, { color: colors.faint2 }]}>{url.replace(/^https?:\/\//, '')}</Text>
 
-      <View style={styles.members}>
-        {split.members.map((m, i) => {
-          const c = home.contactById(m.contactId);
-          return (
-            <Animated.View key={m.contactId + i} entering={FadeInDown.delay(i * 45)} style={styles.memberRow}>
-              <Avatar name={c?.name} letter={c?.initials} contactId={m.contactId} color={c?.color ?? '#3E3C35'} size={38} />
-              <Text style={[styles.memberName, { color: colors.ink }]}>{c?.name ?? t('home.participantFallback')}</Text>
-              <Text style={[styles.memberAmount, { color: colors.muted }]}>{money(m.amount)}</Text>
-            </Animated.View>
-          );
-        })}
+      <View style={styles.statusRow}>
+        <View style={styles.stack}>
+          {split.members.map((m, i) => {
+            const c = home.contactById(m.contactId);
+            return (
+              <Avatar
+                key={m.contactId + i}
+                name={c?.name ?? t('members.youShort')}
+                letter={c?.initials}
+                contactId={m.contactId}
+                color={m.contactId === 'me' ? '#111110' : (c?.color ?? '#111110')}
+                size={34}
+                ring={colors.paper}
+                style={i > 0 ? styles.stackOverlap : undefined}
+              />
+            );
+          })}
+        </View>
+        <Text style={[styles.statusText, { color: colors.muted }]}>
+          {waitingNames ? t('share.statusPaidWaiting', { names: waitingNames }) : t('share.allCollected')}
+        </Text>
       </View>
 
-      <View style={[styles.actions, { paddingBottom: insets.bottom + 14 }]}>
-        <PressableScale style={[styles.btn, { backgroundColor: fixed.lime }]} onPress={onShare}>
-          <Text style={styles.btnDark}>{t('common.copy')}</Text>
+      <View style={[styles.actions, { paddingBottom: 10 }]}>
+        <PressableScale
+          style={[styles.btn, { backgroundColor: fixed.lime }, sending && styles.sendingDim]}
+          onPress={() => void onSms()}
+          disabled={sending}
+        >
+          <MailIcon size={19} color="#111110" />
+          <Text style={styles.btnDark}>{t('share.sendSms')}</Text>
         </PressableScale>
-        <View style={styles.row}>
-          <PressableScale style={[styles.btnSm, { backgroundColor: colors.sand }]} onPress={onCopy}>
-            <Text style={[styles.btnSmText, { color: colors.ink }]}>
-              {copied ? t('common.copied') : t('common.copy')}
-            </Text>
-          </PressableScale>
-          <PressableScale
-            style={[styles.btnSm, { backgroundColor: colors.sand }]}
-            onPress={() => void onSms()}
-            disabled={sending}
-          >
-            <Text style={[styles.btnSmText, { color: colors.ink }]}>{t('share.sendSms')}</Text>
-          </PressableScale>
-        </View>
+        <PressableScale style={[styles.btn, { backgroundColor: colors.sand }]} onPress={onCopy}>
+          <Text style={[styles.btnLight, { color: colors.ink }]}>{t('common.copy')}</Text>
+        </PressableScale>
         <PressableScale onPress={() => nav.replace('SplitLive', { id: split.id })}>
           <Text style={[styles.toStatus, { color: colors.muted }]}>{t('share.toStatusArrow')}</Text>
         </PressableScale>
@@ -126,23 +140,22 @@ export function ShareScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 20 },
+  root: { paddingHorizontal: 24 },
   loading: { fontFamily: font.semibold, fontSize: 15, marginTop: 40, textAlign: 'center' },
   back: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
   backGlyph: { fontSize: 20, fontFamily: font.bold },
-  title: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.6, marginTop: 18 },
+  title: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.3, marginTop: 22 },
   sub: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 5 },
   qrBox: { alignSelf: 'center', width: 214, height: 214, borderRadius: 26, alignItems: 'center', justifyContent: 'center', marginTop: 22 },
   link: { fontFamily: font.monoBold, fontSize: 11, letterSpacing: 1, textAlign: 'center', marginTop: 12 },
-  members: { marginTop: 20, gap: 2 },
-  memberRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 8 },
-  memberName: { flex: 1, fontFamily: font.bold, fontSize: 14.5 },
-  memberAmount: { fontFamily: font.extrabold, fontSize: 14.5 },
+  statusRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 20 },
+  stack: { flexDirection: 'row' },
+  stackOverlap: { marginLeft: -10 },
+  statusText: { flex: 1, fontFamily: font.semibold, fontSize: 12.5 },
   actions: { marginTop: 'auto', gap: 10 },
-  btn: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  btn: { height: 56, borderRadius: 999, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
   btnDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
-  row: { flexDirection: 'row', gap: 10 },
-  btnSm: { flex: 1, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  btnSmText: { fontFamily: font.bold, fontSize: 14 },
+  btnLight: { fontFamily: font.bold, fontSize: 16 },
+  sendingDim: { opacity: 0.6 },
   toStatus: { fontFamily: font.bold, fontSize: 14, textAlign: 'center', paddingVertical: 8 },
 });

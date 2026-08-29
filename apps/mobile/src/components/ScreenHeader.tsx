@@ -60,7 +60,7 @@ export function ScreenHeader({ onBack, right, tint = 'sand' }: Props) {
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 8 },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 12 },
   btn: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   glyph: { fontSize: 19, fontFamily: font.bold },
 });

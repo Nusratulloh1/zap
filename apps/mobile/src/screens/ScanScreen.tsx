@@ -2,7 +2,7 @@
 // живая камера, MLKit-сканер QR, режим «фото» (снимок → Gemini OCR),
 // фонарик, лаймовая рамка. Без доступа к камере — карточка с ручным вводом.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Linking, StyleSheet, Text, View } from 'react-native';
+import { StatusBar, ActivityIndicator, Linking, StyleSheet, Text, View } from 'react-native';
 import {
   Camera,
   useCameraDevice,
@@ -16,13 +16,13 @@ import { useTranslation } from 'react-i18next';
 import { trigger } from 'react-native-haptic-feedback';
 import { PressableScale } from '@/components/PressableScale';
 import { toast } from '@/components/ToastHost';
+import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
 import { CloseIcon, BoltIcon } from '@/components/icons';
+import { PartnerChips } from '@/components/PartnerChips';
 import { resolveQr, fiscalOcr } from '@/api/actions';
-import { fetchFeaturedBill } from '@/api/actions';
 import { useDraft } from '@/store/draft';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
-import { Screen } from '@/components/Screen';
 
 export function ScanScreen() {
   const { t } = useTranslation();
@@ -135,24 +135,17 @@ export function ScanScreen() {
 
   const manualEntry = () => nav.replace('Tabs', { screen: 'Amount' });
 
-  const demoBill = async () => {
-    const bill = await fetchFeaturedBill();
-    if (bill) {
-      draft.startForBill(bill, bill.merchantId);
-      nav.replace('Bill');
-    } else {
-      manualEntry();
-    }
-  };
 
   const cameraOk = hasPermission && device != null;
 
   return (
-    <Screen background="#151513" darkBar style={styles.root} edges={['top', 'bottom']}>
+    <View style={styles.root}>
+      <StatusBar barStyle="light-content" />
       {cameraOk ? (
         <Camera
           ref={camera}
           style={StyleSheet.absoluteFill}
+          resizeMode="cover"
           device={device}
           isActive={focused && !stopped.current}
           torch={torch ? 'on' : 'off'}
@@ -160,10 +153,29 @@ export function ScanScreen() {
           codeScanner={mode === 'scan' ? codeScanner : undefined}
         />
       ) : null}
-      {cameraOk ? <View style={styles.dimmer} pointerEvents="none" /> : null}
+      {/* скримы-градиенты: подписи читаются, но кадр не обрезается полосами */}
+      <Svg style={styles.scrimTop} height={150} width="100%" pointerEvents="none">
+        <Defs>
+          <LinearGradient id="scanTop" x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor="#000000" stopOpacity={0.55} />
+            <Stop offset="1" stopColor="#000000" stopOpacity={0} />
+          </LinearGradient>
+        </Defs>
+        <SvgRect x={0} y={0} width="100%" height={150} fill="url(#scanTop)" />
+      </Svg>
+      <Svg style={styles.scrimBottom} height={230} width="100%" pointerEvents="none">
+        <Defs>
+          <LinearGradient id="scanBottom" x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor="#000000" stopOpacity={0} />
+            <Stop offset="0.5" stopColor="#000000" stopOpacity={0.35} />
+            <Stop offset="1" stopColor="#000000" stopOpacity={0.8} />
+          </LinearGradient>
+        </Defs>
+        <SvgRect x={0} y={0} width="100%" height={230} fill="url(#scanBottom)" />
+      </Svg>
 
       {/* верх: × · режимы · фонарик */}
-      <View style={[styles.topBar, { paddingTop: 12 }]}>
+      <View style={[styles.topBar, { paddingTop: insets.top + 12 }]}>
         <PressableScale small style={styles.roundBtn} onPress={() => nav.goBack()}>
           <CloseIcon size={17} color="#FFFFFF" />
         </PressableScale>
@@ -200,13 +212,17 @@ export function ScanScreen() {
           <View style={styles.deniedCard}>
             <Text style={styles.deniedTitle}>{t('scan.noCamera')}</Text>
             <Text style={styles.deniedHint}>{t('scan.browserHint')}</Text>
+            <Text style={styles.deniedOr}>{t('scan.orPhotoOrManual')}</Text>
+            <View style={styles.deniedChips}>
+              <PartnerChips />
+            </View>
             <PressableScale
               style={[styles.deniedCta, { backgroundColor: fixed.lime }]}
               onPress={() => void Linking.openSettings()}
             >
-              <Text style={styles.deniedCtaDark}>{t('scan.allowCamera')}</Text>
+              <Text style={styles.deniedCtaDark}>{t('scan.photographReceipt')}</Text>
             </PressableScale>
-            <PressableScale style={[styles.deniedCta, styles.deniedGhost]} onPress={manualEntry}>
+            <PressableScale style={[styles.deniedCta, styles.deniedGhost, styles.deniedGhostBorder]} onPress={manualEntry}>
               <Text style={styles.deniedCtaLight}>{t('scan.manual')}</Text>
             </PressableScale>
           </View>
@@ -215,27 +231,28 @@ export function ScanScreen() {
 
       {/* низ: подпись · затвор (фото) · ручной ввод */}
       <View style={[styles.bottomZone, { paddingBottom: insets.bottom + 18 }]}>
+        <Text style={styles.caption}>
+          {!cameraOk ? t('scan.allowCamera') : mode === 'scan' ? t('scan.aimAtQr') : t('scan.photoTitle')}
+        </Text>
+        {cameraOk && mode === 'scan' ? <PartnerChips /> : null}
         {cameraOk && mode === 'photo' ? (
           <PressableScale
             disabled={ocrBusy}
             style={[styles.shutter, ocrBusy && styles.disabled]}
             onPress={() => void capturePhoto()}
           >
-            <View style={[styles.shutterInner, { backgroundColor: fixed.lime }]} />
+            {ocrBusy ? (
+              <ActivityIndicator color={fixed.lime} />
+            ) : (
+              <View style={[styles.shutterInner, { backgroundColor: fixed.lime }]} />
+            )}
           </PressableScale>
-        ) : cameraOk ? (
-          <Text style={styles.caption}>{t('scan.oncePerLaunch')}</Text>
         ) : null}
-        <View style={styles.bottomRow}>
-          <PressableScale style={styles.bottomBtn} onPress={manualEntry}>
-            <Text style={styles.bottomText}>{t('scan.manual')}</Text>
-          </PressableScale>
-          <PressableScale style={styles.bottomBtn} onPress={() => void demoBill()}>
-            <Text style={styles.bottomText}>{t('scan.devFiscal')}</Text>
-          </PressableScale>
-        </View>
+        <PressableScale style={styles.bottomBtn} onPress={manualEntry}>
+          <Text style={styles.bottomText}>{t('scan.manual')}</Text>
+        </PressableScale>
       </View>
-    </Screen>
+    </View>
   );
 }
 
@@ -250,19 +267,29 @@ function cornerPos(c: 'tl' | 'tr' | 'bl' | 'br') {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 16 },
-  dimmer: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.25)' },
-  topBar: { flexDirection: 'row', alignItems: 'center', gap: 8, zIndex: 2 },
+  scrimTop: { position: 'absolute', left: 0, right: 0, top: 0 },
+  scrimBottom: { position: 'absolute', left: 0, right: 0, bottom: 0 },
+  root: { flex: 1, backgroundColor: '#151513' },
+  topBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    zIndex: 2,
+  },
   roundBtn: {
     width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center',
     backgroundColor: 'rgba(0,0,0,0.35)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)',
   },
   roundGlyph: { color: '#FFFFFF', fontSize: 15, fontFamily: font.bold },
   modeSwitch: {
-    flex: 1, flexDirection: 'row', height: 40, borderRadius: 999, padding: 4, marginHorizontal: 8,
-    backgroundColor: 'rgba(0,0,0,0.35)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)',
+    flexDirection: 'row',
+    width: 220,
+    padding: 4,
+    borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.12)',
   },
-  modeBtn: { flex: 1, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  modeBtn: { flex: 1, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   modeText: { fontFamily: font.bold, fontSize: 13 },
   centerZone: { flex: 1, alignItems: 'center', justifyContent: 'center', zIndex: 1 },
   frame: { width: 232, height: 232 },
@@ -273,22 +300,36 @@ const styles = StyleSheet.create({
   },
   deniedTitle: { fontFamily: font.extrabold, fontSize: 17, color: '#FFFFFF', textAlign: 'center' },
   deniedHint: { fontFamily: font.semibold, fontSize: 12.5, color: 'rgba(255,255,255,0.7)', textAlign: 'center', lineHeight: 17 },
+  deniedOr: { fontFamily: font.semibold, fontSize: 13.5, color: 'rgba(255,255,255,0.85)', textAlign: 'center', lineHeight: 18, marginTop: 10 },
+  deniedChips: { marginTop: 16 },
   deniedCta: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
+  deniedGhostBorder: { height: 46, borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' },
   deniedGhost: { backgroundColor: 'rgba(255,255,255,0.12)' },
   deniedCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },
   deniedCtaLight: { fontFamily: font.bold, fontSize: 15, color: '#FFFFFF' },
   bottomZone: { alignItems: 'center', gap: 14, zIndex: 2 },
-  caption: { fontFamily: font.semibold, fontSize: 12, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
+  caption: {
+    fontFamily: font.semibold,
+    fontSize: 15,
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
+  },
   shutter: {
-    width: 72, height: 72, borderRadius: 999, borderWidth: 4, borderColor: '#FFFFFF',
+    width: 72, height: 72, borderRadius: 999, borderWidth: 5, borderColor: 'rgba(255,255,255,0.85)',
     alignItems: 'center', justifyContent: 'center',
   },
-  shutterInner: { width: 56, height: 56, borderRadius: 999 },
-  bottomRow: { flexDirection: 'row', gap: 10 },
-  bottomBtn: {
-    height: 44, paddingHorizontal: 18, borderRadius: 999, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: 'rgba(255,255,255,0.12)',
+  shutterInner: { width: 52, height: 52, borderRadius: 999 },
+  bottomBtn: { paddingVertical: 4, paddingHorizontal: 8 },
+  bottomText: {
+    fontFamily: font.bold,
+    fontSize: 13.5,
+    color: 'rgba(255,255,255,0.75)',
+    textShadowColor: 'rgba(0,0,0,0.75)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 6,
   },
-  bottomText: { fontFamily: font.bold, fontSize: 13, color: '#FFFFFF' },
   disabled: { opacity: 0.4 },
 });

@@ -1,7 +1,7 @@
 // «История» — порт HistoryPage.vue (дизайн 5i): чипы-вкладки, моно-лейблы
 // дней, строки 68px, суммы со знаком. Вкладка нижнего пилл-нава.
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
+import { SearchIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { money, dayLabel } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -31,7 +32,7 @@ const KIND_BY_TAB: Record<TabKey, HistoryEntry['kind'][]> = {
 
 export function HistoryScreen() {
   const { t } = useTranslation();
-  const { colors, fixed } = useTheme();
+  const { colors, fixed, name: themeName } = useTheme();
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const home = useHomeData();
@@ -56,9 +57,14 @@ export function HistoryScreen() {
     <Screen style={styles.root}>
       <View style={styles.headRow}>
         <Text style={[styles.title, { color: colors.ink }]}>{t('history.title')}</Text>
-        <PressableScale small accessibilityLabel={t('common.profileAria')} onPress={() => nav.navigate('Profile')}>
-          <Avatar name={home.db?.user?.name} letter={home.db?.user?.initials} color="#111110" size={44} ring={fixed.lime} />
-        </PressableScale>
+        <View style={styles.headBtns}>
+          <PressableScale small accessibilityLabel={t('common.searchAria')} style={[styles.searchBtn, { backgroundColor: colors.sand }]}>
+            <SearchIcon size={18} color="#5B594F" />
+          </PressableScale>
+          <PressableScale small accessibilityLabel={t('common.profileAria')} onPress={() => nav.navigate('Profile')}>
+            <Avatar name={home.db?.user?.name} letter={home.db?.user?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
+          </PressableScale>
+        </View>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsWrap} contentContainerStyle={styles.tabs}>
@@ -70,7 +76,7 @@ export function HistoryScreen() {
               style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.sand }]}
               onPress={() => setTab(tb.key)}
             >
-              <Text style={[styles.tabText, { color: active ? '#111110' : colors.slate }]}>{t(tb.label)}</Text>
+              <Text style={[active ? styles.tabTextActive : styles.tabText, { color: active ? '#111110' : colors.slate }]}>{t(tb.label)}</Text>
             </PressableScale>
           );
         })}
@@ -95,6 +101,8 @@ export function HistoryScreen() {
                       </View>
                     ) : e.kind === 'debt' && e.contactId ? (
                       <Avatar name={e.title} letter={e.letter} contactId={e.contactId} color={e.color} size={42} />
+                    ) : e.letter === 'B' ? (
+                      <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.icon} />
                     ) : (
                       <View style={[styles.icon, { backgroundColor: colors.ink }]}>
                         <Text style={[styles.iconLetter, { color: colors.cream }]}>{e.letter}</Text>
@@ -108,7 +116,16 @@ export function HistoryScreen() {
                       <Text
                         style={[
                           styles.rowAmount,
-                          { color: e.amount > 0 ? '#4E7A00' : colors.ink },
+                          {
+                            color:
+                              themeName === 'dark'
+                                ? e.amount > 0
+                                  ? colors.lime
+                                  : e.amount < 0
+                                    ? colors.danger
+                                    : colors.ink
+                                : colors.ink,
+                          },
                         ]}
                       >
                         {amountText(e)}
@@ -132,12 +149,15 @@ export function HistoryScreen() {
 const styles = StyleSheet.create({
   root: { paddingHorizontal: 24 },
   headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 },
+  headBtns: { flexDirection: 'row', alignItems: 'center', gap: 12, marginRight: -4 },
+  searchBtn: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3 },
-  tabsWrap: { flexGrow: 0, marginTop: 18 },
-  tabs: { gap: 8 },
+  tabsWrap: { flexGrow: 0, height: 42, marginTop: 18, marginBottom: 4, marginHorizontal: -24 },
+  tabs: { gap: 8, paddingHorizontal: 24, alignItems: 'center' },
   tab: { height: 38, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   tabText: { fontFamily: font.bold, fontSize: 13 },
-  dayLabel: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 24, marginBottom: 4 },
+  tabTextActive: { fontFamily: font.extrabold, fontSize: 13 },
+  dayLabel: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 20, marginBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68 },
   icon: { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   iconPct: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },

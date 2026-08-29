@@ -2,8 +2,7 @@
 // «Новый сплит» / «Позвать», кэшбэк группы, участники (напомнить должнику),
 // сплиты группы, меню «⋯» (переименовать / удалить).
 import React, { useMemo, useState } from 'react';
-import { ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Platform, Clipboard, Image, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -13,7 +12,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { BottomSheet } from '@/components/BottomSheet';
 import { toast } from '@/components/ToastHost';
-import { renameGroup, deleteGroup, remindDebt } from '@/api/actions';
+import { renameGroup, deleteGroup, remindDebt, fetchFeaturedBill } from '@/api/actions';
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { useDraft } from '@/store/draft';
@@ -22,10 +21,15 @@ import { translate } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
+const partnerLogos = [
+  require('../../assets/brand/partners/safia.png'),
+  require('../../assets/brand/partners/texnomart.png'),
+  require('../../assets/brand/partners/idea.png'),
+];
+
 export function GroupScreen() {
   const { t } = useTranslation();
-  const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors, fixed, name: themeName } = useTheme();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const qc = useQueryClient();
@@ -67,20 +71,28 @@ export function GroupScreen() {
     } catch (e) {
       toast(e instanceof Error ? e.message : t('debts.alreadyReminded'));
     }
+    await qc.invalidateQueries({ queryKey: qk.bootstrap });
   };
 
   const newSplit = () => {
-    if (!group) return;
-    const bill = home.db?.featuredBill ?? null;
-    draft.startForGroup(bill, group.memberIds);
-    nav.navigate(bill ? 'Bill' : 'Members');
+    void (async () => {
+      const bill = home.db?.featuredBill ?? (await fetchFeaturedBill().catch(() => null));
+      draft.startForGroup(bill ?? null, group?.memberIds ?? []);
+      nav.navigate(bill ? 'Bill' : 'Members');
+    })();
   };
 
   const invite = async () => {
+    const url = `https://zapapp.uz/g/${id}`;
     try {
-      await Share.share({ message: `https://zapapp.uz/g/${id}` });
+      await Share.share(
+        Platform.OS === 'ios'
+          ? { url, message: t('group.shareText') }
+          : { title: group?.name, message: `${t('group.shareText')} ${url}` },
+      );
     } catch {
-      /* закрыли шэр */
+      Clipboard.setString(url);
+      toast.success(t('common.copied'));
     }
   };
 
@@ -112,7 +124,7 @@ export function GroupScreen() {
     <Screen style={styles.root}>
       <ScreenHeader right={{ glyph: '⋯', label: t('group.menuAria'), onPress: () => setMenuSheet(true) }} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
         <View style={styles.headRow}>
           <View style={styles.stack}>
             {group.memberIds.slice(0, 3).map((cid, i) => (
@@ -142,9 +154,14 @@ export function GroupScreen() {
             <Text style={[styles.cashback, { color: colors.ink }]}>{money(group.cashback)}</Text>
             <Text style={[styles.currency, { color: colors.faint2 }]}>UZS</Text>
           </View>
-          <Text style={[styles.merchants, { color: colors.muted }]}>
-            {translate('group.merchantsCount', { n: group.merchantsCount })}
-          </Text>
+          <View style={styles.logosRow}>
+            {partnerLogos.map((l, i) => (
+              <Image key={i} source={l} style={[styles.partnerLogo, i > 0 && styles.logoOverlap]} />
+            ))}
+            <Text style={[styles.merchants, { color: colors.muted }]}>
+              {translate('group.merchantsCount', { n: group.merchantsCount })}
+            </Text>
+          </View>
         </View>
 
         <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
@@ -153,7 +170,7 @@ export function GroupScreen() {
             <View key={cid} style={styles.memberRow}>
               <Avatar name={nameOf(cid)} contactId={cid} color={colorOf(cid)} size={40} />
               <View style={styles.memberBody}>
-                <Text style={[styles.memberName, { color: colors.ink }]}>
+                <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
                   {nameOf(cid)}
                   {cid === 'me' ? t('group.youSuffix') : ''}
                 </Text>
@@ -168,7 +185,7 @@ export function GroupScreen() {
               ) : debtOf(cid) > 0 ? (
                 <PressableScale
                   disabled={reminded.has(cid)}
-                  style={[styles.remindChip, { backgroundColor: colors.ink }, reminded.has(cid) && styles.disabled]}
+                  style={[styles.remindChip, { backgroundColor: themeName === 'dark' ? 'rgba(255,255,255,0.08)' : colors.ink }, reminded.has(cid) && styles.disabled]}
                   onPress={() => void remind(cid)}
                 >
                   <Text style={[styles.remindText, { color: fixed.lime }]}>
@@ -204,7 +221,7 @@ export function GroupScreen() {
                     {s.cashback ? t('group.splitCashback', { amount: money(s.cashback) }) : ''}
                   </Text>
                 </View>
-                <Text style={[styles.splitAmount, { color: colors.ink }]}>{money(s.total)}</Text>
+                <Text style={[styles.splitAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>{money(s.total)}</Text>
               </PressableScale>
             );
           })}
@@ -286,7 +303,11 @@ const styles = StyleSheet.create({
   cashbackRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 10 },
   cashback: { fontFamily: font.extrabold, fontSize: 36, letterSpacing: -0.8, lineHeight: 40 },
   currency: { fontFamily: font.monoBold, fontSize: 10.5 },
-  merchants: { fontFamily: font.semibold, fontSize: 12.5, marginTop: 10 },
+  logosRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
+  partnerLogo: { height: 28, width: 28, borderRadius: 9 },
+  partnerLogoWide: { height: 28, width: 56, borderRadius: 9, marginLeft: -10 },
+  logoOverlap: { marginLeft: -10 },
+  merchants: { fontFamily: font.semibold, fontSize: 12.5, marginLeft: 12 },
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   memberBody: { flex: 1, gap: 1 },
   memberName: { fontFamily: font.bold, fontSize: 15 },
@@ -303,6 +324,7 @@ const styles = StyleSheet.create({
   splitLetter: { fontFamily: font.extrabold, fontSize: 15 },
   splitAmount: { fontFamily: font.extrabold, fontSize: 15 },
   empty: { fontFamily: font.semibold, fontSize: 13, textAlign: 'center', paddingVertical: 20 },
+  menuRowLast: { borderBottomWidth: 0 },
   menuRow: { minHeight: 52, justifyContent: 'center', borderBottomWidth: 1 },
   menuText: { fontFamily: font.bold, fontSize: 15 },
   sheetTitle: { fontFamily: font.extrabold, fontSize: 15, textAlign: 'center' },

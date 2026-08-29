@@ -43,6 +43,7 @@ interface DraftState {
   toggleMember: (contactId: string) => void;
   setMemberAmount: (contactId: string, amount: number) => void;
   toggleDebt: (contactId: string) => void;
+  toggleItem: (contactId: string, itemId: string) => void;
   recalcEqual: () => void;
   reset: () => void;
 }
@@ -114,7 +115,8 @@ export const useDraft = create<DraftState>((set, get) => ({
 
   setMode: (mode) => {
     set({ mode });
-    if (mode === 'equal') get().recalcEqual();
+    // «Вручную» стартует с равных долей — дальше редактируется (как в вебе)
+    if (mode === 'equal' || mode === 'manual') get().recalcEqual();
   },
 
   setTitle: (title) => set({ title }),
@@ -135,6 +137,15 @@ export const useDraft = create<DraftState>((set, get) => ({
   toggleDebt: (contactId) =>
     set({ members: get().members.map((m) => (m.contactId === contactId ? { ...m, debt: !m.debt } : m)) }),
 
+  toggleItem: (contactId, itemId) =>
+    set({
+      members: get().members.map((m) => {
+        if (m.contactId !== contactId) return m;
+        const ids = m.itemIds ?? [];
+        return { ...m, itemIds: ids.includes(itemId) ? ids.filter((i) => i !== itemId) : [...ids, itemId] };
+      }),
+    }),
+
   /** поровну: остаток от деления достаётся первым участникам, как в вебе */
   recalcEqual: () => {
     const { total, members } = get();
@@ -154,4 +165,30 @@ export function payNowOf(members: DraftMember[]): number {
 /** Расхождение с итогом — для ручного режима. */
 export function mismatchOf(total: number, members: DraftMember[]): number {
   return members.reduce((s, m) => s + m.amount, 0) - total;
+}
+
+/** Итоговые доли по режиму, с округлением до 1 000 UZS — как shares в веб-сторе. */
+export function sharesOf(st: Pick<DraftState, 'mode' | 'total' | 'members' | 'bill'>): Record<string, number> {
+  const out: Record<string, number> = {};
+  if (st.mode === 'equal') {
+    const list = equalShares(st.total, st.members.length);
+    st.members.forEach((m, i) => (out[m.contactId] = list[i] ?? 0));
+  } else if (st.mode === 'manual') {
+    st.members.forEach((m) => (out[m.contactId] = m.amount));
+  } else {
+    st.members.forEach((m) => (out[m.contactId] = 0));
+    for (const item of st.bill?.items ?? []) {
+      const assignees = st.members.filter((m) => (m.itemIds ?? []).includes(item.id));
+      if (!assignees.length) continue;
+      const parts = equalShares(item.amount, assignees.length);
+      assignees.forEach((m, i) => (out[m.contactId] = (out[m.contactId] ?? 0) + (parts[i] ?? 0)));
+    }
+  }
+  return out;
+}
+
+/** Сколько позиций чека никому не назначено (режим «По позициям»). */
+export function unassignedItemsOf(st: Pick<DraftState, 'mode' | 'members' | 'bill'>): number {
+  if (st.mode !== 'items' || !st.bill) return 0;
+  return st.bill.items.filter((item) => !st.members.some((m) => (m.itemIds ?? []).includes(item.id))).length;
 }

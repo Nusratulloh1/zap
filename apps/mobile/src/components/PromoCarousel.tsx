@@ -1,6 +1,6 @@
 // Промо-карусель главной — один в один с HomePage.vue: hero-слайд с
 // иллюстрацией + слайды заведений с фото зала. Сегменты сверху, снап по слайду.
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Image,
   Pressable,
@@ -12,8 +12,9 @@ import {
   type NativeScrollEvent,
   type NativeSyntheticEvent,
 } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { font } from '@/theme/tokens';
+import { EASE_ZAP } from '@/lib/motion';
 import { translate, hasKey } from '@/i18n';
 
 const heroImg = require('../../assets/brand/promo-hero.png');
@@ -39,15 +40,23 @@ const VENUES: {
 interface Props {
   /** активная категория-фильтр: слайды заведений фильтруются по типу */
   category: 'all' | OfferType;
-  onPress?: () => void;
 }
 
-export function PromoCarousel({ category, onPress }: Props) {
+export function PromoCarousel({ category }: Props) {
   const { width } = useWindowDimensions();
   const [index, setIndex] = useState(0);
+  const scroller = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
   const venues = category === 'all' ? VENUES : VENUES.filter((v) => v.type === category);
   const count = 1 + venues.length;
+
+  // тап по слайду листает: левые 40%% — назад, остальное — вперёд (как onPromoTap)
+  const onTap = (x: number) => {
+    const next = x < width * 0.4 ? Math.max(0, index - 1) : Math.min(count - 1, index + 1);
+    if (next === index) return;
+    scroller.current?.scrollTo({ x: next * width, animated: true });
+    setIndex(next);
+  };
 
   const onMomentumEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -65,11 +74,11 @@ export function PromoCarousel({ category, onPress }: Props) {
         ))}
       </View>
 
-      <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={onMomentumEnd}>
+      <ScrollView ref={scroller} horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={onMomentumEnd}>
         {/* hero: иллюстрация + заголовок + условия, всё по центру */}
-        <Pressable style={{ width }} onPress={onPress}>
+        <Pressable style={{ width }} onPress={(e) => onTap(e.nativeEvent.locationX)}>
           <View style={styles.heroImgWrap}>
-            <Image source={heroImg} style={styles.heroImg} resizeMode="contain" />
+            <Image source={heroImg} style={styles.heroImg} resizeMode="contain" fadeDuration={0} />
           </View>
           <View style={styles.heroText}>
             <Text style={styles.heroTitle}>{translate('home.promoHeroTitle')}</Text>
@@ -82,9 +91,9 @@ export function PromoCarousel({ category, onPress }: Props) {
           const label = translate(`badge.${v.badgeKind}`, { v: v.badgeValue });
           const termsKey = `offers.${v.id}`;
           return (
-            <Pressable key={v.id} style={{ width }} onPress={onPress}>
+            <Pressable key={v.id} style={{ width }} onPress={(e) => onTap(e.nativeEvent.locationX)}>
               <View style={styles.venueImgWrap}>
-                <Image source={v.img} style={styles.venueImg} resizeMode="contain" />
+                <Image source={v.img} style={styles.venueImg} resizeMode="contain" fadeDuration={0} />
               </View>
               <View style={styles.venueText}>
                 <Text style={styles.venueTitle} numberOfLines={1}>
@@ -104,9 +113,11 @@ export function PromoCarousel({ category, onPress }: Props) {
 
 function Segment({ active }: { active: boolean }) {
   const v = useSharedValue(active ? 1 : 0);
-  v.value = withTiming(active ? 1 : 0, { duration: 220 });
+  useEffect(() => {
+    v.value = withTiming(active ? 1 : 0, { duration: 300, easing: EASE_ZAP });
+  }, [active, v]);
   const style = useAnimatedStyle(() => ({
-    backgroundColor: v.value > 0.5 ? '#DDFF33' : 'rgba(255,255,255,0.22)',
+    backgroundColor: interpolateColor(v.value, [0, 1], ['rgba(255,255,255,0.22)', '#DDFF33']),
   }));
   return <Animated.View style={[styles.segment, style]} />;
 }

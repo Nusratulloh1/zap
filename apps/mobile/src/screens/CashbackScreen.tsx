@@ -1,9 +1,8 @@
 // «Накопленные кэшбеки» — порт CashbackPage.vue (дизайн 5h): баланс 44px,
 // чипы групп, записи, «Потратить» / «Вывести» (карта → сумма → PIN).
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
@@ -20,10 +19,17 @@ import { money, humanDateLc } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
+// логотипы к записям — как logoByTitle на вебе
+const LOGO_BY_TITLE: Record<string, number> = {
+  'Bellissimo Pizza': require('../../assets/brand/partners/bellissimo.png'),
+  'Safia café': require('../../assets/brand/partners/safia-sq.png'),
+  Texnomart: require('../../assets/brand/partners/texnomart-sq.png'),
+  idea: require('../../assets/brand/partners/idea-sq.png'),
+};
+
 export function CashbackScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
   const qc = useQueryClient();
   const home = useHomeData();
 
@@ -107,14 +113,14 @@ export function CashbackScreen() {
                 style={[styles.filter, { backgroundColor: active ? fixed.lime : colors.sand }]}
                 onPress={() => setFilter(f.value)}
               >
-                <Text style={[styles.filterText, { color: active ? '#111110' : colors.slate }]}>{f.label}</Text>
+                <Text style={[active ? styles.filterTextActive : styles.filterText, { color: active ? '#111110' : colors.slate }]}>{f.label}</Text>
               </PressableScale>
             );
           },
         )}
       </ScrollView>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.list}>
           {rows.map((e, i) => (
             <Animated.View
@@ -122,9 +128,13 @@ export function CashbackScreen() {
               entering={FadeInDown.delay(Math.min(i, 8) * 40).duration(240)}
               style={[styles.row, i < rows.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
             >
-              <View style={[styles.icon, { backgroundColor: colors.ink }]}>
-                <Text style={[styles.iconLetter, { color: colors.cream }]}>{e.title[0]?.toUpperCase()}</Text>
-              </View>
+              {LOGO_BY_TITLE[e.title] ? (
+                <Image source={LOGO_BY_TITLE[e.title]} style={styles.icon} />
+              ) : (
+                <View style={[styles.icon, { backgroundColor: colors.ink }]}>
+                  <Text style={[styles.iconLetter, { color: colors.cream }]}>{e.title[0]?.toUpperCase()}</Text>
+                </View>
+              )}
               <View style={styles.rowBody}>
                 <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>{e.title}</Text>
                 <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>
@@ -132,7 +142,7 @@ export function CashbackScreen() {
                   {badgeOf(e.badge)} · {humanDateLc(e.createdAt)}
                 </Text>
               </View>
-              <Text style={[styles.rowAmount, { color: colors.ink }]}>{money(e.amount)}</Text>
+              <Text style={[styles.rowAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>{money(e.amount)}</Text>
             </Animated.View>
           ))}
           {!rows.length ? <Text style={[styles.empty, { color: colors.muted }]}>{t('history.empty')}</Text> : null}
@@ -170,7 +180,7 @@ export function CashbackScreen() {
             })}
           </View>
           <TextInput
-            value={withdrawRaw}
+            value={withdrawRaw ? money(Number(withdrawRaw)) : ''}
             onChangeText={(v) => setWithdrawRaw(v.replace(/\D/g, '').slice(0, 9))}
             keyboardType="number-pad"
             style={[styles.amountInput, { color: colors.ink }]}
@@ -202,10 +212,11 @@ const styles = StyleSheet.create({
   amount: { fontFamily: font.extrabold, fontSize: 44, letterSpacing: -1.4, lineHeight: 48 },
   unit: { fontFamily: font.monoBold, fontSize: 11, flexShrink: 1 },
   hint: { fontFamily: font.semibold, fontSize: 13, marginTop: 8 },
-  filtersWrap: { flexGrow: 0, marginTop: 20 },
-  filters: { gap: 8 },
+  filtersWrap: { flexGrow: 0, marginTop: 20 , marginHorizontal: -24 },
+  filters: { gap: 8 , paddingHorizontal: 24 },
   filter: { height: 38, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   filterText: { fontFamily: font.bold, fontSize: 13 },
+  filterTextActive: { fontFamily: font.extrabold, fontSize: 13 },
   list: { marginTop: 20 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 72 },
   icon: { width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },

@@ -2,7 +2,26 @@
 // Стор глобальный (zustand), хост монтируется один раз в App.
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
+import Animated, {
+  FadeOutUp,
+  withSpring,
+  withTiming,
+  type EntryAnimationsValues,
+} from 'react-native-reanimated';
+import { SPRING_GENTLE } from '@/lib/motion';
+
+// вход тоста с лёгким перелётом — web .toast-enter (cubic-bezier(.34,1.4,.5,1))
+const toastIn = (values: EntryAnimationsValues) => {
+  'worklet';
+  void values;
+  return {
+    initialValues: { opacity: 0, transform: [{ translateY: -16 }, { scale: 0.96 }] },
+    animations: {
+      opacity: withTiming(1, { duration: 220 }),
+      transform: [{ translateY: withSpring(0, SPRING_GENTLE) }, { scale: withSpring(1, SPRING_GENTLE) }],
+    },
+  };
+};
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { create } from 'zustand';
 import { font } from '@/theme/tokens';
@@ -41,7 +60,7 @@ export function ToastHost() {
   if (!msg) return null;
   return (
     <View pointerEvents="none" style={[styles.wrap, { top: insets.top + 10 }]}>
-      <Animated.View key={seq} entering={FadeInUp.duration(260)} exiting={FadeOutUp.duration(200)} style={styles.pill}>
+      <Animated.View key={seq} entering={toastIn} exiting={FadeOutUp.duration(200)} style={styles.pill}>
         {ok ? (
           <View style={styles.check}>
             <Text style={styles.checkGlyph}>✓</Text>

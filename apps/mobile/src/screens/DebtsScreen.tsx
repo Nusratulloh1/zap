@@ -3,7 +3,6 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
@@ -21,8 +20,7 @@ import { font } from '@/theme/tokens';
 
 export function DebtsScreen() {
   const { t } = useTranslation();
-  const { colors, fixed } = useTheme();
-  const insets = useSafeAreaInsets();
+  const { colors, fixed, name: themeName } = useTheme();
   const qc = useQueryClient();
   const home = useHomeData();
 
@@ -44,18 +42,18 @@ export function DebtsScreen() {
     } catch (e) {
       toast(e instanceof Error ? e.message : t('debts.alreadyReminded'));
     }
+    await qc.invalidateQueries({ queryKey: qk.bootstrap });
   };
 
   const remindAll = async () => {
-    const till = Date.now() + 30000;
-    setCooldowns(Object.fromEntries(openDebts.map((d) => [d.id, till])));
-    setTimeout(() => setCooldowns((c) => ({ ...c })), 30500);
     try {
       await remindAllDebts();
+    } finally {
+      // по тосту на каждого должника, с шагом 250 мс — как в вебе
+      home.debtors.forEach((d, i) => {
+        setTimeout(() => toast.success(t('debts.remindedName', { name: d.name })), i * 250);
+      });
       await qc.invalidateQueries({ queryKey: qk.bootstrap });
-      toast.success(t('debts.remindedToast'));
-    } catch (e) {
-      toast(e instanceof Error ? e.message : t('debts.allAlreadyReminded'));
     }
   };
 
@@ -65,7 +63,9 @@ export function DebtsScreen() {
 
       <Text style={[styles.title, { color: colors.ink }]}>{t('debts.title')}</Text>
       <View style={styles.amountRow}>
-        <CountUp value={home.totalOwedToMe} duration={800} style={[styles.amount, { color: colors.ink }]} />
+        <View style={styles.amountBox}>
+          <CountUp value={home.totalOwedToMe} duration={800} style={[styles.amount, { color: colors.ink }]} />
+        </View>
         <Text style={[styles.unit, { color: colors.faint2 }]}>
           UZS · {home.debtors.length} {t('debts.peopleUnit')}
         </Text>
@@ -90,7 +90,7 @@ export function DebtsScreen() {
 
       {tab === 'owedToMe' ? (
         <Animated.View key="owed" entering={FadeIn.duration(200)} style={styles.flex}>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16, flexGrow: 1 }}>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
             <View style={styles.list}>
               {openDebts.map((d, i) => {
                 const c = home.contactById(d.contactId);
@@ -102,13 +102,13 @@ export function DebtsScreen() {
                   >
                     <Avatar name={c?.name} letter={c?.initials} contactId={d.contactId} color={c?.color ?? '#8A887E'} size={48} />
                     <View style={styles.rowBody}>
-                      <Text style={[styles.rowName, { color: colors.ink }]}>{c?.name ?? '?'}</Text>
+                      <Text style={[styles.rowName, { color: colors.ink }]} numberOfLines={1}>{c?.name ?? '?'}</Text>
                       <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>
                         {d.reason} · {humanDateLc(d.createdAt)}
                       </Text>
                     </View>
                     <View style={styles.rowRight}>
-                      <Text style={[styles.rowAmount, { color: colors.ink }]}>{money(d.amount)}</Text>
+                      <Text style={[styles.rowAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>{money(d.amount)}</Text>
                       {d.note ? (
                         <View style={[styles.chip, { backgroundColor: colors.sand }]}>
                           <Text style={[styles.chipText, { color: colors.muted }]}>
@@ -118,7 +118,7 @@ export function DebtsScreen() {
                       ) : (
                         <PressableScale
                           disabled={isCooling(d.id)}
-                          style={[styles.chip, { backgroundColor: isCooling(d.id) ? colors.sand : colors.ink }]}
+                          style={[styles.chip, { backgroundColor: isCooling(d.id) ? colors.sand : themeName === 'dark' ? 'rgba(255,255,255,0.08)' : colors.ink }]}
                           onPress={() => void remind(d.id)}
                         >
                           <Text style={[styles.chipText, { color: isCooling(d.id) ? colors.muted : fixed.lime }]}>
@@ -162,9 +162,10 @@ const styles = StyleSheet.create({
   root: { paddingHorizontal: 24 },
   flex: { flex: 1 },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3, marginTop: 24 },
-  amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 12 },
+  amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 12  },
+  amountBox: { flexShrink: 1 },
   amount: { fontFamily: font.extrabold, fontSize: 44, letterSpacing: -1.4, lineHeight: 48 },
-  unit: { fontFamily: font.monoBold, fontSize: 11 },
+  unit: { fontFamily: font.monoBold, fontSize: 11 , flexShrink: 0 },
   tabs: { flexDirection: 'row', gap: 8, marginTop: 20 },
   tab: { height: 38, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   tabText: { fontFamily: font.bold, fontSize: 13 },
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
   rowBody: { flex: 1, gap: 2 },
   rowName: { fontFamily: font.bold, fontSize: 16 },
   rowSub: { fontFamily: font.semibold, fontSize: 12.5 },
-  rowRight: { alignItems: 'flex-end', gap: 5 },
+  rowRight: { alignItems: 'flex-end', gap: 5 , flexShrink: 0, maxWidth: 148 },
   rowAmount: { fontFamily: font.extrabold, fontSize: 16 },
   chip: { height: 28, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center' },
   chipText: { fontFamily: font.bold, fontSize: 11.5 },

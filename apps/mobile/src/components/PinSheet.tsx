@@ -1,15 +1,19 @@
-// Подтверждение PIN перед оплатой/созданием сплита: точки, тряска при ошибке,
-// биометрия если включена — как web/src/components/PinSheet.vue.
+// Подтверждение PIN перед оплатой — порт web/src/components/PinSheet.vue:
+// ПОЛНОЭКРАННЫЙ слой на bg-paper (не нижний шит): круг-крестик, заголовок
+// слева, точки 34px с лаймовым баром, системная клавиатура (скрытое поле).
 import React, { useEffect, useRef, useState } from 'react';
-import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import ReactNativeBiometrics from 'react-native-biometrics';
 import { trigger } from 'react-native-haptic-feedback';
-import { BottomSheet } from '@/components/BottomSheet';
 import { PinDots } from '@/components/PinDots';
+import { CloseIcon } from '@/components/icons';
+import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 import { verifyPin } from '@/api/auth';
+import { refocus, useKeyboardLock } from '@/lib/keyboard';
+import { promptBiometrics } from '@/lib/biometrics';
 
 const LEN = 4;
 
@@ -24,10 +28,11 @@ interface Props {
 export function PinSheet({ open, hint, title, onClose, onConfirm }: Props) {
   const { t } = useTranslation();
   const { colors } = useTheme();
+  const insets = useSafeAreaInsets();
   const [pin, setPin] = useState('');
   const [wrong, setWrong] = useState(false);
+  const [success, setSuccess] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [kbOpen, setKbOpen] = useState(true);
   const input = useRef<React.ComponentRef<typeof TextInput>>(null);
 
   useEffect(() => {
@@ -36,20 +41,36 @@ export function PinSheet({ open, hint, title, onClose, onConfirm }: Props) {
       setWrong(false);
       return;
     }
-    const id = setTimeout(() => input.current?.focus(), 320);
-    return () => clearTimeout(id);
-  }, [open]);
-
-  // та же ловушка, что была на экране SMS: скрытое поле + закрытая клавиатура
-  // = мёртвый шит. Любой тап возвращает фокус.
-  useEffect(() => {
-    const h = Keyboard.addListener('keyboardDidHide', () => setKbOpen(false));
-    const s = Keyboard.addListener('keyboardDidShow', () => setKbOpen(true));
+    let cancelled = false;
+    // системный запрос идёт первым; отказ просто оставляет ввод PIN
+    void (async () => {
+      const ok = await promptBiometrics(title ?? hint ?? '');
+      if (cancelled) return;
+      if (ok) {
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+          confirmRef.current();
+        }, 240);
+        return;
+      }
+      input.current?.focus();
+    })();
+    const id = setTimeout(() => {
+      if (!cancelled) input.current?.focus();
+    }, 380);
     return () => {
-      h.remove();
-      s.remove();
+      cancelled = true;
+      clearTimeout(id);
     };
-  }, []);
+  }, [open, title, hint]);
+
+  // клавиатура всегда открыта, пока шит виден; выход — крестик
+  useKeyboardLock(input, open);
+
+  // свежий колбэк без перезапуска эффекта
+  const confirmRef = useRef(onConfirm);
+  confirmRef.current = onConfirm;
 
   useEffect(() => {
     if (pin.length !== LEN || busy) return;
@@ -59,50 +80,48 @@ export function PinSheet({ open, hint, title, onClose, onConfirm }: Props) {
       setBusy(false);
       if (ok) {
         trigger('notificationSuccess', { enableVibrateFallback: false, ignoreAndroidSystemSettings: false });
-        setPin('');
-        onConfirm();
+        // лаймовый чек над точками, подтверждение через 380 мс — как в вебе
+        setSuccess(true);
+        setTimeout(() => {
+          setSuccess(false);
+          setPin('');
+          confirmRef.current();
+        }, 380);
       } else {
         trigger('notificationError', { enableVibrateFallback: false, ignoreAndroidSystemSettings: false });
         setWrong(true);
         setTimeout(() => {
           setWrong(false);
           setPin('');
-        }, 700);
+        }, 400);
       }
     })();
-  }, [pin, busy, onConfirm]);
-
-  const promptBiometrics = async () => {
-    try {
-      const rnb = new ReactNativeBiometrics();
-      const { available } = await rnb.isSensorAvailable();
-      if (!available) return;
-      const { success } = await rnb.simplePrompt({ promptMessage: title ?? t('pin.confirmTitle') });
-      if (success) onConfirm();
-    } catch {
-      /* биометрия недоступна — остаётся PIN */
-    }
-  };
+  }, [pin, busy]);
 
   return (
-    <BottomSheet open={open} onClose={onClose} locked={busy}>
-      <Pressable onPress={() => input.current?.focus()} style={styles.body}>
+    <Modal visible={open} animationType="slide" onRequestClose={onClose} statusBarTranslucent navigationBarTranslucent>
+      <Pressable
+        onPress={() => refocus(input)}
+        style={[styles.page, { backgroundColor: colors.paper, paddingTop: insets.top + 24 }]}
+      >
+        <PressableScale
+          small
+          accessibilityLabel={t('common.cancel')}
+          style={[styles.close, { backgroundColor: colors.sand }]}
+          onPress={onClose}
+          disabled={busy}
+        >
+          <CloseIcon size={18} color={colors.ink} />
+        </PressableScale>
+
         <Text style={[styles.title, { color: colors.ink }]}>{title ?? t('pin.confirmTitle')}</Text>
         <Text style={[styles.hint, { color: wrong ? colors.danger : colors.muted }]}>
           {wrong ? t('pin.wrong') : (hint ?? t('pin.confirmHint'))}
         </Text>
 
         <View style={styles.dots}>
-          <PinDots filled={pin.length} length={LEN} error={wrong} />
+          <PinDots filled={pin.length} length={LEN} error={wrong} success={success} barWidth={186} />
         </View>
-
-        {!kbOpen ? (
-          <Text style={[styles.reopen, { color: colors.muted }]}>{t('auth.tapToType')}</Text>
-        ) : null}
-
-        <Pressable onPress={() => void promptBiometrics()} style={styles.bio}>
-          <Text style={[styles.bioText, { color: colors.muted }]}>{t('profile.pinFaceId')}</Text>
-        </Pressable>
 
         <TextInput
           ref={input}
@@ -111,21 +130,22 @@ export function PinSheet({ open, hint, title, onClose, onConfirm }: Props) {
           keyboardType="number-pad"
           maxLength={LEN}
           secureTextEntry
+          textContentType="none"
+          autoComplete="off"
+          importantForAutofill="no"
           caretHidden
           style={styles.hidden}
         />
       </Pressable>
-    </BottomSheet>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  body: { alignItems: 'center', paddingBottom: 8 },
-  title: { fontFamily: font.extrabold, fontSize: 17 },
-  hint: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 6, textAlign: 'center' },
-  dots: { marginTop: 22 },
-  reopen: { fontFamily: font.semibold, fontSize: 13, marginTop: 16 },
-  bio: { marginTop: 18, paddingVertical: 8 },
-  bioText: { fontFamily: font.bold, fontSize: 14 },
+  page: { flex: 1, paddingHorizontal: 24 },
+  close: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3, marginTop: 22 },
+  hint: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 6 },
+  dots: { marginTop: 28, alignSelf: 'flex-start' },
   hidden: { position: 'absolute', opacity: 0, height: 1, width: 1 },
 });
