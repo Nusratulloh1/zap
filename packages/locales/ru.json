@@ -79,7 +79,8 @@
     "devNoCode": "DEV: код ещё не отправлен",
     "devNoBackend": "DEV: бэкенд недоступен",
     "devGetCode": "DEV · получить код",
-    "smsUnavailable": "Не удалось отправить SMS — попробуйте позже"
+    "smsUnavailable": "Не удалось отправить SMS — попробуйте позже",
+    "tapToType": "Нажмите, чтобы ввести код"
   },
   "tabs": {
     "home": "Главная",

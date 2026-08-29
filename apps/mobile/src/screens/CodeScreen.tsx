@@ -2,7 +2,7 @@
 // autoComplete="sms-otp" (Android) и textContentType="oneTimeCode" (iOS)
 // включают нативный автоввод кода.
 import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, TextInput, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, Text, TextInput } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import { PinDots } from '@/components/PinDots';
@@ -21,10 +21,27 @@ export function CodeScreen() {
   const phone = useSession((s) => s.phone);
   const verifyCode = useSession((s) => s.verifyCode);
 
+  const [kbOpen, setKbOpen] = useState(true);
+
   useEffect(() => {
     const id = setTimeout(() => input.current?.focus(), 250);
     return () => clearTimeout(id);
   }, []);
+
+  // Поле ввода скрытое (1×1, прозрачное). Если клавиатуру закрыть свайпом или
+  // кнопкой «назад», нажимать становится не на что и экран умирает —
+  // ровно это и поймалось на телефоне. Поэтому любой тап по экрану возвращает
+  // фокус, а подсказка показывает, что экран жив.
+  useEffect(() => {
+    const hide = Keyboard.addListener('keyboardDidHide', () => setKbOpen(false));
+    const show = Keyboard.addListener('keyboardDidShow', () => setKbOpen(true));
+    return () => {
+      hide.remove();
+      show.remove();
+    };
+  }, []);
+
+  const focusInput = () => input.current?.focus();
 
   useEffect(() => {
     if (code.length !== LEN) return;
@@ -45,14 +62,22 @@ export function CodeScreen() {
 
   return (
     <Screen style={styles.root} background={colors.paper}>
+      {/* тап в любом месте возвращает клавиатуру */}
+      <Pressable style={styles.tapCatcher} onPress={focusInput} accessibilityRole="button" />
       <Text style={[styles.title, { color: colors.ink }]}>{t('auth.codeTitle')}</Text>
       <Text style={[styles.hint, { color: colors.muted }]}>
         {t('auth.codeHint')} {phone}
       </Text>
 
-      <View style={styles.dots}>
+      <Pressable style={styles.dots} onPress={focusInput}>
         <PinDots filled={code.length} length={LEN} error={Boolean(error)} />
-      </View>
+      </Pressable>
+
+      {!kbOpen ? (
+        <Pressable onPress={focusInput}>
+          <Text style={[styles.reopen, { color: colors.muted }]}>{t('auth.tapToType')}</Text>
+        </Pressable>
+      ) : null}
 
       {error ? <Text style={[styles.error, { color: colors.danger }]}>{error}</Text> : null}
 
@@ -79,6 +104,8 @@ const styles = StyleSheet.create({
   title: { fontFamily: font.extrabold, fontSize: 34, letterSpacing: -1 },
   hint: { fontFamily: font.semibold, fontSize: 15, marginTop: 8 },
   dots: { marginTop: 40 },
+  tapCatcher: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
+  reopen: { fontFamily: font.semibold, fontSize: 14, marginTop: 22 },
   error: { fontFamily: font.semibold, fontSize: 14, marginTop: 18 },
   // поле нужно только для клавиатуры и автоввода — визуально его нет
   hiddenInput: { position: 'absolute', opacity: 0, height: 1, width: 1 },

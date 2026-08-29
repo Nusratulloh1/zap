@@ -79,7 +79,8 @@
     "devNoCode": "DEV: kod hali yuborilmadi",
     "devNoBackend": "DEV: bekend mavjud emas",
     "devGetCode": "DEV · kodni olish",
-    "smsUnavailable": "SMS yuborib bo‘lmadi — birozdan so‘ng urinib ko‘ring"
+    "smsUnavailable": "SMS yuborib bo‘lmadi — birozdan so‘ng urinib ko‘ring",
+    "tapToType": "Kod kiritish uchun bosing"
   },
   "tabs": {
     "home": "Bosh sahifa",

@@ -79,7 +79,8 @@
     "devNoCode": "DEV: no code sent yet",
     "devNoBackend": "DEV: backend unavailable",
     "devGetCode": "DEV · get the code",
-    "smsUnavailable": "Could not send the SMS — please try again later"
+    "smsUnavailable": "Could not send the SMS — please try again later",
+    "tapToType": "Tap to enter the code"
   },
   "tabs": {
     "home": "Home",
