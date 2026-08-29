@@ -1,169 +1,117 @@
 <script setup lang="ts">
-// Публичный лендинг ZAP! Вёрстка намеренно на собственных классах (.lp-*),
-// а не на утилитах Tailwind: страница живёт вне обычной оболочки приложения,
-// и так её оформление не зависит от того, какие утилиты попали в сборку.
-// Экраны в мокапах — из дизайн-исходника (design-reference), с реальными
-// данными и правильными начертаниями.
+// Публичный лендинг ZAP!
+//
+// Вёрстка на собственных классах (.lp-*), а не на утилитах Tailwind: страница
+// живёт вне обычной оболочки приложения, и так её оформление не зависит от
+// того, какие утилиты попали в сборку.
+//
+// Каркас страницы — восемь шагов «как это работает» в ЗАКРЕПЛЁННОЙ секции:
+// телефон стоит на месте, экран внутри и текст рядом сменяются по прокрутке.
+// Все остальные эффекты (зачёркивание, счётчики, лента мерчантов, бегущая
+// строка) тоже привязаны к скроллу — см. onMounted ниже.
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { submitPartnerLead } from '@/api'
 import { toast } from '@/lib/toast'
 import { appHref } from '@/lib/site'
 import { phone as formatPhone } from '@/lib/format'
-import {
-  startSmoothScroll,
-  stopSmoothScroll,
-  revealOnScroll,
-  revealLines,
-  parallax,
-  riseIn,
-  drift,
-  heroOut,
-  snapSections,
-  pinnedSlides,
-  scrollToTarget,
-  scrollToY,
-  countUpOnScroll,
-  refreshMotion,
-} from '@/lib/landingMotion'
-import wordmark from '@/assets/brand/logo/zap-wordmark-large.png'
-import brandMaxway from '@/assets/brand/partners/maxway.svg'
-import brandLesAiles from '@/assets/brand/partners/lesailes.svg'
-import brandOqtepa from '@/assets/brand/partners/oqtepa.svg'
-import brandClick from '@/assets/brand/partners/click.svg'
-import brandRahmat from '@/assets/brand/partners/rahmat.svg'
+import { startSmoothScroll, stopSmoothScroll, scrollToTarget, refreshMotion } from '@/lib/landingMotion'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
+import wordmark from '@/assets/brand/logo/zap-wordmark-large.png'
+import venueBellissimo from '@/assets/brand/venues/bellissimo.webp'
+import venueEvos from '@/assets/brand/venues/evos.webp'
+import venueSafia from '@/assets/brand/venues/safia.webp'
+import venueBon from '@/assets/brand/venues/bon.webp'
+import venueFeedup from '@/assets/brand/venues/feedup.webp'
+import logoBellissimo from '@/assets/brand/partners/bellissimo-logo.png'
+import logoEvos from '@/assets/brand/partners/evos.svg'
+import logoSafia from '@/assets/brand/partners/safia-sq.png'
+import logoFeedup from '@/assets/brand/partners/feedup-logo.png'
+
 defineOptions({ name: 'LandingPage' })
+
+gsap.registerPlugin(ScrollTrigger)
 
 const router = useRouter()
 const { t, locale } = useI18n()
 
-// Скриншоты приложения лежат комплектом на каждый язык: в макете телефона на
-// лендинге должен быть интерфейс на языке посетителя, а не всегда русский.
-// Комплекты снимает scripts/landing-shots.mjs — одним проходом, одинаково.
+// Снимки приложения лежат комплектом на каждый язык: в макете телефона должен
+// быть интерфейс на языке посетителя. Комплекты снимает scripts/landing-shots.mjs.
+// Второй аргумент — запасной кадр: пока комплект не переснят, шаг показывает
+// ближайший существующий экран вместо «битой» картинки.
 const SHOTS = import.meta.glob('../assets/landing/*/*.webp', { eager: true, import: 'default' }) as Record<string, string>
-function shot(name: string): string {
-  const pick = (l: string) => Object.entries(SHOTS).find(([path]) => path.endsWith(`/${l}/app-${name}.webp`))?.[1]
-  return pick(locale.value) ?? pick('uz') ?? ''
+function shot(name: string, fallback = ''): string {
+  const pick = (l: string, n: string) =>
+    Object.entries(SHOTS).find(([path]) => path.endsWith(`/${l}/app-${n}.webp`))?.[1]
+  return (
+    pick(locale.value, name) ??
+    pick('uz', name) ??
+    (fallback ? (pick(locale.value, fallback) ?? pick('uz', fallback)) : undefined) ??
+    ''
+  )
 }
-// с лендинг-хоста уводим сразу на платформу — без промежуточного редиректа
+
 const start = () => {
   const href = appHref('/onboarding')
   if (href.startsWith('http')) location.href = href
   else router.push(href)
 }
-/**
- * Пункты меню «Возможности» и «Кэшбэк» ведут внутрь закреплённой секции:
- * там все слайды лежат в одной точке, поэтому обычный якорь всегда показывал
- * бы первый. Считаем позицию слайда по его номеру.
- */
-const goTo = (sel: string) => {
-  const idx = features.value.findIndex((f) => '#' + f.id === sel)
-  const sec = pinSec.value
-  if (idx >= 0 && sec && window.matchMedia('(min-width: 900px)').matches) {
-    const top = sec.getBoundingClientRect().top + window.scrollY
-    // 0.175 экрана — середина «стояния» слайда между переходами
-    scrollToY(idx === 0 ? top : top + (idx + 0.175) * window.innerHeight)
-    return
-  }
-  scrollToTarget(sel)
+
+// --- содержимое ---
+
+const steps = computed(() => [
+  { label: t('landing.step1Label'), title: t('landing.step1Title'), text: t('landing.step1Text'), src: shot('scan', 'receipt') },
+  { label: t('landing.step2Label'), title: t('landing.step2Title'), text: t('landing.step2Text'), src: shot('receipt') },
+  { label: t('landing.step3Label'), title: t('landing.step3Title'), text: t('landing.step3Text'), src: shot('members') },
+  { label: t('landing.step4Label'), title: t('landing.step4Title'), text: t('landing.step4Text'), src: shot('debts') },
+  { label: t('landing.step5Label'), title: t('landing.step5Title'), text: t('landing.step5Text'), src: shot('share', 'done') },
+  { label: t('landing.step6Label'), title: t('landing.step6Title'), text: t('landing.step6Text'), src: shot('participant', 'amount') },
+  { label: t('landing.step7Label'), title: t('landing.step7Title'), text: t('landing.step7Text'), src: shot('live', 'members') },
+  { label: t('landing.step8Label'), title: t('landing.step8Title'), text: t('landing.step8Text'), src: shot('award', 'cashback') },
+])
+
+const problems = computed(() => [t('landing.problem1'), t('landing.problem2'), t('landing.problem3')])
+
+const reasons = computed(() => [
+  { title: t('landing.reason1Title'), text: t('landing.reason1Text'), icon: 'phone' },
+  { title: t('landing.reason2Title'), text: t('landing.reason2Text'), icon: 'clock' },
+  { title: t('landing.reason3Title'), text: t('landing.reason3Text'), icon: 'card' },
+  { title: t('landing.reason4Title'), text: t('landing.reason4Text'), icon: 'people' },
+])
+
+const merchants = computed(() => [
+  { name: 'Bellissimo Pizza', venue: venueBellissimo, logo: logoBellissimo, sub: t('landing.card1Sub'), badge: t('landing.card1Badge') },
+  { name: 'Evos', venue: venueEvos, logo: logoEvos, sub: t('landing.card2Sub'), badge: t('landing.card2Badge') },
+  { name: 'Safia', venue: venueSafia, logo: logoSafia, sub: t('landing.card3Sub'), badge: t('landing.card3Badge') },
+  { name: 'Bon!', venue: venueBon, logo: '', sub: t('landing.card4Sub'), badge: t('landing.card4Badge') },
+  { name: 'Feedup', venue: venueFeedup, logo: logoFeedup, sub: t('landing.card5Sub'), badge: t('landing.card5Badge') },
+])
+
+const faq = computed(() => [
+  { q: t('landing.q1'), a: t('landing.a1') },
+  { q: t('landing.q2'), a: t('landing.a2') },
+  { q: t('landing.q3'), a: t('landing.a3') },
+  { q: t('landing.q4'), a: t('landing.a4') },
+  { q: t('landing.q5'), a: t('landing.a5') },
+  { q: t('landing.q6'), a: t('landing.a6') },
+])
+
+const openFaq = ref<number | null>(null)
+const toggleFaq = (i: number) => {
+  openFaq.value = openFaq.value === i ? null : i
+  // высота ответа меняет геометрию страницы — иначе триггеры ниже съезжают
+  requestAnimationFrame(() => refreshMotion())
 }
 
-const root = ref<HTMLElement | null>(null)
-const hero = ref<HTMLElement | null>(null)
-const heroHead = ref<HTMLElement | null>(null)
-const heroPhone = ref<HTMLElement | null>(null)
-const pinSec = ref<HTMLElement | null>(null)
-const pinInner = ref<HTMLElement | null>(null)
-const featRows = ref<HTMLElement[]>([])
-const scrolled = ref(false)
-const onScroll = () => (scrolled.value = window.scrollY > 24)
-
-const brands = [
-  { src: brandMaxway, alt: 'Maxway', h: 20 },
-  { src: brandLesAiles, alt: 'Les Ailes', h: 22 },
-  { src: brandOqtepa, alt: 'Oqtepa Lavash', h: 36 },
-  { src: brandClick, alt: 'Click', h: 24 },
-  { src: brandRahmat, alt: 'Rahmat', h: 20 },
-]
-
-const partnerPerks = ['landing.perk1', 'landing.perk2', 'landing.perk3', 'landing.perk4']
-
-const debtPoints = ['landing.debtPoint1', 'landing.debtPoint2', 'landing.debtPoint3']
-
-const quickTiles = [
-  {
-    label: 'landing.tileScan',
-    path: '<path d="M3 8V5C3 3.9 3.9 3 5 3H8M16 3H19C20.1 3 21 3.9 21 5V8M21 16V19C21 20.1 20.1 21 19 21H16M8 21H5C3.9 21 3 20.1 3 19V16" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />',
-  },
-  {
-    label: 'landing.tileSplit',
-    path: '<circle cx="8" cy="8" r="3.2" stroke="currentColor" stroke-width="1.7" /><circle cx="16" cy="16" r="3.2" stroke="currentColor" stroke-width="1.7" /><path d="M10.5 10.5 13.5 13.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />',
-  },
-  {
-    label: 'landing.tileCashback',
-    path: '<rect x="2.5" y="6.5" width="19" height="11" rx="2.5" stroke="currentColor" stroke-width="1.7" /><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.7" />',
-  },
-  {
-    label: 'landing.tileDebts',
-    path: '<circle cx="9" cy="9" r="3.2" stroke="currentColor" stroke-width="1.7" /><path d="M3.5 19c0-3 2.5-4.6 5.5-4.6s5.5 1.6 5.5 4.6M16 6.4a2.9 2.9 0 0 1 0 5.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" />',
-  },
-]
-
-// три фичи живут в одной закреплённой секции и сменяют друг друга по скроллу
-const features = computed(() => [
-  {
-    id: 'how',
-    titleKeys: ['landing.scanTitleA', 'landing.scanTitleB'],
-    bodyKey: 'landing.scanBody',
-    shot: shot('receipt'),
-    altKey: 'landing.altReceipt',
-    tilt: -14,
-    flip: false,
-  },
-  {
-    id: 'cashback',
-    titleKeys: ['landing.cashbackTitleA', 'landing.cashbackTitleB'],
-    bodyKey: 'landing.cashbackBody',
-    shot: shot('cashback'),
-    altKey: 'landing.altCashback',
-    tilt: 14,
-    flip: true,
-  },
-  {
-    id: 'debts',
-    titleKeys: ['landing.debtsTitleA', 'landing.debtsTitleB'],
-    bodyKey: 'landing.debtsBody',
-    shot: shot('debts'),
-    altKey: 'landing.altDebts',
-    tilt: -14,
-    flip: false,
-  },
-])
-
-const stats = [
-  { v: 30, sufKey: 'landing.statSecSuffix', key: 'landing.stat1' },
-  { v: 2, suf: '×', key: 'landing.stat2' },
-  { v: 0, suf: '%', key: 'landing.stat3' },
-]
-
-// бегущая строка: короткие тезисы, а не повтор названия — она должна
-// что-то сообщать, а не просто ехать
-const ticker = ['landing.tick1', 'landing.tick2', 'landing.tick3', 'landing.tick4', 'landing.tick5']
-
-const rail = computed(() => [
-  { src: shot('home'), altKey: 'landing.altHome' },
-  { src: shot('amount'), altKey: 'landing.altAmount' },
-  { src: shot('members'), altKey: 'landing.altMembers' },
-  { src: shot('done'), altKey: 'landing.altDone' },
-  { src: shot('history'), altKey: 'landing.altHistory' },
-])
-
 // --- заявка заведения ---
-// в форме держим только цифры номера, на экране показываем их под маской
-const form = ref({ company: '', contact: '', phone: '', city: '', message: '' })
+const modal = ref(false)
+const sent = ref(false)
+const sending = ref(false)
+const form = ref({ company: '', contact: '', phone: '', city: '' })
 const phoneMasked = computed({
   get: () => (form.value.phone ? formatPhone(form.value.phone) : ''),
   set: (v: string) => {
@@ -171,408 +119,539 @@ const phoneMasked = computed({
     // его цифры возвращаются в поле и номер разъезжается
     const rest = v.startsWith('+998') ? v.slice(4) : v
     let d = rest.replace(/\D/g, '')
-    // номер могли вставить целиком: +998 90 …, 998 90 …
     if (d.length > 9 && d.startsWith('998')) d = d.slice(3)
     form.value.phone = d.slice(0, 9)
   },
 })
-const sending = ref(false)
-const sent = ref(false)
 const formValid = () =>
-  form.value.company.trim().length >= 2 &&
-  form.value.contact.trim().length >= 2 &&
-  form.value.phone.length === 9
+  form.value.company.trim().length >= 2 && form.value.contact.trim().length >= 2 && form.value.phone.length === 9
+
+function openModal() {
+  modal.value = true
+  sent.value = false
+}
 
 async function sendLead() {
   if (!formValid() || sending.value) return
   sending.value = true
   try {
-    await submitPartnerLead({ ...form.value, phone: '+998' + form.value.phone })
+    await submitPartnerLead({ ...form.value, phone: '+998' + form.value.phone, message: '' })
     sent.value = true
-    toast.success(t('landing.formOkToast'))
   } catch (e) {
-    toast(e instanceof Error && e.message ? e.message : t('landing.formFailToast'))
+    toast(e instanceof Error && e.message ? e.message : t('landing.modalFail'))
   } finally {
     sending.value = false
   }
 }
 
-const isDesktop = () => window.matchMedia('(min-width: 900px)').matches
+// --- движение ---
 
-/** Счётчики без анимации — просто проставить итоговые значения. */
-function fillCounters(el: ParentNode) {
-  el.querySelectorAll<HTMLElement>('[data-count]').forEach((c) => {
-    c.textContent = Number(c.dataset.count ?? 0).toLocaleString('ru-RU') + (c.dataset.suffix ?? '')
-  })
-}
+const root = ref<HTMLElement | null>(null)
+const prog = ref<HTMLElement | null>(null)
+const head = ref<HTMLElement | null>(null)
+const pinWrap = ref<HTMLElement | null>(null)
+const pin = ref<HTMLElement | null>(null)
+const marq = ref<HTMLElement | null>(null)
+const merchRail = ref<HTMLElement | null>(null)
+const chart = ref<SVGPolylineElement | null>(null)
+const k1 = ref<HTMLElement | null>(null)
+const k2 = ref<HTMLElement | null>(null)
+const activeStep = ref(0)
 
-function setupMotion() {
-  const el = root.value
-  if (!el) return
-  const all = <T extends Element>(sel: string, from: ParentNode = el) => Array.from(from.querySelectorAll<T>(sel))
+let ctx: gsap.Context | null = null
+let onScroll: (() => void) | null = null
+let marqueeTick: ((t: number) => void) | null = null
 
-  // На мобильном скролл-анимации выключены целиком: страница должна быть
-  // простой и лёгкой, а закрепление и параллакс на тач-экране только мешают
-  // жестам и съедают батарею. Остаётся обычная прокрутка.
-  if (!isDesktop()) {
-    fillCounters(el)
-    return
-  }
-
-  // вступление героя играет сразу, без привязки к прокрутке
-  if (hero.value) {
-    revealLines(all('.lp-line > i', hero.value), { scroll: false })
-    revealOnScroll(all('[data-reveal]', hero.value), { scroll: false, delay: 0.36, stagger: 0.1 })
-  }
-  if (heroHead.value) heroOut(heroHead.value)
-  if (heroPhone.value) {
-    riseIn(heroPhone.value.firstElementChild ?? heroPhone.value, { delay: 0.5 })
-    parallax(heroPhone.value, 62)
-  }
-
-  // заголовки секций выезжают построчно из-под маски
-  all('[data-lines]').forEach((h) => revealLines(all('.lp-line > i', h)))
-
-  // текст и карточки внутри секции — общей волной
-  all('[data-group]').forEach((g) => revealOnScroll(all('[data-reveal]', g)))
-
-  // закреплённая секция фич: слайды сменяются, пока страница «стоит»
-  if (pinSec.value && pinInner.value && featRows.value.length) {
-    pinnedSlides(pinSec.value, pinInner.value, featRows.value)
-  }
-
-  all('[data-drift]').forEach((r) => drift(r, 110))
-  snapSections(all<HTMLElement>('[data-snap]'))
-  all<HTMLElement>('[data-count]').forEach((c) =>
-    countUpOnScroll(c, Number(c.dataset.count ?? 0), c.dataset.suffix ?? ''),
-  )
-}
+const fmt = (n: number) => Math.round(n).toLocaleString('ru-RU').replace(/ /g, ' ')
 
 onMounted(() => {
-  onScroll()
-  window.addEventListener('scroll', onScroll, { passive: true })
-  if (!isDesktop()) {
-    // мобильная версия: нативная прокрутка, без Lenis и ScrollTrigger
-    requestAnimationFrame(setupMotion)
-    return
-  }
   startSmoothScroll()
-  requestAnimationFrame(setupMotion)
-  // геометрия мокапов известна только после загрузки картинок
-  window.addEventListener('load', refreshMotion)
+
+  // полоса прогресса + «стеклянная» шапка при прокрутке
+  onScroll = () => {
+    const h = document.documentElement.scrollHeight - window.innerHeight
+    if (prog.value) gsap.set(prog.value, { scaleX: h > 0 ? window.scrollY / h : 0 })
+    head.value?.classList.toggle('is-scrolled', window.scrollY > 40)
+  }
+  window.addEventListener('scroll', onScroll, { passive: true })
+  onScroll()
+
+  ctx = gsap.context(() => {
+    // «как это происходит сейчас»: строки въезжают и перечёркиваются
+    const rows = gsap.utils.toArray<HTMLElement>('[data-strike]')
+    if (rows.length) {
+      const lines = gsap.utils.toArray<HTMLElement>('[data-sline]')
+      const tl = gsap.timeline({ scrollTrigger: { trigger: rows[0], start: 'top 78%' } })
+      rows.forEach((r, i) => {
+        tl.fromTo(r, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' }, i * 0.55)
+        tl.to(lines[i]!, { scaleX: 1, duration: 0.5, ease: 'power2.inOut' }, i * 0.55 + 0.45)
+      })
+      tl.to(rows, { y: -70, opacity: 0, duration: 0.6, ease: 'power2.inOut' }, rows.length * 0.55 + 0.5).fromTo(
+        '[data-prob-final]',
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out' },
+        '-=.25',
+      )
+    }
+
+    // ЗАКРЕПЛЁННАЯ секция: восемь шагов сменяют друг друга внутри одного экрана.
+    // units — сколько «экранов» прокрутки держится шаг: третий и четвёртый
+    // объёмнее по тексту, им дано вдвое больше.
+    const screens = gsap.utils.toArray<HTMLElement>('[data-screen]')
+    const texts = gsap.utils.toArray<HTMLElement>('[data-step-text]')
+    if (screens.length && pin.value && pinWrap.value) {
+      gsap.set(screens.slice(1), { opacity: 0, xPercent: 40 })
+      gsap.set(texts.slice(1), { opacity: 0, y: 40 })
+      gsap.set(texts[0]!, { opacity: 1, y: 0 })
+
+      const units = [1, 1, 2, 2, 1, 1, 1, 1]
+      const total = units.reduce((a, b) => a + b, 0)
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: pinWrap.value,
+          start: 'top top',
+          end: '+=' + total * 90 + '%',
+          pin: pin.value,
+          scrub: 1,
+          anticipatePin: 1,
+          onUpdate: (st) => {
+            let acc = 0
+            let idx = 0
+            const p = st.progress * total
+            for (let i = 0; i < units.length; i++) {
+              if (p >= acc) idx = i
+              acc += units[i]!
+            }
+            activeStep.value = idx
+          },
+        },
+      })
+
+      let at = 0
+      units.forEach((u, i) => {
+        const startAt = at
+        if (i > 0) {
+          tl.to(screens[i - 1]!, { xPercent: -30, opacity: 0, scale: 0.96, duration: 0.28, ease: 'power2.inOut' }, startAt - 0.28)
+            .to(texts[i - 1]!, { y: -40, opacity: 0, duration: 0.25, ease: 'power2.in' }, startAt - 0.28)
+            .fromTo(screens[i]!, { xPercent: 40, opacity: 0, scale: 0.98 }, { xPercent: 0, opacity: 1, scale: 1, duration: 0.3, ease: 'power3.out' }, startAt - 0.1)
+            .fromTo(texts[i]!, { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.3, ease: 'power3.out' }, startAt)
+        }
+        at += u
+      })
+      tl.to({}, { duration: 0.2 })
+    }
+
+    // карточки причин выезжают из-под маски
+    gsap.utils.toArray<HTMLElement>('[data-card]').forEach((c, i) => {
+      gsap.from(c, {
+        clipPath: 'inset(0 0 100% 0)',
+        y: 20,
+        duration: 0.8,
+        ease: 'power3.out',
+        delay: i * 0.08,
+        scrollTrigger: { trigger: c, start: 'top 85%' },
+      })
+    })
+
+    // лента заведений едет навстречу скроллу
+    if (merchRail.value) {
+      const rail = merchRail.value
+      gsap.fromTo(
+        rail,
+        { x: 0 },
+        {
+          x: () => -(rail.scrollWidth - window.innerWidth + 40),
+          ease: 'none',
+          scrollTrigger: { trigger: rail, start: 'top bottom', end: 'bottom top', scrub: 1 },
+        },
+      )
+    }
+
+    // дашборд заведения: график рисуется, счётчики набегают
+    if (chart.value) {
+      const tl = gsap.timeline({ scrollTrigger: { trigger: chart.value, start: 'top 80%' } })
+      tl.to(chart.value, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut' }, 0)
+      const count = (el: HTMLElement | null, to: number) => {
+        if (!el) return
+        const o = { v: 0 }
+        tl.to(o, { v: to, duration: 1.2, ease: 'none', onUpdate: () => (el.textContent = fmt(o.v)) }, 0)
+      }
+      count(k1.value, 142)
+      count(k2.value, 860000)
+    }
+
+    // подвал: гигантский ZAP! чуть отстаёт от скролла
+    gsap.fromTo('[data-foot]', { yPercent: 14 }, { yPercent: 0, ease: 'none', scrollTrigger: { trigger: '[data-foot]', start: 'top bottom', end: 'bottom bottom', scrub: 1 } })
+  }, root.value ?? undefined)
+
+  // бегущая строка: скорость и направление зависят от скролла
+  if (marq.value) {
+    const el = marq.value
+    let x = 0
+    let dir = 1
+    let speed = 0.6
+    ScrollTrigger.create({
+      onUpdate: (st) => {
+        const v = st.getVelocity()
+        if (Math.abs(v) > 40) dir = v > 0 ? 1 : -1
+        speed = 0.6 + Math.min(Math.abs(v) / 900, 4)
+      },
+    })
+    marqueeTick = () => {
+      const w = (el.firstElementChild as HTMLElement | null)?.getBoundingClientRect().width ?? 0
+      if (!w) return
+      x -= dir * speed
+      if (x <= -w) x += w
+      if (x > 0) x -= w
+      el.style.transform = `translateX(${x}px)`
+    }
+    gsap.ticker.add(marqueeTick)
+  }
+
+  // геометрия меняется после догрузки шрифтов и картинок
+  if (document.fonts?.ready) void document.fonts.ready.then(() => refreshMotion())
 })
 
 onBeforeUnmount(() => {
-  window.removeEventListener('scroll', onScroll)
-  window.removeEventListener('load', refreshMotion)
+  if (onScroll) window.removeEventListener('scroll', onScroll)
+  if (marqueeTick) gsap.ticker.remove(marqueeTick)
+  ctx?.revert()
+  ScrollTrigger.getAll().forEach((st) => st.kill())
   stopSmoothScroll()
 })
 </script>
 
 <template>
   <div ref="root" class="lp">
+    <div ref="prog" class="lp-prog" />
+
     <!-- ШАПКА -->
-    <header class="lp-nav" :class="{ 'is-scrolled': scrolled }">
-      <div class="lp-nav__inner">
-        <img :src="wordmark" alt="ZAP!" class="lp-nav__logo" />
-        <nav class="lp-nav__links">
-          <a href="#how" @click.prevent="goTo('#how')">{{ t('landing.navFeatures') }}</a>
-          <a href="#cashback" @click.prevent="goTo('#cashback')">{{ t('landing.navCashback') }}</a>
-          <a href="#partners" @click.prevent="goTo('#partners')">{{ t('landing.navPartners') }}</a>
-        </nav>
-        <div class="lp-nav__actions">
-          <LanguageSwitcher variant="landing" mode="dropdown" align="right" />
-          <button type="button" class="lp-btn lp-btn--sm" @click="start">{{ t('landing.navStart') }}</button>
-        </div>
+    <header ref="head" class="lp-head">
+      <a href="#" class="lp-head__logo" @click.prevent="scrollToTarget('.lp')">
+        <img :src="wordmark" alt="ZAP!" />
+      </a>
+      <nav class="lp-head__nav">
+        <a href="#how" @click.prevent="scrollToTarget('#how')">{{ t('landing.navHow') }}</a>
+        <a href="#merch" @click.prevent="scrollToTarget('#merch')">{{ t('landing.navMerch') }}</a>
+        <a href="#faq" @click.prevent="scrollToTarget('#faq')">{{ t('landing.navFaq') }}</a>
+      </nav>
+      <div class="lp-head__actions">
+        <LanguageSwitcher variant="landing" mode="dropdown" align="right" />
+        <button type="button" class="lp-btn lp-btn--sm" @click="start">{{ t('landing.navDownload') }}</button>
       </div>
     </header>
 
     <!-- ГЕРОЙ -->
-    <section ref="hero" data-snap class="lp-hero">
-      <div class="lp-orb lp-orb--hero" />
-      <div ref="heroHead">
-        <h1 class="lp-display lp-display--long">
-          <span class="lp-line"><i class="lp-grad">{{ t('landing.heroA') }}</i></span>
-          <span class="lp-line"><i class="lp-grad lp-grad--fade">{{ t('landing.heroB') }}</i></span>
-        </h1>
-        <p data-reveal class="lp-lead">
-          {{ t('landing.heroLead') }}
-        </p>
-        <div data-reveal class="lp-cta">
-          <button type="button" class="lp-btn" @click="start">{{ t('landing.ctaTry') }}</button>
-          <a href="#partners" class="lp-btn lp-btn--ghost" @click.prevent="goTo('#partners')">{{ t('landing.ctaVenue') }}</a>
-        </div>
-      </div>
-
-      <div ref="heroPhone" class="lp-stage lp-stage--hero">
-        <div class="lp-device lp-device--hero">
-          <div class="lp-device__screen"><img :src="shot('home')" :alt="t('landing.altHomeScreen')" /></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- БРЕНДЫ -->
-    <section class="lp-brands">
-      <img v-for="b in brands" :key="b.alt" :src="b.src" :alt="b.alt" :style="{ height: b.h + 'px' }" />
-    </section>
-
-    <!-- ФИЧИ: секция закрепляется, слайды сменяются по скроллу -->
-    <section ref="pinSec" id="how" data-snap class="lp-sec lp-pinsec">
-      <div class="lp-orb lp-orb--left" />
-      <div ref="pinInner" class="lp-pin">
-        <div class="lp-stack">
-          <div
-            v-for="f in features"
-            :key="f.id"
-            :id="f.id"
-            ref="featRows"
-            class="lp-row lp-featrow"
-            :class="{ 'lp-row--flip': f.flip }"
-          >
-            <template v-if="f.flip">
-              <div class="lp-stage lp-stage--left">
-                <div :data-tilt="f.tilt" class="lp-device">
-                  <div class="lp-device__screen"><img :src="f.shot" :alt="t(f.altKey)" /></div>
-                </div>
-              </div>
-            </template>
-
-            <div class="lp-col" :class="{ 'lp-col--end': f.flip }">
-              <h2 class="lp-title">
-                <span class="lp-line"><i class="lp-grad">{{ t(f.titleKeys[0]) }}</i></span>
-                <span class="lp-line"><i class="lp-grad">{{ t(f.titleKeys[1]) }}</i></span>
-              </h2>
-              <p class="lp-body">{{ t(f.bodyKey) }}</p>
-
-              <div v-if="f.id === 'how'" class="lp-tiles">
-                <div v-for="tile in quickTiles" :key="tile.label" class="lp-tile">
-                  <svg viewBox="0 0 24 24" fill="none" v-html="tile.path" />
-                  <span>{{ t(tile.label) }}</span>
-                </div>
-              </div>
-
-              <div v-else-if="f.id === 'cashback'" class="lp-bigcard">
-                <p class="lp-bigcard__num">
-                  <span data-count="60000">0</span> <span class="lp-bigcard__cur">{{ t('landing.currencySom') }}</span>
-                </p>
-                <div class="lp-bigcard__row">
-                  <span class="lp-bigcard__field">{{ t('landing.bigcardField') }}</span>
-                  <span class="lp-bigcard__send" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                      <path d="M5 12h13m-5-6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                  </span>
-                </div>
-              </div>
-
-              <ul v-else class="lp-list">
-                <li v-for="k in debtPoints" :key="k"><i>✓</i>{{ t(k) }}</li>
-              </ul>
-            </div>
-
-            <template v-if="!f.flip">
-              <div class="lp-stage lp-stage--right">
-                <div :data-tilt="f.tilt" class="lp-device">
-                  <div class="lp-device__screen"><img :src="f.shot" :alt="t(f.altKey)" /></div>
-                </div>
-              </div>
-            </template>
+    <section class="lp-hero-sec">
+      <div class="lp-hero-glow" />
+      <div class="lp-hero-line" />
+      <div class="lp-hero">
+        <div>
+          <div class="lp-kicker">{{ t('landing.heroKicker') }}</div>
+          <h1 class="lp-h1">
+            <span>{{ t('landing.heroLine1') }}</span>
+            <span>{{ t('landing.heroLine2') }}</span>
+            <span><em>{{ t('landing.heroLine3Accent') }}</em> {{ t('landing.heroLine3Rest') }}</span>
+          </h1>
+          <p class="lp-lead">{{ t('landing.heroSub') }}</p>
+          <div class="lp-cta">
+            <button type="button" class="lp-btn" @click="start">{{ t('landing.ctaDownload') }}</button>
+            <a href="#how" class="lp-btn lp-btn--ghost" @click.prevent="scrollToTarget('#how')">{{ t('landing.ctaHow') }}</a>
+          </div>
+          <div class="lp-rails">
+            <span>PAYME</span><span>CLICK</span><span>UZCARD</span><span>HUMO</span>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- ЭКРАНЫ -->
-    <section data-snap data-group class="lp-sec lp-sec--tight">
-      <h2 data-lines class="lp-mid">
-        <span class="lp-line"><i>{{ t('landing.railTitle') }} <em class="lp-grad">{{ t('landing.railAccent') }}</em> {{ t('landing.railRest') }}</i></span>
-      </h2>
-      <div data-drift class="lp-rail">
-        <div v-for="s in rail" :key="s.altKey" class="lp-device lp-device--sm">
-          <div class="lp-device__screen"><img :src="s.src" :alt="t(s.altKey)" /></div>
+        <div class="lp-phone lp-phone--hero">
+          <div class="lp-phone__screen"><img :src="shot('members')" :alt="t('landing.altPhone')" /></div>
         </div>
       </div>
     </section>
 
-    <!-- ЦИФРЫ -->
-    <section data-group class="lp-stats">
-      <div v-for="s in stats" :key="s.key" data-reveal class="lp-stat">
-        <p class="lp-stat__num"><span :data-count="s.v" :data-suffix="s.sufKey ? t(s.sufKey) : s.suf">0</span></p>
-        <span class="lp-stat__cap">{{ t(s.key) }}</span>
+    <!-- КАК ЭТО ПРОИСХОДИТ СЕЙЧАС -->
+    <section class="lp-problem">
+      <div class="lp-problem__inner">
+        <div class="lp-kicker lp-kicker--dark">{{ t('landing.problemKicker') }}</div>
+        <div class="lp-strikes">
+          <div v-for="p in problems" :key="p" data-strike class="lp-strike">
+            {{ p }}<span data-sline class="lp-strike__line" />
+          </div>
+        </div>
+        <div data-prob-final class="lp-problem__final">{{ t('landing.problemFinal') }}</div>
       </div>
     </section>
 
-    <!-- ЗАВЕДЕНИЯМ -->
-    <section id="partners" data-snap data-group class="lp-sec">
-      <div class="lp-orb lp-orb--right" />
-      <div class="lp-row lp-row--top">
-        <div class="lp-col">
-          <span data-reveal class="lp-badge">{{ t('landing.partnersBadge') }}</span>
-          <h2 data-lines class="lp-title">
-            <span class="lp-line"><i class="lp-grad">{{ t('landing.partnersTitleA') }}</i></span>
-            <span class="lp-line"><i class="lp-grad">{{ t('landing.partnersTitleB') }}</i></span>
-          </h2>
-          <p data-reveal class="lp-body">
-            {{ t('landing.partnersBody') }}
-          </p>
-          <ul class="lp-list">
-            <li v-for="k in partnerPerks" :key="k" data-reveal><i>✓</i>{{ t(k) }}</li>
-          </ul>
-        </div>
+    <!-- ВОСЕМЬ ШАГОВ · ЗАКРЕПЛЁННАЯ СЕКЦИЯ -->
+    <section id="how" ref="pinWrap" class="lp-how">
+      <div ref="pin" class="lp-pin">
+        <div class="lp-pinrow">
+          <div class="lp-dots">
+            <span v-for="(s, i) in steps" :key="s.label" :class="{ 'is-on': i === activeStep }" />
+          </div>
 
-        <div data-reveal class="lp-form">
-          <template v-if="!sent">
-            <h3>{{ t('landing.formTitle') }}</h3>
-            <p class="lp-form__sub">{{ t('landing.formSub') }}</p>
-            <div class="lp-form__fields">
-              <input v-model="form.company" :placeholder="t('landing.formCompany')" class="lp-input" />
-              <input v-model="form.contact" :placeholder="t('landing.formContact')" class="lp-input" />
-              <input
-                v-model="phoneMasked"
-                type="tel"
-                inputmode="tel"
-                autocomplete="tel"
-                maxlength="17"
-                placeholder="+998 90 123 45 67"
-                class="lp-input"
-              />
-              <input v-model="form.city" :placeholder="t('landing.formCity')" class="lp-input" />
-              <textarea v-model="form.message" rows="3" :placeholder="t('landing.formMessage')" class="lp-input lp-input--area" />
-              <button type="button" class="lp-btn lp-btn--block" :disabled="!formValid() || sending" @click="sendLead">
-                {{ sending ? t('landing.formSending') : t('landing.formSubmit') }}
-              </button>
-              <p class="lp-form__note">{{ t('landing.formNote') }}</p>
+          <div class="lp-pintext">
+            <div v-for="s in steps" :key="s.label" data-step-text class="lp-step">
+              <div class="lp-step__label">{{ s.label }}</div>
+              <h3 class="lp-step__title">{{ s.title }}</h3>
+              <p class="lp-step__text">{{ s.text }}</p>
             </div>
-          </template>
-          <div v-else class="lp-form__done">
-            <span class="lp-form__check">✓</span>
-            <h3>{{ t('landing.formSentTitle') }}</h3>
-            <p class="lp-form__sub">{{ t('landing.formSentText') }}</p>
+          </div>
+
+          <div class="lp-phone lp-phone--step">
+            <div class="lp-phone__screen">
+              <img v-for="s in steps" :key="s.label" data-screen :src="s.src" :alt="s.title" />
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <!-- БЕГУЩАЯ СТРОКА -->
-    <section class="lp-marquee-wrap">
-      <div class="lp-marquee">
-        <!-- содержимое продублировано: на -50% лента стыкуется без шва -->
-        <span v-for="n in 2" :key="n" class="lp-marquee__set" :aria-hidden="n === 2">
-          <span v-for="k in ticker" :key="k" class="lp-marquee__item">
-            {{ t(k) }}<i aria-hidden="true">✳</i>
-          </span>
-        </span>
+    <section class="lp-marq-sec">
+      <div ref="marq" class="lp-marq">
+        <span>{{ t('landing.marquee') }}</span>
+        <span aria-hidden="true">{{ t('landing.marquee') }}</span>
+      </div>
+    </section>
+
+    <!-- ЧЕТЫРЕ ПРИЧИНЫ -->
+    <section class="lp-reasons">
+      <div class="lp-reasons__inner">
+        <h2 class="lp-h2 lp-h2--dark">{{ t('landing.reasonsTitle') }}</h2>
+        <div class="lp-reasons__grid">
+          <div v-for="r in reasons" :key="r.title" data-card class="lp-card">
+            <svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="#3E3C35" stroke-width="1.5" aria-hidden="true">
+              <template v-if="r.icon === 'phone'"><rect x="11" y="2" width="12" height="22" rx="3" /><line x1="4" y1="30" x2="30" y2="30" /></template>
+              <template v-else-if="r.icon === 'clock'"><circle cx="17" cy="17" r="13" /><polyline points="17,9 17,17 24,20" /></template>
+              <template v-else-if="r.icon === 'card'"><rect x="3" y="9" width="28" height="18" rx="3" /><line x1="3" y1="16" x2="31" y2="16" /></template>
+              <template v-else><circle cx="12" cy="13" r="6" /><circle cx="24" cy="19" r="6" /></template>
+            </svg>
+            <h3>{{ r.title }}</h3>
+            <p>{{ r.text }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ЛЕНТА ЗАВЕДЕНИЙ -->
+    <section class="lp-strip">
+      <div class="lp-strip__head">
+        <h2 class="lp-h2">{{ t('landing.stripTitle') }} <em>{{ t('landing.stripTitleAccent') }}</em></h2>
+        <p class="lp-strip__sub">{{ t('landing.stripSub') }}</p>
+      </div>
+      <div ref="merchRail" class="lp-rail">
+        <div v-for="m in merchants" :key="m.name" class="lp-mcard">
+          <div class="lp-mcard__photo"><img :src="m.venue" :alt="m.name" /></div>
+          <div class="lp-mcard__body">
+            <div class="lp-mcard__title">
+              <img v-if="m.logo" :src="m.logo" alt="" />
+              <span>{{ m.name }}</span>
+            </div>
+            <div class="lp-mcard__sub">{{ m.sub }}</div>
+            <div class="lp-mcard__badge">{{ m.badge }}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ЗАВЕДЕНИЯМ -->
+    <section id="merch" class="lp-merch">
+      <div class="lp-merch__inner">
+        <div>
+          <div class="lp-kicker lp-kicker--dark">{{ t('landing.merchKicker') }}</div>
+          <h2 class="lp-h2 lp-h2--dark lp-merch__title">{{ t('landing.merchTitle') }}</h2>
+          <div class="lp-terms">
+            <div class="lp-term"><span>3%</span><span>{{ t('landing.merchFeeText') }}</span></div>
+            <div class="lp-term"><span>{{ t('landing.merchKit') }}</span><span>{{ t('landing.merchKitText') }}</span></div>
+            <div class="lp-term"><span>{{ t('landing.merchCab') }}</span><span>{{ t('landing.merchCabText') }}</span></div>
+          </div>
+          <button type="button" class="lp-btn lp-btn--outline" @click="openModal">{{ t('landing.merchCta') }}</button>
+        </div>
+
+        <div class="lp-dash">
+          <div class="lp-dash__head"><span>{{ t('landing.dashVisits') }}</span><span>{{ t('landing.dashDays') }}</span></div>
+          <div class="lp-dash__nums">
+            <div><div ref="k1" class="lp-dash__num">0</div><div class="lp-dash__cap">{{ t('landing.dashK1') }}</div></div>
+            <div><div ref="k2" class="lp-dash__num">0</div><div class="lp-dash__cap">{{ t('landing.dashK2') }}</div></div>
+          </div>
+          <svg viewBox="0 0 420 200" class="lp-dash__chart" :aria-label="t('landing.chartAria')">
+            <line x1="0" y1="160" x2="420" y2="160" stroke="#E3E1D8" stroke-width="1" />
+            <line x1="0" y1="100" x2="420" y2="100" stroke="#EFEDE7" stroke-width="1" />
+            <line x1="0" y1="40" x2="420" y2="40" stroke="#EFEDE7" stroke-width="1" />
+            <polyline
+              ref="chart"
+              points="10,150 70,138 130,120 190,124 250,92 310,66 380,28"
+              fill="none"
+              stroke="#111110"
+              stroke-width="3"
+              stroke-linejoin="round"
+              stroke-dasharray="620"
+              stroke-dashoffset="620"
+            />
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- ВОПРОСЫ -->
+    <section id="faq" class="lp-faq">
+      <div class="lp-faq__inner">
+        <h2 class="lp-h2">{{ t('landing.faqTitle') }}</h2>
+        <div v-for="(f, i) in faq" :key="f.q" class="lp-acc" :class="{ 'is-last': i === faq.length - 1 }">
+          <button type="button" class="lp-acc__btn" :aria-expanded="openFaq === i" @click="toggleFaq(i)">
+            <span>{{ f.q }}</span>
+            <span class="lp-acc__plus" :class="{ 'is-on': openFaq === i }">+</span>
+          </button>
+          <div class="lp-acc__body" :class="{ 'is-open': openFaq === i }"><p>{{ f.a }}</p></div>
+        </div>
       </div>
     </section>
 
     <!-- ФИНАЛ -->
-    <section data-snap data-group class="lp-final">
-      <div class="lp-orb lp-orb--hero" />
-      <h2 data-lines class="lp-display">
-        <span class="lp-line"><i class="lp-grad">{{ t('landing.finalA') }}</i></span>
-        <span class="lp-line"><i class="lp-grad lp-grad--fade">{{ t('landing.finalB') }}</i></span>
-      </h2>
-      <p data-reveal class="lp-lead">
-        {{ t('landing.finalLead') }}
-      </p>
-      <div data-reveal class="lp-cta">
-        <button type="button" class="lp-btn" @click="start">{{ t('landing.finalCta') }}</button>
+    <section class="lp-final">
+      <h2 class="lp-final__title">{{ t('landing.finalTitle') }}</h2>
+      <div class="lp-final__cta">
+        <button type="button" class="lp-btn lp-btn--ink" @click="start">{{ t('landing.ctaIos') }}</button>
+        <button type="button" class="lp-btn lp-btn--ink" @click="start">{{ t('landing.ctaAndroid') }}</button>
       </div>
+      <div class="lp-final__site">{{ t('landing.site') }}</div>
     </section>
 
+    <!-- ПОДВАЛ -->
     <footer class="lp-foot">
-      <img :src="wordmark" alt="ZAP!" />
-      <p>{{ t('landing.footer') }}</p>
+      <div class="lp-foot__inner">
+        <div class="lp-foot__links">
+          <a href="#how" @click.prevent="scrollToTarget('#how')">{{ t('landing.footProduct') }}</a>
+          <a href="#merch" @click.prevent="scrollToTarget('#merch')">{{ t('landing.footMerch') }}</a>
+          <a href="#faq" @click.prevent="scrollToTarget('#faq')">{{ t('landing.footContacts') }}</a>
+          <a href="#faq" @click.prevent="scrollToTarget('#faq')">{{ t('landing.footPrivacy') }}</a>
+          <span>{{ t('landing.footCopy') }}</span>
+        </div>
+        <div data-foot class="lp-foot__mark">ZAP!</div>
+      </div>
     </footer>
+
+    <!-- ЗАЯВКА ПАРТНЁРА -->
+    <div v-if="modal" class="lp-modal" role="dialog" aria-modal="true">
+      <div class="lp-modal__bg" @click="modal = false" />
+      <div class="lp-modal__card">
+        <div class="lp-modal__top">
+          <div>
+            <div class="lp-modal__kicker">{{ t('landing.modalKicker') }}</div>
+            <h3>{{ t('landing.modalTitle') }}</h3>
+          </div>
+          <button type="button" class="lp-modal__x" :aria-label="t('landing.modalClose')" @click="modal = false">×</button>
+        </div>
+
+        <div v-if="!sent" class="lp-modal__body">
+          <p class="lp-modal__sub">{{ t('landing.modalSub') }}</p>
+          <input v-model="form.company" class="lp-input" :placeholder="t('landing.phVenue')" />
+          <input v-model="form.contact" class="lp-input" :placeholder="t('landing.phContact')" />
+          <input v-model="form.city" class="lp-input" :placeholder="t('landing.phCity')" />
+          <input v-model="phoneMasked" type="tel" inputmode="tel" maxlength="17" class="lp-input lp-input--mono" placeholder="+998 90 123 45 67" />
+          <button type="button" class="lp-modal__send" :disabled="!formValid() || sending" @click="sendLead">
+            {{ sending ? t('landing.modalSending') : t('landing.modalSend') }}
+          </button>
+        </div>
+
+        <div v-else class="lp-modal__done">
+          <h3>{{ t('landing.modalDoneTitle') }}</h3>
+          <p>{{ t('landing.modalDoneText') }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .lp {
   --lime: #ddff33;
-  --ink: #ffffff;
-  --muted: rgba(255, 255, 255, 0.46);
-  --line: rgba(255, 255, 255, 0.08);
-  --surface: rgba(255, 255, 255, 0.032);
+  --ink: #111110;
+  --deep: #0e0e0c;
+  --cream: #f5f3ee;
+  --line: #26251f;
+  --stone: #3e3c35;
+  --muted: #8a887e;
+  --faint: #b3b1a8;
   position: relative;
-  min-height: 100dvh;
-  background: #000;
-  color: var(--ink);
-  /* здесь НЕТ overflow-x: clip — он ломает backdrop-filter у фиксированной
-     шапки (в WebKit полностью). Горизонтальный вылет закрыт тем, что все
-     свечения лежат внутри секций с overflow: hidden */
+  background: var(--ink);
+  color: var(--cream);
+  font-family: 'Manrope', Helvetica, Arial, sans-serif;
 }
-.lp :where(#how, #cashback, #partners) {
+.lp :where(#how, #merch, #faq) {
   scroll-margin-top: 96px;
 }
 
-/* ============ ШАПКА ============ */
-.lp-nav {
+/* полоса прогресса чтения */
+.lp-prog {
   position: fixed;
   inset: 0 0 auto 0;
-  z-index: 50;
-  border-bottom: 1px solid transparent;
-  transition: background-color 260ms ease, border-color 260ms ease;
+  height: 3px;
+  background: var(--lime);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  z-index: 9000;
 }
-.lp-nav.is-scrolled {
-  background: rgba(10, 10, 10, 0.42);
-  border-bottom-color: var(--line);
-  -webkit-backdrop-filter: blur(22px) saturate(1.7);
-  backdrop-filter: blur(22px) saturate(1.7);
-}
-/* если размытия нет (старый браузер) — просто плотный фон, без прозрачности */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .lp-nav.is-scrolled {
-    background: rgba(0, 0, 0, 0.92);
-  }
-}
-.lp-nav__inner {
-  position: relative;
-  margin: 0 auto;
+
+/* ============ ШАПКА ============ */
+.lp-head {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 7000;
   display: flex;
-  max-width: 1200px;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 24px;
+  padding: 22px clamp(18px, 4vw, 48px);
+  border-bottom: 1px solid transparent;
+  transition: background-color 0.35s, backdrop-filter 0.35s, padding 0.35s, border-color 0.35s;
 }
-.lp-nav__logo {
-  height: 42px;
+.lp-head.is-scrolled {
+  background: rgba(14, 14, 12, 0.72);
+  border-bottom-color: var(--line);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .lp-head.is-scrolled {
+    background: rgba(14, 14, 12, 0.95);
+  }
+}
+.lp-head__logo img {
+  display: block;
+  height: clamp(48px, 4.2vw, 72px);
   width: auto;
+  transition: height 0.35s;
 }
-.lp-nav__actions {
+.lp-head.is-scrolled .lp-head__logo img {
+  height: 40px;
+}
+.lp-head__nav {
+  display: none;
+  align-items: center;
+  gap: 28px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.lp-head__nav a {
+  color: var(--faint);
+  transition: color 0.2s;
+}
+.lp-head__nav a:hover {
+  color: var(--lime);
+}
+.lp-head__actions {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-@media (max-width: 560px) {
-  /* на узкой шапке кнопка «Начать» и без того плотная — язык прижимаем ближе */
-  .lp-nav__actions {
-    gap: 6px;
-  }
-}
-@media (min-width: 900px) {
-  .lp-nav__logo {
-    height: 52px;
-  }
-}
-.lp-nav__links {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  display: none;
-  gap: 34px;
-}
-.lp-nav__links a {
-  font-size: 14.5px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
-  transition: color 180ms ease;
-}
-.lp-nav__links a:hover {
-  color: #fff;
-}
-@media (min-width: 900px) {
-  .lp-nav__links {
+@media (min-width: 901px) {
+  .lp-head__nav {
     display: flex;
   }
 }
@@ -580,688 +659,864 @@ onBeforeUnmount(() => {
 /* ============ КНОПКИ ============ */
 .lp-btn {
   display: inline-flex;
-  height: 54px;
   align-items: center;
   justify-content: center;
+  border: none;
   border-radius: 999px;
   background: var(--lime);
-  padding: 0 34px;
-  font-size: 15.5px;
+  color: var(--ink);
+  font-family: inherit;
   font-weight: 800;
-  color: #12140b;
-  transition: transform 160ms ease;
+  font-size: 16px;
+  padding: 18px 30px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.16s ease;
 }
 .lp-btn:active {
   transform: scale(0.97);
 }
 .lp-btn:disabled {
-  opacity: 0.32;
+  opacity: 0.35;
+  cursor: default;
 }
 .lp-btn--sm {
-  height: 42px;
-  padding: 0 22px;
+  padding: 12px 22px;
   font-size: 14.5px;
 }
-.lp-btn--block {
-  width: 100%;
-  margin-top: 4px;
-}
 .lp-btn--ghost {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.13);
-  color: #fff;
+  background: none;
+  border: 1px solid var(--stone);
+  color: var(--cream);
   font-weight: 700;
-  padding: 0 30px;
+}
+.lp-btn--outline {
+  margin-top: 44px;
+  background: none;
+  border: 1px solid var(--stone);
+  color: var(--ink);
+  font-weight: 700;
+  padding: 16px 28px;
+}
+.lp-btn--ink {
+  background: var(--ink);
+  color: var(--lime);
 }
 
 /* ============ ТИПОГРАФИКА ============ */
-.lp-display,
-.lp-title {
-  display: flex;
-  flex-direction: column;
+.lp-kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.lp-kicker--dark {
+  color: var(--muted);
+}
+.lp-h1 {
+  margin: 22px 0 0;
+  max-width: 11.5em;
   font-weight: 800;
-  letter-spacing: -0.035em;
-}
-.lp-display {
-  font-size: clamp(56px, 11.5vw, 128px);
-  line-height: 0.9;
-  align-items: center;
-  text-align: center;
-}
-/* длинная фраза: кегль меньше, иначе строка не помещается по ширине */
-.lp-display--long {
-  font-size: clamp(34px, 6.6vw, 78px);
-  line-height: 0.98;
-}
-.lp-title {
-  font-size: clamp(42px, 5.6vw, 72px);
+  letter-spacing: -0.03em;
   line-height: 0.94;
-  letter-spacing: -0.03em;
+  font-size: clamp(34px, 4.6vw, 78px);
+  text-wrap: balance;
 }
-.lp-mid {
-  font-size: clamp(32px, 4.6vw, 60px);
+.lp-h1 span {
+  display: block;
+}
+.lp-h1 em {
+  font-style: normal;
+  color: var(--lime);
+}
+.lp-h2 {
+  margin: 0;
   font-weight: 800;
   letter-spacing: -0.03em;
-  text-align: center;
+  font-size: clamp(28px, 4.2vw, 60px);
+  line-height: 1.04;
+  max-width: 900px;
 }
-/* строка-маска: текст выезжает из-под неё при появлении */
-.lp-line {
-  display: block;
-  overflow: hidden;
-  padding-bottom: 0.09em;
-  margin-bottom: -0.09em;
-}
-.lp-line > i {
-  display: block;
+.lp-h2 em {
   font-style: normal;
+  color: var(--lime);
 }
-/* фирменный градиент вместо розово-фиолетового у референса */
-.lp-grad {
-  background: linear-gradient(104deg, #ffffff 0%, var(--lime) 42%, #a8cc24 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-em.lp-grad {
-  font-style: normal;
-}
-/* вторая строка героя «уходит» в темноту, как в референсе */
-.lp-grad--fade {
-  background: linear-gradient(180deg, var(--lime) 0%, #7d9a1c 62%, #22280a 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
+.lp-h2--dark {
+  color: var(--ink);
 }
 .lp-lead {
-  margin: 26px auto 0;
+  margin: 26px 0 0;
   max-width: 520px;
-  font-size: 16.5px;
-  font-weight: 600;
-  line-height: 1.6;
-  color: var(--muted);
-  text-align: center;
-}
-.lp-body {
-  margin-top: 22px;
-  max-width: 420px;
-  font-size: 15.5px;
-  font-weight: 600;
-  line-height: 1.62;
-  color: var(--muted);
+  font-weight: 500;
+  font-size: clamp(16px, 1.3vw, 19px);
+  line-height: 1.5;
+  color: var(--faint);
 }
 .lp-cta {
-  margin-top: 34px;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 12px;
+  gap: 14px;
+  margin-top: 34px;
+}
+.lp-rails {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px;
+  margin-top: 34px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+}
+.lp-rails span {
+  opacity: 0.5;
+  transition: opacity 0.25s, color 0.25s;
+}
+.lp-rails span:hover {
+  opacity: 1;
+  color: var(--lime);
 }
 
-/* ============ ЗАКРЕПЛЁННАЯ СЕКЦИЯ ФИЧ ============ */
-/* на мобильном — обычный поток: закрепление там только мешает жестам */
-.lp-featrow + .lp-featrow {
-  margin-top: 96px;
+/* ============ ГЕРОЙ ============ */
+.lp-hero-sec {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--ink);
 }
-@media (min-width: 900px) {
-  /* закреплённая секция НЕ должна быть flex-контейнером: ScrollTrigger
-     подменяет внутренний блок распоркой, а flex её сжимает — следующая
-     секция начинает наезжать на закреплённую */
-  /* специфичность выше, чем у .lp-sec ниже по файлу — иначе секция снова
-     станет центрирующим flex-контейнером и закреплённый блок уедет вниз */
-  .lp-sec.lp-pinsec {
-    display: block;
-    min-height: 0;
-    padding: 0 24px;
-  }
-  .lp-pin {
-    display: flex;
-    min-height: 100vh;
-    width: 100%;
-    align-items: center;
-  }
-  /* слайды лежат друг на друге в одной ячейке грида */
-  .lp-stack {
-    display: grid;
-    width: 100%;
-  }
-  .lp-stack > * {
-    grid-area: 1 / 1;
-  }
-  .lp-featrow + .lp-featrow {
-    margin-top: 0;
-  }
+.lp-hero-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(1100px 620px at 72% 42%, rgba(221, 255, 51, 0.1), rgba(221, 255, 51, 0) 62%);
+  pointer-events: none;
 }
-
-/* ============ СЕКЦИИ ============ */
+.lp-hero-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(227, 225, 216, 0) 0%, rgba(227, 225, 216, 0.18) 38%, rgba(221, 255, 51, 0.35) 70%, rgba(227, 225, 216, 0) 100%);
+}
 .lp-hero {
   position: relative;
-  padding: 132px 24px 0;
-  overflow: hidden;
-}
-.lp-sec {
-  position: relative;
-  padding: 118px 24px;
-  overflow: hidden;
-}
-.lp-sec--tight {
-  padding-top: 40px;
-}
-.lp-final {
-  position: relative;
-  padding: 130px 24px 150px;
-  text-align: center;
-  overflow: hidden;
-}
-.lp-row {
-  margin: 0 auto;
   display: grid;
-  max-width: 1100px;
+  grid-template-columns: 1fr;
+  gap: 40px;
   align-items: center;
-  gap: 56px;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 120px clamp(18px, 4vw, 48px) 72px;
+  min-height: 100vh;
 }
-.lp-row--top {
-  align-items: start;
-}
-.lp-col {
-  min-width: 0;
-}
-@media (min-width: 900px) {
-  /* секция занимает экран целиком — тогда посекционная прокрутка
-     останавливается на осмысленных кадрах, как в референсе */
-  .lp-hero,
-  .lp-sec,
-  .lp-final {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
-    justify-content: center;
-  }
+@media (min-width: 901px) {
   .lp-hero {
-    padding-top: 172px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: clamp(24px, 5vw, 72px);
+    padding-top: 132px;
   }
-  .lp-sec {
-    padding: 120px 24px;
-  }
-  .lp-row {
-    grid-template-columns: 1fr 1fr;
-    gap: 64px;
-  }
-  .lp-col--end {
-    text-align: right;
-  }
-  .lp-col--end .lp-body,
-  .lp-col--end .lp-bigcard {
-    margin-left: auto;
-  }
-  .lp-col--end .lp-title {
-    align-items: flex-end;
-  }
-}
-@media (max-width: 899px) {
-  .lp-row--flip .lp-stage {
-    order: 2;
-  }
-}
-
-/* ============ СВЕЧЕНИЯ ============ */
-.lp-orb {
-  position: absolute;
-  border-radius: 9999px;
-  pointer-events: none;
-  filter: blur(130px);
-  background: rgba(221, 255, 51, 0.12);
-}
-.lp-orb--hero {
-  top: 4%;
-  left: 50%;
-  height: 440px;
-  width: 720px;
-  transform: translateX(-50%);
-}
-.lp-orb--left {
-  top: 16%;
-  left: 4%;
-  height: 400px;
-  width: 520px;
-  background: rgba(221, 255, 51, 0.085);
-}
-.lp-orb--right {
-  top: 16%;
-  right: 2%;
-  height: 400px;
-  width: 520px;
-  background: rgba(221, 255, 51, 0.085);
 }
 
 /* ============ ТЕЛЕФОН ============ */
-.lp-stage {
+.lp-phone {
   position: relative;
-  display: flex;
-  justify-content: center;
-  perspective: 1500px;
-}
-.lp-stage--hero {
-  margin-top: 74px;
-}
-/* мягкий «свет от пола» под аппаратом */
-.lp-stage::after {
-  content: '';
-  position: absolute;
-  bottom: -30px;
-  left: 50%;
-  height: 220px;
-  width: 130%;
-  max-width: 620px;
-  transform: translateX(-50%);
-  border-radius: 9999px;
-  background: radial-gradient(closest-side, rgba(221, 255, 51, 0.2), transparent 72%);
-  filter: blur(46px);
-  pointer-events: none;
-  z-index: 0;
-}
-.lp-device {
-  position: relative;
-  z-index: 1;
-  width: 296px;
+  aspect-ratio: 410 / 864;
   border-radius: 46px;
+  border: 1px solid var(--stone);
+  background: var(--deep);
   padding: 10px;
-  background: linear-gradient(155deg, #4a4a4a 0%, #141414 34%, #0b0b0b 62%, #3a3a3a 100%);
-  box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 70px 130px -46px rgba(0, 0, 0, 1),
-    0 0 90px -44px rgba(221, 255, 51, 0.4);
+  box-shadow: 0 60px 120px rgba(0, 0, 0, 0.55);
 }
-.lp-device__screen {
-  position: relative;
+.lp-phone__screen {
+  position: absolute;
+  inset: 10px;
+  border-radius: 38px;
   overflow: hidden;
-  border-radius: 37px;
-  background: #000;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  background: #fff;
 }
-.lp-device__screen img {
+.lp-phone__screen img {
   display: block;
   width: 100%;
-  /* пропорции экранов известны заранее: страница не «прыгает» при догрузке */
-  aspect-ratio: 780 / 1696;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
 }
-.lp-device--hero {
-  width: 316px;
+.lp-phone--hero {
+  justify-self: center;
+  height: clamp(460px, 44vw, 640px);
+  width: auto;
+  margin: 0 auto;
 }
-.lp-device--sm {
-  width: 218px;
-  border-radius: 36px;
-  padding: 8px;
+@media (min-width: 901px) {
+  .lp-phone--hero {
+    transform: perspective(1400px) rotateY(-9deg) rotateX(4deg);
+  }
+}
+.lp-phone--step {
   flex: 0 0 auto;
+  height: min(720px, 80vh);
+  width: auto;
+  border-radius: 48px;
+  box-shadow: 0 50px 110px rgba(0, 0, 0, 0.5);
 }
-.lp-device--sm .lp-device__screen {
-  border-radius: 29px;
+.lp-phone--step .lp-phone__screen {
+  border-radius: 40px;
+  background: var(--cream);
 }
-@media (min-width: 900px) {
-  .lp-device--hero {
-    width: 352px;
-  }
-  .lp-stage--right {
-    justify-content: flex-end;
-  }
-  .lp-stage--left {
-    justify-content: flex-start;
-  }
+/* экраны шага лежат стопкой: показывается тот, что сейчас активен */
+.lp-phone--step .lp-phone__screen img {
+  position: absolute;
+  inset: 0;
 }
 
-/* ============ ПЛИТКИ ============ */
-.lp-tiles {
-  margin-top: 38px;
-  display: grid;
-  max-width: 400px;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+/* ============ КАК СЕЙЧАС ============ */
+.lp-problem {
+  position: relative;
+  background: var(--cream);
+  color: #3e3c35;
+  padding: clamp(90px, 14vh, 170px) clamp(18px, 4vw, 48px);
 }
-.lp-tile {
+.lp-problem__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+.lp-strikes {
   display: flex;
-  height: 92px;
   flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-  border-radius: 20px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  padding: 0 20px;
+  gap: 18px;
+  margin-top: 48px;
 }
-.lp-tile svg {
-  height: 22px;
-  width: 22px;
-  color: var(--lime);
-}
-.lp-tile span {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.74);
-}
-
-/* ============ БОЛЬШАЯ КАРТА ============ */
-.lp-bigcard {
-  margin-top: 38px;
-  max-width: 420px;
-  border-radius: 26px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  padding: 26px;
-  text-align: left;
-}
-.lp-bigcard__num {
-  font-size: clamp(34px, 4.4vw, 46px);
+.lp-strike {
+  position: relative;
+  align-self: flex-start;
   font-weight: 800;
   letter-spacing: -0.03em;
-  line-height: 1;
+  font-size: clamp(28px, 5vw, 64px);
+  line-height: 1.05;
 }
-.lp-bigcard__cur {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--muted);
-}
-.lp-bigcard__row {
-  margin-top: 20px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.lp-bigcard__field {
-  flex: 1;
-  min-width: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 12px 18px;
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.42);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.lp-bigcard__send {
-  display: flex;
-  height: 42px;
-  width: 42px;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: var(--lime);
-  color: #12140b;
-}
-.lp-bigcard__send svg {
-  height: 19px;
-  width: 19px;
-}
-
-/* ============ СПИСКИ / БЕЙДЖ ============ */
-.lp-list {
-  margin-top: 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.lp-list li {
-  display: flex;
-  gap: 12px;
-  font-size: 14.5px;
-  font-weight: 600;
-  line-height: 1.55;
-  color: rgba(255, 255, 255, 0.68);
-  text-align: left;
-}
-.lp-list i {
-  display: flex;
-  height: 20px;
-  width: 20px;
-  flex: 0 0 auto;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  background: var(--lime);
-  color: #12140b;
-  font-size: 11px;
-  font-style: normal;
-  font-weight: 900;
-  margin-top: 2px;
-}
-.lp-badge {
-  display: inline-flex;
-  height: 32px;
-  align-items: center;
-  border-radius: 999px;
-  border: 1px solid rgba(221, 255, 51, 0.26);
-  background: rgba(221, 255, 51, 0.08);
-  padding: 0 16px;
-  margin-bottom: 22px;
-  font-size: 12.5px;
-  font-weight: 800;
-  color: var(--lime);
-}
-
-/* ============ ЛЕНТА ЭКРАНОВ ============ */
-.lp-rail {
-  margin: 62px auto 0;
-  display: flex;
-  max-width: 1180px;
-  gap: 26px;
-  overflow-x: auto;
-  padding: 0 24px 16px;
-  scrollbar-width: none;
-}
-.lp-rail::-webkit-scrollbar {
-  display: none;
-}
-/* на мобильном лента идёт от края до края: отступы секции гасим
-   отрицательными полями, иначе слева остаётся пустая полоса */
-@media (max-width: 899px) {
-  .lp-rail {
-    margin-right: -24px;
-    margin-left: -24px;
-    /* контейнер прокрутки во всю ширину, но по краям ленты — воздух */
-    padding-right: 24px;
-    padding-left: 24px;
-  }
-}
-@media (min-width: 1200px) {
-  .lp-rail {
-    justify-content: center;
-    overflow: visible;
-  }
-}
-
-/* ============ ЦИФРЫ ============ */
-.lp-stats {
-  margin: 0 auto;
-  display: grid;
-  max-width: 1100px;
-  gap: 16px;
-  padding: 30px 24px 20px;
-}
-@media (min-width: 700px) {
-  .lp-stats {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-.lp-stat {
-  border-radius: 24px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  padding: 32px 24px;
-  text-align: center;
-}
-.lp-stat__num {
-  font-size: 42px;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--lime);
-  letter-spacing: -0.02em;
-}
-.lp-stat__cap {
-  display: block;
-  margin-top: 10px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-/* ============ БРЕНДЫ ============ */
-.lp-brands {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 26px 54px;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  padding: 34px 24px;
-  opacity: 0.5;
-}
-.lp-brands img {
-  width: auto;
-  filter: brightness(0) invert(1);
-}
-
-/* ============ ФОРМА ============ */
-.lp-form {
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  background: rgba(255, 255, 255, 0.04);
-  padding: 30px;
-}
-.lp-form h3 {
-  font-size: 21px;
-  font-weight: 800;
-}
-.lp-form__sub {
-  margin-top: 6px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--muted);
-}
-.lp-form__fields {
-  margin-top: 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.lp-input {
-  height: 52px;
+.lp-strike__line {
+  position: absolute;
+  left: 0;
+  top: 55%;
+  height: 5px;
   width: 100%;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.11);
-  background: rgba(255, 255, 255, 0.045);
-  padding: 0 16px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #fff;
-  outline: none;
-  transition: border-color 180ms ease;
+  background: var(--lime);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
 }
-.lp-input--area {
-  height: auto;
-  padding: 14px 16px;
-  line-height: 1.45;
-  resize: none;
+.lp-problem__final {
+  margin-top: 70px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-size: clamp(30px, 5.6vw, 72px);
+  line-height: 1.02;
+  color: var(--ink);
+  opacity: 0;
 }
-.lp-input::placeholder {
-  color: rgba(255, 255, 255, 0.3);
+
+/* ============ ВОСЕМЬ ШАГОВ ============ */
+.lp-how {
+  position: relative;
+  background: var(--ink);
 }
-.lp-input:focus {
-  border-color: rgba(221, 255, 51, 0.5);
+.lp-pin {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
 }
-.lp-form__note {
-  text-align: center;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.3);
-}
-.lp-form__done {
+.lp-pinrow {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 52px 0;
-  text-align: center;
-  gap: 8px;
-}
-.lp-form__check {
-  display: flex;
-  height: 64px;
-  width: 64px;
-  align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  gap: 24px;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 96px clamp(18px, 4vw, 48px) 44px;
+}
+@media (min-width: 901px) {
+  .lp-pinrow {
+    flex-direction: row;
+    gap: clamp(24px, 6vw, 90px);
+  }
+}
+@media (max-height: 900px) {
+  .lp-pinrow {
+    padding-top: 74px;
+    padding-bottom: 28px;
+  }
+}
+.lp-dots {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  order: 0;
+}
+.lp-dots span {
+  display: block;
+  width: 34px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--stone);
+  transition: background 0.3s, transform 0.3s;
+}
+.lp-dots span.is-on {
   background: var(--lime);
-  color: #12140b;
-  font-size: 27px;
-  margin-bottom: 12px;
+  transform: scaleY(2);
+}
+@media (min-width: 901px) {
+  .lp-dots {
+    flex-direction: column;
+  }
+  .lp-dots span {
+    width: 2px;
+    height: 34px;
+  }
+  .lp-dots span.is-on {
+    transform: scaleX(2);
+  }
+}
+.lp-pintext {
+  position: relative;
+  flex: 1;
+  max-width: 100%;
+  order: 2;
+  text-align: center;
+}
+@media (min-width: 901px) {
+  .lp-pintext {
+    max-width: 460px;
+    min-height: 260px;
+    order: 0;
+    text-align: left;
+  }
+  /* тексты шагов лежат стопкой в одной точке — их меняет таймлайн */
+  .lp-step {
+    position: absolute;
+    inset: 0;
+  }
+}
+.lp-step__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--lime);
+  margin-bottom: 20px;
+}
+.lp-step__title {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-size: clamp(28px, 3.4vw, 48px);
+  line-height: 1.05;
+}
+.lp-step__text {
+  margin: 18px 0 0;
+  font-size: 18px;
+  line-height: 1.5;
+  color: var(--faint);
+  font-weight: 500;
 }
 
 /* ============ БЕГУЩАЯ СТРОКА ============ */
-.lp-marquee-wrap {
-  overflow: hidden;
+.lp-marq-sec {
+  position: relative;
+  background: var(--deep);
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
-  padding: 26px 0;
-  /* края уводим в прозрачность, чтобы строка не обрывалась резко */
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  padding: 34px 0;
+  overflow: hidden;
 }
-.lp-marquee {
+.lp-marq {
   display: flex;
-  width: max-content;
-  animation: lp-scroll 34s linear infinite;
+  white-space: nowrap;
+  will-change: transform;
 }
-.lp-marquee__set {
+.lp-marq span {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(26px, 4vw, 54px);
+  letter-spacing: 0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1px #5b594f;
+  padding-right: 40px;
+}
+
+/* ============ ПРИЧИНЫ ============ */
+.lp-reasons {
+  background: var(--cream);
+  color: #3e3c35;
+  padding: clamp(90px, 13vh, 160px) clamp(18px, 4vw, 48px);
+}
+.lp-reasons__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.lp-reasons__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-top: 60px;
+}
+@media (min-width: 901px) {
+  .lp-reasons__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.lp-card {
+  background: #fff;
+  border: 1px solid #e3e1d8;
+  border-radius: 24px;
+  padding: 34px;
+  transition: transform 0.3s, background 0.3s;
+}
+.lp-card:hover {
+  transform: translateY(-6px);
+  background: #f0eee8;
+}
+.lp-card:hover svg {
+  stroke: #8ca300;
+}
+.lp-card h3 {
+  margin: 22px 0 10px;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.lp-card p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #5b594f;
+  font-weight: 500;
+}
+
+/* ============ ЛЕНТА ЗАВЕДЕНИЙ ============ */
+.lp-strip {
+  background: var(--ink);
+  padding: clamp(90px, 13vh, 160px) 0;
+  overflow: hidden;
+}
+.lp-strip__head {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 clamp(18px, 4vw, 48px);
+}
+.lp-strip__sub {
+  margin: 22px 0 0;
+  max-width: 560px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--muted);
+  font-weight: 500;
+}
+.lp-rail {
   display: flex;
+  gap: 18px;
+  margin-top: 56px;
+  padding: 0 clamp(18px, 4vw, 48px);
+  will-change: transform;
 }
-.lp-marquee__item {
+.lp-mcard {
+  flex: 0 0 clamp(240px, 22vw, 300px);
+  background: var(--deep);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: hidden;
+}
+.lp-mcard__photo {
+  height: 150px;
+  background: #141410;
+  overflow: hidden;
+}
+.lp-mcard__photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.lp-mcard__body {
+  padding: 20px 20px 22px;
+}
+.lp-mcard__title {
   display: flex;
   align-items: center;
-  gap: 30px;
-  padding-right: 30px;
-  font-size: clamp(20px, 2.2vw, 30px);
-  font-weight: 800;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 17px;
   letter-spacing: -0.02em;
-  white-space: nowrap;
-  color: rgba(255, 255, 255, 0.62);
 }
-.lp-marquee__item i {
-  font-style: normal;
-  font-size: 0.62em;
-  color: var(--lime);
+.lp-mcard__title img {
+  height: 26px;
+  width: 26px;
+  object-fit: contain;
+  border-radius: 6px;
+  background: var(--cream);
+  padding: 2px;
 }
-@keyframes lp-scroll {
-  to {
-    transform: translateX(-50%);
+.lp-mcard__sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 8px;
+}
+.lp-mcard__badge {
+  display: inline-block;
+  margin-top: 14px;
+  background: var(--lime);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+/* ============ ЗАВЕДЕНИЯМ ============ */
+.lp-merch {
+  background: var(--cream);
+  color: #3e3c35;
+  padding: clamp(90px, 13vh, 160px) clamp(18px, 4vw, 48px);
+}
+.lp-merch__inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(30px, 6vw, 80px);
+  align-items: center;
+}
+@media (min-width: 901px) {
+  .lp-merch__inner {
+    grid-template-columns: 1fr 1fr;
   }
+}
+.lp-merch__title {
+  margin-top: 24px;
+  font-size: clamp(28px, 3.9vw, 56px);
+}
+.lp-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  margin-top: 44px;
+}
+.lp-term {
+  display: flex;
+  gap: 18px;
+  align-items: baseline;
+  border-top: 1px solid #e3e1d8;
+  padding-top: 18px;
+}
+.lp-term span:first-child {
+  flex: 0 0 130px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+}
+.lp-term span:last-child {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #5b594f;
+  font-weight: 500;
+}
+.lp-dash {
+  background: #fff;
+  border: 1px solid #e3e1d8;
+  border-radius: 26px;
+  padding: 26px;
+}
+.lp-dash__head {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+.lp-dash__nums {
+  display: flex;
+  gap: 26px;
+  margin-top: 20px;
+}
+.lp-dash__num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 26px;
+  color: var(--ink);
+}
+.lp-dash__cap {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+.lp-dash__chart {
+  width: 100%;
+  height: auto;
+  margin-top: 22px;
+}
+
+/* ============ ВОПРОСЫ ============ */
+.lp-faq {
+  background: var(--ink);
+  padding: clamp(90px, 13vh, 160px) clamp(18px, 4vw, 48px);
+}
+.lp-faq__inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+.lp-faq .lp-h2 {
+  margin-bottom: 56px;
+}
+.lp-acc {
+  border-top: 1px solid var(--line);
+}
+.lp-acc.is-last {
+  border-bottom: 1px solid var(--line);
+}
+.lp-acc__btn {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 26px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  text-align: left;
+  color: var(--cream);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: clamp(17px, 1.6vw, 22px);
+  cursor: pointer;
+}
+.lp-acc__plus {
+  flex: 0 0 auto;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  color: var(--lime);
+  display: inline-block;
+  transition: transform 0.4s, color 0.4s;
+}
+.lp-acc__plus.is-on {
+  transform: rotate(135deg);
+  color: var(--cream);
+}
+.lp-acc__body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.lp-acc__body.is-open {
+  grid-template-rows: 1fr;
+}
+.lp-acc__body > p {
+  overflow: hidden;
+  margin: 0;
+  max-width: 640px;
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--muted);
+  font-weight: 500;
+}
+.lp-acc__body.is-open > p {
+  padding-bottom: 26px;
+}
+
+/* ============ ФИНАЛ ============ */
+.lp-final {
+  background: var(--lime);
+  color: var(--ink);
+  padding: clamp(100px, 16vh, 190px) clamp(18px, 4vw, 48px);
+  text-align: center;
+}
+.lp-final__title {
+  margin: 0 auto;
+  max-width: 1000px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-size: clamp(34px, 6.4vw, 96px);
+  line-height: 0.98;
+  text-wrap: balance;
+}
+.lp-final__cta {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 48px;
+}
+.lp-final__site {
+  margin-top: 36px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
 }
 
 /* ============ ПОДВАЛ ============ */
 .lp-foot {
+  position: relative;
+  background: var(--ink);
+  padding: 80px clamp(18px, 4vw, 48px) 0;
+  overflow: hidden;
+}
+.lp-foot__inner {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+.lp-foot__links {
+  border-top: 1px solid var(--line);
+  padding-top: 26px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 40px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.lp-foot__links a {
+  color: var(--muted);
+  transition: color 0.2s;
+}
+.lp-foot__links a:hover {
+  color: var(--lime);
+}
+.lp-foot__links span {
+  margin-left: auto;
+  color: #5b594f;
+}
+.lp-foot__mark {
+  font-weight: 800;
+  font-style: italic;
+  letter-spacing: -0.05em;
+  font-size: clamp(120px, 26vw, 420px);
+  line-height: 0.78;
+  color: var(--cream);
+  margin-top: 40px;
+  margin-bottom: -0.14em;
+  text-align: center;
+}
+
+/* ============ МОДАЛКА ============ */
+.lp-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.lp-modal__bg {
+  position: absolute;
+  inset: 0;
+  background: rgba(14, 14, 12, 0.72);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.lp-modal__card {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: var(--cream);
+  color: #3e3c35;
+  border-radius: 26px;
+  padding: 32px;
+}
+.lp-modal__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+.lp-modal__top h3 {
+  margin: 10px 0 0;
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.lp-modal__kicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  color: var(--muted);
+}
+.lp-modal__x {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e3e1d8;
+  background: #fff;
+  color: #3e3c35;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+.lp-modal__body {
+  margin-top: 22px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px;
-  border-top: 1px solid var(--line);
-  margin: 0 auto;
-  max-width: 1100px;
-  padding: 38px 24px;
+  gap: 12px;
 }
-.lp-foot img {
-  height: 44px;
-  width: auto;
-  opacity: 0.6;
+.lp-modal__sub {
+  margin: 0 0 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #5b594f;
 }
-.lp-foot p {
-  font-size: 13px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.3);
+.lp-input {
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid #e3e1d8;
+  border-radius: 14px;
+  background: #fff;
+  font-family: inherit;
+  font-size: 15px;
+  color: var(--ink);
+  outline: none;
+  transition: border-color 0.2s;
 }
-@media (min-width: 640px) {
-  .lp-foot {
-    flex-direction: row;
-  }
+.lp-input:focus {
+  border-color: var(--lime);
+}
+.lp-input--mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+.lp-modal__send {
+  margin-top: 6px;
+  width: 100%;
+  padding: 16px 0;
+  border: none;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--lime);
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 15px;
+  cursor: pointer;
+}
+.lp-modal__send:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.lp-modal__done {
+  margin-top: 22px;
+}
+.lp-modal__done h3 {
+  margin: 0;
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--ink);
+}
+.lp-modal__done p {
+  margin: 10px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #5b594f;
 }
 </style>

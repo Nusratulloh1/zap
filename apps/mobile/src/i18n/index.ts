@@ -112,6 +112,11 @@ export function translate(key: string, params?: Record<string, unknown>): string
   return i18n.t(key, params ?? {}) as string;
 }
 
+/** Есть ли такой ключ в текущей локали — для необязательных текстов. */
+export function hasKey(key: string): boolean {
+  return i18n.exists(key);
+}
+
 export function currentLocale(): Locale {
   return (i18n.language as Locale) ?? 'uz';
 }

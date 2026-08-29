@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font, radius } from '@/theme/tokens';
+import { hasKey } from '@/i18n';
 import type { Merchant } from '@zap/shared/types';
 
 export interface PromoSlide {
@@ -34,18 +35,30 @@ export function buildSlides(
     color: '#DDFF33',
     letter: '★',
   };
+  // Условия и бейджи берём из локалей — ровно как HomePage.vue. В ответе
+  // бэкенда offer.label/terms лежат только по-русски (демо-данные), и если
+  // печатать их напрямую, узбекский интерфейс получает русские вставки.
   const offers = merchants
     .filter((m) => m.offer)
     .slice(0, 4)
-    .map<PromoSlide>((m) => ({
-      key: m.id,
-      kind: 'offer',
-      title: t('home.offerAt', { label: m.offer!.label, name: m.name }),
-      subtitle: m.offer!.terms,
-      badge: m.offer!.label,
-      color: m.color,
-      letter: m.letter,
-    }));
+    .map<PromoSlide>((m) => {
+      const o = m.offer!;
+      const badge = o.multiplier
+        ? t('badge.cashback', { v: `×${o.multiplier}` })
+        : o.percent
+          ? t('badge.discount', { v: `${o.percent}%` })
+          : t('badge.promo', { v: '' }).trim();
+      const termsKey = `offers.${m.id}`;
+      return {
+        key: m.id,
+        kind: 'offer',
+        title: t('home.offerAt', { label: badge, name: m.name }),
+        subtitle: hasKey(termsKey) ? t(termsKey) : t('home.promoText'),
+        badge,
+        color: m.color,
+        letter: m.letter,
+      };
+    });
   return [hero, ...offers];
 }
 
@@ -58,13 +71,15 @@ export function PromoCarousel({ slides, onPress }: { slides: PromoSlide[]; onPre
 
   // ширина слайда = ширина экрана минус поля; следующий слайд чуть выглядывает
   const H_PAD = 20;
+  const GAP = 12;
   const slideW = width - H_PAD * 2;
+  const step = slideW + GAP;
 
   const onMomentumEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      setIndex(Math.round(e.nativeEvent.contentOffset.x / slideW));
+      setIndex(Math.round(e.nativeEvent.contentOffset.x / step));
     },
-    [slideW],
+    [step],
   );
 
   const segments = useMemo(() => slides.map((s, i) => ({ key: s.key, active: i === index })), [slides, index]);
@@ -82,9 +97,8 @@ export function PromoCarousel({ slides, onPress }: { slides: PromoSlide[]; onPre
       <ScrollView
         ref={scroller}
         horizontal
-        pagingEnabled
         decelerationRate="fast"
-        snapToInterval={slideW}
+        snapToInterval={step}
         snapToAlignment="start"
         disableIntervalMomentum
         showsHorizontalScrollIndicator={false}
@@ -94,7 +108,7 @@ export function PromoCarousel({ slides, onPress }: { slides: PromoSlide[]; onPre
         {slides.map((s) => (
           <PressableScale
             key={s.key}
-            style={[styles.slide, { width: slideW }]}
+            style={{ width: slideW, marginRight: GAP }}
             onPress={() => onPress?.(s)}
             accessibilityRole="button"
           >
@@ -145,7 +159,6 @@ function Segment({ active, color, dim }: { active: boolean; color: string; dim: 
 const styles = StyleSheet.create({
   segments: { flexDirection: 'row', gap: 6, marginBottom: 14 },
   segment: { flex: 1, height: 3, borderRadius: 999 },
-  slide: { paddingRight: 12 },
   card: { borderRadius: radius.card, padding: 18, minHeight: 168, justifyContent: 'space-between' },
   cardHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   logo: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },

@@ -138,7 +138,9 @@ export function HomeScreen() {
         onScroll={onScroll}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+        // таб-бар (~62) + пилюля активного сплита (~58) + зазоры — иначе
+        // последние секции оказываются под плавающими элементами
+        contentContainerStyle={{ paddingBottom: insets.bottom + (home.activeSplit ? 196 : 128) }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.muted} />}
       >
         {/* ── тёмный герой ── */}
@@ -162,7 +164,10 @@ export function HomeScreen() {
                       {c.key === 'all' ? '▦' : c.key === 'cashback' ? '▤' : c.key === 'promo' ? '◈' : '%'}
                     </Text>
                   </View>
-                  <Text style={[styles.categoryLabel, { color: active ? '#FFFFFF' : 'rgba(255,255,255,0.7)' }]}>
+                  <Text
+                    numberOfLines={2}
+                    style={[styles.categoryLabel, { color: active ? '#FFFFFF' : 'rgba(255,255,255,0.7)' }]}
+                  >
                     {t(c.label)}
                   </Text>
                 </PressableScale>
@@ -395,11 +400,11 @@ const styles = StyleSheet.create({
   scanCorner: { position: 'absolute', width: 7, height: 7, borderColor: '#FFFFFF' },
 
   hero: { backgroundColor: '#0E0E0C', paddingBottom: 26 },
-  categories: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 20, marginTop: 24 },
-  category: { alignItems: 'center', gap: 7, width: 72 },
+  categories: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, paddingHorizontal: 20, marginTop: 24 },
+  category: { alignItems: 'center', gap: 7, flex: 1 },
   categoryIcon: { width: 52, height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   categoryGlyph: { fontSize: 18, fontFamily: font.extrabold },
-  categoryLabel: { fontFamily: font.semibold, fontSize: 11.5, textAlign: 'center' },
+  categoryLabel: { fontFamily: font.semibold, fontSize: 11, textAlign: 'center', lineHeight: 13 },
 
   searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 20, marginTop: 22 },
   searchField: {

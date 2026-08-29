@@ -190,7 +190,7 @@ export function OnboardingScreen() {
           key={index}
           entering={slideEnter(dir * 28)}
           exiting={slideExit(dir * -20)}
-          style={styles.slide}
+          style={styles.slideAbs}
         >
           {index === 0 ? <SlideScan t={translate} fixed={fixed} /> : null}
           {index === 1 ? <SlideSplit t={translate} fixed={fixed} /> : null}
@@ -341,7 +341,16 @@ const styles = StyleSheet.create({
 
   stageArea: { flex: 1 },
   stage: { fontFamily: font.monoBold, fontSize: 10.5, letterSpacing: 1.7, opacity: 0.62 },
-  slide: { flex: 1, justifyContent: 'center', gap: 18 },
+  // абсолют, чтобы уходящий и приходящий слайды лежали в одном боксе
+  slideAbs: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    gap: 18,
+  },
   title: { fontFamily: font.extrabold, fontSize: 40, letterSpacing: -1.2, lineHeight: 42 },
   text: { fontFamily: font.semibold, fontSize: 15, lineHeight: 21, maxWidth: 310, opacity: 0.72 },
 
