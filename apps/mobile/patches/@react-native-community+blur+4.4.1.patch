@@ -1,0 +1,17 @@
+diff --git a/node_modules/@react-native-community/blur/package.json b/node_modules/@react-native-community/blur/package.json
+index 4e5c8a6..24a2d02 100644
+--- a/node_modules/@react-native-community/blur/package.json
++++ b/node_modules/@react-native-community/blur/package.json
+@@ -152,6 +152,12 @@
+     "jsSrcsDir": "./src/fabric",
+     "android": {
+       "javaPackageName": "com.reactnativecommunityblur"
++    },
++    "ios": {
++      "componentProvider": {
++        "BlurView": "BlurView",
++        "VibrancyView": "VibrancyView"
++      }
+     }
+   }
+ }

@@ -58,6 +58,10 @@ export async function http<T = unknown>(path: string, init: Options = {}): Promi
       'Content-Type': 'application/json',
       ...((init.headers as Record<string, string>) ?? {}),
     };
+    // multipart нельзя объявлять руками: boundary генерирует сам рантайм при
+    // сборке тела, и заголовок без него сервер разобрать не может (файл
+    // «теряется»). Снимаем Content-Type — fetch проставит его с boundary.
+    if (init.body instanceof FormData) delete headers['Content-Type'];
     if (init.auth !== false && tokens) headers.Authorization = `Bearer ${tokens.accessToken}`;
     if (init.pt && paymentToken) {
       headers['X-Payment-Token'] = paymentToken;

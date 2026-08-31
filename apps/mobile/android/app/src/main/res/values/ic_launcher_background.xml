@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- фирменный лайм: фон адаптивной иконки и сплэша -->
-    <color name="ic_launcher_background">#DDFF33</color>
+    <color name="ic_launcher_background">#CCF60F</color>
+    <color name="ic_launcher_mosaic_background">#C6E436</color>
+    <color name="ic_launcher_hands_background">#A8DE00</color>
 </resources>

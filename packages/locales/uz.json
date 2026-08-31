@@ -30,7 +30,8 @@
     "updateAvailable": "Yangilanish mavjud",
     "updateAction": "Yangilash",
     "installedToast": "ZAP! o‘rnatildi 🎉",
-    "itemFallback": "Mahsulot"
+    "itemFallback": "Mahsulot",
+    "ok": "Davom etish"
   },
   "onboarding": {
     "stage": "{n}-BOSQICH",
@@ -474,7 +475,15 @@
     "checkingCard": "Karta tekshirilmoqda…",
     "logoutConfirm": "Chiqilsinmi?",
     "theme": "Mavzu",
-    "themeSystem": "Tizim bo‘yicha"
+    "themeSystem": "Tizim bo‘yicha",
+    "appIcon": "Ilova ikonkasi",
+    "appIconTitle": "Ikonkani tanlang",
+    "iconReceipts": "Cheklar",
+    "iconMosaic": "Mozaika",
+    "iconHands": "Do'stlar",
+    "appIconRestart": "Ikonka almashtirilgach Android ilovani yopadi — uni qaytadan oching.",
+    "appIconDone": "Ikonka o'zgartirildi",
+    "appIconFailed": "Ikonkani o'zgartirib bo'lmadi"
   },
   "install": {
     "title": "ZAP! ni o'rnating",

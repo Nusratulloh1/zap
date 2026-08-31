@@ -1,27 +1,16 @@
 // Тосты — как в вебе: тёмная плашка сверху, success с лаймовой галкой.
 // Стор глобальный (zustand), хост монтируется один раз в App.
 import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
+import { FullWindowOverlay } from 'react-native-screens';
 import Animated, {
-  FadeOutUp,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
   withSpring,
   withTiming,
-  type EntryAnimationsValues,
 } from 'react-native-reanimated';
 import { SPRING_GENTLE } from '@/lib/motion';
-
-// вход тоста с лёгким перелётом — web .toast-enter (cubic-bezier(.34,1.4,.5,1))
-const toastIn = (values: EntryAnimationsValues) => {
-  'worklet';
-  void values;
-  return {
-    initialValues: { opacity: 0, transform: [{ translateY: -16 }, { scale: 0.96 }] },
-    animations: {
-      opacity: withTiming(1, { duration: 220 }),
-      transform: [{ translateY: withSpring(0, SPRING_GENTLE) }, { scale: withSpring(1, SPRING_GENTLE) }],
-    },
-  };
-};
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { create } from 'zustand';
 import { font } from '@/theme/tokens';
@@ -51,16 +40,37 @@ export function ToastHost() {
   const { msg, ok, seq, hide } = useToastStore();
   const insets = useSafeAreaInsets();
 
+  // Анимация на shared value, а НЕ на layout-анимациях (entering/exiting).
+  // Внутри FullWindowOverlay это отдельное UIWindow, создаваемое под каждый
+  // тост: layout-анимации там срываются — плашка появляется рывком и застывает.
+  // Ручная прогрессия таких проблем не имеет, потому что живёт на UI-потоке
+  // и не зависит от монтирования вью в новом окне.
+  const p = useSharedValue(0);
+
   useEffect(() => {
     if (!msg) return;
-    const id = setTimeout(hide, 2600);
+    p.value = 0;
+    p.value = withSpring(1, SPRING_GENTLE);
+    const id = setTimeout(() => {
+      // уводим плашку сами и только потом чистим стор — иначе вью исчезнет
+      // мгновенно, без ухода
+      p.value = withTiming(0, { duration: 200 }, (done) => {
+        if (done) runOnJS(hide)();
+      });
+    }, 2600);
     return () => clearTimeout(id);
-  }, [msg, seq, hide]);
+  }, [msg, seq, hide, p]);
+
+  const pillStyle = useAnimatedStyle(() => ({
+    opacity: p.value,
+    transform: [{ translateY: -16 + p.value * 16 }, { scale: 0.96 + p.value * 0.04 }],
+  }));
 
   if (!msg) return null;
-  return (
+
+  const body = (
     <View pointerEvents="none" style={[styles.wrap, { top: insets.top + 10 }]}>
-      <Animated.View key={seq} entering={toastIn} exiting={FadeOutUp.duration(200)} style={styles.pill}>
+      <Animated.View style={[styles.pill, pillStyle]}>
         {ok ? (
           <View style={styles.check}>
             <Text style={styles.checkGlyph}>✓</Text>
@@ -72,6 +82,15 @@ export function ToastHost() {
       </Animated.View>
     </View>
   );
+
+  // На iOS экраны с presentation: 'modal' (сканер, итоги сплита, кешбэк)
+  // показываются отдельным UIViewController поверх корневого — тост, живущий
+  // в корне рядом с навигатором, оказывается ПОД ними и его просто не видно.
+  // Из-за этого сканер молча уходил в режим фото: сообщение «чек не распознан»
+  // отправлялось, но не отображалось. FullWindowOverlay рендерит в отдельное
+  // UIWindow поверх всего, включая модалки. На Android модалки — часть той же
+  // иерархии, там оверлей не нужен.
+  return Platform.OS === 'ios' ? <FullWindowOverlay>{body}</FullWindowOverlay> : body;
 }
 
 const styles = StyleSheet.create({

@@ -19,6 +19,9 @@ import { Glass } from '@/components/Glass';
 const ICON = { Home: 'home', Amount: 'grid', History: 'clock' } as const;
 type IconKind = (typeof ICON)[keyof typeof ICON];
 
+/** Общая сетка иконок таб-бара. */
+const ICON_SIZE = 24;
+
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { fixed, name } = useTheme();
@@ -124,8 +127,10 @@ function Icon({ kind, focused, lime, dark }: { kind: IconKind; focused: boolean;
     );
   }
 
-  if (kind === 'home') return <HomeIcon size={22} color={on} />;
-  return <ClockIcon size={23} color={on} />;
+  // один размер на все три вкладки: иконки нарисованы по-разному (два SVG и
+  // сетка из вью), и без общей сетки 24×24 они читались разнокалиберными
+  if (kind === 'home') return <HomeIcon size={ICON_SIZE} color={on} />;
+  return <ClockIcon size={ICON_SIZE} color={on} />;
 }
 
 const styles = StyleSheet.create({
@@ -159,8 +164,9 @@ const styles = StyleSheet.create({
   },
   house: { width: 16, height: 11, borderWidth: 2.2, borderTopWidth: 0, alignItems: 'center', justifyContent: 'flex-end' },
   door: { width: 4.5, height: 6 },
-  grid: { width: 25, flexDirection: 'row', flexWrap: 'wrap', gap: 5, alignItems: 'center', justifyContent: 'center' },
-  dot: { width: 5, height: 5, borderRadius: 999 },
+  // 3 точки × 6px + 2 зазора × 3px = 24px — ровно бокс SVG-иконок соседних вкладок
+  grid: { width: ICON_SIZE, flexDirection: 'row', flexWrap: 'wrap', gap: 3, alignItems: 'center', justifyContent: 'center' },
+  dot: { width: 6, height: 6, borderRadius: 999 },
   clock: { width: 21, height: 21, borderRadius: 999, borderWidth: 2.2, alignItems: 'center', justifyContent: 'center' },
   handV: { position: 'absolute', width: 2, height: 6, borderRadius: 2, top: 3.5 },
   handH: { position: 'absolute', width: 5, height: 2, borderRadius: 2, left: 9.5, top: 8.6 },

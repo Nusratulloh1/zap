@@ -28,6 +28,10 @@ export function Glass({ dark, fallback, amount = 18, style, children }: Props) {
   if (Platform.OS !== 'ios' || !BlurView) {
     return <View style={[style, { backgroundColor: fallback }]}>{children}</View>;
   }
+  // ВАЖНО: у контейнера не должно быть своего фона. UIVisualEffectView
+  // размывает то, что находится ЗА ним в иерархии, и непрозрачная подложка
+  // родителя превращает стекло в плоскую заливку. Запасной цвет отдаём
+  // только самому эффекту — он применит его при «Уменьшении прозрачности».
   return (
     <View style={[style, styles.clip]}>
       <BlurView

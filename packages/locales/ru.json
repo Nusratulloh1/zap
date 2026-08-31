@@ -30,7 +30,8 @@
     "updateAvailable": "Доступно обновление",
     "updateAction": "Обновить",
     "installedToast": "ZAP! установлен 🎉",
-    "itemFallback": "Товар"
+    "itemFallback": "Товар",
+    "ok": "Продолжить"
   },
   "onboarding": {
     "stage": "ЭТАП {n}",
@@ -474,7 +475,15 @@
     "checkingCard": "Проверяем карту…",
     "logoutConfirm": "Выйти?",
     "theme": "Тема",
-    "themeSystem": "Как в системе"
+    "themeSystem": "Как в системе",
+    "appIcon": "Иконка приложения",
+    "appIconTitle": "Выберите иконку",
+    "iconReceipts": "Чеки",
+    "iconMosaic": "Мозаика",
+    "iconHands": "Друзья",
+    "appIconRestart": "После смены иконки Android закроет приложение — откройте его заново.",
+    "appIconDone": "Иконка изменена",
+    "appIconFailed": "Не удалось сменить иконку"
   },
   "install": {
     "title": "Установите ZAP!",

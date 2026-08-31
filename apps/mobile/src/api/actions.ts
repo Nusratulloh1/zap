@@ -113,7 +113,8 @@ export async function fiscalOcr(uri: string): Promise<{ receipt?: FiscalReceiptV
   const form = new FormData();
   // RN FormData принимает {uri, type, name} — это его файловый формат
   form.append('image', { uri, type: 'image/jpeg', name: 'receipt.jpg' } as unknown as Blob);
-  return http('/qr/fiscal/ocr', { method: 'POST', body: form, headers: { 'Content-Type': 'multipart/form-data' } });
+  // Content-Type намеренно не задаём: см. http() — boundary ставит рантайм
+  return http('/qr/fiscal/ocr', { method: 'POST', body: form });
 }
 
 // ---------- публичный вид сплита (/s/:code) ----------

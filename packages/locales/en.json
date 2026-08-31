@@ -30,7 +30,8 @@
     "updateAvailable": "Update available",
     "updateAction": "Update",
     "installedToast": "ZAP! installed 🎉",
-    "itemFallback": "Item"
+    "itemFallback": "Item",
+    "ok": "Continue"
   },
   "onboarding": {
     "stage": "STEP {n}",
@@ -474,7 +475,15 @@
     "checkingCard": "Checking the card…",
     "logoutConfirm": "Log out?",
     "theme": "Theme",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "appIcon": "App icon",
+    "appIconTitle": "Choose an icon",
+    "iconReceipts": "Receipts",
+    "iconMosaic": "Mosaic",
+    "iconHands": "Friends",
+    "appIconRestart": "Android closes the app after the icon changes — just open it again.",
+    "appIconDone": "Icon changed",
+    "appIconFailed": "Couldn’t change the icon"
   },
   "install": {
     "title": "Install ZAP!",

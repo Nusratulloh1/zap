@@ -1,0 +1,100 @@
+diff --git a/node_modules/react-native-change-icon/ios/ChangeIcon.mm b/node_modules/react-native-change-icon/ios/ChangeIcon.mm
+index 389fe05..d0e2934 100644
+--- a/node_modules/react-native-change-icon/ios/ChangeIcon.mm
++++ b/node_modules/react-native-change-icon/ios/ChangeIcon.mm
+@@ -1,52 +1,72 @@
+ #import "ChangeIcon.h"
+ 
++// ПАТЧ (patches/react-native-change-icon+5.0.0.patch).
++//
++// Апстрим объявляет в ChangeIcon.h соответствие <NativeChangeIconSpec>, но
++// реализация осталась старой: методы объявлены через RCT_REMAP_METHOD (селекторы
++// changeIcon:resolver:rejecter:), нет resetIcon и нет -getTurboModule:. В
++// bridgeless-режиме RN 0.87 такой модуль невозможно инстанцировать, и
++// NativeModules.ChangeIcon приходит undefined.
++//
++// Здесь методы приведены к селекторам сгенерированного спека и добавлен
++// getTurboModule. Логика смены иконки — авторская, без изменений.
++
+ @implementation ChangeIcon
++
+ RCT_EXPORT_MODULE()
+ 
+ + (BOOL)requiresMainQueueSetup {
+     return NO;
+ }
+ 
+-RCT_REMAP_METHOD(getIcon, resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
++- (void)getIcon:(RCTPromiseResolveBlock)resolve
++         reject:(RCTPromiseRejectBlock)reject {
+     dispatch_async(dispatch_get_main_queue(), ^{
+         NSString *currentIcon = [[UIApplication sharedApplication] alternateIconName];
+-        if (currentIcon) {
+-            resolve(currentIcon);
+-        } else {
+-            resolve(@"Default");
+-        }
++        resolve(currentIcon ?: @"Default");
+     });
+ }
+ 
+-RCT_REMAP_METHOD(changeIcon, iconName:(NSString *)iconName resolver:(RCTPromiseResolveBlock)resolve rejecter:(RCTPromiseRejectBlock)reject) {
++- (void)changeIcon:(NSString *)iconName
++           resolve:(RCTPromiseResolveBlock)resolve
++            reject:(RCTPromiseRejectBlock)reject {
+     dispatch_async(dispatch_get_main_queue(), ^{
+-        NSError *error = nil;
+-
+         if ([[UIApplication sharedApplication] supportsAlternateIcons] == NO) {
+-            reject(@"Error", @"IOS:NOT_SUPPORTED", error);
++            reject(@"Error", @"IOS:NOT_SUPPORTED", nil);
+             return;
+         }
+ 
+         NSString *currentIcon = [[UIApplication sharedApplication] alternateIconName];
++        BOOL wantsDefault = iconName == nil || iconName.length == 0 || [iconName isEqualToString:@"Default"];
++        NSString *newIconName = wantsDefault ? nil : iconName;
+ 
+-        if ([iconName isEqualToString:currentIcon]) {
+-            reject(@"Error", @"IOS:ICON_ALREADY_USED", error);
++        if ((newIconName == nil && currentIcon == nil) ||
++            (newIconName != nil && [newIconName isEqualToString:currentIcon])) {
++            reject(@"Error", @"IOS:ICON_ALREADY_USED", nil);
+             return;
+         }
+ 
+-        NSString *newIconName;
+-        if (iconName == nil || [iconName length] == 0 || [iconName isEqualToString:@"Default"]) {
+-            newIconName = nil;
+-            resolve(@"Default");
+-        } else {
+-            newIconName = iconName;
+-            resolve(newIconName);
+-        }
+-
+-        [[UIApplication sharedApplication] setAlternateIconName:newIconName completionHandler:^(NSError * _Nullable error) {
+-            return;
++        // в апстриме promise резолвился ДО завершения смены, поэтому реальная
++        // ошибка iOS терялась; резолвим строго в completion-хендлере
++        [[UIApplication sharedApplication] setAlternateIconName:newIconName
++                                              completionHandler:^(NSError *_Nullable error) {
++            if (error) {
++                reject(@"Error", error.localizedDescription, error);
++                return;
++            }
++            resolve(wantsDefault ? @"Default" : newIconName);
+         }];
+     });
+ }
+ 
++- (void)resetIcon:(RCTPromiseResolveBlock)resolve
++           reject:(RCTPromiseRejectBlock)reject {
++    [self changeIcon:@"Default" resolve:resolve reject:reject];
++}
++
++- (std::shared_ptr<facebook::react::TurboModule>)getTurboModule:
++    (const facebook::react::ObjCTurboModule::InitParams &)params {
++    return std::make_shared<facebook::react::NativeChangeIconSpecJSI>(params);
++}
++
+ @end

@@ -10,6 +10,37 @@
 	<string>ZAP!</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
+		</dict>
+		<key>CFBundleAlternateIcons</key>
+		<dict>
+			<key>IconMosaic</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>IconMosaic</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+			<key>IconHands</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>IconHands</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+		</dict>
+	</dict>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -46,6 +77,23 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>Сканирование чеков — камера нужна для чтения QR-кода</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Face ID заменяет ввод PIN при входе в ZAP!</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Микрофон не используется: доступ требуется библиотеке камеры.</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>JetBrainsMono-Bold.ttf</string>
+		<string>JetBrainsMono-Medium.ttf</string>
+		<string>Manrope-Bold.ttf</string>
+		<string>Manrope-ExtraBold.ttf</string>
+		<string>Manrope-Medium.ttf</string>
+		<string>Manrope-SemiBold.ttf</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -58,20 +106,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSFaceIDUsageDescription</key>
-	<string>Face ID заменяет ввод PIN при входе в ZAP!</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>Микрофон не используется: доступ требуется библиотеке камеры.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Сканирование чеков — камера нужна для чтения QR-кода</string>
-	<key>UIAppFonts</key>
-	<array>
-		<string>JetBrainsMono-Bold.ttf</string>
-		<string>JetBrainsMono-Medium.ttf</string>
-		<string>Manrope-Bold.ttf</string>
-		<string>Manrope-ExtraBold.ttf</string>
-		<string>Manrope-Medium.ttf</string>
-		<string>Manrope-SemiBold.ttf</string>
-	</array>
 </dict>
 </plist>

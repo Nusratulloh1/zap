@@ -24,10 +24,10 @@
         android:launchMode="singleTask"
         android:windowSoftInputMode="adjustResize"
         android:exported="true">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+        <!-- LAUNCHER намеренно НЕ здесь: он живёт в activity-alias ниже.
+             Смена иконки = включение одного алиаса и выключение остальных,
+             поэтому пусковая точка обязана быть алиасом, иначе иконку
+             не подменить. -->
         <!-- диплинки zapapp.uz/s/CODE: ссылка сплита открывает приложение.
              autoVerify заработает после публикации assetlinks.json на домене -->
         <intent-filter android:autoVerify="true">
@@ -37,5 +37,50 @@
             <data android:scheme="https" android:host="zapapp.uz" android:pathPrefix="/s/" />
         </intent-filter>
       </activity>
+
+      <!-- Иконки приложения. Активен ровно один алиас; react-native-change-icon
+           ищет их по имени .MainActivity<Name>, поэтому имена завязаны на ключи
+           в src/lib/appIcon.ts. Default — «чеки», основная. -->
+      <activity-alias
+        android:name=".MainActivityDefault"
+        android:enabled="true"
+        android:exported="true"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:label="@string/app_name"
+        android:targetActivity=".MainActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+      </activity-alias>
+
+      <activity-alias
+        android:name=".MainActivityMosaic"
+        android:enabled="false"
+        android:exported="true"
+        android:icon="@mipmap/ic_launcher_mosaic"
+        android:roundIcon="@mipmap/ic_launcher_mosaic_round"
+        android:label="@string/app_name"
+        android:targetActivity=".MainActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+      </activity-alias>
+
+      <activity-alias
+        android:name=".MainActivityHands"
+        android:enabled="false"
+        android:exported="true"
+        android:icon="@mipmap/ic_launcher_hands"
+        android:roundIcon="@mipmap/ic_launcher_hands_round"
+        android:label="@string/app_name"
+        android:targetActivity=".MainActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+      </activity-alias>
     </application>
 </manifest>

@@ -19,6 +19,7 @@ import { refocus, useKeyboardLock } from '@/lib/keyboard';
 import { Toggle } from '@/components/Toggle';
 import { toast } from '@/components/ToastHost';
 import { LanguagePickerSheet } from '@/components/LanguageSheet';
+import { AppIconSheet } from '@/components/AppIconSheet';
 import { addCard, setPrimaryCard, changePin, toggleDebtNotifications } from '@/api/actions';
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
@@ -174,6 +175,7 @@ export function ProfileScreen() {
   // ---- прочее ----
   const [groupsSheet, setGroupsSheet] = useState(false);
   const [languageSheet, setLanguageSheet] = useState(false);
+  const [iconSheet, setIconSheet] = useState(false);
   const [logoutSheet, setLogoutSheet] = useState(false);
   const loggingOut = useRef(false);
 
@@ -296,6 +298,11 @@ export function ProfileScreen() {
               <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
             </PressableScale>
 
+
+            <PressableScale haptic={false} style={[styles.settingRow, { borderBottomColor: colors.sand2 }]} onPress={() => setIconSheet(true)}>
+              <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.appIcon')}</Text>
+              <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
+            </PressableScale>
 
             <PressableScale haptic={false} style={[styles.settingRow, { borderBottomColor: colors.sand2 }]} onPress={() => setGroupsSheet(true)}>
               <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.myGroups')}</Text>
@@ -500,6 +507,7 @@ export function ProfileScreen() {
       </BottomSheet>
 
       <LanguagePickerSheet open={languageSheet} onClose={() => setLanguageSheet(false)} />
+      <AppIconSheet open={iconSheet} onClose={() => setIconSheet(false)} />
     </Screen>
   );
 }
