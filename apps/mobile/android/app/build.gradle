@@ -132,22 +132,20 @@ dependencies {
 /*
  * Страховка от «зелёной сборки с пустым APK».
  *
- * Выше release помечен debuggableVariant, поэтому RN-плагин НЕ собирает JS сам
- * (Metro внутри Gradle падает по памяти на этой машине) — бандл кладётся
- * заранее командой из docs/mobile/RUN.md. Если файла нет, сборка всё равно
- * проходит успешно, а на выходе APK без единой строчки JS: приложение
- * стартует и белеет. Ровно это и случилось после уборки «устаревшего» файла.
- * Ошибка должна возникать здесь, а не на телефоне.
+ * release больше НЕ помечен debuggableVariant, поэтому RN-плагин собирает JS
+ * сам (createBundleReleaseJsAndAssets). Проверка осталась как сигнализация:
+ * если бандл вдруг не попал в APK, узнать об этом надо здесь, а не на
+ * телефоне по белому экрану. Раньше бандл клали руками — отсюда и требование
+ * собрать его заранее; теперь оно снято.
  */
 tasks.matching { it.name == "mergeReleaseAssets" }.configureEach {
-    doFirst {
-        if (!file("src/main/assets/index.android.bundle").exists()) {
+    doLast {
+        def bundled = file("build/intermediates/assets/release/mergeReleaseAssets/index.android.bundle")
+        def manual = file("src/main/assets/index.android.bundle")
+        if (!bundled.exists() && !manual.exists()) {
             throw new GradleException(
-                "Нет src/main/assets/index.android.bundle — release собрал бы APK без JS. " +
-                "Собери бандл заранее, команда в docs/mobile/RUN.md: " +
-                "npx react-native bundle --platform android --dev false --entry-file index.js " +
-                "--bundle-output android/app/src/main/assets/index.android.bundle " +
-                "--assets-dest android/app/src/main/res")
+                "release-APK собирается без index.android.bundle — приложение стартует и белеет. " +
+                "Проверь, что release не помечен в debuggableVariants (react { ... } выше).")
         }
     }
 }

@@ -58,7 +58,7 @@ export function RecapScreen() {
 
   if (isLoading || !data) {
     return (
-      <Screen style={styles.root} background={fixed.ink} darkBar>
+      <Screen style={styles.root} background={fixed.ink} darkBar noTopFade>
         <ScreenHeader tint="onDark" />
         <View style={styles.center}>
           <ActivityIndicator color={fixed.lime} />
@@ -69,7 +69,7 @@ export function RecapScreen() {
 
   if (data.empty) {
     return (
-      <Screen style={styles.root} background={fixed.ink} darkBar>
+      <Screen style={styles.root} background={fixed.ink} darkBar noTopFade>
         <ScreenHeader tint="onDark" />
         <View style={styles.center}>
           <Text style={styles.emptyTitle}>{t('recap.empty')}</Text>
@@ -92,7 +92,7 @@ export function RecapScreen() {
   const panel = panels[index]!;
 
   return (
-    <Screen style={styles.root} background={fixed.ink} darkBar>
+    <Screen style={styles.root} background={fixed.ink} darkBar noTopFade>
       <StoryProgress count={panels.length} index={index} progress={1} dark />
 
       <View style={styles.topRow}>
@@ -172,24 +172,25 @@ function PanelBody({ panel, recap, lime }: { panel: Panel; recap: MonthlyRecap; 
     );
   }
 
-  // breakdown: группируем заведения по теме (еда / кофе / такси …)
-  const buckets = new Map<string, number>();
-  for (const m of recap.byMerchant) {
-    const glyph = themeForMerchant(m.name)?.glyph ?? '🧾';
-    buckets.set(glyph, (buckets.get(glyph) ?? 0) + m.count);
-  }
-  const rows = [...buckets.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
+  // Разбивка по заведениям. Раньше здесь группировалось по эмодзи темы, но
+  // themeForMerchant возвращает null для большинства названий, и всё
+  // схлопывалось в одну строку «🧾 4» — цифра без смысла. Показываем сами
+  // заведения, а тему используем только как значок рядом.
+  const rows = recap.byMerchant.slice(0, 4);
 
   return (
-    <>
+    <View style={styles.breakWrap}>
       <Text style={styles.caption}>{t('recap.breakdown')}</Text>
-      {rows.map(([glyph, count]) => (
-        <View key={glyph} style={styles.breakRow}>
-          <Text style={styles.breakGlyph}>{glyph}</Text>
-          <Text style={[styles.breakCount, { color: lime }]}>{count}</Text>
+      {rows.map((m) => (
+        <View key={m.name} style={styles.breakRow}>
+          <Text style={styles.breakGlyph}>{themeForMerchant(m.name)?.glyph ?? '🧾'}</Text>
+          <Text style={styles.breakName} numberOfLines={1}>
+            {m.name}
+          </Text>
+          <Text style={[styles.breakCount, { color: lime }]}>{m.count}</Text>
         </View>
       ))}
-    </>
+    </View>
   );
 }
 
@@ -206,12 +207,14 @@ const styles = StyleSheet.create({
   bigMoney: { fontFamily: font.extrabold, fontSize: 44, letterSpacing: -1, textAlign: 'center' },
   label: { fontFamily: font.extrabold, fontSize: 24, color: '#FFFFFF', textAlign: 'center' },
   sub: { fontFamily: font.semibold, fontSize: 15, color: 'rgba(255,255,255,0.65)', textAlign: 'center' },
-  caption: { fontFamily: font.bold, fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 10 },
+  caption: { fontFamily: font.bold, fontSize: 13, color: 'rgba(255,255,255,0.5)', marginTop: 10, textAlign: 'center' },
   emptyTitle: { fontFamily: font.extrabold, fontSize: 22, color: '#FFFFFF', textAlign: 'center' },
   emptySub: { fontFamily: font.semibold, fontSize: 14, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
-  breakRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 12 },
-  breakGlyph: { fontSize: 40 },
-  breakCount: { fontFamily: font.extrabold, fontSize: 36 },
+  breakWrap: { alignSelf: 'stretch', alignItems: 'stretch' },
+  breakRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 18 },
+  breakGlyph: { fontSize: 30, width: 38, textAlign: 'center' },
+  breakName: { flex: 1, fontFamily: font.bold, fontSize: 18, color: '#FFFFFF' },
+  breakCount: { fontFamily: font.extrabold, fontSize: 28 },
   share: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginBottom: 18 },
   shareText: { fontFamily: font.extrabold, fontSize: 16 },
 });
