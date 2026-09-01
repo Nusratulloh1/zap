@@ -25,6 +25,7 @@ import { ReviewItemsScreen } from '@/screens/ReviewItemsScreen';
 import { ScanScreen } from '@/screens/ScanScreen';
 import { ParticipantScreen } from '@/screens/ParticipantScreen';
 import { RecapScreen } from '@/screens/RecapScreen';
+import { PhotoMomentScreen } from '@/screens/PhotoMomentScreen';
 import { TabNavigator } from '@/navigation/TabNavigator';
 import { useSession } from '@/store/session';
 import { ZapLoader } from '@/components/ZapLoader';
@@ -51,6 +52,7 @@ export type RootStackParamList = {
   Profile: undefined;
   Participant: { code: string };
   Recap: undefined;
+  PhotoMoment: { id: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -166,6 +168,7 @@ export function RootNavigator() {
             <Stack.Screen name="Cashback" component={CashbackScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="Participant" component={ParticipantScreen} options={{ animation: 'fade', animationDuration: 200 }} />
+            <Stack.Screen name="PhotoMoment" component={PhotoMomentScreen} options={Platform.OS === 'ios' ? { presentation: 'fullScreenModal' } : { animation: 'slide_from_bottom' }} />
             <Stack.Screen name="Recap" component={RecapScreen} options={Platform.OS === 'ios' ? { presentation: 'fullScreenModal' } : { animation: 'slide_from_bottom' }} />
           </Stack.Group>
         )}

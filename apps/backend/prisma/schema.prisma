@@ -183,6 +183,10 @@ model Split {
   cashbackX2  Boolean     @default(false)
   createdAt   DateTime    @default(now())
   closedAt    DateTime?
+  /// Photo Moment (vision §C15): фото компании к закрытому счёту.
+  /// Храним относительный путь внутри UPLOAD_DIR, а не URL: домен и схема
+  /// меняются между окружениями, а файл — нет.
+  photoPath   String?
 
   members   SplitMember[]
   debts     Debt[]

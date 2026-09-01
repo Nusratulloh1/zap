@@ -98,7 +98,7 @@
     "filterPromo": "Promos",
     "filterDiscount": "% Discounts",
     "searchPlaceholder": "{'@'}username or number",
-    "split": "Split",
+    "split": "Zap it",
     "cashbackCard": "Cashback balance",
     "cashbackEmpty": "Appears after your first split",
     "debtorsCard": "People who owe me",
@@ -176,7 +176,7 @@
     "order": "order",
     "table": "table",
     "total": "TOTAL",
-    "split": "Split it",
+    "split": "Zap it ⚡",
     "payWhole": "Pay in full",
     "x2Banner": "Cashback ×2 — when two or more of you split",
     "photoOk": "Receipt read from the photo",
@@ -201,7 +201,7 @@
     "title": "Amount",
     "yourAmount": "UZS · AMOUNT",
     "pay": "Pay",
-    "split": "Split",
+    "split": "Zap it",
     "paidToast": "Paid · {amount}",
     "scannerAria": "Scanner",
     "pinHint": "Payment · {amount} UZS",
@@ -257,7 +257,7 @@
     "title": "Show the QR to your friends",
     "subtitle": "Or send the link — paying takes a couple of taps",
     "statusPaidWaiting": "You paid · waiting for {names}",
-    "sendSms": "Send the link by SMS",
+    "sendSms": "Send a Zap request by SMS",
     "toStatus": "Go to split status",
     "allCollected": "All shares collected",
     "smsSent": "The link was sent by SMS",
@@ -309,7 +309,8 @@
     "shareMoment": "Share this moment →",
     "shareMessage": "{title} — splitting the bill on ZAP! ⚡ Your share is here: {url}",
     "shareFailed": "Could not share",
-    "allPaidDone": "Done"
+    "allPaidDone": "Done",
+    "joined": "{name} joined ⚡"
   },
   "closed": {
     "title": "Done, split closed",
@@ -382,7 +383,7 @@
     "setPinHint": "4 digits — to sign in to ZAP! quickly"
   },
   "group": {
-    "newSplit": "New split",
+    "newSplit": "New Zap",
     "invite": "Invite",
     "cashback": "GROUP CASHBACK",
     "members": "MEMBERS",
@@ -409,7 +410,7 @@
     "deleteNote": "Splits stay in your history",
     "deleteAction": "Delete",
     "deleted": "Group deleted",
-    "shareText": "Join the group on ZAP!"
+    "shareText": "Join the Zap group on ZAP! ⚡"
   },
   "debts": {
     "title": "Owed to you",
@@ -509,7 +510,10 @@
     "iconHands": "Friends",
     "appIconRestart": "Android closes the app after the icon changes — just open it again.",
     "appIconDone": "Icon changed",
-    "appIconFailed": "Couldn’t change the icon"
+    "appIconFailed": "Couldn’t change the icon",
+    "favouriteSplit": "Favourite split",
+    "fastestPayment": "Fastest payment",
+    "seconds": "{{n}} sec"
   },
   "install": {
     "title": "Install ZAP!",
@@ -827,7 +831,11 @@
     "suggestTitle": "Make it a Crew?",
     "suggestBody": "You split {n} bills with the same people",
     "suggestCta": "Create Crew ⚡",
-    "suggestSkip": "Not now"
+    "suggestSkip": "Not now",
+    "statFastest": "Fastest payer {{name}} — {{sec}} sec",
+    "statAlwaysLast": "Always last {{name}}",
+    "statBiggest": "Biggest bill {{amount}} · {{place}}",
+    "statBuddy": "Your ZAP buddy {{name}} — {{n}} together"
   },
   "recap": {
     "title": "Your {month} ⚡",
@@ -859,5 +867,55 @@
       "11": "November",
       "12": "December"
     }
+  },
+  "moments": {
+    "firstZap": {
+      "title": "First ZAP ⚡",
+      "sub": "Your first bill together."
+    },
+    "fiveBills": {
+      "title": "{{n}} bills together",
+      "sub": "You guys are becoming professionals."
+    },
+    "tenZaps": {
+      "title": "10 ZAPs ⚡",
+      "sub": "Ten bills split. No arguments."
+    },
+    "million": {
+      "title": "1 000 000 UZS",
+      "sub": "Split together. That is a real crew."
+    },
+    "fridayCrew": {
+      "title": "Friday Crew",
+      "sub": "Three Friday dinners together."
+    },
+    "cleanZap": {
+      "title": "CLEAN ZAP",
+      "sub": "{{n}}/{{n}} paid in {{sec}} sec."
+    },
+    "legendary": {
+      "title": "LEGENDARY SPLIT ⚡",
+      "sub": "That was a big one."
+    },
+    "nobodyLeft": {
+      "title": "100% PAID",
+      "sub": "Nobody disappeared 👀"
+    }
+  },
+  "titles": {
+    "fastestFinger": "Fastest Finger",
+    "lastPayer": "Last Payer",
+    "reliableOne": "Reliable One",
+    "bigSpender": "Big Spender",
+    "pizzaCFO": "Pizza CFO",
+    "coffeeAddict": "Coffee Addict"
+  },
+  "photoMoment": {
+    "add": "Add a photo 📸",
+    "title": "Photo Moment",
+    "flip": "Flip",
+    "saved": "Saved to this moment ⚡",
+    "failed": "Could not save the photo",
+    "allowCamera": "Allow camera access to capture the moment"
   }
 }

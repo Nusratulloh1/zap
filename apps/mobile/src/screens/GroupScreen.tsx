@@ -20,6 +20,7 @@ import { useHomeData } from '@/store/bootstrap';
 import { useDraft } from '@/store/draft';
 import { money, peopleCount, dayMonth, humanDateLc } from '@/lib/format';
 import { crewStats } from '@/lib/crewStats';
+import { funStats } from '@/lib/funStats';
 import { translate } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
@@ -42,6 +43,7 @@ export function GroupScreen() {
 
   const group = home.db?.groups.find((g) => g.id === id);
   const stats = useMemo(() => crewStats(home.db, id), [home.db, id]);
+  const fun = useMemo(() => funStats(home.db, id), [home.db, id]);
 
   const groupSplits = useMemo(() => home.splits.filter((s) => s.groupId === id), [home.splits, id]);
   const openDebts = useMemo(
@@ -204,6 +206,7 @@ export function GroupScreen() {
 
         {/* история компании: сколько ужинов и кофе вместе, кто должен, кто платил */}
         <CrewStatsBlock
+          fun={fun}
           stats={stats}
           nameOf={(cid) => home.contactById(cid)?.name ?? ''}
           initialsOf={(cid) => home.contactById(cid)?.initials}

@@ -99,6 +99,8 @@ export interface Split {
   cashback?: number
   cashbackX2?: boolean
   reactions?: SplitReaction[]
+  /** Photo Moment (vision §C15): фото компании к закрытому счёту. */
+  photoUrl?: string
 }
 
 export interface Group {

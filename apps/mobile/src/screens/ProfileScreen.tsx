@@ -1,7 +1,7 @@
 // Профиль — порт ProfilePage.vue (дизайн 5j): аватар с лаймовой обводкой,
 // чип «ZAP! с мая 2026», стат-тайлы, КАРТЫ (добавление: форма → SMS → проверка),
 // НАСТРОЙКИ (смена PIN, уведомления, язык, тема, мои группы, выйти).
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -25,6 +25,8 @@ import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { useSession } from '@/store/session';
 import { money, phone, monthYear } from '@/lib/format';
+import { titlesFor, personalBest, favouriteTheme } from '@/lib/funStats';
+import { themeByKey } from '@/lib/merchantTheme';
 import { LOCALE_NAMES, currentLocale } from '@/i18n';
 import { ZapLoader } from '@/components/ZapLoader';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -209,6 +211,12 @@ export function ProfileScreen() {
   });
   const glassStyle = useAnimatedStyle(() => ({ opacity: interpolate(scrollY.value, [0, 24], [0, 1], 'clamp') }));
 
+  // Профиль как identity, а не как «Настройки» (vision §C13): свои титулы,
+  // любимая категория и личный рекорд скорости. Всё считается из /bootstrap.
+  const titles = useMemo(() => titlesFor(home.db, 'me'), [home.db]);
+  const best = useMemo(() => personalBest(home.db, 'me'), [home.db]);
+  const favTheme = useMemo(() => themeByKey(favouriteTheme(home.db, 'me')), [home.db]);
+
   const toggleNotifs = (v: boolean) => {
     setNotifs(v);
     void toggleDebtNotifications(v).catch(() => setNotifs(!v));
@@ -248,6 +256,43 @@ export function ProfileScreen() {
                 <Text style={[styles.statLabel, { color: colors.muted }]}>{t('profile.statGroupsUnit')}</Text>
               </View>
             </View>
+
+            {/*
+              §C13: «Не Islam Karimov / +998… / Settings, а ISLAM ⚡ / 27 ZAPs /
+              любимый сплит / самая быстрая оплата» плюс коллекция титулов.
+              Строки появляются только когда есть данные — пустой профиль с
+              прочерками хуже, чем профиль без блока.
+            */}
+            {favTheme || best !== null ? (
+              <View style={[styles.identity, { backgroundColor: colors.shell }]}>
+                {favTheme ? (
+                  <View style={styles.identityRow}>
+                    <Text style={styles.identityGlyph}>{favTheme.glyph}</Text>
+                    <Text style={[styles.identityLabel, { color: colors.muted }]}>{t('profile.favouriteSplit')}</Text>
+                    <Text style={[styles.identityValue, { color: colors.ink }]}>{t(favTheme.titleKey)}</Text>
+                  </View>
+                ) : null}
+                {best !== null ? (
+                  <View style={styles.identityRow}>
+                    <Text style={styles.identityGlyph}>⚡</Text>
+                    <Text style={[styles.identityLabel, { color: colors.muted }]}>{t('profile.fastestPayment')}</Text>
+                    <Text style={[styles.identityValue, { color: colors.ink }]}>{t('profile.seconds', { n: best })}</Text>
+                  </View>
+                ) : null}
+              </View>
+            ) : null}
+
+            {/* заработанные титулы (§C12) — ироничные, не банковские badges */}
+            {titles.length ? (
+              <View style={styles.titles}>
+                {titles.map((tt) => (
+                  <View key={tt.key} style={[styles.titleChip, { backgroundColor: fixed.lime }]}>
+                    <Text style={styles.titleGlyph}>{tt.glyph}</Text>
+                    <Text style={styles.titleText}>{t(`titles.${tt.key}`)}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
 
             <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.cards')}</Text>
             {cards.map((card) => (
@@ -542,6 +587,15 @@ const styles = StyleSheet.create({
   stat: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 14, gap: 3 },
   statValue: { fontFamily: font.extrabold, fontSize: 20 },
   statLabel: { fontFamily: font.bold, fontSize: 11.5 },
+  identity: { borderRadius: 20, paddingHorizontal: 16, paddingVertical: 12, gap: 10, marginTop: 12 },
+  identityRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  identityGlyph: { fontSize: 16, width: 22, textAlign: 'center' },
+  identityLabel: { flex: 1, fontFamily: font.semibold, fontSize: 13.5 },
+  identityValue: { fontFamily: font.extrabold, fontSize: 14 },
+  titles: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  titleChip: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 34, paddingHorizontal: 12, borderRadius: 999 },
+  titleGlyph: { fontSize: 14 },
+  titleText: { fontFamily: font.extrabold, fontSize: 12.5, color: '#111110' },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 26 },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 62, borderBottomWidth: 1, borderBottomColor: 'transparent' },
   cardBadge: { width: 42, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },

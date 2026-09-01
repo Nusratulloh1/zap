@@ -9,6 +9,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '@/components/Avatar';
 import type { CrewStats } from '@/lib/crewStats';
+import type { FunStat } from '@/lib/funStats';
 import { money } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font, radius } from '@/theme/tokens';
@@ -23,14 +24,24 @@ const GLYPH: Record<string, string> = {
   gift: '🎁',
 };
 
+/** Значок наблюдения (§C11) — тон шуточный, поэтому эмодзи, а не иконки. */
+const STAT_GLYPH: Record<FunStat['kind'], string> = {
+  fastest: '⚡',
+  alwaysLast: '👀',
+  biggest: '🍕',
+  buddy: '🤝',
+};
+
 interface Props {
   stats: CrewStats;
+  /** смешная статистика компании (vision §C11); пустой массив — блока нет */
+  fun?: FunStat[];
   nameOf: (contactId: string) => string;
   initialsOf: (contactId: string) => string | undefined;
   colorOf: (contactId: string) => string;
 }
 
-export function CrewStatsBlock({ stats, nameOf, initialsOf, colorOf }: Props) {
+export function CrewStatsBlock({ stats, fun = [], nameOf, initialsOf, colorOf }: Props) {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
 
@@ -71,6 +82,29 @@ export function CrewStatsBlock({ stats, nameOf, initialsOf, colorOf }: Props) {
           </View>
         ) : null}
       </View>
+
+      {/*
+        Смешная статистика (§C11). Не лидерборд и не очки — пара наблюдений
+        про компанию: кто платит быстрее всех и кого всегда ждут.
+      */}
+      {fun.length ? (
+        <View style={[styles.card, { backgroundColor: colors.paper }]}>
+          {fun.map((s) => (
+            <View key={s.kind} style={styles.funRow}>
+              <Text style={styles.funGlyph}>{STAT_GLYPH[s.kind]}</Text>
+              <Text style={[styles.funText, { color: colors.ink }]} numberOfLines={1}>
+                {t(`crew.stat${s.kind.charAt(0).toUpperCase()}${s.kind.slice(1)}`, {
+                  name: s.contactId ? nameOf(s.contactId) : '',
+                  sec: s.value,
+                  n: s.value,
+                  amount: money(s.value),
+                  place: s.label ?? '',
+                })}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
 
       {/* кто сейчас должен — единственная строка, требующая действия */}
       {stats.owing.length ? (
@@ -119,6 +153,9 @@ const styles = StyleSheet.create({
   headRow: { gap: 2 },
   zaps: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.4 },
   total: { fontFamily: font.monoBold, fontSize: 14 },
+  funRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  funGlyph: { fontSize: 17, width: 24, textAlign: 'center' },
+  funText: { flex: 1, fontFamily: font.semibold, fontSize: 14 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 34, paddingHorizontal: 12, borderRadius: 999 },
   chipGlyph: { fontSize: 14 },

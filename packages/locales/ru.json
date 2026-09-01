@@ -98,7 +98,7 @@
     "filterPromo": "Акции",
     "filterDiscount": "% Скидки",
     "searchPlaceholder": "{'@'}username или номер",
-    "split": "Сплит",
+    "split": "Zap it",
     "cashbackCard": "Накопленные кэшбеки",
     "cashbackEmpty": "Появится после первого сплита",
     "debtorsCard": "Мои должники",
@@ -176,7 +176,7 @@
     "order": "заказ",
     "table": "стол",
     "total": "ИТОГО",
-    "split": "Разделить",
+    "split": "Zap it ⚡",
     "payWhole": "Оплатить целиком",
     "x2Banner": "Кэшбэк ×2 — если сплитите вдвоём и больше",
     "photoOk": "Чек распознан с фото",
@@ -201,7 +201,7 @@
     "title": "Сумма",
     "yourAmount": "UZS · СУММА",
     "pay": "Оплатить",
-    "split": "Сплит",
+    "split": "Zap it",
     "paidToast": "Оплачено · {amount}",
     "scannerAria": "Сканер",
     "pinHint": "Оплата · {amount} UZS",
@@ -257,7 +257,7 @@
     "title": "Покажите QR друзьям",
     "subtitle": "Или отправьте ссылку — оплата в пару касаний",
     "statusPaidWaiting": "Вы оплатили · ждём {names}",
-    "sendSms": "Отправить SMS со ссылкой",
+    "sendSms": "Отправить Zap request по SMS",
     "toStatus": "К статусу сплита",
     "allCollected": "Все доли собраны",
     "smsSent": "SMS со ссылкой отправлено",
@@ -309,7 +309,8 @@
     "shareMoment": "Поделиться моментом →",
     "shareMessage": "{title} — делим счёт в ZAP! ⚡ Твоя доля здесь: {url}",
     "shareFailed": "Не удалось поделиться",
-    "allPaidDone": "Готово"
+    "allPaidDone": "Готово",
+    "joined": "{name} joined ⚡"
   },
   "closed": {
     "title": "Готово, сплит закрыт",
@@ -382,7 +383,7 @@
     "setPinHint": "4 цифры — чтобы быстро заходить в ZAP!"
   },
   "group": {
-    "newSplit": "Новый сплит",
+    "newSplit": "Новый Zap",
     "invite": "Позвать",
     "cashback": "КЭШБЭК ГРУППЫ",
     "members": "УЧАСТНИКИ",
@@ -409,7 +410,7 @@
     "deleteNote": "Сплиты останутся в истории",
     "deleteAction": "Удалить",
     "deleted": "Группа удалена",
-    "shareText": "Вступай в группу в ZAP!"
+    "shareText": "Заходи в Zap group в ZAP! ⚡"
   },
   "debts": {
     "title": "Вам должны",
@@ -509,7 +510,10 @@
     "iconHands": "Друзья",
     "appIconRestart": "После смены иконки Android закроет приложение — откройте его заново.",
     "appIconDone": "Иконка изменена",
-    "appIconFailed": "Не удалось сменить иконку"
+    "appIconFailed": "Не удалось сменить иконку",
+    "favouriteSplit": "Любимый сплит",
+    "fastestPayment": "Самая быстрая оплата",
+    "seconds": "{{n}} сек"
   },
   "install": {
     "title": "Установите ZAP!",
@@ -827,7 +831,11 @@
     "suggestTitle": "Собрать компанию?",
     "suggestBody": "Вы делили {n} счетов с одними и теми же людьми",
     "suggestCta": "Создать Crew ⚡",
-    "suggestSkip": "Не сейчас"
+    "suggestSkip": "Не сейчас",
+    "statFastest": "Быстрее всех платит {{name}} — {{sec}} сек",
+    "statAlwaysLast": "Вечно последний {{name}}",
+    "statBiggest": "Самый крупный счёт {{amount}} · {{place}}",
+    "statBuddy": "Твой ZAP-бадди {{name}} — {{n}} вместе"
   },
   "recap": {
     "title": "Твой {month} ⚡",
@@ -859,5 +867,55 @@
       "11": "ноябрь",
       "12": "декабрь"
     }
+  },
+  "moments": {
+    "firstZap": {
+      "title": "Первый ZAP ⚡",
+      "sub": "Ваш первый счёт вместе."
+    },
+    "fiveBills": {
+      "title": "{{n}} счетов вместе",
+      "sub": "Вы уже профи."
+    },
+    "tenZaps": {
+      "title": "10 ZAP’ов ⚡",
+      "sub": "Десять счетов. Ни одного спора."
+    },
+    "million": {
+      "title": "1 000 000 сум",
+      "sub": "Разделено вместе. Вот это компания."
+    },
+    "fridayCrew": {
+      "title": "Friday Crew",
+      "sub": "Три пятничных ужина вместе."
+    },
+    "cleanZap": {
+      "title": "CLEAN ZAP",
+      "sub": "{{n}}/{{n}} оплатили за {{sec}} сек."
+    },
+    "legendary": {
+      "title": "LEGENDARY SPLIT ⚡",
+      "sub": "Это был крупный счёт."
+    },
+    "nobodyLeft": {
+      "title": "100% ОПЛАЧЕНО",
+      "sub": "Никто не пропал 👀"
+    }
+  },
+  "titles": {
+    "fastestFinger": "Самый быстрый",
+    "lastPayer": "Вечно последний",
+    "reliableOne": "Надёжный",
+    "bigSpender": "Широкая душа",
+    "pizzaCFO": "Пицца-финдир",
+    "coffeeAddict": "Кофеман"
+  },
+  "photoMoment": {
+    "add": "Добавить фото 📸",
+    "title": "Photo Moment",
+    "flip": "Камера",
+    "saved": "Сохранено к этому моменту ⚡",
+    "failed": "Не удалось сохранить фото",
+    "allowCamera": "Разреши доступ к камере, чтобы снять момент"
   }
 }

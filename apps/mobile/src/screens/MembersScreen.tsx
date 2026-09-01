@@ -56,9 +56,6 @@ const JOIN = new Keyframe({
 /** Подписи ожидания при создании сплита — крутятся по кругу. */
 const CREATE_STEPS = ['loading.splitting1', 'loading.splitting2', 'loading.splitting3'] as const;
 
-/** Пока ждём сервер — показываем, ради чего всё это. */
-const CREATE_STICKERS = ['oneBill', 'howItWorks', 'receiptHero'] as const;
-
 export function MembersScreen() {
   const { t } = useTranslation();
   const { colors } = useTheme();
@@ -199,6 +196,8 @@ export function MembersScreen() {
       draft.toggleMember(c.id);
       setUserResults((prev) => prev.filter((x) => x.id !== u.id));
       setContactSearch('');
+      // vision §B «Friend Added»: прилёт аватара уже был, не хватало подписи
+      toast(t('live.joined', { name: c.name }));
     } catch (e) {
       toast(e instanceof Error ? e.message : t('errors.generic'));
     }
@@ -640,7 +639,7 @@ export function MembersScreen() {
         }}
       />
       {/* создание сплита занимает секунды — показываем ZAP, а не пустой экран */}
-      <ZapOverlay open={busy} steps={CREATE_STEPS} stickers={CREATE_STICKERS} />
+      <ZapOverlay open={busy} steps={CREATE_STEPS} splitAnim />
     </Screen>
   );
 }

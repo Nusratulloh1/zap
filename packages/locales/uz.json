@@ -98,7 +98,7 @@
     "filterPromo": "Aksiyalar",
     "filterDiscount": "% Chegirmalar",
     "searchPlaceholder": "{'@'}username yoki raqam",
-    "split": "Bo'lish",
+    "split": "Zap it",
     "cashbackCard": "Yig'ilgan keshbek",
     "cashbackEmpty": "Birinchi bo'lishdan keyin paydo bo'ladi",
     "debtorsCard": "Mening qarzdorlarim",
@@ -176,7 +176,7 @@
     "order": "buyurtma",
     "table": "stol",
     "total": "JAMI",
-    "split": "Bo'lish",
+    "split": "Zap it ⚡",
     "payWhole": "To'liq to'lash",
     "x2Banner": "×2 keshbek — ikki va undan ko'p kishi bo'lsangiz",
     "photoOk": "Chek fotodan o‘qildi",
@@ -201,7 +201,7 @@
     "title": "Summa",
     "yourAmount": "UZS · SUMMA",
     "pay": "To'lash",
-    "split": "Bo'lish",
+    "split": "Zap it",
     "paidToast": "To‘landi · {amount}",
     "scannerAria": "Skaner",
     "pinHint": "To‘lov · {amount} UZS",
@@ -257,7 +257,7 @@
     "title": "QR ni do'stlaringizga ko'rsating",
     "subtitle": "Yoki havolani yuboring — to'lov bir necha bosishda",
     "statusPaidWaiting": "Siz to'ladingiz · {names} kutilmoqda",
-    "sendSms": "Havolani SMS bilan yuborish",
+    "sendSms": "Zap request ni SMS bilan yuborish",
     "toStatus": "Bo'lish holatiga",
     "allCollected": "Barcha ulushlar yig‘ildi",
     "smsSent": "Havolali SMS yuborildi",
@@ -309,7 +309,8 @@
     "shareMoment": "Lahzani ulashish →",
     "shareMessage": "{title} — hisobni ZAP! da bo‘lyapmiz ⚡ Ulushingiz shu yerda: {url}",
     "shareFailed": "Ulashib bo‘lmadi",
-    "allPaidDone": "Tayyor"
+    "allPaidDone": "Tayyor",
+    "joined": "{name} qo‘shildi ⚡"
   },
   "closed": {
     "title": "Tayyor, bo'lish yopildi",
@@ -382,7 +383,7 @@
     "setPinHint": "4 raqam — ZAP! ga tez kirish uchun"
   },
   "group": {
-    "newSplit": "Yangi bo'lish",
+    "newSplit": "Yangi Zap",
     "invite": "Chaqirish",
     "cashback": "GURUH KESHBEGI",
     "members": "ISHTIROKCHILAR",
@@ -409,7 +410,7 @@
     "deleteNote": "Bo‘lishlar tarixda qoladi",
     "deleteAction": "O‘chirish",
     "deleted": "Guruh o‘chirildi",
-    "shareText": "ZAP! dagi guruhga qo‘shil"
+    "shareText": "ZAP! dagi Zap group ga qo‘shil ⚡"
   },
   "debts": {
     "title": "Sizga qarzdor",
@@ -509,7 +510,10 @@
     "iconHands": "Do'stlar",
     "appIconRestart": "Ikonka almashtirilgach Android ilovani yopadi — uni qaytadan oching.",
     "appIconDone": "Ikonka o'zgartirildi",
-    "appIconFailed": "Ikonkani o'zgartirib bo'lmadi"
+    "appIconFailed": "Ikonkani o'zgartirib bo'lmadi",
+    "favouriteSplit": "Sevimli split",
+    "fastestPayment": "Eng tez to‘lov",
+    "seconds": "{{n}} soniya"
   },
   "install": {
     "title": "ZAP! ni o'rnating",
@@ -827,7 +831,11 @@
     "suggestTitle": "Kompaniya yig‘aylikmi?",
     "suggestBody": "Bir xil odamlar bilan {n} ta chek bo‘lgansiz",
     "suggestCta": "Crew yaratish ⚡",
-    "suggestSkip": "Hozir emas"
+    "suggestSkip": "Hozir emas",
+    "statFastest": "Eng tez to‘laydi {{name}} — {{sec}} soniya",
+    "statAlwaysLast": "Doim oxirgi {{name}}",
+    "statBiggest": "Eng katta hisob {{amount}} · {{place}}",
+    "statBuddy": "ZAP-hamrohing {{name}} — {{n}} marta birga"
   },
   "recap": {
     "title": "Sizning {month} oyingiz",
@@ -859,5 +867,55 @@
       "11": "Noyabr",
       "12": "Dekabr"
     }
+  },
+  "moments": {
+    "firstZap": {
+      "title": "Birinchi ZAP ⚡",
+      "sub": "Birga birinchi hisobingiz."
+    },
+    "fiveBills": {
+      "title": "{{n}} ta hisob birga",
+      "sub": "Endi professionalsiz."
+    },
+    "tenZaps": {
+      "title": "10 ta ZAP ⚡",
+      "sub": "O‘nta hisob. Bironta bahs yo‘q."
+    },
+    "million": {
+      "title": "1 000 000 so‘m",
+      "sub": "Birga bo‘lindi. Bu — haqiqiy jamoa."
+    },
+    "fridayCrew": {
+      "title": "Friday Crew",
+      "sub": "Uchta juma kechki ovqati birga."
+    },
+    "cleanZap": {
+      "title": "CLEAN ZAP",
+      "sub": "{{n}}/{{n}} {{sec}} soniyada to‘ladi."
+    },
+    "legendary": {
+      "title": "LEGENDARY SPLIT ⚡",
+      "sub": "Bu katta hisob edi."
+    },
+    "nobodyLeft": {
+      "title": "100% TO‘LANDI",
+      "sub": "Hech kim yo‘qolmadi 👀"
+    }
+  },
+  "titles": {
+    "fastestFinger": "Eng tezkor",
+    "lastPayer": "Doim oxirgi",
+    "reliableOne": "Ishonchli",
+    "bigSpender": "Qo‘li ochiq",
+    "pizzaCFO": "Pitsa moliyachisi",
+    "coffeeAddict": "Qahva ishqibozi"
+  },
+  "photoMoment": {
+    "add": "Foto qo‘shish 📸",
+    "title": "Photo Moment",
+    "flip": "Kamera",
+    "saved": "Shu lahzaga saqlandi ⚡",
+    "failed": "Fotoni saqlab bo‘lmadi",
+    "allowCamera": "Lahzani suratga olish uchun kameraga ruxsat bering"
   }
 }

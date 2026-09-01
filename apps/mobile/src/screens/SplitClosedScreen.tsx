@@ -1,12 +1,13 @@
 // «Готово, сплит закрыт» — порт SplitClosedPage.vue (дизайн 3g): лаймовый
 // экран, логотип мерчанта, сумма каунт-апом, пилл кэшбэка, участники, CTA.
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { ThemeGarnish } from '@/components/bill/ThemeGarnish';
+import { MomentCard } from '@/components/bill/MomentCard';
 import { ShareCardSheet } from '@/components/share/ShareCardSheet';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
@@ -19,6 +20,7 @@ import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { money } from '@/lib/format';
 import { themeForMerchant } from '@/lib/merchantTheme';
+import { momentFor } from '@/lib/moments';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -41,6 +43,11 @@ export function SplitClosedScreen() {
   });
   const [billSheet, setBillSheet] = useState(false);
   const [cardOpen, setCardOpen] = useState(false);
+
+  // ZAP Moment: милестоун компании (§B6) или редкий сюрприз (§C10).
+  // useMemo обязателен — внутри seeded-выбор, и без него карточка мигала бы
+  // на каждый ререндер экрана.
+  const moment = useMemo(() => momentFor(home.db, split), [home.db, split]);
 
   if (!split) {
     return (
@@ -92,6 +99,26 @@ export function SplitClosedScreen() {
             </View>
           ) : null}
         </View>
+
+        {moment ? <MomentCard moment={moment} splitId={split.id} /> : null}
+
+        {/*
+          Photo Moment (§C15). Снятое фото показываем прямо здесь, рядом с
+          суммой и составом — именно эта связка «деньги + вечер + лица» и
+          делает из транзакции воспоминание.
+        */}
+        {!isSolo ? (
+          split.photoUrl ? (
+            <Image source={{ uri: split.photoUrl }} style={styles.moment} resizeMode="cover" />
+          ) : (
+            <PressableScale
+              style={[styles.addPhoto, { borderColor: 'rgba(17,17,16,0.28)' }]}
+              onPress={() => nav.navigate('PhotoMoment', { id })}
+            >
+              <Text style={[styles.addPhotoText, { color: fixed.ink }]}>{t('photoMoment.add')}</Text>
+            </PressableScale>
+          )
+        ) : null}
 
         {!isSolo ? (
           <View style={styles.list}>
@@ -205,6 +232,17 @@ const styles = StyleSheet.create({
   currency: { fontFamily: font.monoBold, fontSize: 11, color: 'rgba(17,17,16,0.55)' },
   cashbackPill: { alignSelf: 'flex-start', height: 34, paddingHorizontal: 14, borderRadius: 999, justifyContent: 'center', marginTop: 14 },
   cashbackText: { fontFamily: font.extrabold, fontSize: 12.5 },
+  moment: { height: 190, borderRadius: 24, marginTop: 22, backgroundColor: 'rgba(17,17,16,0.08)' },
+  addPhoto: {
+    height: 56,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 22,
+  },
+  addPhotoText: { fontFamily: font.extrabold, fontSize: 15 },
   list: { marginTop: 26, borderTopWidth: 1, borderTopColor: 'rgba(17,17,16,0.14)', paddingTop: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   rowBorder: { borderBottomWidth: 1, borderBottomColor: 'rgba(17,17,16,0.14)' },

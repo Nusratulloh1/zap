@@ -12,6 +12,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { STICKER, type StickerKey } from '@/components/EmptyState';
+import { SplitLoader } from '@/components/SplitLoader';
 import { ZapLoader } from '@/components/ZapLoader';
 import { trigger } from 'react-native-haptic-feedback';
 import { reduceMotion } from '@/lib/feedback';
@@ -32,9 +33,15 @@ interface Props {
    * пустая пауза. Меняются в такт подписям; если не заданы — только лоадер.
    */
   stickers?: readonly StickerKey[];
+  /**
+   * Показать фирменную анимацию деления счёта вместо стикеров (vision §C17).
+   * Кадры разложены из docs/product/ZAP-Split-the-Bill-…mp4 — само видео в
+   * бандл по-прежнему не кладётся.
+   */
+  splitAnim?: boolean;
 }
 
-export function ZapOverlay({ open, steps, stickers }: Props) {
+export function ZapOverlay({ open, steps, stickers, splitAnim }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation();
   const [i, setI] = useState(0);
@@ -66,7 +73,9 @@ export function ZapOverlay({ open, steps, stickers }: Props) {
       accessibilityLabel={key ? t(key) : undefined}
     >
       <View style={styles.center}>
-        {sticker ? (
+        {splitAnim ? (
+          <SplitLoader size={196} />
+        ) : sticker ? (
           <Animated.View key={sticker} entering={reduceMotion() ? undefined : FadeIn.duration(280)}>
             <Image source={STICKER[sticker]} style={styles.sticker} resizeMode="contain" />
           </Animated.View>

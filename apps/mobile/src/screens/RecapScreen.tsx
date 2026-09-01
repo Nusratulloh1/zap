@@ -9,6 +9,7 @@
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, Image, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -48,6 +49,7 @@ export function RecapScreen() {
   const { colors, fixed } = useTheme();
   const nav = useNavigation<any>();
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [index, setIndex] = useState(0);
   const [shareOpen, setShareOpen] = useState(false);
 
@@ -58,8 +60,10 @@ export function RecapScreen() {
 
   if (isLoading || !data) {
     return (
-      <Screen style={styles.root} background={fixed.ink} darkBar noTopFade>
-        <ScreenHeader tint="onDark" />
+      <Screen style={styles.root} background={fixed.ink} darkBar noTopFade edges={['bottom']}>
+        <View style={{ paddingTop: insets.top }}>
+          <ScreenHeader tint="onDark" />
+        </View>
         <View style={styles.center}>
           <ActivityIndicator color={fixed.lime} />
         </View>
@@ -69,8 +73,10 @@ export function RecapScreen() {
 
   if (data.empty) {
     return (
-      <Screen style={styles.root} background={fixed.ink} darkBar noTopFade>
-        <ScreenHeader tint="onDark" />
+      <Screen style={styles.root} background={fixed.ink} darkBar noTopFade edges={['bottom']}>
+        <View style={{ paddingTop: insets.top }}>
+          <ScreenHeader tint="onDark" />
+        </View>
         <View style={styles.center}>
           <Text style={styles.emptyTitle}>{t('recap.empty')}</Text>
           <Text style={styles.emptySub}>{t('recap.emptySub')}</Text>
@@ -92,8 +98,17 @@ export function RecapScreen() {
   const panel = panels[index]!;
 
   return (
-    <Screen style={styles.root} background={fixed.ink} darkBar noTopFade>
-      <StoryProgress count={panels.length} index={index} progress={1} dark />
+    <Screen style={styles.root} background={fixed.ink} darkBar noTopFade edges={['bottom']}>
+      {/*
+        Отступ сверху задаём сами, а не через edges={['top']} у Screen.
+        Экран презентуется как fullScreenModal, а SafeAreaView внутри модального
+        контроллера на первом показе отдаёт нулевые вставки — шапка уезжала под
+        статус-бар. Ровно так же (insets.top вручную) сделан ScanScreen, который
+        тоже модальный и работает.
+      */}
+      <View style={{ paddingTop: insets.top }}>
+        <StoryProgress count={panels.length} index={index} progress={1} dark />
+      </View>
 
       <View style={styles.topRow}>
         <Image source={WORDMARK} style={styles.wordmark} resizeMode="contain" />

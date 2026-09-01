@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import { AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { RootNavigator } from '@/navigation/RootNavigator';
@@ -44,7 +44,15 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
+      {/*
+        initialMetrics обязателен: без него провайдер измеряет безопасные зоны
+        асинхронно, и ПЕРВЫЙ кадр после холодного старта рисуется с нулевыми
+        отступами — шапка уезжает под статус-бар (у итогов месяца пропадали
+        полоски прогресса и срезался логотип). Со второго открытия значения уже
+        известны, поэтому баг выглядел плавающим. Метрики отдаёт нативная
+        сторона синхронно на старте.
+      */}
+      <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <RootNavigator />

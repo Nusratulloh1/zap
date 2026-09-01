@@ -133,6 +133,19 @@ export async function fiscalOcr(uri: string): Promise<{ receipt?: FiscalReceiptV
   ]);
 }
 
+/**
+ * Photo Moment (vision §C15): фото компании к закрытому счёту.
+ *
+ * Тот же multipart, что и у OCR (поле «photo»), и то же ограничение по
+ * разрешению на стороне камеры: полноразмерный снимок телефона не проходит
+ * client_max_body_size на проде и обрывается как «нет сети».
+ */
+export async function attachSplitPhoto(splitId: string, uri: string): Promise<{ photoUrl: string }> {
+  const form = new FormData();
+  form.append('photo', { uri, type: 'image/jpeg', name: 'moment.jpg' } as unknown as Blob);
+  return http<{ photoUrl: string }>(`/splits/${splitId}/photo`, { method: 'POST', body: form });
+}
+
 // ---------- публичный вид сплита (/s/:code) ----------
 
 export interface PublicView {

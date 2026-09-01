@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common'
@@ -25,6 +26,7 @@ import {
   ValidateNested,
 } from 'class-validator'
 import { SplitMode } from '@prisma/client'
+import { FileInterceptor } from '@nestjs/platform-express'
 import { CurrentUser, JwtAuthGuard, PaymentTokenGuard, type AuthUser } from '../common/auth.guard'
 import { IdempotencyInterceptor } from '../common/idempotency.interceptor'
 import { SplitsService } from './splits.service'
@@ -185,6 +187,20 @@ export class SplitsController {
     @Body() dto: ReactDto,
   ) {
     return this.splits.react(user.id, id, dto.memberId, dto.emoji)
+  }
+
+  /**
+   * Photo Moment (vision §C15): «Add a photo 📸» после закрытия счёта.
+   * Лимит меньше, чем у OCR: это снимок компании, а не чек под распознавание.
+   */
+  @Post(':id/photo')
+  @UseInterceptors(FileInterceptor('photo', { limits: { fileSize: 6 * 1024 * 1024 } }))
+  async photo(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @UploadedFile() file?: { buffer: Buffer; mimetype: string },
+  ) {
+    return this.splits.attachPhoto(user.id, id, file)
   }
 
   @Post(':id/send-link')

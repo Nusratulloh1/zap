@@ -4,6 +4,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import type { Bill, BillItem, CardBrand, Contact, Merchant, Split, SplitMember, User } from '@prisma/client'
 import { PrismaService } from '../common/prisma.service'
 import { normalizePhone } from '../common/utils'
+import { photoUrlOf } from '../common/uploads'
 
 const AVATAR_COLORS = ['#3E6E4E', '#3E4A6E', '#B75A3A', '#6E3E5E', '#4A6E3E', '#8A5A2A']
 const colorFor = (s: string) => AVATAR_COLORS[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) % AVATAR_COLORS.length]!
@@ -319,6 +320,7 @@ export class UsersService {
       groupId: s.groupId ?? undefined,
       cashback: s.cashback ?? undefined,
       cashbackX2: s.cashbackX2 || undefined,
+      photoUrl: photoUrlOf(s.photoPath),
       reactions: (s.reactions ?? []).map((r) => ({
         memberId: r.memberId,
         emoji: r.emoji,

@@ -11,6 +11,8 @@ import {
   ServiceUnavailableException,
 } from '@nestjs/common'
 import { MemberStatus, Prisma, SplitMode } from '@prisma/client'
+import { mkdir, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { PrismaService } from '../common/prisma.service'
 import { SmsService } from '../sms/sms.service'
 import { RealtimeGateway } from '../realtime/realtime.gateway'
@@ -20,6 +22,7 @@ import { HistoryService } from '../history/history.service'
 import { PAYMENT_PROVIDER, type PaymentProvider } from '../payments/payment.provider'
 import { makeSplitCode, normalizePhone, round1000 } from '../common/utils'
 import { FRIEND_FALLBACK, smsText } from '../sms/sms.i18n'
+import { UPLOAD_DIR, photoUrlOf } from '../common/uploads'
 
 export interface CreateSplitMemberInput {
   phone: string
@@ -314,6 +317,41 @@ export class SplitsService {
    * на деньги»). Повторный тап тем же эмодзи снимает реакцию, другим —
    * заменяет: у пользователя одна реакция на участника.
    */
+
+  /**
+   * Photo Moment (vision §C15): фото компании к закрытому счёту.
+   *
+   * «Через год: One year ago ⚡ и показывается этот момент» — поэтому файл
+   * должен пережить редеплой. Кладём в UPLOAD_DIR (том, а не образ), в базе
+   * держим относительный путь.
+   *
+   * Одно фото на счёт: имя файла детерминировано, повторная загрузка
+   * перезаписывает. Так не нужен ни отдельный список, ни сборка мусора.
+   */
+  async attachPhoto(userId: string, splitId: string, file?: { buffer: Buffer; mimetype: string }) {
+    if (!file?.buffer?.length) throw new BadRequestException('no file')
+    if (!/^image\/(jpe?g|png|heic|heif|webp)$/i.test(file.mimetype)) {
+      throw new BadRequestException('unsupported image type')
+    }
+
+    const split = await this.prisma.split.findUnique({
+      where: { id: splitId },
+      select: { id: true, status: true, members: { select: { userId: true } } },
+    })
+    if (!split) throw new NotFoundException('split not found')
+    // момент — про уже случившийся вечер; к активному счёту фото не клеим
+    if (split.status === 'active') throw new BadRequestException('split is still active')
+    if (!split.members.some((m) => m.userId === userId)) throw new ForbiddenException('not a participant')
+
+    const rel = join('moments', `${splitId}.jpg`)
+    const abs = join(UPLOAD_DIR, rel)
+    await mkdir(join(UPLOAD_DIR, 'moments'), { recursive: true })
+    await writeFile(abs, file.buffer)
+
+    await this.prisma.split.update({ where: { id: splitId }, data: { photoPath: rel } })
+    return { photoUrl: photoUrlOf(rel) }
+  }
+
   async react(userId: string, splitId: string, memberId: string, emoji: string) {
     if (!REACTION_EMOJI.includes(emoji)) throw new BadRequestException('bad emoji')
 
