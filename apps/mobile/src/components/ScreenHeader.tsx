@@ -31,7 +31,12 @@ interface Props {
 }
 
 export function ScreenHeader({ onBack, right, tint = 'sand', floating, background }: Props) {
-  const nav = useNavigation<{ goBack: () => void; navigate: (s: string) => void; canGoBack: () => boolean }>();
+  const nav = useNavigation<{
+    goBack: () => void;
+    navigate: (s: string) => void;
+    canGoBack: () => boolean;
+    popTo: (s: string) => void;
+  }>();
   const { colors } = useTheme();
   const { t } = useTranslation();
 
@@ -42,7 +47,7 @@ export function ScreenHeader({ onBack, right, tint = 'sand', floating, backgroun
   const back = () => {
     if (onBack) onBack();
     else if (nav.canGoBack()) nav.goBack();
-    else nav.navigate('Tabs');
+    else nav.popTo('Tabs');
   };
 
   const insets = useSafeAreaInsets();

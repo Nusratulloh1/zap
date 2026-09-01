@@ -40,7 +40,7 @@ export function CashbackAwardScreen() {
   if (!split) {
     return (
       <Screen style={styles.root}>
-        <ScreenHeader onBack={() => nav.navigate('Tabs')} />
+        <ScreenHeader onBack={() => nav.popTo('Tabs')} />
       </Screen>
     );
   }
@@ -63,7 +63,7 @@ export function CashbackAwardScreen() {
 
   return (
     <Screen style={styles.root}>
-      <ScreenHeader onBack={() => nav.navigate('Tabs')} />
+      <ScreenHeader onBack={() => nav.popTo('Tabs')} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>
@@ -129,12 +129,12 @@ export function CashbackAwardScreen() {
             style={[styles.cta, { backgroundColor: fixed.lime }]}
             onPress={() => {
               toast.success(t('cashbackAward.spendToast'));
-              nav.navigate('Tabs');
+              nav.popTo('Tabs');
             }}
           >
             <Text style={styles.ctaDark}>{t('cashbackAward.spend')}</Text>
           </PressableScale>
-          <PressableScale style={[styles.cta, { backgroundColor: colors.sand }]} onPress={() => nav.navigate('Tabs')}>
+          <PressableScale style={[styles.cta, { backgroundColor: colors.sand }]} onPress={() => nav.popTo('Tabs')}>
             <Text style={[styles.ctaLight, { color: colors.ink }]}>{t('cashbackAward.keep')}</Text>
           </PressableScale>
         </View>

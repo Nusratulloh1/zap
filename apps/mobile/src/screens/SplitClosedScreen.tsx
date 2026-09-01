@@ -45,7 +45,7 @@ export function SplitClosedScreen() {
   if (!split) {
     return (
       <Screen background={fixed.lime} darkBar={false} style={styles.root}>
-        <ScreenHeader tint="onLime" onBack={() => nav.navigate('Tabs')} />
+        <ScreenHeader tint="onLime" onBack={() => nav.popTo('Tabs')} />
       </Screen>
     );
   }
@@ -60,7 +60,7 @@ export function SplitClosedScreen() {
 
   return (
     <Screen background={fixed.lime} darkBar={false} style={styles.root}>
-      <ScreenHeader tint="onLime" onBack={() => nav.navigate('Tabs')} />
+      <ScreenHeader tint="onLime" onBack={() => nav.popTo('Tabs')} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>
@@ -138,7 +138,7 @@ export function SplitClosedScreen() {
           </View>
         ) : (
           <View style={styles.ctas}>
-            <PressableScale style={[styles.cta, { backgroundColor: fixed.ink }]} onPress={() => nav.navigate('Tabs')}>
+            <PressableScale style={[styles.cta, { backgroundColor: fixed.ink }]} onPress={() => nav.popTo('Tabs')}>
               <Text style={[styles.ctaText, { color: fixed.paper }]}>{t('closed.close')}</Text>
             </PressableScale>
             {split.bill ? (

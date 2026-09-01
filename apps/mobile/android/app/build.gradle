@@ -23,12 +23,12 @@ react {
     //   If you add flavors like lite, prod, etc. you'll have to list your debuggableVariants.
     // debuggableVariants = ["liteDebug", "liteDebugOptimized", "prodDebug", "prodDebugOptimized"]
     //
-    //   На этой машине Metro внутри Gradle стабильно падает по памяти
-    //   (V8 «Last few GCs», затем умирает и демон Gradle). Поэтому бандл
-    //   собирается заранее командой из README (cli bundle → src/main/assets),
-    //   а release помечен debuggable-вариантом — плагин пропускает свой
-    //   createBundleReleaseJsAndAssets и пакует уже готовые файлы.
-    debuggableVariants = ["debug", "release"]
+    //   ВАЖНО: release здесь быть не должно. Помеченный debuggable release —
+    //   это, во-первых, отказ в сторах, во-вторых дыра в безопасности, а
+    //   в-третьих плагин пропускает createBundleReleaseJsAndAssets, и APK
+    //   уезжает БЕЗ JS-бандла. Раньше так обходили нехватку памяти у Metro
+    //   внутри Gradle на Windows-машине; на macOS бандл собирается штатно.
+    debuggableVariants = ["debug"]
 
     /* Bundling */
     //   A list containing the node command and its flags. Default is just 'node'.

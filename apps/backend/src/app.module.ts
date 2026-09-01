@@ -15,6 +15,7 @@ import { GroupsModule } from './groups/groups.module'
 import { DebtsModule } from './debts/debts.module'
 import { CashbackModule } from './cashback/cashback.module'
 import { HistoryModule } from './history/history.module'
+import { RecapModule } from './recap/recap.module'
 import { RealtimeModule } from './realtime/realtime.module'
 import { HealthController } from './common/health.controller'
 import { DevModule } from './dev/dev.module'
@@ -46,6 +47,7 @@ const redactPhone = (v: unknown) =>
     DebtsModule,
     CashbackModule,
     HistoryModule,
+    RecapModule,
     RealtimeModule,
     FiscalModule,
     // dev-ручки не попадают в прод-граф

@@ -172,7 +172,7 @@ export function BillScreen() {
             </PressableScale>
             <PressableScale
               style={[styles.failCta, { backgroundColor: colors.sand }]}
-              onPress={() => (fiscalNoTotal ? nav.navigate('Tabs', { screen: 'Amount' }) : nav.navigate('Members'))}
+              onPress={() => (fiscalNoTotal ? nav.popTo('Tabs', { screen: 'Amount' }) : nav.navigate('Members'))}
             >
               <Text style={[styles.failCtaText, { color: colors.ink }]}>
                 {fiscalNoTotal ? t('bill.manualAmount') : t('bill.continueWith', { amount: money(bill.total) })}

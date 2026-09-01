@@ -25,6 +25,7 @@ import { STICKER } from '@/components/EmptyState';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
 import { CountUp } from '@/components/CountUp';
+import { StoryProgress } from '@/components/StoryProgress';
 import { PressableScale } from '@/components/PressableScale';
 import { LanguageSwitcher } from '@/components/LanguageSheet';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -122,31 +123,6 @@ const stagger = (i: number) => (values: EntryAnimationsValues) => {
   };
 };
 
-// палитры сегментов, как palettes в OnboardingPage.vue: на тёмном слайде
-// пройденные — лаймовые, активный — белый
-function Progress({ index, progress, dark }: { index: number; progress: number; dark: boolean }) {
-  const done = dark ? '#DDFF33' : '#111110';
-  const active = dark ? '#FFFFFF' : '#111110';
-  const track = dark ? 'rgba(255,255,255,0.25)' : 'rgba(17,17,16,0.2)';
-  return (
-    <View style={styles.progressRow}>
-      {Array.from({ length: SLIDES }, (_, i) => (
-        <Bar key={i} fill={i < index ? 1 : i === index ? progress : 0} color={i < index ? done : active} track={track} />
-      ))}
-    </View>
-  );
-}
-
-function Bar({ fill, color, track }: { fill: number; color: string; track: string }) {
-  const w = useSharedValue(fill);
-  w.value = withTiming(fill, { duration: 120, easing: Easing.linear });
-  const style = useAnimatedStyle(() => ({ width: `${Math.max(0, Math.min(1, w.value)) * 100}%` }));
-  return (
-    <View style={[styles.barTrack, { backgroundColor: track }]}>
-      <Animated.View style={[styles.barFill, { backgroundColor: color }, style]} />
-    </View>
-  );
-}
 
 export function OnboardingScreen() {
   const { t } = useTranslation();
@@ -230,7 +206,7 @@ export function OnboardingScreen() {
           <SvgRect x={0} y={0} width="100%" height="100%" fill="url(#onbDots)" />
         </Svg>
       </Animated.View>
-      <Progress index={index} progress={progress} dark={isDark} />
+      <StoryProgress count={SLIDES} index={index} progress={progress} dark={isDark} />
 
       <View style={styles.topBar}>
         <Image
@@ -455,9 +431,6 @@ const styles = StyleSheet.create({
   },
   haveAccountText: { fontFamily: font.bold, fontSize: 16 },
   root: { paddingHorizontal: 20 },
-  progressRow: { flexDirection: 'row', gap: 6, paddingTop: 20 },
-  barTrack: { flex: 1, height: 3, borderRadius: 999, overflow: 'hidden' },
-  barFill: { height: '100%', borderRadius: 999 },
   topBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 14 },
   wordmark: { height: 56, width: 84 },
 

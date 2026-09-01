@@ -24,6 +24,34 @@
     {
       "path": "assets/fonts/Manrope-SemiBold.ttf",
       "sha1": "fd53123942bfa8cbdec5dea50b5a799211c4608a"
+    },
+    {
+      "path": "assets/sounds/everyone_paid.mp3",
+      "sha1": "55e95319930d4b9c7c0b43131abe86fcac0d1f72"
+    },
+    {
+      "path": "assets/sounds/paid.mp3",
+      "sha1": "64cdc7189d933f66c8de4165979f4451d81e6e8a"
+    },
+    {
+      "path": "assets/sounds/reminder.mp3",
+      "sha1": "ef868067f47cc60fda680b0b503116ed5ff8f158"
+    },
+    {
+      "path": "assets/sounds/scan.mp3",
+      "sha1": "2ee296b60e25ec1df1c5d5a33730fc6a709a6a71"
+    },
+    {
+      "path": "assets/sounds/share.mp3",
+      "sha1": "39d06fc31e55cb4ba8c6202926140c241a9877cd"
+    },
+    {
+      "path": "assets/sounds/split_done.mp3",
+      "sha1": "815ac81ee6e90f806617b2810c364afc848787b2"
+    },
+    {
+      "path": "assets/sounds/split.mp3",
+      "sha1": "2d2d2504a9b9efcfc69d35c34baca72e9f298857"
     }
   ]
 }

@@ -314,7 +314,7 @@ export function SplitLiveScreen() {
   if (!split) {
     return (
       <Screen style={styles.root} background={colors.cream}>
-        <ScreenHeader onBack={() => nav.navigate('Tabs')} />
+        <ScreenHeader onBack={() => nav.popTo('Tabs')} />
         <View style={styles.loading}>
           <ZapLoader label={t('bill.loading')} />
         </View>
@@ -333,7 +333,7 @@ export function SplitLiveScreen() {
   return (
     <BillStageProvider value={stage}>
       <Screen style={styles.root} background={colors.cream}>
-        <ScreenHeader onBack={() => nav.navigate('Tabs')} />
+        <ScreenHeader onBack={() => nav.popTo('Tabs')} />
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
           {/* «3 / 4 оплатили» — статус читается мгновенно (Who's left) */}

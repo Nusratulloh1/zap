@@ -114,7 +114,7 @@ export function GroupScreen() {
     await qc.invalidateQueries({ queryKey: qk.bootstrap });
     setConfirmDelete(false);
     toast.success(t('group.deleted'));
-    nav.navigate('Tabs');
+    nav.popTo('Tabs');
   };
 
   if (!group) {
@@ -213,7 +213,7 @@ export function GroupScreen() {
         <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
           <View style={styles.splitsHead}>
             <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.splits')}</Text>
-            <PressableScale onPress={() => nav.navigate('Tabs', { screen: 'History' })}>
+            <PressableScale onPress={() => nav.popTo('Tabs', { screen: 'History' })}>
               <Text style={[styles.seeAll, { color: colors.muted }]}>{t('home.seeAll')}</Text>
             </PressableScale>
           </View>

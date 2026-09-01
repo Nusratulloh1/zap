@@ -828,5 +828,36 @@
     "suggestBody": "You split {n} bills with the same people",
     "suggestCta": "Create Crew ⚡",
     "suggestSkip": "Not now"
+  },
+  "recap": {
+    "title": "Your {month} ⚡",
+    "zaps": "{n} ZAPs",
+    "zapsSub": "Bills split together this month",
+    "total": "Split in total",
+    "buddy": "#1 ZAP buddy",
+    "buddySub": "{n} times together",
+    "spot": "Favourite spot",
+    "spotSub": "{n} visits",
+    "breakdown": "What you split on",
+    "empty": "No ZAPs this month",
+    "emptySub": "They show up as soon as you split your first bill",
+    "share": "Share",
+    "cardTitle": "{month} ⚡",
+    "open": "See your month",
+    "ready": "Your {month} recap is ready",
+    "month": {
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    }
   }
 }

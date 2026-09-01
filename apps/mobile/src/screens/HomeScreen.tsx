@@ -22,7 +22,7 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Svg, { Circle as SvgCircle, Defs, Pattern, Rect as SvgRect } from 'react-native-svg';
 import { PressableScale } from '@/components/PressableScale';
 import { toast } from '@/components/ToastHost';
@@ -34,6 +34,7 @@ import { PromoCarousel } from '@/components/PromoCarousel';
 import { ActiveSplitPill } from '@/components/ActiveSplitPill';
 import { ScanIcon, SearchIcon, CashIcon, TicketIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
+import { fetchRecap } from '@/api/actions';
 import { useDraft } from '@/store/draft';
 import { qk } from '@/api/data';
 import { remindDebt } from '@/api/actions';
@@ -96,6 +97,12 @@ export function HomeScreen() {
   };
 
   const activity = useMemo(() => buildActivity(home.db, home.activeSplit?.id), [home.db, home.activeSplit?.id]);
+
+  // Итоги прошедшего месяца. Карточку показываем только когда есть что
+  // показать: пустой рекап на главной выглядел бы как сломанный блок.
+  const recapQuery = useQuery({ queryKey: ['recap'], queryFn: () => fetchRecap(), staleTime: 60 * 60_000 });
+  const recap = recapQuery.data && !recapQuery.data.empty ? recapQuery.data : null;
+  const recapMonth = recap ? t(`recap.month.${Number(recap.month.split('-')[1])}`) : '';
 
   // Предложение собрать Crew (vision §C1). Показываем, когда одна и та же
   // компания встретилась несколько раз и группы для неё ещё нет; отказ
@@ -280,7 +287,7 @@ export function HomeScreen() {
           {contactMatches.length ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.matchRow}>
               {contactMatches.map((c) => (
-                <PressableScale key={c.id} style={styles.matchCol} onPress={() => nav.navigate('Tabs', { screen: 'Amount' })}>
+                <PressableScale key={c.id} style={styles.matchCol} onPress={() => nav.popTo('Tabs', { screen: 'Amount' })}>
                   <Avatar name={c.name} letter={c.initials} contactId={c.id} color={c.color} size={48} />
                   <Text style={styles.matchName} numberOfLines={1}>{c.name}</Text>
                 </PressableScale>
@@ -298,6 +305,19 @@ export function HomeScreen() {
             первым, что встречает.
           */}
           <Text style={[styles.greeting, { color: colors.ink }]}>{t('activity.greeting')}</Text>
+
+          {recap ? (
+            <PressableScale
+              style={[styles.recapCard, styles.cardShadow, { backgroundColor: fixed.ink }]}
+              onPress={() => nav.navigate('Recap')}
+            >
+              <View style={styles.flex1}>
+                <Text style={[styles.recapTitle, { color: fixed.lime }]}>{t('recap.ready', { month: recapMonth })}</Text>
+                <Text style={styles.recapSub}>{t('recap.open')}</Text>
+              </View>
+              <Text style={[styles.recapChevron, { color: fixed.lime }]}>›</Text>
+            </PressableScale>
+          ) : null}
 
           {suggestion && !crewSkipped ? (
             <View style={[styles.crewCard, { backgroundColor: colors.ink }]}>
@@ -462,7 +482,7 @@ export function HomeScreen() {
           <View style={styles.sectionHead}>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>{t('home.yourSplits')}</Text>
             {splitRows.length ? (
-              <PressableScale onPress={() => nav.navigate('Tabs', { screen: 'History' })}>
+              <PressableScale onPress={() => nav.popTo('Tabs', { screen: 'History' })}>
                 <Text style={[styles.seeAll, { color: colors.muted }]}>{t('home.seeAll')}</Text>
               </PressableScale>
             ) : null}
@@ -596,6 +616,18 @@ const styles = StyleSheet.create({
   debtorMore: { width: 38, height: 38, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   debtorMoreText: { fontFamily: font.extrabold, fontSize: 12.5 },
 
+  recapCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 24,
+    paddingHorizontal: 18,
+    paddingVertical: 16,
+    marginTop: 12,
+  },
+  recapTitle: { fontFamily: font.extrabold, fontSize: 16 },
+  recapSub: { fontFamily: font.semibold, fontSize: 13, color: 'rgba(255,255,255,0.7)', marginTop: 2 },
+  recapChevron: { fontFamily: font.extrabold, fontSize: 22 },
   sectionCard: { borderRadius: 28, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 6, marginTop: 12 },
   cardShadow: {
     shadowColor: '#1E1C10',

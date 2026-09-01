@@ -203,3 +203,20 @@ export function addContact(phoneDigits: string, fullName?: string): Promise<Cont
     body: JSON.stringify({ phone: phoneDigits, name: fullName?.trim() || undefined }),
   });
 }
+
+// ---------- итоги месяца (recap) ----------
+
+export interface MonthlyRecap {
+  month: string;
+  zaps: number;
+  totalSplit: number;
+  byMerchant: { name: string; count: number; amount: number }[];
+  topBuddy: { name: string; count: number } | null;
+  favouriteSpot: { name: string; count: number } | null;
+  empty: boolean;
+}
+
+/** Без month сервер отдаёт прошедший месяц. */
+export function fetchRecap(month?: string): Promise<MonthlyRecap> {
+  return http<MonthlyRecap>('/recap' + (month ? `?month=${encodeURIComponent(month)}` : ''));
+}

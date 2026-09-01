@@ -70,7 +70,9 @@ function lib() {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     const mod = require('react-native-sound');
     SoundLib = (mod?.default ?? mod) ?? null;
-    SoundLib?.setCategory?.('Ambient');
+    // Playback, а не Ambient: Ambient на iOS полностью глушится боковым
+    // переключателем «без звука», и продуктовые звуки просто пропадали.
+    SoundLib?.setCategory?.('Playback');
   } catch {
     // библиотека не установлена/не залинкована — работаем без звука
     SoundLib = null;
@@ -89,14 +91,23 @@ function playSound(cue: Cue) {
     return;
   }
   try {
-    const s = new S(FILES[cue], S.MAIN_BUNDLE, (err) => {
-      if (err) return; // файла ещё нет — молча пропускаем
+    // Ссылку держим в let: колбэк react-native-sound может выстрелить
+    // синхронно, и обращение к ещё не инициализированной const упало бы
+    // с ReferenceError прямо внутри конструктора.
+    let s: SoundInstance | null = null;
+    s = new S(FILES[cue], S.MAIN_BUNDLE, (err) => {
+      if (err || !s) {
+        // раньше ошибка загрузки проглатывалась молча, и «звука нет»
+        // выглядело как отсутствие вызова
+        console.warn('[sound] load failed:', FILES[cue], err);
+        return;
+      }
       s.setVolume(0.7);
       cache.set(cue, s);
       s.play();
     });
-  } catch {
-    /* аудио не критично */
+  } catch (e) {
+    console.warn('[sound] ctor threw:', FILES[cue], e);
   }
 }
 

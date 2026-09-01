@@ -117,7 +117,7 @@ export function ScanScreen() {
    * после чего главная навсегда осталась бы модалкой. navigate возвращает
    * к уже существующему Tabs ниже по стеку и закрывает захват.
    */
-  const toHome = useCallback(() => nav.navigate('Tabs', { screen: 'Amount' }), [nav]);
+  const toHome = useCallback(() => nav.popTo('Tabs', { screen: 'Amount' }), [nav]);
 
   /** Классификация QR: сплит / счёт / фискальный чек / неизвестное. */
   const routePayload = useCallback(

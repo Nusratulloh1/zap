@@ -130,7 +130,7 @@ export function ParticipantScreen() {
   if (loading) {
     return (
       <Screen style={styles.root}>
-        <ScreenHeader onBack={() => nav.navigate('Tabs')} />
+        <ScreenHeader onBack={() => nav.popTo('Tabs')} />
       </Screen>
     );
   }
@@ -138,7 +138,7 @@ export function ParticipantScreen() {
   if (!view) {
     return (
       <Screen style={styles.root}>
-        <ScreenHeader onBack={() => nav.navigate('Tabs')} />
+        <ScreenHeader onBack={() => nav.popTo('Tabs')} />
         <View style={styles.center}>
           <Text style={[styles.notFound, { color: colors.muted }]}>{t('participant.notFound')}</Text>
         </View>
@@ -194,7 +194,7 @@ export function ParticipantScreen() {
         </View>
 
         <View style={styles.doneSpacer} />
-        <PressableScale style={[styles.cta, styles.doneCta, { backgroundColor: fixed.lime }]} onPress={() => nav.navigate('Tabs')}>
+        <PressableScale style={[styles.cta, styles.doneCta, { backgroundColor: fixed.lime }]} onPress={() => nav.popTo('Tabs')}>
           <Text style={styles.ctaDark}>{t('participant.openApp')}</Text>
         </PressableScale>
       </Screen>

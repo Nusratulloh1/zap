@@ -828,5 +828,36 @@
     "suggestBody": "Bir xil odamlar bilan {n} ta chek bo‘lgansiz",
     "suggestCta": "Crew yaratish ⚡",
     "suggestSkip": "Hozir emas"
+  },
+  "recap": {
+    "title": "Sizning {month} oyingiz",
+    "zaps": "{n} ta ZAP",
+    "zapsSub": "Shu oyda birga bo'lgan hisoblar",
+    "total": "Jami bo'lingan",
+    "buddy": "№1 ZAP hamrohingiz",
+    "buddySub": "{n} marta birga bo'ldingiz",
+    "spot": "Sevimli joyingiz",
+    "spotSub": "{n} marta",
+    "breakdown": "Nimalarga bo'ldingiz",
+    "empty": "Bu oyda hali ZAP yo'q",
+    "emptySub": "Birinchi hisobni bo'lishing bilan bu yerda paydo bo'ladi",
+    "share": "Ulashish",
+    "cardTitle": "{month} oyi ⚡",
+    "open": "Oy yakunini ko'rish",
+    "ready": "{month} yakuni tayyor",
+    "month": {
+      "1": "Yanvar",
+      "2": "Fevral",
+      "3": "Mart",
+      "4": "Aprel",
+      "5": "May",
+      "6": "Iyun",
+      "7": "Iyul",
+      "8": "Avgust",
+      "9": "Sentabr",
+      "10": "Oktabr",
+      "11": "Noyabr",
+      "12": "Dekabr"
+    }
   }
 }

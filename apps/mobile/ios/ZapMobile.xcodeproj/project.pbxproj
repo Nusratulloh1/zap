@@ -18,6 +18,13 @@
 		D501E8A291E64E3ABFFA575C /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 77B58AEBAAA84E0BB5E90BC4 /* Manrope-Bold.ttf */; };
 		D913068403224BC884295C50 /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 292041F622FF44AF9CE8AE1F /* Manrope-ExtraBold.ttf */; };
 		EC3F9361832A40BE8C4BDEEF /* Manrope-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 42595C6DF87F47F6808A7165 /* Manrope-SemiBold.ttf */; };
+		81EF71510EC34B7E8A0ECB28 /* scan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A830101539154A49BA427D4E /* scan.mp3 */; };
+		1A9B307D04724E1D88CC1F14 /* everyone_paid.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 5EA90E1FFE044D079E7F90DB /* everyone_paid.mp3 */; };
+		5457D4A9C9F14E83BE2B8270 /* split.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = CCF2E86B88DC4377B26DB638 /* split.mp3 */; };
+		BD6ED1E52E864877A63360A4 /* share.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9CFE4F154A2E4CE2A195CE03 /* share.mp3 */; };
+		833D28DD0A5D4304B867B15C /* split_done.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3ABF7D8A31794B63ABFD04E2 /* split_done.mp3 */; };
+		78626FB348C44E69B94066DB /* paid.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 8E1FDCC89DD547B889A97CE3 /* paid.mp3 */; };
+		A400A48381024F6BB12F7605 /* reminder.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = CFEBBF2C5BD24C9CA630C530 /* reminder.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -37,6 +44,13 @@
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ZapMobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8328DC27707E42C481E308D8 /* Manrope-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Medium.ttf"; path = "../assets/fonts/Manrope-Medium.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		A830101539154A49BA427D4E /* scan.mp3 */ = {isa = PBXFileReference; name = "scan.mp3"; path = "../assets/sounds/scan.mp3"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		5EA90E1FFE044D079E7F90DB /* everyone_paid.mp3 */ = {isa = PBXFileReference; name = "everyone_paid.mp3"; path = "../assets/sounds/everyone_paid.mp3"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		CCF2E86B88DC4377B26DB638 /* split.mp3 */ = {isa = PBXFileReference; name = "split.mp3"; path = "../assets/sounds/split.mp3"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		9CFE4F154A2E4CE2A195CE03 /* share.mp3 */ = {isa = PBXFileReference; name = "share.mp3"; path = "../assets/sounds/share.mp3"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		3ABF7D8A31794B63ABFD04E2 /* split_done.mp3 */ = {isa = PBXFileReference; name = "split_done.mp3"; path = "../assets/sounds/split_done.mp3"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		8E1FDCC89DD547B889A97CE3 /* paid.mp3 */ = {isa = PBXFileReference; name = "paid.mp3"; path = "../assets/sounds/paid.mp3"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		CFEBBF2C5BD24C9CA630C530 /* reminder.mp3 */ = {isa = PBXFileReference; name = "reminder.mp3"; path = "../assets/sounds/reminder.mp3"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -120,6 +134,13 @@
 				292041F622FF44AF9CE8AE1F /* Manrope-ExtraBold.ttf */,
 				8328DC27707E42C481E308D8 /* Manrope-Medium.ttf */,
 				42595C6DF87F47F6808A7165 /* Manrope-SemiBold.ttf */,
+				A830101539154A49BA427D4E /* scan.mp3 */,
+				5EA90E1FFE044D079E7F90DB /* everyone_paid.mp3 */,
+				CCF2E86B88DC4377B26DB638 /* split.mp3 */,
+				9CFE4F154A2E4CE2A195CE03 /* share.mp3 */,
+				3ABF7D8A31794B63ABFD04E2 /* split_done.mp3 */,
+				8E1FDCC89DD547B889A97CE3 /* paid.mp3 */,
+				CFEBBF2C5BD24C9CA630C530 /* reminder.mp3 */,
 			);
 			name = Resources;
 			path = "";
@@ -194,6 +215,13 @@
 				D913068403224BC884295C50 /* Manrope-ExtraBold.ttf in Resources */,
 				801E677C29B946CF9BE93156 /* Manrope-Medium.ttf in Resources */,
 				EC3F9361832A40BE8C4BDEEF /* Manrope-SemiBold.ttf in Resources */,
+				81EF71510EC34B7E8A0ECB28 /* scan.mp3 in Resources */,
+				1A9B307D04724E1D88CC1F14 /* everyone_paid.mp3 in Resources */,
+				5457D4A9C9F14E83BE2B8270 /* split.mp3 in Resources */,
+				BD6ED1E52E864877A63360A4 /* share.mp3 in Resources */,
+				833D28DD0A5D4304B867B15C /* split_done.mp3 in Resources */,
+				78626FB348C44E69B94066DB /* paid.mp3 in Resources */,
+				A400A48381024F6BB12F7605 /* reminder.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
