@@ -17,6 +17,7 @@ import { spendCashbackNext, withdrawCashback } from '@/api/actions';
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { money, humanDateLc } from '@/lib/format';
+import { entryText } from '@/lib/entryText';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -137,7 +138,7 @@ export function CashbackScreen() {
                 </View>
               )}
               <View style={styles.rowBody}>
-                <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>{e.title}</Text>
+                <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>{entryText(e.title, e.titleKey)}</Text>
                 <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>
                   {groupName(e.groupId) ? `${groupName(e.groupId)} · ` : ''}
                   {badgeOf(e.badge)} · {humanDateLc(e.createdAt)}

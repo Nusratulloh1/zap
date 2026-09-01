@@ -470,7 +470,7 @@ export class SplitsService {
         await this.history.record(tx, payer.id, 'payment', {
           refId: split.id,
           amountSigned: -charged,
-          meta: { title: split.title, subtitle: 'Ваша доля в сплите', splitId: split.id },
+          meta: { title: split.title, subtitle: 'Ваша доля в сплите', subtitleKey: 'entry.yourShare', splitId: split.id },
         })
       }
       return { split, member, charged }
@@ -558,7 +558,7 @@ export class SplitsService {
         await this.history.record(tx, creatorId, 'payment', {
           refId: splitId,
           amountSigned: -sum,
-          meta: { title: split.merchant?.name ?? split.title, subtitle: 'Покрыли остаток сплита', splitId, letter: split.merchant?.letter, color: split.merchant?.color },
+          meta: { title: split.merchant?.name ?? split.title, subtitle: 'Покрыли остаток сплита', subtitleKey: 'entry.coveredRest', splitId, letter: split.merchant?.letter, color: split.merchant?.color },
         })
       }
       return sum
@@ -714,6 +714,7 @@ export class SplitsService {
             amountSigned: amount,
             meta: {
               title: 'Групповой кэшбэк',
+              titleKey: 'entry.groupCashback',
               subtitle: `${merchant.name}${x2 ? ' ×2' : ''}`,
               splitId,
               held,

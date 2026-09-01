@@ -66,7 +66,7 @@ export class CashbackService {
       })
       await this.history.record(tx, userId, 'cashback', {
         amountSigned: -amount,
-        meta: { title: 'Вывод кэшбэка', subtitle: `${card.brand} ·· ${card.last4}`, letter: '%' },
+        meta: { title: 'Вывод кэшбэка', titleKey: 'entry.cashbackWithdrawal', subtitle: `${card.brand} ·· ${card.last4}`, letter: '%' },
       })
     })
     await this.payments.payout(userId, cardId, amount, `cashback:withdraw:${Date.now()}`)

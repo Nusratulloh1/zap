@@ -13,7 +13,7 @@
 //   • Reminder        → от аватара «меня» к stage.members[id] летит ⚡
 //   • QR → receipt    → на ScanScreen, приземляется в stage.receipt этого экрана
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, {
   useAnimatedRef,
   useAnimatedStyle,
@@ -449,6 +449,25 @@ export function SplitLiveScreen() {
               </PressableScale>
             ) : null}
 
+            {/*
+              Photo Moment (vision §C15). Экран закрытия показывается один раз
+              сразу после оплаты, а из истории счёт открывается именно сюда —
+              поэтому снимок должен жить здесь, рядом с суммой и составом.
+              Иначе «а где моё фото?» — ровно тот вопрос, который и возник.
+            */}
+            {split.status === 'closed' && members.length > 1 ? (
+              split.photoUrl ? (
+                <Image source={{ uri: split.photoUrl }} style={styles.moment} resizeMode="cover" />
+              ) : (
+                <PressableScale
+                  style={[styles.addPhoto, { borderColor: colors.hairline }]}
+                  onPress={() => nav.navigate('PhotoMoment', { id })}
+                >
+                  <Text style={[styles.ctaText, { color: colors.ink }]}>{t('photoMoment.add')}</Text>
+                </PressableScale>
+              )
+            ) : null}
+
             {/* Share Card появится следующим проходом — кнопка уже на месте */}
             <PressableScale
               style={[styles.cta, { backgroundColor: colors.sand }]}
@@ -559,6 +578,16 @@ const styles = StyleSheet.create({
   spacer: { flexGrow: 1, minHeight: 18 },
   actions: { gap: 10, marginTop: 18 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  moment: { height: 190, borderRadius: 24, marginBottom: 10, backgroundColor: 'rgba(17,17,16,0.06)' },
+  addPhoto: {
+    height: 56,
+    borderRadius: 999,
+    borderWidth: 2,
+    borderStyle: 'dashed',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
   ctaText: { fontFamily: font.extrabold, fontSize: 16 },
   sheetTitle: { fontFamily: font.extrabold, fontSize: 15, textAlign: 'center', marginBottom: 12 },
   renameInput: { fontFamily: font.bold, fontSize: 18, borderBottomWidth: 2, paddingBottom: 10, padding: 0 },

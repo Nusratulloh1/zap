@@ -14,8 +14,10 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { reduceMotion } from '@/lib/feedback';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
+import i18n, { currentLocale, type Locale } from '@/i18n';
 
 /** Стикеры, нарезанные из листов docs/product (tools: scratchpad/slice2.py). */
+// без `as const`: значения подменяются при смене языка, см. applyLocale ниже
 export const STICKER = {
   receiptHero: require('../../assets/stickers/receipt-hero.png') as ImageSourcePropType,
   oneBill: require('../../assets/stickers/one-bill.png') as ImageSourcePropType,
@@ -34,9 +36,49 @@ export const STICKER = {
   themeFood: require('../../assets/stickers/theme-food.png') as ImageSourcePropType,
   /** гарнир темы заведения — кофе */
   themeCoffee: require('../../assets/stickers/theme-coffee.png') as ImageSourcePropType,
-} as const;
+};
 
 export type StickerKey = keyof typeof STICKER;
+
+/*
+  Три стикера набраны текстом прямо в картинке. Для ru/en у них есть свои
+  файлы (tools/gen-sticker-locales.py) — иначе посреди русского экрана
+  оказывалась узбекская реплика.
+
+  Подменяем значения в самом STICKER, а не заводим отдельный геттер: ключи
+  читаются как STICKER[key] в двух десятках мест, и менять их все ради трёх
+  картинок — хуже, чем одна точка подмены здесь.
+*/
+/** Узбекские исходники — к ним возвращаемся при переключении обратно на uz. */
+const BASE = {
+  oneBill: STICKER.oneBill,
+  howItWorks: STICKER.howItWorks,
+  billDone: STICKER.billDone,
+};
+
+const LOCALIZED: Record<keyof typeof BASE, Partial<Record<Locale, ImageSourcePropType>>> = {
+  oneBill: {
+    ru: require('../../assets/stickers/one-bill.ru.png') as ImageSourcePropType,
+    en: require('../../assets/stickers/one-bill.en.png') as ImageSourcePropType,
+  },
+  howItWorks: {
+    ru: require('../../assets/stickers/how-it-works.ru.png') as ImageSourcePropType,
+    en: require('../../assets/stickers/how-it-works.en.png') as ImageSourcePropType,
+  },
+  billDone: {
+    ru: require('../../assets/stickers/bill-done.ru.png') as ImageSourcePropType,
+    en: require('../../assets/stickers/bill-done.en.png') as ImageSourcePropType,
+  },
+};
+
+function applyLocale(locale: string) {
+  for (const key of Object.keys(BASE) as (keyof typeof BASE)[]) {
+    STICKER[key] = LOCALIZED[key][locale as Locale] ?? BASE[key];
+  }
+}
+
+applyLocale(currentLocale());
+i18n.on('languageChanged', applyLocale);
 
 interface Props {
   sticker: StickerKey;

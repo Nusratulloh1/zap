@@ -5,6 +5,7 @@ import type { Bill, BillItem, CardBrand, Contact, Merchant, Split, SplitMember, 
 import { PrismaService } from '../common/prisma.service'
 import { normalizePhone } from '../common/utils'
 import { photoUrlOf } from '../common/uploads'
+import { entryKey } from '../common/entry-i18n'
 
 const AVATAR_COLORS = ['#3E6E4E', '#3E4A6E', '#B75A3A', '#6E3E5E', '#4A6E3E', '#8A5A2A']
 const colorFor = (s: string) => AVATAR_COLORS[[...s].reduce((a, c) => a + c.charCodeAt(0), 0) % AVATAR_COLORS.length]!
@@ -252,6 +253,7 @@ export class UsersService {
       cashbackEntries: cashback.map((e) => ({
         id: e.id,
         title: e.title,
+        titleKey: entryKey(e.title),
         badge: e.badge,
         amount: e.amount,
         createdAt: e.createdAt.getTime(),
@@ -266,6 +268,16 @@ export class UsersService {
           kind: h.type,
           title: String(meta.title ?? ''),
           subtitle: String(meta.subtitle ?? ''),
+          // Ключи перевода для строк, которые раньше писались в meta по-русски
+          // и в таком виде уезжали на экран независимо от языка интерфейса.
+          // Литералы оставлены: у записей, созданных до этой правки, ключей
+          // нет, и клиент откатывается на них.
+          titleKey:
+            typeof meta.titleKey === 'string' ? meta.titleKey : entryKey(String(meta.title ?? '')),
+          subtitleKey:
+            typeof meta.subtitleKey === 'string'
+              ? meta.subtitleKey
+              : entryKey(String(meta.subtitle ?? '')),
           amount: h.amountSigned,
           createdAt: h.createdAt.getTime(),
           splitId: typeof meta.splitId === 'string' ? meta.splitId : undefined,

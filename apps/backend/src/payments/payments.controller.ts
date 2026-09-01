@@ -36,7 +36,7 @@ export class PaymentsController {
     await this.payments.charge(user.id, dto.amount, `pay:${Date.now().toString(36)}`)
     await this.history.record(null, user.id, 'payment', {
       amountSigned: -dto.amount,
-      meta: { title: dto.title ?? 'Оплата', subtitle: 'Оплата целиком', merchantId: dto.merchantId },
+      meta: { title: dto.title ?? 'Оплата', titleKey: dto.title ? undefined : 'entry.payment', subtitle: 'Оплата целиком', subtitleKey: 'entry.paidWhole', merchantId: dto.merchantId },
     })
     return { ok: true }
   }

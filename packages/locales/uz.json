@@ -920,5 +920,16 @@
     "saved": "Shu lahzaga saqlandi ⚡",
     "failed": "Fotoni saqlab bo‘lmadi",
     "allowCamera": "Lahzani suratga olish uchun kameraga ruxsat bering"
+  },
+  "entry": {
+    "payment": "To‘lov",
+    "paidWhole": "To‘liq to‘landi",
+    "debtSettled": "Qarz yopildi",
+    "spentOnSplit": "Splitga sarflandi",
+    "yourShare": "Splitdagi ulushingiz",
+    "coveredRest": "Split qoldig‘i yopildi",
+    "groupCashback": "Guruh keshbegi",
+    "withdrawToCard": "Kartaga yechish",
+    "cashbackWithdrawal": "Keshbek yechildi"
   }
 }

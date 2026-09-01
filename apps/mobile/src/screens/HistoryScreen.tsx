@@ -13,6 +13,7 @@ import { Avatar } from '@/components/Avatar';
 import { SearchIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { money, dayLabel } from '@/lib/format';
+import { entryText } from '@/lib/entryText';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import type { HistoryEntry } from '@zap/shared/types';
@@ -51,7 +52,7 @@ export function HistoryScreen() {
       if (!q) return true;
       // ищем по названию, подписи и сумме — по тому, что человек видит в строке
       return (
-        e.title.toLowerCase().includes(q) ||
+        entryText(e.title, e.titleKey).toLowerCase().includes(q) ||
         e.subtitle.toLowerCase().includes(q) ||
         String(Math.abs(e.amount)).includes(q.replace(/\s/g, ''))
       );
@@ -157,7 +158,7 @@ export function HistoryScreen() {
                       </View>
                     )}
                     <View style={styles.rowBody}>
-                      <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>{e.title}</Text>
+                      <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>{entryText(e.title, e.titleKey)}</Text>
                       <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>{e.subtitle}</Text>
                     </View>
                     <View style={styles.rowRight}>

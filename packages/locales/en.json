@@ -920,5 +920,16 @@
     "saved": "Saved to this moment ⚡",
     "failed": "Could not save the photo",
     "allowCamera": "Allow camera access to capture the moment"
+  },
+  "entry": {
+    "payment": "Payment",
+    "paidWhole": "Paid in full",
+    "debtSettled": "Debt settled",
+    "spentOnSplit": "Spent on a split",
+    "yourShare": "Your share of the split",
+    "coveredRest": "Covered the rest of the split",
+    "groupCashback": "Group cashback",
+    "withdrawToCard": "Withdrawal to card",
+    "cashbackWithdrawal": "Cashback withdrawal"
   }
 }

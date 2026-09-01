@@ -130,6 +130,8 @@ export interface Debt {
 export interface CashbackEntry {
   id: Id
   title: string
+  /** ключ перевода для title; если есть — показывать его, а не title */
+  titleKey?: string
   badge: string
   amount: number
   createdAt: number
@@ -144,6 +146,10 @@ export interface HistoryEntry {
   kind: HistoryKind
   title: string
   subtitle: string
+  /** ключ перевода для title; если есть — показывать его, а не title */
+  titleKey?: string
+  /** ключ перевода для subtitle */
+  subtitleKey?: string
   amount: number
   createdAt: number
   splitId?: Id

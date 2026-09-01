@@ -106,7 +106,7 @@ export class DebtsService {
         await this.history.record(tx, debt.debtorUserId ?? actorId, 'debt', {
           refId: debtId,
           amountSigned: -debt.amount,
-          meta: { title: 'Долг погашен', subtitle: debt.reason, splitId: debt.splitId },
+          meta: { title: 'Долг погашен', titleKey: 'entry.debtSettled', subtitle: debt.reason, splitId: debt.splitId },
         })
       }
       return { debt: updated, released, already: false }
