@@ -179,11 +179,13 @@ def build(name, logo, logo_h, food, caption):
     print(f"{name:12s} {os.path.getsize(out) // 1024} КБ")
 
 
-# Еда подобрана по кухне заведения: подставить бургер пиццерии — ровно та
-# небрежность, из-за которой баннер перестаёт читаться как «про это место».
+# Еда подобрана по кухне заведения: EVOS — фастфуд, Bellissimo — пицца,
+# Safia — кондитерская (торты и выпечка), Bon — кофейня. Подставить бургер
+# кондитерской — ровно та небрежность, из-за которой баннер перестаёт
+# читаться как «про это место».
 build(
     "evos", "brand/partners/evos-logo.png", 142,
-    food=[("food-combo.png", 470, 265, 250), ("coffee-duo.png", 360, 1300, 350)],
+    food=[("food-combo.png", 470, 255, 250), ("burger-set.png", 340, 1310, 360)],
     caption=["REAL TASTE", "EVERY DAY"],
 )
 
@@ -194,16 +196,13 @@ build(
 )
 
 build(
-    "safia", ("Safia", "CAFÉ & BAKERY"), 132,
-    food=[("coffee-duo.png", 450, 265, 250), ("stickers/theme-coffee.png", 390, 1320, 340)],
+    "safia", ("Safia", "CAKES & PASTRY"), 132,
+    food=[("dessert.png", 440, 265, 255), ("dessert.png", 330, 1330, 375, True)],
     caption=["FRESH BAKED", "DAILY"],
 )
 
 build(
-    "bon", ("Bon!", "BOULANGERIE · PÂTISSERIE"), 132,
-    # Кофейная пара та же, что у Safia: выпечки в наборе стикеров нет.
-    # Разводим порядком, масштабом и подписью, но НЕ зеркалом — в стикерах
-    # вшито «ZAP!», и отражённый он читается задом наперёд.
-    food=[("stickers/theme-coffee.png", 460, 255, 245), ("coffee-duo.png", 350, 1330, 355)],
-    caption=["FRESHLY BAKED", "EVERY DAY"],
+    "bon", ("Bon!", "COFFEE SHOP"), 132,
+    food=[("coffee-duo.png", 460, 255, 245), ("stickers/theme-coffee.png", 360, 1330, 350)],
+    caption=["GOOD COFFEE", "GOOD MOOD"],
 )
