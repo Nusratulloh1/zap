@@ -31,3 +31,5 @@ backend/.env.*
 # Рабочие артефакты сессии (скриншоты, логи, архивы) — не история проекта
 scratchpad/
 tsconfig.*.tsbuildinfo
+apps/*/.pgdata-test-*/
+.pgdata-test-*/

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -85,6 +86,22 @@ class CoverDto {
   memberIds?: string[]
 }
 
+class RenameDto {
+  @IsString()
+  @Length(1, 80)
+  title!: string
+}
+
+class ReactDto {
+  @IsString()
+  memberId!: string
+
+  /** одно из REACTION_EMOJI — валидируется в сервисе */
+  @IsString()
+  @Length(1, 8)
+  emoji!: string
+}
+
 class SaveGroupDto {
   @IsString()
   name!: string
@@ -149,6 +166,25 @@ export class SplitsController {
   @HttpCode(200)
   async remind(@CurrentUser() user: AuthUser, @Param('id') id: string, @Param('memberId') memberId: string) {
     return this.splits.remindMember(id, user.id, memberId)
+  }
+
+
+  /** Своё название счёта: «🍕 Boys Dinner» вместо мерчанта (vision §14). */
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  async rename(@CurrentUser() user: AuthUser, @Param('id') id: string, @Body() dto: RenameDto) {
+    return this.splits.rename(id, user.id, dto.title)
+  }
+
+  /** Реакция на оплату участника: ⚡ 😂 ❤️ 🫡 🤝 (повторный тап снимает). */
+  @Post(':id/reactions')
+  @UseGuards(JwtAuthGuard)
+  async react(
+    @CurrentUser() user: AuthUser,
+    @Param('id') id: string,
+    @Body() dto: ReactDto,
+  ) {
+    return this.splits.react(user.id, id, dto.memberId, dto.emoji)
   }
 
   @Post(':id/send-link')

@@ -2,24 +2,29 @@
 // живая камера, MLKit-сканер QR, режим «фото» (снимок → Gemini OCR),
 // фонарик, лаймовая рамка. Без доступа к камере — карточка с ручным вводом.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { StatusBar, ActivityIndicator, Linking, StyleSheet, Text, View } from 'react-native';
+import { AppState, Linking, StatusBar, StyleSheet, Text, View } from 'react-native';
 import {
   Camera,
   useCameraDevice,
+  useCameraFormat,
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedRef, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { trigger } from 'react-native-haptic-feedback';
 import { PressableScale } from '@/components/PressableScale';
+import { QrToReceipt } from '@/components/bill/QrToReceipt';
+import { PhotoToReceipt, type PhotoPhase } from '@/components/bill/PhotoToReceipt';
+import { EASE_ZAP, QR_TIMELINE } from '@/lib/motion';
+import { cue } from '@/lib/feedback';
 import { toast } from '@/components/ToastHost';
 import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
 import { CloseIcon, BoltIcon } from '@/components/icons';
 import { PartnerChips } from '@/components/PartnerChips';
-import { resolveQr, fiscalOcr } from '@/api/actions';
+import { fetchFeaturedBill, fiscalOcr, resolveQr } from '@/api/actions';
 import { useDraft } from '@/store/draft';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
@@ -37,8 +42,27 @@ export function ScanScreen() {
   const [mode, setMode] = useState<'scan' | 'photo'>('scan');
   const [torch, setTorch] = useState(false);
   const camera = useRef<Camera>(null);
+
+  /**
+   * Формат под распознавание, а не под галерею.
+   *
+   * Камера по умолчанию снимает в максимальном разрешении: у телефона это
+   * ~7 МБ JPEG. Такой файл nginx на проде отвергает (client_max_body_size),
+   * причём обрывает соединение на середине загрузки — fetch падает с
+   * «Network request failed», и в приложении это выглядело как «нет сети».
+   * 1920x1080 хватает, чтобы прочитать строки чека, и весит ~0.4 МБ.
+   */
+  const format = useCameraFormat(device, [{ photoResolution: { width: 1920, height: 1080 } }]);
   const stopped = useRef(false);
   const [ocrBusy, setOcrBusy] = useState(false);
+
+
+  // приложение на переднем плане (см. isActive у Camera)
+  const [appActive, setAppActive] = useState(AppState.currentState === 'active');
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (st) => setAppActive(st === 'active'));
+    return () => sub.remove();
+  }, []);
 
   useEffect(() => {
     if (!hasPermission) void requestPermission();
@@ -51,30 +75,81 @@ export function ScanScreen() {
   }, [laser]);
   const laserStyle = useAnimatedStyle(() => ({ transform: [{ translateY: laser.value * 200 }] }));
 
+  // --- QR → счёт (vision, часть A) -----------------------------------------
+  // Код распознан: углы схлопываются к нему, дальше эстафету принимает
+  // QrToReceipt. Куда идти после превращения, решает routePayload — он
+  // кладёт сюда переход, а сам ждёт конца анимации.
+  const frameRef = useAnimatedRef<View>();
+  const [magic, setMagic] = useState(false);
+  const goAfterMagic = useRef<(() => void) | null>(null);
+  // снимок чека и стадия его превращения (см. PhotoToReceipt)
+  const [shot, setShot] = useState<string | null>(null);
+  const [shotPhase, setShotPhase] = useState<PhotoPhase>('reading');
+  // сумма из кода, если она уже известна — её показывает выезжающий чек
+  const [magicAmount, setMagicAmount] = useState<number | undefined>(undefined);
+
+  /** Идёт превращение (QR или снимок) — интерфейс сканера уходит с дороги. */
+  const transforming = magic || !!shot;
+  const collapse = useSharedValue(0);
+
+  /** Статичная рамка гаснет: дальше кадр держат углы из оверлея. */
+  const idleStyle = useAnimatedStyle(() => ({ opacity: 1 - collapse.value }));
+
+  /**
+   * Запустить превращение.
+   *
+   * qrRect — где код реально оказался в кадре (vision-camera отдаёт его в dp
+   * относительно превью, а превью занимает весь экран). Если детектор рамку
+   * не дал, оверлей возьмёт геометрию видоискателя.
+   */
+  const runMagic = useCallback(
+    (go: () => void) => {
+      goAfterMagic.current = go;
+      collapse.value = withTiming(1, { duration: QR_TIMELINE.corners.dur, easing: EASE_ZAP });
+      setMagic(true);
+    },
+    [collapse],
+  );
+
+  /**
+   * Уйти на главную из сканера. Именно navigate, а не replace: сканер —
+   * модальный «захват», и replace посадил бы корневой Tabs в его слот,
+   * после чего главная навсегда осталась бы модалкой. navigate возвращает
+   * к уже существующему Tabs ниже по стеку и закрывает захват.
+   */
+  const toHome = useCallback(() => nav.navigate('Tabs', { screen: 'Amount' }), [nav]);
+
   /** Классификация QR: сплит / счёт / фискальный чек / неизвестное. */
   const routePayload = useCallback(
     async (payload: string) => {
       const m = payload.match(/\/s\/([\w-]+)/i);
       if (m) {
-        nav.replace('Participant', { code: m[1] });
+        const code = m[1];
+        cue('scan');
+        runMagic(() => nav.replace('Participant', { code }));
         return;
       }
       try {
         const res = await resolveQr(payload);
         if (res.type === 'split') {
-          nav.replace('Participant', { code: res.code });
+          const code = res.code;
+          cue('scan');
+          runMagic(() => nav.replace('Participant', { code }));
           return;
         }
         if (res.type === 'bill') {
           draft.startForBill(res.bill, res.bill.merchantId);
-          toast.success(t('scan.qrDetected'));
-          nav.replace('Bill');
+          cue('scan');
+          setMagicAmount(res.bill.total);
+          runMagic(() => nav.replace('Bill'));
           return;
         }
         if (res.type === 'fiscal') {
           // узбекский QR не несёт суммы — экран чека в состоянии загрузки
           draft.startFiscal(res.instant.totalAmount ?? 0, res.jobId, payload);
-          nav.replace('Bill');
+          cue('scan');
+          setMagicAmount(res.instant.totalAmount || undefined);
+          runMagic(() => nav.replace('Bill'));
           return;
         }
       } catch {
@@ -87,10 +162,10 @@ export function ScanScreen() {
         setMode('photo');
       } else {
         toast(t('scan.qrUnknown'));
-        nav.replace('Tabs', { screen: 'Amount' });
+        toHome();
       }
     },
-    [draft, nav, t],
+    [draft, nav, t, toHome, runMagic],
   );
 
   const codeScanner = useCodeScanner({
@@ -99,6 +174,7 @@ export function ScanScreen() {
       if (stopped.current || mode !== 'scan') return;
       const value = codes[0]?.value;
       if (!value) return;
+      // детектор отдаёт положение кода в кадре — по нему схлопнутся углы
       stopped.current = true;
       trigger('impactMedium', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
       setTimeout(() => void routePayload(value), 250);
@@ -111,30 +187,64 @@ export function ScanScreen() {
     setOcrBusy(true);
     try {
       const photo = await camera.current.takePhoto({ flash: torch ? 'on' : 'off' });
-      const res = await fiscalOcr('file://' + photo.path);
+      const uri = 'file://' + photo.path;
+      // снимок сразу уходит в оверлей: пока идёт OCR, человек видит, как его
+      // чек «читают», а не кружок поверх камеры
+      setShot(uri);
+      setShotPhase('reading');
+
+      const res = await fiscalOcr(uri);
       const receipt = res.receipt;
+
       if (receipt && (receipt.items?.length || res.itemsRecognized)) {
         draft.startFiscal(receipt.total);
         draft.applyFiscalItems({ merchant: receipt.merchant, total: receipt.total, items: receipt.items }, true);
-        toast.success(t('scan.photoOk'));
-        nav.replace('ReviewItems');
+        cue('scan');
+        goAfterMagic.current = () => nav.replace('ReviewItems');
+        setShotPhase('done');
       } else if (receipt && receipt.total > 0) {
         draft.startFiscal(receipt.total);
         draft.fiscalFailed();
-        toast(t('scan.photoNoItems'));
-        nav.replace('Members');
+        cue('scan');
+        goAfterMagic.current = () => nav.replace('Members');
+        setShotPhase('done');
       } else {
         toast(t('scan.photoFailed'));
+        setShotPhase('failed');
       }
     } catch (e) {
       toast(e instanceof Error && e.message ? e.message : t('scan.photoFailedShort'));
+      setShotPhase('failed');
     } finally {
       setOcrBusy(false);
     }
   };
 
-  const manualEntry = () => nav.replace('Tabs', { screen: 'Amount' });
+  /**
+   * Демо-чек: проиграть превращение целиком, не охотясь за настоящим QR.
+   *
+   * Так магию можно оценивать сколько угодно раз подряд, а не по одному разу
+   * на каждый найденный чек.
+   */
+  const demoBill = async () => {
+    if (magic) return;
+    try {
+      const bill = await fetchFeaturedBill();
+      if (!bill) {
+        toast(t('scan.qrUnknown'));
+        return;
+      }
+      draft.startForBill(bill, bill.merchantId);
+      cue('scan');
+      setMagicAmount(bill.total);
+      // превращение стартует из видоискателя, задавать координаты не нужно
+      runMagic(() => nav.replace('Bill'));
+    } catch {
+      toast(t('errors.generic'));
+    }
+  };
 
+  const manualEntry = toHome;
 
   const cameraOk = hasPermission && device != null;
 
@@ -147,7 +257,19 @@ export function ScanScreen() {
           style={StyleSheet.absoluteFill}
           resizeMode="cover"
           device={device}
-          isActive={focused && !stopped.current}
+          format={format}
+          // Превью живёт, пока экран на виду И приложение на переднем плане.
+          //
+          // Здесь было `focused && !stopped.current`: в момент запуска магии
+          // экран перерисовывался с isActive=false, камера останавливалась,
+          // кадр чернел — и «бумага разворачивалась из QR» происходило поверх
+          // пустоты. От повторных срабатываний защищает сам колбэк сканера,
+          // поэтому распознавание на isActive больше не влияет.
+          //
+          // AppState обязателен: при уходе в фон система забирает камеру, а
+          // сама сессия обратно не поднимается — без этого флага возврат в
+          // приложение оставлял белое превью.
+          isActive={focused && appActive}
           torch={torch ? 'on' : 'off'}
           photo={mode === 'photo'}
           codeScanner={mode === 'scan' ? codeScanner : undefined}
@@ -174,8 +296,8 @@ export function ScanScreen() {
         <SvgRect x={0} y={0} width="100%" height={230} fill="url(#scanBottom)" />
       </Svg>
 
-      {/* верх: × · режимы · фонарик */}
-      <View style={[styles.topBar, { paddingTop: insets.top + 12 }]}>
+      {/* верх: × · режимы · фонарик — на время превращения убираем */}
+      <View style={[styles.topBar, { paddingTop: insets.top + 12 }, transforming && styles.hidden]}>
         <PressableScale small style={styles.roundBtn} onPress={() => nav.goBack()}>
           <CloseIcon size={17} color="#FFFFFF" />
         </PressableScale>
@@ -202,12 +324,13 @@ export function ScanScreen() {
       {/* центр: рамка сканера / карточка «нет камеры» */}
       <View style={styles.centerZone}>
         {cameraOk && mode === 'scan' ? (
-          <View style={styles.frame}>
+          <Animated.View ref={frameRef} style={styles.frame}>
             {(['tl', 'tr', 'bl', 'br'] as const).map((c) => (
-              <View key={c} style={[styles.corner, cornerPos(c), { borderColor: fixed.lime }]} />
+              <Animated.View key={c} style={[styles.corner, cornerPos(c), { borderColor: fixed.lime }, idleStyle]} />
             ))}
-            <Animated.View style={[styles.laser, { backgroundColor: 'rgba(221,255,51,0.6)' }, laserStyle]} />
-          </View>
+            {/* рабочая «лазерная» полоска гаснет, как только начинается превращение */}
+            <Animated.View style={[styles.laser, { backgroundColor: 'rgba(221,255,51,0.6)' }, laserStyle, idleStyle]} />
+          </Animated.View>
         ) : !cameraOk ? (
           <View style={styles.deniedCard}>
             <Text style={styles.deniedTitle}>{t('scan.noCamera')}</Text>
@@ -229,8 +352,14 @@ export function ScanScreen() {
         ) : null}
       </View>
 
-      {/* низ: подпись · затвор (фото) · ручной ввод */}
-      <View style={[styles.bottomZone, { paddingBottom: insets.bottom + 18 }]}>
+      {/*
+        Низ: подпись · затвор · ручной ввод.
+
+        Во время превращения прячем целиком: иначе подпись сканера и кнопки
+        проступали поверх затемнения и налезали на подпись оверлея — экран
+        читался как две наложенные друг на друга страницы.
+      */}
+      <View style={[styles.bottomZone, { paddingBottom: insets.bottom + 18 }, transforming && styles.hidden]}>
         <Text style={styles.caption}>
           {!cameraOk ? t('scan.allowCamera') : mode === 'scan' ? t('scan.aimAtQr') : t('scan.photoTitle')}
         </Text>
@@ -241,17 +370,34 @@ export function ScanScreen() {
             style={[styles.shutter, ocrBusy && styles.disabled]}
             onPress={() => void capturePhoto()}
           >
-            {ocrBusy ? (
-              <ActivityIndicator color={fixed.lime} />
-            ) : (
-              <View style={[styles.shutterInner, { backgroundColor: fixed.lime }]} />
-            )}
+            {/* обратную связь во время съёмки даёт оверлей превращения,
+                поэтому здесь кнопке достаточно погаснуть */}
+            <View style={[styles.shutterInner, { backgroundColor: fixed.lime }]} />
           </PressableScale>
         ) : null}
-        <PressableScale style={styles.bottomBtn} onPress={manualEntry}>
-          <Text style={styles.bottomText}>{t('scan.manual')}</Text>
-        </PressableScale>
+        <View style={styles.bottomRow}>
+          <PressableScale style={styles.bottomBtn} onPress={() => void demoBill()}>
+            <Text style={styles.bottomText}>{t('scan.demo')}</Text>
+          </PressableScale>
+          <PressableScale style={styles.bottomBtn} onPress={manualEntry}>
+            <Text style={styles.bottomText}>{t('scan.manual')}</Text>
+          </PressableScale>
+        </View>
       </View>
+      {/* код превращается в чек, а не «loading → страница» */}
+      <QrToReceipt
+        run={magic}
+        frameRef={frameRef}
+        amount={magicAmount}
+        onHandoff={() => goAfterMagic.current?.()}
+      />
+      {/* снимок чека читается на глазах, а не под спиннером */}
+      <PhotoToReceipt
+        photoUri={shot}
+        phase={shotPhase}
+        onHandoff={() => goAfterMagic.current?.()}
+        onDismiss={() => setShot(null)}
+      />
     </View>
   );
 }
@@ -322,6 +468,8 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center',
   },
   shutterInner: { width: 52, height: 52, borderRadius: 999 },
+  hidden: { opacity: 0 },
+  bottomRow: { flexDirection: 'row', alignItems: 'center', gap: 18 },
   bottomBtn: { paddingVertical: 4, paddingHorizontal: 8 },
   bottomText: {
     fontFamily: font.bold,

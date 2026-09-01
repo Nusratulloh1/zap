@@ -1,6 +1,6 @@
 // Экран ссылки на сплит: QR, нативный шэр, копирование, отправка SMS
 // сервером. Порт web/src/pages/SharePage.vue.
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Clipboard, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -8,6 +8,11 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
+import { StickerBurst } from '@/components/StickerBurst';
+import { cue, reduceMotion } from '@/lib/feedback';
+import { enablePush, pushAsked } from '@/lib/push';
+import { splitUrl } from '@/lib/share';
+import { ZapLoader } from '@/components/ZapLoader';
 import { PressableScale } from '@/components/PressableScale';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { Avatar } from '@/components/Avatar';
@@ -19,9 +24,8 @@ import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { money, equalShares } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font, fixedPalette } from '@/theme/tokens';
+import { SCREEN_PAD_X, fixedPalette, font } from '@/theme/tokens';
 
-const ORIGIN = 'https://zapapp.uz';
 
 export function ShareScreen() {
   const { t } = useTranslation();
@@ -41,16 +45,37 @@ export function ShareScreen() {
     initialDataUpdatedAt: () => qc.getQueryState(qk.bootstrap)?.dataUpdatedAt,
   });
   const [sending, setSending] = useState(false);
+  const [burst, setBurst] = useState(false);
+
+  // «сплит готов» — звук и отдача один раз при входе на экран.
+  // Хук стоит ДО раннего return по загрузке: порядок хуков обязан совпадать
+  // на каждом рендере.
+  useEffect(() => {
+    cue('splitDone');
+    setBurst(true);
+
+    // Разрешение на пуши просим ЗДЕСЬ, а не на первом запуске: сплит только
+    // что создан, и смысл уведомлений очевиден — «узнаешь, когда друг
+    // оплатит». На старте приложения этот вопрос выглядит навязчивым и его
+    // чаще отклоняют. Спрашиваем один раз (см. pushAsked).
+    if (!pushAsked()) {
+      const id = setTimeout(() => void enablePush(), 1200);
+      return () => clearTimeout(id);
+    }
+  }, []);
+
 
   if (!split) {
     return (
       <Screen style={styles.root}>
-        <Text style={[styles.loading, { color: colors.muted }]}>{t('bill.loading')}</Text>
+        <View style={styles.loading}>
+          <ZapLoader label={t('bill.loading')} />
+        </View>
       </Screen>
     );
   }
 
-  const url = `${ORIGIN}/s/${split.code}`;
+  const url = splitUrl(split.code);
   const perPerson = equalShares(split.total, split.members.length)[0] ?? 0;
   const merchant = home.db?.merchants.find((m) => m.id === split.merchantId);
   const waitingNames = split.members
@@ -79,7 +104,12 @@ export function ShareScreen() {
     <Screen style={styles.root}>
       <ScreenHeader onBack={() => nav.replace('SplitLive', { id })} />
 
-      <Text style={[styles.title, { color: colors.ink }]}>{t('share.title')}</Text>
+      <Animated.Text
+        entering={reduceMotion() ? undefined : FadeInDown.delay(90).duration(300)}
+        style={[styles.title, { color: colors.ink }]}
+      >
+        {t('share.title')}
+      </Animated.Text>
       <Text style={[styles.sub, { color: colors.muted }]}>
         {split.bill
           ? t('share.subtitleWithOrder', {
@@ -131,17 +161,19 @@ export function ShareScreen() {
         <PressableScale style={[styles.btn, { backgroundColor: colors.sand }]} onPress={onCopy}>
           <Text style={[styles.btnLight, { color: colors.ink }]}>{t('common.copy')}</Text>
         </PressableScale>
-        <PressableScale onPress={() => nav.replace('SplitLive', { id: split.id })}>
+        <PressableScale onPress={() => nav.replace('SplitLive', { id: split.id, justCreated: true })}>
           <Text style={[styles.toStatus, { color: colors.muted }]}>{t('share.toStatusArrow')}</Text>
         </PressableScale>
       </View>
+      {/* сплит создан — стикер вспыхивает и уходит сам */}
+      <StickerBurst run={burst} sticker="billDone" onDone={() => setBurst(false)} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 24 },
-  loading: { fontFamily: font.semibold, fontSize: 15, marginTop: 40, textAlign: 'center' },
+  root: { paddingHorizontal: SCREEN_PAD_X },
+  loading: { marginTop: 48, alignItems: 'center' },
   back: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
   backGlyph: { fontSize: 20, fontFamily: font.bold },
   title: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.3, marginTop: 22 },

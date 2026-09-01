@@ -12,7 +12,13 @@ import {
 } from '@nestjs/websockets'
 import type { Server, Socket } from 'socket.io'
 
-export type SplitEventKind = 'member_opened' | 'member_paid' | 'member_covered' | 'split_closed' | 'debt_settled'
+export type SplitEventKind =
+  | 'member_opened'
+  | 'member_paid'
+  | 'member_covered'
+  | 'split_closed'
+  | 'debt_settled'
+  | 'reaction_added'
 
 @WebSocketGateway({ namespace: '/realtime', cors: { origin: true, credentials: true } })
 export class RealtimeGateway implements OnGatewayConnection {

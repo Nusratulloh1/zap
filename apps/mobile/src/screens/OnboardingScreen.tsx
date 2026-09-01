@@ -21,6 +21,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { translate } from '@/i18n';
+import { STICKER } from '@/components/EmptyState';
 import { Screen } from '@/components/Screen';
 import { Button } from '@/components/Button';
 import { CountUp } from '@/components/CountUp';
@@ -338,20 +339,24 @@ function SlideSplit({ t, fixed }: SlideProps) {
           <Text style={[styles.plusText, { color: fixed.ink }]}>+5</Text>
         </View>
       </Animated.View>
+      {/* «Skanerla. Bo'ling. Tayyor!» — весь продукт одной картинкой */}
       <Animated.View entering={stagger(1)}>
-        <Text style={[styles.stage, { color: 'rgba(255,255,255,0.5)' }]}>{t('onboarding.stage', { n: 2 })}</Text>
+        <Image source={STICKER.howItWorks} style={styles.slideSticker} resizeMode="contain" />
       </Animated.View>
       <Animated.View entering={stagger(2)}>
+        <Text style={[styles.stage, { color: 'rgba(255,255,255,0.5)' }]}>{t('onboarding.stage', { n: 2 })}</Text>
+      </Animated.View>
+      <Animated.View entering={stagger(3)}>
         <Text style={[styles.title, { color: '#FFFFFF' }]}>
           {t('onboarding.s2TitleA')}
           {'\n'}
           {t('onboarding.s2TitleB')}
         </Text>
       </Animated.View>
-      <Animated.View entering={stagger(3)}>
+      <Animated.View entering={stagger(4)}>
         <Text style={[styles.text, { color: 'rgba(255,255,255,0.65)' }]}>{t('onboarding.s2Text')}</Text>
       </Animated.View>
-      <Animated.View entering={stagger(4)} style={styles.chipRow}>
+      <Animated.View entering={stagger(5)} style={styles.chipRow}>
         {chips.map((c, i) => (
           <View
             key={c}
@@ -468,6 +473,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 18,
   },
+  slideSticker: { width: 168, height: 150, marginTop: 14, marginBottom: 2 },
   title: { fontFamily: font.extrabold, fontSize: 40, letterSpacing: -1.2, lineHeight: 42 },
   text: { fontFamily: font.semibold, fontSize: 15, lineHeight: 21, maxWidth: 310 },
 

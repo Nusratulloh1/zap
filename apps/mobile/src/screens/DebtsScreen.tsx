@@ -6,6 +6,7 @@ import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
+import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
@@ -16,7 +17,7 @@ import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { money, humanDateLc } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function DebtsScreen() {
   const { t } = useTranslation();
@@ -151,7 +152,7 @@ export function DebtsScreen() {
       ) : (
         <Animated.View key="iowe" entering={FadeIn.duration(200)} style={styles.center}>
           <Text style={styles.emoji}>🎉</Text>
-          <Text style={[styles.emptyBold, { color: colors.muted }]}>{t('debts.empty')}</Text>
+          <EmptyState sticker="fistBump" title={t('empty.debtsTitle')} hint={t('empty.debtsHint')} />
         </Animated.View>
       )}
     </Screen>
@@ -159,7 +160,7 @@ export function DebtsScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 24 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   flex: { flex: 1 },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3, marginTop: 24 },
   amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 12  },

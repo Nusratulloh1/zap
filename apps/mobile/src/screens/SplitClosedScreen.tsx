@@ -6,6 +6,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
+import { ThemeGarnish } from '@/components/bill/ThemeGarnish';
+import { ShareCardSheet } from '@/components/share/ShareCardSheet';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
@@ -16,8 +18,9 @@ import { qk } from '@/api/data';
 import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { money } from '@/lib/format';
+import { themeForMerchant } from '@/lib/merchantTheme';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function SplitClosedScreen() {
   const { t } = useTranslation();
@@ -37,6 +40,7 @@ export function SplitClosedScreen() {
     initialDataUpdatedAt: () => qc.getQueryState(qk.bootstrap)?.dataUpdatedAt,
   });
   const [billSheet, setBillSheet] = useState(false);
+  const [cardOpen, setCardOpen] = useState(false);
 
   if (!split) {
     return (
@@ -60,6 +64,7 @@ export function SplitClosedScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>
+          <ThemeGarnish theme={themeForMerchant(merchant?.name ?? split.title)} />
           {split.merchantId === 'm_bellissimo' ? (
             <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.logoImg} />
           ) : (
@@ -121,6 +126,9 @@ export function SplitClosedScreen() {
 
         {!isSolo ? (
           <View style={styles.ctas}>
+            <PressableScale style={[styles.cta, styles.ctaGhost]} onPress={() => setCardOpen(true)}>
+              <Text style={[styles.ctaText, { color: fixed.ink }]}>{t('closed.shareMoment')}</Text>
+            </PressableScale>
             <PressableScale style={[styles.cta, { backgroundColor: fixed.ink }]} onPress={() => nav.navigate('SaveGroup', { id })}>
               <Text style={[styles.ctaText, { color: fixed.paper }]}>{t('closed.saveGroup')}</Text>
             </PressableScale>
@@ -166,12 +174,26 @@ export function SplitClosedScreen() {
           </View>
         ) : null}
       </BottomSheet>
+      <ShareCardSheet
+        open={cardOpen}
+        onClose={() => setCardOpen(false)}
+        title={split.title}
+        total={split.total}
+        code={split.code}
+        members={split.members.map((m) => ({
+          contactId: m.contactId,
+          name: nameOf(m.contactId),
+          initials: home.contactById(m.contactId)?.initials,
+          color: colorOf(m.contactId),
+          paid: m.status === 'paid' || m.status === 'debt',
+        }))}
+      />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 24 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   head: { marginTop: 30 },
   logoImg: { width: 76, height: 76, marginLeft: -8 },
   logo: { width: 76, height: 76, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },

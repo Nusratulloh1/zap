@@ -9,29 +9,31 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  phone        String   @unique
-  name         String   @default("")
-  handle       String?  @unique
+  id           String    @id @default(cuid())
+  phone        String    @unique
+  name         String    @default("")
+  handle       String?   @unique
   avatarUrl    String?
   pinHash      String?
-  pinFailCount Int      @default(0)
+  pinFailCount Int       @default(0)
   pinLockedTil DateTime?
   /// язык интерфейса: uz | ru | en — следует за аккаунтом между устройствами
   /// и пригодится для локализации SMS
-  locale       String   @default("uz")
-  createdAt    DateTime @default(now())
+  locale       String    @default("uz")
+  createdAt    DateTime  @default(now())
 
-  cards          Card[]
-  contacts       Contact[]      @relation("owner")
-  refreshTokens  RefreshToken[]
-  splitsCreated  Split[]
-  cashback       CashbackEntry[]
-  historyEvents  HistoryEvent[]
-  transactions   Transaction[]
-  debtsAsCreditor Debt[]        @relation("creditor")
-  debtsAsDebtor   Debt[]        @relation("debtor")
+  cards           Card[]
+  contacts        Contact[]       @relation("owner")
+  refreshTokens   RefreshToken[]
+  splitsCreated   Split[]
+  cashback        CashbackEntry[]
+  historyEvents   HistoryEvent[]
+  reactions       Reaction[]
+  transactions    Transaction[]
+  debtsAsCreditor Debt[]          @relation("creditor")
+  debtsAsDebtor   Debt[]          @relation("debtor")
   groupsOwned     Group[]
+  pushTokens      PushToken[]
 }
 
 enum OtpPurpose {
@@ -98,9 +100,9 @@ model Card {
 }
 
 model Contact {
-  id           String  @id @default(cuid())
+  id           String   @id @default(cuid())
   ownerId      String
-  owner        User    @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
+  owner        User     @relation("owner", fields: [ownerId], references: [id], onDelete: Cascade)
   phone        String
   name         String
   linkedUserId String?
@@ -182,10 +184,29 @@ model Split {
   createdAt   DateTime    @default(now())
   closedAt    DateTime?
 
-  members SplitMember[]
-  debts   Debt[]
+  members   SplitMember[]
+  debts     Debt[]
+  reactions Reaction[]
 
   @@index([creatorId, createdAt])
+}
+
+/// Реакция на оплату участника: ⚡ 😂 ❤️ 🫡 🤝.
+/// Один пользователь — одна реакция на участника (повторный тап меняет эмодзи,
+/// тап тем же эмодзи снимает её), поэтому уникальность по (memberId, fromUserId).
+model Reaction {
+  id         String      @id @default(cuid())
+  splitId    String
+  split      Split       @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  memberId   String
+  member     SplitMember @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  fromUserId String
+  fromUser   User        @relation(fields: [fromUserId], references: [id], onDelete: Cascade)
+  emoji      String
+  createdAt  DateTime    @default(now())
+
+  @@unique([memberId, fromUserId])
+  @@index([splitId])
 }
 
 enum MemberStatus {
@@ -197,21 +218,22 @@ enum MemberStatus {
 }
 
 model SplitMember {
-  id          String       @id @default(cuid())
-  splitId     String
-  split       Split        @relation(fields: [splitId], references: [id], onDelete: Cascade)
-  userId      String?
-  phone       String
-  displayName String
-  shareAmount Int
-  status      MemberStatus @default(pending)
-  isCreator   Boolean      @default(false)
-  paidAmount  Int          @default(0)
+  id             String       @id @default(cuid())
+  splitId        String
+  split          Split        @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  userId         String?
+  phone          String
+  displayName    String
+  shareAmount    Int
+  status         MemberStatus @default(pending)
+  isCreator      Boolean      @default(false)
+  paidAmount     Int          @default(0)
   lastRemindedAt DateTime?
-  paidAt      DateTime?
-  coveredById String?
+  paidAt         DateTime?
+  coveredById    String?
 
   assignments ItemAssignment[]
+  reactions   Reaction[]
 
   @@unique([splitId, phone])
   @@index([phone])
@@ -228,13 +250,13 @@ model ItemAssignment {
 }
 
 model Group {
-  id                 String   @id @default(cuid())
-  name               String
-  ownerId            String
-  owner              User     @relation(fields: [ownerId], references: [id])
-  cashbackPoolEnabled Boolean @default(true)
-  cashbackPool       Int      @default(0)
-  createdAt          DateTime @default(now())
+  id                  String   @id @default(cuid())
+  name                String
+  ownerId             String
+  owner               User     @relation(fields: [ownerId], references: [id])
+  cashbackPoolEnabled Boolean  @default(true)
+  cashbackPool        Int      @default(0)
+  createdAt           DateTime @default(now())
 
   members GroupMember[]
   splits  Split[]
@@ -362,18 +384,18 @@ model UserSettings {
 
 /// Фискальный чек: распарсенная страница ОФД или OCR-фолбэк.
 model FiscalReceipt {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   userId          String
-  fiscalKey       String   @unique // дедуп: одинаковый чек не парсим дважды
+  fiscalKey       String    @unique // дедуп: одинаковый чек не парсим дважды
   url             String
-  status          String   @default("pending") // pending | ready | failed_parse
-  source          String   @default("page") // page | ocr
+  status          String    @default("pending") // pending | ready | failed_parse
+  source          String    @default("page") // page | ocr
   merchantName    String?
   merchantInn     String?
   receiptDatetime DateTime?
   totalAmount     Int?
   snapshotFile    String?
-  createdAt       DateTime @default(now())
+  createdAt       DateTime  @default(now())
 
   items FiscalReceiptItem[]
 
@@ -412,4 +434,28 @@ model PartnerLead {
   createdAt DateTime @default(now())
 
   @@index([status, createdAt])
+}
+
+/// Токен устройства для пуш-уведомлений.
+///
+/// Токен, а не устройство: у одного человека их несколько (телефон, планшет),
+/// и FCM выдаёт новый при переустановке. Уникален сам токен — так повторная
+/// регистрация того же устройства не плодит строк.
+///
+/// disabledAt ставится, когда FCM ответил UNREGISTERED: токен мёртв, но
+/// строку не удаляем сразу — по ней видно, что человек когда-то включал пуши.
+model PushToken {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token      String    @unique
+  /// android | ios
+  platform   String
+  /// язык на момент регистрации; текст пуша берётся по нему
+  locale     String    @default("uz")
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  disabledAt DateTime?
+
+  @@index([userId])
 }

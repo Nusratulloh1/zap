@@ -14,6 +14,8 @@ import { MemberStatus, Prisma, SplitMode } from '@prisma/client'
 import { PrismaService } from '../common/prisma.service'
 import { SmsService } from '../sms/sms.service'
 import { RealtimeGateway } from '../realtime/realtime.gateway'
+import { PushService } from '../push/push.service'
+import { pushText } from '../push/push.i18n'
 import { HistoryService } from '../history/history.service'
 import { PAYMENT_PROVIDER, type PaymentProvider } from '../payments/payment.provider'
 import { makeSplitCode, normalizePhone, round1000 } from '../common/utils'
@@ -40,6 +42,15 @@ type Tx = Prisma.TransactionClient
 
 const REMIND_INTERVAL_MS = 30 * 60_000
 
+/** Набор реакций продукта (vision §3). Свободный ввод не принимаем. */
+export const REACTION_EMOJI: readonly string[] = ['⚡', '😂', '❤️', '🫡', '🤝']
+
+
+/** Сумма для текста уведомления: «167 283». Валюту добавляет сам шаблон. */
+function fmtSum(n: number): string {
+  return new Intl.NumberFormat('ru-RU').format(Math.round(n))
+}
+
 @Injectable()
 export class SplitsService {
   private readonly log = new Logger(SplitsService.name)
@@ -48,6 +59,7 @@ export class SplitsService {
     private readonly prisma: PrismaService,
     private readonly sms: SmsService,
     private readonly realtime: RealtimeGateway,
+    private readonly push: PushService,
     private readonly history: HistoryService,
     @Inject(PAYMENT_PROVIDER) private readonly payments: PaymentProvider,
   ) {}
@@ -296,6 +308,67 @@ export class SplitsService {
     }
   }
 
+
+  /**
+   * Реакция на оплату участника: ⚡ 😂 ❤️ 🫡 🤝 (vision §16 «реакции прямо
+   * на деньги»). Повторный тап тем же эмодзи снимает реакцию, другим —
+   * заменяет: у пользователя одна реакция на участника.
+   */
+  async react(userId: string, splitId: string, memberId: string, emoji: string) {
+    if (!REACTION_EMOJI.includes(emoji)) throw new BadRequestException('bad emoji')
+
+    const member = await this.prisma.splitMember.findFirst({
+      where: { id: memberId, splitId },
+      select: { id: true, displayName: true, split: { select: { id: true, code: true, members: { select: { userId: true } } } } },
+    })
+    if (!member) throw new NotFoundException('member not found')
+
+    // реагировать может только участник сплита
+    const allowed = member.split.members.some((m) => m.userId === userId)
+    if (!allowed) throw new ForbiddenException('not a participant')
+
+    const existing = await this.prisma.reaction.findUnique({
+      where: { memberId_fromUserId: { memberId, fromUserId: userId } },
+      select: { id: true, emoji: true },
+    })
+
+    let emojiNow: string | null = emoji
+    if (existing?.emoji === emoji) {
+      await this.prisma.reaction.delete({ where: { id: existing.id } })
+      emojiNow = null
+    } else if (existing) {
+      await this.prisma.reaction.update({ where: { id: existing.id }, data: { emoji } })
+    } else {
+      await this.prisma.reaction.create({ data: { splitId, memberId, fromUserId: userId, emoji } })
+    }
+
+    const from = await this.prisma.user.findUnique({ where: { id: userId }, select: { name: true } })
+    this.realtime.emitSplit(member.split.code, 'reaction_added', {
+      splitId,
+      memberId,
+      emoji: emojiNow,
+      fromUserId: userId,
+      fromName: (from?.name || '').split(' ')[0],
+    })
+
+    return { emoji: emojiNow }
+  }
+
+  /** Реакции сплита для проекции клиенту. */
+  async reactionsOf(splitId: string) {
+    const rows = await this.prisma.reaction.findMany({
+      where: { splitId },
+      select: { memberId: true, emoji: true, fromUserId: true, fromUser: { select: { name: true } } },
+      orderBy: { createdAt: 'asc' },
+    })
+    return rows.map((r) => ({
+      memberId: r.memberId,
+      emoji: r.emoji,
+      fromUserId: r.fromUserId,
+      fromName: (r.fromUser?.name || '').split(' ')[0],
+    }))
+  }
+
   /** Локаль организатора — запасной язык SMS участнику, которого ещё нет в базе. */
   async creatorLocale(code: string): Promise<string | null> {
     const split = await this.prisma.split.findUnique({
@@ -378,6 +451,17 @@ export class SplitsService {
         name: result.member.displayName,
         amount: result.charged,
       })
+      // организатор мог закрыть приложение — пуш догонит
+      await this.push.send(
+        result.split.creatorId,
+        (loc) =>
+          pushText('memberPaid', loc, {
+            name: result.member.displayName,
+            title: result.split.title,
+            amount: fmtSum(result.charged),
+          }),
+        { type: 'split', splitId: result.split.id, code: result.split.code },
+      )
       await this.maybeClose(result.split.id)
     }
     return this.publicByCode(code, phone)
@@ -459,6 +543,23 @@ export class SplitsService {
       smsText('splitReminder', lang, { title: split.title, url: `${origin}/s/${split.code}` }),
       'reminder',
     )
+    // Пуш поверх SMS: у кого стоит приложение — увидит сразу и бесплатно.
+    // Фраза чередуется по числу уже отправленных напоминаний, чтобы одно и то
+    // же уведомление не приедалось (vision §B4).
+    if (member.userId) {
+      const nth = member.lastRemindedAt ? 1 : 0
+      await this.push.send(
+        member.userId,
+        (loc) =>
+          pushText('remind', loc, {
+            name: member.displayName,
+            title: split.title,
+            amount: fmtSum(member.shareAmount),
+          }, nth),
+        { type: 'split', splitId: split.id, code: split.code },
+      )
+    }
+
     await this.prisma.splitMember.update({ where: { id: memberId }, data: { lastRemindedAt: new Date() } })
     return { ok: true }
   }
@@ -498,6 +599,20 @@ export class SplitsService {
     }
     if (!sent) throw new ServiceUnavailableException('SMS временно недоступны')
     return { sent }
+  }
+
+  /**
+   * Своё название вечера вместо мерчанта: «🍕 Boys Dinner», «Bad decisions #4 😂»
+   * (vision §14). Переименовать может любой участник — это общий счёт компании.
+   * Эмодзи разрешены, поэтому режем по длине, а не по алфавиту.
+   */
+  async rename(splitId: string, userId: string, title: string) {
+    const clean = title.trim().slice(0, 80)
+    if (!clean) throw new BadRequestException('Название не может быть пустым')
+
+    const split = await this.byIdOrThrow(splitId, userId)
+    await this.prisma.split.update({ where: { id: split.id }, data: { title: clean } })
+    return { title: clean }
   }
 
   async cancel(splitId: string, creatorId: string) {
@@ -603,12 +718,26 @@ export class SplitsService {
           data: { cashbackPool: { increment: totalCashback } },
         })
       }
-      return { code: updated.code, creatorId: split.creatorId, cashback: totalCashback, x2 }
+      return { id: split.id, title: split.title, code: updated.code, creatorId: split.creatorId, cashback: totalCashback, x2 }
     })
 
     if (closedInfo) {
       this.realtime.emitSplit(closedInfo.code, 'split_closed', { cashback: closedInfo.cashback, x2: closedInfo.x2 })
       this.realtime.emitUser(closedInfo.creatorId, 'split_closed', { code: closedInfo.code, cashback: closedInfo.cashback })
+
+      // «все оплатили» — событие компании, поэтому пуш всем, у кого есть аккаунт
+      const closedMembers = await this.prisma.splitMember.findMany({
+        where: { splitId: closedInfo.id, userId: { not: null } },
+        select: { userId: true },
+      })
+      for (const m of closedMembers) {
+        if (!m.userId) continue
+        await this.push.send(
+          m.userId,
+          (loc) => pushText('splitClosed', loc, { title: closedInfo.title }),
+          { type: 'split', splitId: closedInfo.id, code: closedInfo.code },
+        )
+      }
     }
   }
 }

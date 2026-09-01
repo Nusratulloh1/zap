@@ -5,9 +5,11 @@ import { GroupsModule } from '../groups/groups.module'
 import { HistoryModule } from '../history/history.module'
 import { AuthModule } from '../auth/auth.module'
 
+import { OgController } from '../og/og.controller'
+
 @Module({
   imports: [GroupsModule, HistoryModule, AuthModule],
-  controllers: [SplitsController, PublicSplitController],
+  controllers: [SplitsController, PublicSplitController, OgController],
   providers: [SplitsService],
   exports: [SplitsService],
 })

@@ -1,6 +1,7 @@
 // Черновик сплита между экранами: сумма → участники → PIN → создание.
 // Повторяет entities/stores/draft.ts из веба, включая пересчёт долей.
 import { create } from 'zustand';
+import { merchantDisplayName } from '@/lib/merchant';
 import { equalShares } from '@zap/shared/money';
 import type { Bill, SplitMode } from '@zap/shared/types';
 
@@ -95,7 +96,7 @@ export const useDraft = create<DraftState>((set, get) => ({
         total: r.total,
         items: r.items.map((i) => ({ id: i.id, title: i.name, qty: i.qty, amount: i.amount })),
       },
-      fiscal: { ...(st.fiscal ?? { status: 'ready' }), merchant: r.merchant, receiptTotal: r.total, ocr, status: 'ready' },
+      fiscal: { ...(st.fiscal ?? { status: 'ready' }), merchant: merchantDisplayName(r.merchant), receiptTotal: r.total, ocr, status: 'ready' },
       members: [{ contactId: ME, amount: r.total }],
     })),
 

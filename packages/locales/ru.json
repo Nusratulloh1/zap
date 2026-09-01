@@ -169,7 +169,8 @@
     "devFiscal": "DEV · фискальный чек",
     "allowCamera": "Разрешите доступ к камере",
     "aimAtQr": "Наведите на QR-код чека",
-    "oncePerLaunch": "Это нужно один раз за запуск ZAP!"
+    "oncePerLaunch": "Это нужно один раз за запуск ZAP!",
+    "demo": "Демо-чек"
   },
   "bill": {
     "order": "заказ",
@@ -285,7 +286,30 @@
     "pinHint": "Покрыть остаток · {amount} UZS",
     "pinHintMerchant": "Покрыть остаток · {amount} UZS · {merchant}",
     "youSuffix": " · вы",
-    "debtCovered": " · в долг, вы покрыли"
+    "debtCovered": " · в долг, вы покрыли",
+    "paidOfCount": "{paid} / {total} оплатили",
+    "allPaidHeadline": "Все оплатили. Красиво. ⚡",
+    "zapped": "{name} zapped ⚡",
+    "youZapped": "Вы оплатили ⚡",
+    "waitingFor": "Ждём: {names}",
+    "pingAction": "⚡ Пингануть",
+    "pinged": "Pinged 👀",
+    "pingToast": "{name} получил ⚡",
+    "reactAria": "Реакция",
+    "reactedBy": "{name} {emoji} {target}",
+    "renameTitle": "Название счёта",
+    "renameHint": "Boys Dinner 🍕 / Ali's birthday 🎂",
+    "renameSave": "Готово",
+    "shareAction": "Поделиться",
+    "coverAction": "Покрыть остаток — {amount}",
+    "yourShare": "Ваша доля {amount}",
+    "closedBadge": "Fully Zapped ⚡",
+    "renamed": "Готово ⚡",
+    "zapFlash": "ZAP!",
+    "shareMoment": "Поделиться моментом →",
+    "shareMessage": "{title} — делим счёт в ZAP! ⚡ Твоя доля здесь: {url}",
+    "shareFailed": "Не удалось поделиться",
+    "allPaidDone": "Готово"
   },
   "closed": {
     "title": "Готово, сплит закрыт",
@@ -298,7 +322,8 @@
     "close": "Закрыть",
     "viewReceipt": "Посмотреть чек",
     "totalRow": "Итого",
-    "paidWhole": " · оплачено целиком"
+    "paidWhole": " · оплачено целиком",
+    "shareMoment": "Поделиться моментом"
   },
   "saveGroup": {
     "title": "Сохранить эту компанию?",
@@ -430,7 +455,8 @@
     "tabDebts": "Долги",
     "empty": "Пока пусто",
     "today": "СЕГОДНЯ",
-    "yesterday": "ВЧЕРА"
+    "yesterday": "ВЧЕРА",
+    "searchPlaceholder": "Поиск по истории"
   },
   "profile": {
     "title": "Профиль",
@@ -504,7 +530,7 @@
   },
   "errors": {
     "generic": "Что-то пошло не так",
-    "network": "Нет связи — проверьте интернет",
+    "network": "Не удалось связаться с сервером. Проверьте интернет и попробуйте ещё раз",
     "smsUnavailable": "SMS временно недоступны",
     "tooOften": "Слишком часто — попробуйте позже",
     "payCancelled": "Оплата отменена",
@@ -713,5 +739,94 @@
     "running": "Проверяем…",
     "run": "Запустить проверку",
     "copy": "Скопировать результаты"
+  },
+  "loading": {
+    "splitting1": "Готовим сплит ⚡",
+    "splitting2": "Считаем доли…",
+    "splitting3": "Почти готово",
+    "paying1": "Проводим оплату ⚡",
+    "paying2": "Ещё секунду…",
+    "loading1": "Собираем всё вместе ⚡",
+    "loading2": "Почти готово",
+    "saving": "Сохраняем ⚡",
+    "sharing": "Готовим ссылку ⚡",
+    "receipt": "Читаем чек ⚡",
+    "photo1": "Читаем чек ⚡",
+    "photo2": "Разбираем позиции…",
+    "photo3": "Почти готово"
+  },
+  "empty": {
+    "splitsTitle": "Первый ZAP ещё впереди ⚡",
+    "splitsHint": "Отсканируй чек — и раздели его за пару секунд",
+    "groupsTitle": "Здесь пока тихо 👀",
+    "groupsHint": "Сохрани компанию после сплита — в следующий раз хватит одного тапа",
+    "cashbackTitle": "Кэшбек ещё не капал",
+    "cashbackHint": "Он начисляется после сплитов у партнёров",
+    "debtsTitle": "Все чисто ⚡",
+    "debtsHint": "Никто никому не должен. Красиво.",
+    "historyTitle": "История пустая",
+    "historyHint": "Здесь появятся все ваши сплиты"
+  },
+  "shareCard": {
+    "kicker": "⚡ ZAP COMPLETE",
+    "friends": "{n} в компании",
+    "allPaid": "Все оплатили. Красиво. ⚡",
+    "share": "Поделиться карточкой",
+    "message": "{title} — закрыли счёт в ZAP! ⚡ {url}",
+    "linkOnly": "Пока уходит ссылкой: картинка появится после обновления приложения"
+  },
+  "theme": {
+    "titleFood": "🍕 Ужин",
+    "titleCoffee": "☕ Кофе",
+    "titleTaxi": "🚕 Поездка",
+    "titleShopping": "🛒 Покупки",
+    "titleTrip": "✈️ Поездка",
+    "titleGift": "🎁 Подарок"
+  },
+  "activity": {
+    "greeting": "👋 Сегодня кто платит?",
+    "yourShare": "ваша доля",
+    "closedToday": "сегодня полностью закрыт",
+    "closedYesterday": "вчера полностью закрыт",
+    "closedDays": "закрыт {n} дн. назад",
+    "together": "{n} счетов вместе",
+    "waitingOne": "ждёт оплаты",
+    "waitingMany": "{n} счёта ждут оплаты",
+    "remind": "Напомнить",
+    "pay": "Оплатить"
+  },
+  "reminders": {
+    "l1": "👀 {name} ещё не оплатил",
+    "l2": "⚡ Остался один человек",
+    "l3": "🍕 Пицца закончилась. Счёт ещё нет.",
+    "l4": "{name}, мы всё помним 👀",
+    "l5": "⚡ {name}, твои {amount} скучают",
+    "l6": "👀 Счёт ждёт. И мы тоже.",
+    "pushTitle": "⚡ Тебя ждут",
+    "pushBody": "В ZAP осталось оплатить {amount}",
+    "paidTitle": "⚡ {name} оплатил",
+    "paidBody": "{amount} закрыто",
+    "closedTitle": "🎉 Все оплатили",
+    "closedBody": "«{title}» полностью закрыт",
+    "cashbackTitle": "💸 Кэшбек начислен",
+    "cashbackBody": "{amount} уже в ZAP"
+  },
+  "crew": {
+    "stats": "История компании",
+    "zaps": "{n} ZAP вместе",
+    "totalSplit": "{amount} разделено",
+    "favourite": "Любимое место",
+    "owingNow": "Сейчас должны",
+    "lastPaid": "👀 В прошлый раз платил {name}",
+    "themeFood": "{n} ужинов",
+    "themeCoffee": "{n} кофе",
+    "themeTaxi": "{n} поездок",
+    "themeShopping": "{n} покупок",
+    "themeTrip": "{n} поездок",
+    "themeGift": "{n} подарков",
+    "suggestTitle": "Собрать компанию?",
+    "suggestBody": "Вы делили {n} счетов с одними и теми же людьми",
+    "suggestCta": "Создать Crew ⚡",
+    "suggestSkip": "Не сейчас"
   }
 }

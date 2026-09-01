@@ -17,7 +17,7 @@ import { qk } from '@/api/data';
 import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font, radius } from '@/theme/tokens';
+import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
 
 export function SaveGroupScreen() {
   const { t } = useTranslation();
@@ -174,7 +174,7 @@ export function SaveGroupScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 20 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   stack: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
   stacked: { marginLeft: -16 },
   title: { fontFamily: font.extrabold, fontSize: 23, letterSpacing: -0.3, textAlign: 'center', marginTop: 14 },

@@ -169,7 +169,8 @@
     "devFiscal": "DEV · fiskal chek",
     "allowCamera": "Kameraga ruxsat bering",
     "aimAtQr": "Chekdagi QR kodga qarating",
-    "oncePerLaunch": "Bu ZAP! har ishga tushganda bir marta kerak"
+    "oncePerLaunch": "Bu ZAP! har ishga tushganda bir marta kerak",
+    "demo": "Demo chek"
   },
   "bill": {
     "order": "buyurtma",
@@ -285,7 +286,30 @@
     "pinHint": "Qolganini qoplash · {amount} UZS",
     "pinHintMerchant": "Qolganini qoplash · {amount} UZS · {merchant}",
     "youSuffix": " · siz",
-    "debtCovered": " · qarzga, siz qopladingiz"
+    "debtCovered": " · qarzga, siz qopladingiz",
+    "paidOfCount": "{paid} / {total} to‘ladi",
+    "allPaidHeadline": "Hammasi to‘landi. Zo‘r. ⚡",
+    "zapped": "{name} zapped ⚡",
+    "youZapped": "Siz to‘ladingiz ⚡",
+    "waitingFor": "Kutyapmiz: {names}",
+    "pingAction": "⚡ Ping qilish",
+    "pinged": "Pinged 👀",
+    "pingToast": "{name} ⚡ oldi",
+    "reactAria": "Reaksiya",
+    "reactedBy": "{name} {emoji} {target}",
+    "renameTitle": "Hisob nomi",
+    "renameHint": "Boys Dinner 🍕 / Ali tug‘ilgan kun 🎂",
+    "renameSave": "Tayyor",
+    "shareAction": "Ulashish",
+    "coverAction": "Qoldiqni yopish — {amount}",
+    "yourShare": "Sizning ulushingiz {amount}",
+    "closedBadge": "Fully Zapped ⚡",
+    "renamed": "Tayyor ⚡",
+    "zapFlash": "ZAP!",
+    "shareMoment": "Lahzani ulashish →",
+    "shareMessage": "{title} — hisobni ZAP! da bo‘lyapmiz ⚡ Ulushingiz shu yerda: {url}",
+    "shareFailed": "Ulashib bo‘lmadi",
+    "allPaidDone": "Tayyor"
   },
   "closed": {
     "title": "Tayyor, bo'lish yopildi",
@@ -298,7 +322,8 @@
     "close": "Yopish",
     "viewReceipt": "Chekni ko‘rish",
     "totalRow": "Jami",
-    "paidWhole": " · to‘liq to‘landi"
+    "paidWhole": " · to‘liq to‘landi",
+    "shareMoment": "Lahzani ulashish"
   },
   "saveGroup": {
     "title": "Bu davrani saqlaymizmi?",
@@ -430,7 +455,8 @@
     "tabDebts": "Qarzlar",
     "empty": "Hozircha bo'sh",
     "today": "BUGUN",
-    "yesterday": "KECHA"
+    "yesterday": "KECHA",
+    "searchPlaceholder": "Tarixdan qidirish"
   },
   "profile": {
     "title": "Profil",
@@ -504,7 +530,7 @@
   },
   "errors": {
     "generic": "Nimadir noto'g'ri ketdi",
-    "network": "Aloqa yo'q — internetni tekshiring",
+    "network": "Server bilan bog‘lanib bo‘lmadi. Internetni tekshirib, qayta urinib ko‘ring",
     "smsUnavailable": "SMS vaqtincha ishlamayapti",
     "tooOften": "Juda tez-tez — keyinroq urinib ko'ring",
     "payCancelled": "To‘lov bekor qilindi",
@@ -713,5 +739,94 @@
     "running": "Tekshirilmoqda…",
     "run": "Tekshiruvni boshlash",
     "copy": "Natijalarni nusxalash"
+  },
+  "loading": {
+    "splitting1": "Split tayyorlanmoqda ⚡",
+    "splitting2": "Ulushlar hisoblanmoqda…",
+    "splitting3": "Deyarli tayyor",
+    "paying1": "To‘lov o‘tkazilmoqda ⚡",
+    "paying2": "Bir soniya…",
+    "loading1": "Hammasi yig‘ilmoqda ⚡",
+    "loading2": "Deyarli tayyor",
+    "saving": "Saqlanmoqda ⚡",
+    "sharing": "Havola tayyorlanmoqda ⚡",
+    "receipt": "Chek o‘qilmoqda ⚡",
+    "photo1": "Chek o‘qilmoqda ⚡",
+    "photo2": "Pozitsiyalar ajratilmoqda…",
+    "photo3": "Deyarli tayyor"
+  },
+  "empty": {
+    "splitsTitle": "Birinchi ZAP hali oldinda ⚡",
+    "splitsHint": "Chekni skanerlang — bir necha soniyada bo‘linadi",
+    "groupsTitle": "Hozircha jimjitlik 👀",
+    "groupsHint": "Splitdan keyin guruhni saqlang — keyingi safar bitta bosish yetadi",
+    "cashbackTitle": "Keshbek hali tushmadi",
+    "cashbackHint": "U hamkorlarda split qilganda hisoblanadi",
+    "debtsTitle": "Hammasi toza ⚡",
+    "debtsHint": "Hech kim hech kimga qarzdor emas. Zo‘r.",
+    "historyTitle": "Tarix bo‘sh",
+    "historyHint": "Bu yerda barcha splitlaringiz ko‘rinadi"
+  },
+  "shareCard": {
+    "kicker": "⚡ ZAP COMPLETE",
+    "friends": "{n} kishi",
+    "allPaid": "Hammasi to‘landi. Zo‘r. ⚡",
+    "share": "Kartochkani ulashish",
+    "message": "{title} — hisobni ZAP! da yopdik ⚡ {url}",
+    "linkOnly": "Hozircha havola yuboriladi: rasm ilova yangilangach paydo bo‘ladi"
+  },
+  "theme": {
+    "titleFood": "🍕 Kechki ovqat",
+    "titleCoffee": "☕ Kofe",
+    "titleTaxi": "🚕 Safar",
+    "titleShopping": "🛒 Xaridlar",
+    "titleTrip": "✈️ Sayohat",
+    "titleGift": "🎁 Sovg‘a"
+  },
+  "activity": {
+    "greeting": "👋 Bugun kim to‘laydi?",
+    "yourShare": "sizning ulushingiz",
+    "closedToday": "bugun to‘liq yopildi",
+    "closedYesterday": "kecha to‘liq yopildi",
+    "closedDays": "{n} kun oldin yopildi",
+    "together": "{n} ta chek birga",
+    "waitingOne": "to‘lovni kutyapti",
+    "waitingMany": "{n} ta chek to‘lovni kutyapti",
+    "remind": "Eslatish",
+    "pay": "To‘lash"
+  },
+  "reminders": {
+    "l1": "👀 {name} hali to‘lamadi",
+    "l2": "⚡ Bitta odam qoldi",
+    "l3": "🍕 Pitsa tugadi. Hisob esa yo‘q.",
+    "l4": "{name}, biz hammasini eslaymiz 👀",
+    "l5": "⚡ {name}, {amount} sog‘inyapti",
+    "l6": "👀 Hisob kutyapti. Biz ham.",
+    "pushTitle": "⚡ Sizni kutishyapti",
+    "pushBody": "ZAP da {amount} to‘lash qoldi",
+    "paidTitle": "⚡ {name} to‘ladi",
+    "paidBody": "{amount} yopildi",
+    "closedTitle": "🎉 Hammasi to‘ladi",
+    "closedBody": "«{title}» to‘liq yopildi",
+    "cashbackTitle": "💸 Keshbek tushdi",
+    "cashbackBody": "{amount} allaqachon ZAP da"
+  },
+  "crew": {
+    "stats": "Kompaniya tarixi",
+    "zaps": "{n} ta ZAP birga",
+    "totalSplit": "{amount} bo‘lingan",
+    "favourite": "Sevimli joy",
+    "owingNow": "Hozir qarzdor",
+    "lastPaid": "👀 O‘tgan safar {name} to‘lagan",
+    "themeFood": "{n} kechki ovqat",
+    "themeCoffee": "{n} kofe",
+    "themeTaxi": "{n} safar",
+    "themeShopping": "{n} xarid",
+    "themeTrip": "{n} sayohat",
+    "themeGift": "{n} sovg‘a",
+    "suggestTitle": "Kompaniya yig‘aylikmi?",
+    "suggestBody": "Bir xil odamlar bilan {n} ta chek bo‘lgansiz",
+    "suggestCta": "Crew yaratish ⚡",
+    "suggestSkip": "Hozir emas"
   }
 }

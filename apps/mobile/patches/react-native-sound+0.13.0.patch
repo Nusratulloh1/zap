@@ -1,0 +1,45 @@
+diff --git a/node_modules/react-native-sound/android/build.gradle b/node_modules/react-native-sound/android/build.gradle
+index d1ee5f5..28dd5ff 100644
+--- a/node_modules/react-native-sound/android/build.gradle
++++ b/node_modules/react-native-sound/android/build.gradle
+@@ -1,18 +1,9 @@
+-buildscript {
+-  // Buildscript is evaluated before everything else so we can't use getExtOrDefault
+-  def kotlin_version = rootProject.ext.has("kotlinVersion") ? rootProject.ext.get("kotlinVersion") : project.properties["Sound_kotlinVersion"]
+-
+-  repositories {
+-    google()
+-    mavenCentral()
+-  }
+-
+-  dependencies {
+-    classpath "com.android.tools.build:gradle:7.2.1"
+-    // noinspection DifferentKotlinGradleVersion
+-    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+-  }
+-}
++// ПАТЧ (patches/react-native-sound+0.11.2.patch).
++//
++// Библиотека тянула СВОЙ buildscript с AGP 7.2.1 и отдельной версией Kotlin.
++// В сборке с RN 0.87 и AGP 9 это ломает разрешение зависимостей: Gradle идёт
++// за kotlin-stdlib для чужого AGP и падает. Плагины уже применены корневым
++// проектом, поэтому свой buildscript здесь лишний — убран.
+ 
+ def reactNativeArchitectures() {
+   def value = rootProject.getProperties().get("reactNativeArchitectures")
+@@ -38,13 +29,9 @@ def getExtOrIntegerDefault(name) {
+   return rootProject.ext.has(name) ? rootProject.ext.get(name) : (project.properties["Sound_" + name]).toInteger()
+ }
+ 
++// ПАТЧ: на AGP >= 8 namespace обязателен, разбор версии больше не нужен
+ def supportsNamespace() {
+-  def parsed = com.android.Version.ANDROID_GRADLE_PLUGIN_VERSION.tokenize('.')
+-  def major = parsed[0].toInteger()
+-  def minor = parsed[1].toInteger()
+-
+-  // Namespace support was added in 7.3.0
+-  return (major == 7 && minor >= 3) || major >= 8
++  return true
+ }
+ 
+ android {

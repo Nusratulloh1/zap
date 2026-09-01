@@ -75,6 +75,14 @@ export interface SplitMember {
 
 export type SplitMode = 'equal' | 'manual' | 'items'
 
+/** Реакция на оплату участника: ⚡ 😂 ❤️ 🫡 🤝 (vision §16). */
+export interface SplitReaction {
+  memberId: Id
+  emoji: string
+  fromUserId: Id
+  fromName: string
+}
+
 export interface Split {
   id: Id
   code: string
@@ -90,6 +98,7 @@ export interface Split {
   groupId?: Id
   cashback?: number
   cashbackX2?: boolean
+  reactions?: SplitReaction[]
 }
 
 export interface Group {

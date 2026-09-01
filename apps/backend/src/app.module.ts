@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module'
 import { MerchantsModule } from './merchants/merchants.module'
 import { PaymentsModule } from './payments/payments.module'
 import { SplitsModule } from './splits/splits.module'
+import { PushModule } from './push/push.module'
 import { GroupsModule } from './groups/groups.module'
 import { DebtsModule } from './debts/debts.module'
 import { CashbackModule } from './cashback/cashback.module'
@@ -40,6 +41,7 @@ const redactPhone = (v: unknown) =>
     MerchantsModule,
     PaymentsModule,
     SplitsModule,
+    PushModule,
     GroupsModule,
     DebtsModule,
     CashbackModule,

@@ -7,6 +7,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
+import { ThemeGarnish } from '@/components/bill/ThemeGarnish';
+import { ZapLoader } from '@/components/ZapLoader';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { PinSheet } from '@/components/PinSheet';
@@ -18,8 +20,9 @@ import { qk } from '@/api/data';
 import { useDraft } from '@/store/draft';
 import { useHomeData } from '@/store/bootstrap';
 import { money } from '@/lib/format';
+import { themeForMerchant } from '@/lib/merchantTheme';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function BillScreen() {
   const { t } = useTranslation();
@@ -36,6 +39,7 @@ export function BillScreen() {
   const fiscalFailed = isFiscal && draft.fiscal?.status === 'failed';
   const fiscalNoTotal = fiscalFailed && !bill?.total;
 
+  const theme = themeForMerchant(draft.fiscal?.merchant ?? merchant?.name);
   const [paySheet, setPaySheet] = useState(false);
   const paying = useRef(false);
 
@@ -69,10 +73,16 @@ export function BillScreen() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fiscalLoading, draft.fiscal?.jobId]);
 
+  // Сторож срабатывает ТОЛЬКО при входе на экран.
+  //
+  // Раньше он висел на изменении черновика, и любое обновление стора уже
+  // ПОСЛЕ успешного распознавания выбрасывало обратно в камеру: человек видел
+  // «чек распознан», а оказывался снова перед сканером. Нет данных на входе —
+  // уходим; всё, что меняется дальше, экран разруливает сам.
   useEffect(() => {
-    if (!bill) nav.replace('Scan');
+    if (!draft.bill) nav.replace('Scan');
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bill]);
+  }, []);
 
   if (!bill) {
     return (
@@ -128,6 +138,7 @@ export function BillScreen() {
               </Text>
             </View>
           )}
+          <ThemeGarnish theme={theme} />
           <Text style={[styles.merchant, { color: colors.ink }]}>
             {draft.fiscal?.merchant ?? merchant?.name ?? t('bill.fiscalTitle')}
           </Text>
@@ -142,7 +153,7 @@ export function BillScreen() {
 
         {fiscalLoading ? (
           <View style={styles.loadingBox}>
-            <Text style={[styles.loadingText, { color: colors.muted }]}>{t('bill.loading')}</Text>
+            <ZapLoader label={t('bill.loading')} size="sm" />
             {[1, 2, 3].map((i) => (
               <View key={i} style={styles.skeletonRow}>
                 <Skeleton height={16} width={120 + i * 30} radius={6} />
@@ -234,7 +245,7 @@ export function BillScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 20 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   head: { marginTop: 26, paddingHorizontal: 4, gap: 6 },
   merchantImg: { width: 84, height: 84, marginLeft: -10 },
   logo: { width: 64, height: 64, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },

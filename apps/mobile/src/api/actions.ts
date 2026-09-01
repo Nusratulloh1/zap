@@ -1,6 +1,7 @@
 // Остальные ручки приложения — формы запросов один в один с web/src/api/real.ts,
 // чтобы поведение клиентов не разъезжалось.
 import { http } from './client';
+import { translate } from '@/i18n';
 import type { Bill, Card, Contact } from '@zap/shared/types';
 
 // ---------- долги ----------
@@ -109,12 +110,27 @@ export async function fiscalStatus(jobId: string) {
 }
 
 /** Фото чека → Gemini OCR. multipart, поле «image» — как в вебе. */
+/** Дольше ждать нет смысла: пользователь уже решил, что приложение зависло. */
+const OCR_TIMEOUT_MS = 45_000;
+
 export async function fiscalOcr(uri: string): Promise<{ receipt?: FiscalReceiptView; itemsRecognized?: boolean }> {
   const form = new FormData();
   // RN FormData принимает {uri, type, name} — это его файловый формат
   form.append('image', { uri, type: 'image/jpeg', name: 'receipt.jpg' } as unknown as Blob);
-  // Content-Type намеренно не задаём: см. http() — boundary ставит рантайм
-  return http('/qr/fiscal/ocr', { method: 'POST', body: form });
+  // Content-Type намеренно не задаём: см. http() — boundary ставит рантайм.
+  //
+  // Ограничение по времени обязательно: распознавание идёт на стороне модели,
+  // и при плохой связи запрос может не завершиться никогда. Без него экран
+  // превращения оставался бы в состоянии «читаем чек» бесконечно.
+  return Promise.race([
+    http<{ receipt?: FiscalReceiptView; itemsRecognized?: boolean }>('/qr/fiscal/ocr', {
+      method: 'POST',
+      body: form,
+    }),
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error(translate('scan.photoFailedShort'))), OCR_TIMEOUT_MS),
+    ),
+  ]);
 }
 
 // ---------- публичный вид сплита (/s/:code) ----------

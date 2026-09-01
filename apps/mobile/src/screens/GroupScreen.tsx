@@ -7,6 +7,8 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
+import { CrewStatsBlock } from '@/components/CrewStatsBlock';
+import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
@@ -17,9 +19,10 @@ import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { useDraft } from '@/store/draft';
 import { money, peopleCount, dayMonth, humanDateLc } from '@/lib/format';
+import { crewStats } from '@/lib/crewStats';
 import { translate } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 const partnerLogos = [
   require('../../assets/brand/partners/safia.png'),
@@ -38,6 +41,8 @@ export function GroupScreen() {
   const id = route.params?.id as string;
 
   const group = home.db?.groups.find((g) => g.id === id);
+  const stats = useMemo(() => crewStats(home.db, id), [home.db, id]);
+
   const groupSplits = useMemo(() => home.splits.filter((s) => s.groupId === id), [home.splits, id]);
   const openDebts = useMemo(
     () => (home.db?.debts ?? []).filter((d) => d.direction === 'owedToMe' && d.status === 'open'),
@@ -197,6 +202,14 @@ export function GroupScreen() {
           ))}
         </View>
 
+        {/* история компании: сколько ужинов и кофе вместе, кто должен, кто платил */}
+        <CrewStatsBlock
+          stats={stats}
+          nameOf={(cid) => home.contactById(cid)?.name ?? ''}
+          initialsOf={(cid) => home.contactById(cid)?.initials}
+          colorOf={(cid) => home.contactById(cid)?.color ?? '#8A887E'}
+        />
+
         <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
           <View style={styles.splitsHead}>
             <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.splits')}</Text>
@@ -225,7 +238,9 @@ export function GroupScreen() {
               </PressableScale>
             );
           })}
-          {!groupSplits.length ? <Text style={[styles.empty, { color: colors.muted }]}>{t('history.empty')}</Text> : null}
+          {!groupSplits.length ? (
+            <EmptyState sticker="oneBill" title={t('empty.historyTitle')} hint={t('empty.historyHint')} />
+          ) : null}
         </View>
       </ScrollView>
 
@@ -287,7 +302,7 @@ export function GroupScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 24 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 22 },
   stack: { flexDirection: 'row' },
   stacked: { marginLeft: -14 },

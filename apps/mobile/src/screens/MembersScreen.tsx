@@ -4,12 +4,13 @@
 // по @username, кэшбэк-чип под CTA.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeInDown, Keyframe, LinearTransition } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
+import { ZapOverlay } from '@/components/ZapOverlay';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
@@ -19,6 +20,8 @@ import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-s
 import { SearchIcon } from '@/components/icons';
 import { toast } from '@/components/ToastHost';
 import { useHomeData } from '@/store/bootstrap';
+import { reduceMotion } from '@/lib/feedback';
+import { themeForMerchant } from '@/lib/merchantTheme';
 import { keyboardLift, useKeyboardHeight } from '@/lib/keyboard';
 import { useDraft, sharesOf, unassignedItemsOf } from '@/store/draft';
 import { createSplit } from '@/api/splits';
@@ -26,7 +29,7 @@ import { searchUsers, addContact, type UserSearchResult } from '@/api/actions';
 import { qk } from '@/api/data';
 import { money } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import type { SplitMode } from '@zap/shared/types';
 
 const ME = 'me';
@@ -35,6 +38,26 @@ const MODES: { value: SplitMode; label: string }[] = [
   { value: 'manual', label: 'members.modeManual' },
   { value: 'items', label: 'members.modeItems' },
 ];
+
+/**
+ * «Друг влетает в компанию» (vision, часть A, «👤 Friend Added»).
+ *
+ * Не появление строки списка, а именно прилёт сбоку: scale 0.2 -> 1.08 -> 1
+ * с поворотом -8° -> 0°. Применяется ТОЛЬКО к тем, кого добавили только что:
+ * на первом показе экрана все участники уже «в компании», и прилетать им
+ * неоткуда — там остаётся спокойное появление снизу.
+ */
+const JOIN = new Keyframe({
+  0: { opacity: 0, transform: [{ translateX: 52 }, { scale: 0.2 }, { rotate: '-8deg' }] },
+  55: { opacity: 1, transform: [{ translateX: 0 }, { scale: 1.08 }, { rotate: '2deg' }] },
+  100: { opacity: 1, transform: [{ translateX: 0 }, { scale: 1 }, { rotate: '0deg' }] },
+}).duration(430);
+
+/** Подписи ожидания при создании сплита — крутятся по кругу. */
+const CREATE_STEPS = ['loading.splitting1', 'loading.splitting2', 'loading.splitting3'] as const;
+
+/** Пока ждём сервер — показываем, ради чего всё это. */
+const CREATE_STICKERS = ['oneBill', 'howItWorks', 'receiptHero'] as const;
 
 export function MembersScreen() {
   const { t } = useTranslation();
@@ -51,9 +74,16 @@ export function MembersScreen() {
   const [busy, setBusy] = useState(false);
 
   // как в вебе: без суммы делить нечего — назад к скану
+  // Сторож срабатывает ТОЛЬКО при входе на экран.
+  //
+  // Раньше он висел на изменении черновика, и любое обновление стора уже
+  // ПОСЛЕ успешного распознавания выбрасывало обратно в камеру: человек видел
+  // «чек распознан», а оказывался снова перед сканером. Нет данных на входе —
+  // уходим; всё, что меняется дальше, экран разруливает сам.
   useEffect(() => {
     if (draft.total <= 0) nav.replace('Scan');
-  }, [draft.total, nav]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const modes = useMemo(() => MODES.filter((m) => m.value !== 'items' || draft.bill), [draft.bill]);
 
@@ -94,6 +124,17 @@ export function MembersScreen() {
   };
 
   const chosen = new Set(draft.members.map((m) => m.contactId));
+
+  // кто был в списке на прошлом рендере — остальные «влетают»
+  const seen = useRef<Set<string> | null>(null);
+  const justJoined = useMemo(() => {
+    const now = new Set(draft.members.map((m) => m.contactId));
+    const prev = seen.current;
+    seen.current = now;
+    if (!prev) return new Set<string>(); // первый показ — никто не «прилетал»
+    return new Set([...now].filter((idc) => !prev.has(idc)));
+  }, [draft.members]);
+
   const notAdded = (home.db?.contacts ?? []).filter((c) => !chosen.has(c.id));
 
   // зарезервированный кэшбэк уменьшает «вашу долю»
@@ -192,7 +233,15 @@ export function MembersScreen() {
       const split = await createSplit(
         {
           total: draft.total,
-          title: draft.title.trim() || (draft.bill ? t('members.forWhatPlaceholder') : t('members.defaultTitle')),
+          // тема заведения подсказывает имя вечера («🍕 Ужин»); пользователь
+          // всё равно может переименовать — это только предзаполнение
+          title:
+            draft.title.trim() ||
+            (themeForMerchant(draft.fiscal?.merchant ?? merchant?.name)?.titleKey
+              ? t(themeForMerchant(draft.fiscal?.merchant ?? merchant?.name)!.titleKey)
+              : draft.bill
+                ? t('members.forWhatPlaceholder')
+                : t('members.defaultTitle')),
           mode: draft.mode,
           merchantId: draft.merchantId,
           billId: (draft.bill as (typeof draft.bill & { billId?: string }) | null)?.billId,
@@ -206,9 +255,9 @@ export function MembersScreen() {
         home.db?.contacts ?? [],
       );
       await qc.invalidateQueries({ queryKey: qk.bootstrap });
-      draft.reset();
       if (split.status === 'closed') nav.replace('SplitClosed', { id: split.id });
       else nav.replace('Share', { id: split.id });
+      draft.reset();
     } catch (e) {
       // ошибка создания не должна умирать молча
       toast(e instanceof Error && e.message ? e.message : t('errors.generic'));
@@ -272,7 +321,17 @@ export function MembersScreen() {
         {/* участники */}
         <View style={styles.list}>
           {draft.members.map((m, i) => (
-            <Animated.View key={m.contactId} entering={FadeInDown.delay(Math.min(i, 8) * 40)} layout={LinearTransition.springify()}>
+            <Animated.View
+              key={m.contactId}
+              entering={
+                reduceMotion()
+                  ? undefined
+                  : justJoined.has(m.contactId)
+                    ? JOIN
+                    : FadeInDown.delay(Math.min(i, 8) * 40)
+              }
+              layout={LinearTransition.springify()}
+            >
               <View style={styles.memberRow}>
                 <PressableScale small disabled={m.contactId === ME} onPress={() => draft.toggleMember(m.contactId)}>
                   <Avatar
@@ -580,12 +639,14 @@ export function MembersScreen() {
           void submit();
         }}
       />
+      {/* создание сплита занимает секунды — показываем ZAP, а не пустой экран */}
+      <ZapOverlay open={busy} steps={CREATE_STEPS} stickers={CREATE_STICKERS} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 24 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3, marginTop: 26 },
   totalRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 14 },
   total: { fontFamily: font.extrabold, fontSize: 40, letterSpacing: -1.2, lineHeight: 42 },

@@ -25,6 +25,9 @@ import { useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import Svg, { Circle as SvgCircle, Defs, Pattern, Rect as SvgRect } from 'react-native-svg';
 import { PressableScale } from '@/components/PressableScale';
+import { toast } from '@/components/ToastHost';
+import { ActivityFeed } from '@/components/ActivityFeed';
+import { EmptyState, STICKER } from '@/components/EmptyState';
 import { Avatar } from '@/components/Avatar';
 import { Skeleton } from '@/components/Skeleton';
 import { PromoCarousel } from '@/components/PromoCarousel';
@@ -33,9 +36,14 @@ import { ScanIcon, SearchIcon, CashIcon, TicketIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { useDraft } from '@/store/draft';
 import { qk } from '@/api/data';
+import { remindDebt } from '@/api/actions';
 import { money, peopleCount, humanDateLc } from '@/lib/format';
-import { useTheme } from '@/theme/ThemeProvider';
-import { font, radius } from '@/theme/tokens';
+import { reminderLine } from '@/lib/reminders';
+import type { ActivityItem } from '@/lib/activity';
+import { suggestCrew } from '@/lib/crewStats';
+import { buildActivity } from '@/lib/activity';
+import { storage, useTheme } from '@/theme/ThemeProvider';
+import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
 import type { Split } from '@zap/shared/types';
 
 const wordmark = require('../../assets/brand/zap-wordmark-large.png');
@@ -48,6 +56,9 @@ const CATEGORIES: { key: CategoryKey; label: string }[] = [
   { key: 'discount', label: 'home.filterDiscount' },
 ];
 
+/** Отказ от предложения собрать Crew — не спрашиваем снова. */
+const CREW_SKIP_KEY = 'zap:crew-skipped';
+
 export function HomeScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
@@ -58,6 +69,39 @@ export function HomeScreen() {
   const draft = useDraft();
 
   const home = useHomeData();
+
+  // лента считается из уже загруженного /bootstrap — без лишних запросов
+  // живой сплит уже показан пилюлей внизу — лента его не дублирует
+  /**
+   * Кнопка внутри карточки ленты.
+   *
+   * «⚡ Напомнить» бьёт по долгам человека прямо отсюда — в один тап, без
+   * захода в экран долгов; ответом показываем живую фразу (vision §B4).
+   * «Оплатить» просто открывает счёт: платить в один тап без подтверждения
+   * было бы неправильно.
+   */
+  const feedAction = async (it: ActivityItem) => {
+    if (it.kind === 'waitingForYou' && it.debtIds?.length) {
+      try {
+        for (const id of it.debtIds) await remindDebt(id);
+        toast.success(
+          reminderLine(it.contactId ?? it.id, 0, { name: it.title, amount: money(it.amount ?? 0) }),
+        );
+      } catch (e) {
+        toast(e instanceof Error && e.message ? e.message : t('errors.generic'));
+      }
+      return;
+    }
+    if (it.splitId) nav.navigate('SplitLive', { id: it.splitId });
+  };
+
+  const activity = useMemo(() => buildActivity(home.db, home.activeSplit?.id), [home.db, home.activeSplit?.id]);
+
+  // Предложение собрать Crew (vision §C1). Показываем, когда одна и та же
+  // компания встретилась несколько раз и группы для неё ещё нет; отказ
+  // запоминаем, чтобы не спрашивать снова.
+  const suggestion = useMemo(() => suggestCrew(home.db), [home.db]);
+  const [crewSkipped, setCrewSkipped] = useState(() => storage.getString(CREW_SKIP_KEY) === 'yes');
   const [category, setCategory] = useState<CategoryKey>('all');
   const [search, setSearch] = useState('');
   // фильтрация идёт по отложенному значению: ввод не тормозит на каждом символе
@@ -247,10 +291,54 @@ export function HomeScreen() {
 
         {/* ── светлый лист ── */}
         <View style={[styles.sheet, { backgroundColor: colors.dune }]}>
+          {/*
+            Лента жизни идёт ПЕРВОЙ (vision, часть C §2): открывая ZAP, человек
+            должен видеть, что происходит у него с людьми, а не сводку счетов.
+            Цифры остаются ниже — они никуда не делись, просто перестали быть
+            первым, что встречает.
+          */}
+          <Text style={[styles.greeting, { color: colors.ink }]}>{t('activity.greeting')}</Text>
+
+          {suggestion && !crewSkipped ? (
+            <View style={[styles.crewCard, { backgroundColor: colors.ink }]}>
+              <Text style={[styles.crewTitle, { color: fixed.lime }]}>{t('crew.suggestTitle')}</Text>
+              <Text style={styles.crewBody}>{t('crew.suggestBody', { n: suggestion.splits })}</Text>
+              <View style={styles.crewCtas}>
+                <PressableScale
+                  style={[styles.crewCta, { backgroundColor: fixed.lime }]}
+                  onPress={() => nav.navigate('SaveGroup', { id: suggestion.splitId })}
+                >
+                  <Text style={[styles.crewCtaText, { color: fixed.ink }]}>{t('crew.suggestCta')}</Text>
+                </PressableScale>
+                <PressableScale
+                  style={styles.crewSkip}
+                  onPress={() => {
+                    storage.set(CREW_SKIP_KEY, 'yes');
+                    setCrewSkipped(true);
+                  }}
+                >
+                  <Text style={styles.crewSkipText}>{t('crew.suggestSkip')}</Text>
+                </PressableScale>
+              </View>
+            </View>
+          ) : null}
+
+          <ActivityFeed
+            items={activity}
+            nameOf={(cid) => home.contactById(cid)?.name ?? ''}
+            initialsOf={(cid) => home.contactById(cid)?.initials}
+            colorOf={(cid) => home.contactById(cid)?.color ?? '#8A887E'}
+            onPress={(it) => {
+              if (it.splitId) nav.navigate('SplitLive', { id: it.splitId });
+              else nav.navigate('Debts');
+            }}
+            onAction={(it) => void feedAction(it)}
+          />
+
           {/* стат-карты */}
           <View style={styles.stats}>
             <PressableScale
-              style={[styles.statCard, styles.cardShadow, { backgroundColor: colors.paper, width: (width - 40) / 2 }]}
+              style={[styles.statCard, styles.cardShadow, { backgroundColor: colors.paper, width: (width - SCREEN_PAD_X * 2 - 12) / 2 }]}
               onPress={() => nav.navigate('Cashback')}
             >
               <Text style={[styles.statTitle, { color: colors.ink }]}>{t('home.cashbackCard')}</Text>
@@ -268,11 +356,16 @@ export function HomeScreen() {
                   <Image source={require('../../assets/brand/partners/texnomart.png')} style={[styles.partnerLogoWide, styles.partnerOverlap]} resizeMode="cover" />
                   <Image source={require('../../assets/brand/partners/idea.png')} style={[styles.partnerLogoWide, styles.partnerOverlap]} resizeMode="cover" />
                 </View>
-              ) : null}
+              ) : (
+                // низ карточки всё равно пустует — пусть там живёт стикер
+                <View style={styles.statSticker}>
+                  <Image source={STICKER.wallet} style={styles.statStickerImg} resizeMode="contain" />
+                </View>
+              )}
             </PressableScale>
 
             <PressableScale
-              style={[styles.statCard, styles.cardShadow, { backgroundColor: colors.paper, width: (width - 40) / 2 }]}
+              style={[styles.statCard, styles.cardShadow, { backgroundColor: colors.paper, width: (width - SCREEN_PAD_X * 2 - 12) / 2 }]}
               onPress={() => nav.navigate('Debts')}
             >
               <Text style={[styles.statTitle, { color: colors.ink }]}>{t('home.debtorsCard')}</Text>
@@ -286,14 +379,22 @@ export function HomeScreen() {
               </Text>
               {home.debtors.length ? (
               <View style={styles.debtorRow}>
-                {home.debtors.slice(0, 3).map((d) => (
-                  <View key={d.id} style={styles.debtorCol}>
+                {home.debtors.slice(0, 3).map((d, i) => (
+                  <View key={d.id} style={i ? styles.debtorStacked : undefined}>
                     <Avatar name={d.name} letter={d.initials} contactId={d.id} color={d.color} size={38} />
-                    <Text style={[styles.debtorName, { color: colors.ink }]} numberOfLines={1}>{d.name}</Text>
                   </View>
                 ))}
+                {home.debtors.length > 3 ? (
+                  <View style={[styles.debtorMore, styles.debtorStacked, { backgroundColor: colors.ink }]}>
+                    <Text style={[styles.debtorMoreText, { color: fixed.lime }]}>+{home.debtors.length - 3}</Text>
+                  </View>
+                ) : null}
               </View>
-              ) : null}
+              ) : (
+                <View style={styles.statSticker}>
+                  <Image source={STICKER.fistBump} style={styles.statStickerImg} resizeMode="contain" />
+                </View>
+              )}
             </PressableScale>
           </View>
 
@@ -351,7 +452,7 @@ export function HomeScreen() {
               </Animated.View>
             ))
           ) : (
-            <Text style={[styles.empty, { color: colors.muted }]}>{t('home.groupsEmpty')}</Text>
+            <EmptyState sticker="selfie" size="sm" title={t('empty.groupsTitle')} hint={t('empty.groupsHint')} />
           )}
 
           </View>
@@ -404,7 +505,7 @@ export function HomeScreen() {
               </Animated.View>
             ))
           ) : (
-            <Text style={[styles.empty, { color: colors.muted }]}>{t('home.splitsEmpty')}</Text>
+            <EmptyState sticker="receiptHero" size="sm" title={t('empty.splitsTitle')} hint={t('empty.splitsHint')} />
           )}
           </View>
         </View>
@@ -464,18 +565,36 @@ const styles = StyleSheet.create({
 
 
 
-  sheet: { borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: -28, paddingTop: 18, paddingHorizontal: 14 },
-  stats: { flexDirection: 'row', gap: 12 },
+  crewCard: { borderRadius: 24, padding: 18, gap: 6, marginTop: 14 },
+  crewTitle: { fontFamily: font.extrabold, fontSize: 17, letterSpacing: -0.2 },
+  crewBody: { fontFamily: font.semibold, fontSize: 13.5, color: 'rgba(255,255,255,0.72)', lineHeight: 18 },
+  crewCtas: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 8 },
+  crewCta: { height: 42, paddingHorizontal: 18, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  crewCtaText: { fontFamily: font.extrabold, fontSize: 14 },
+  crewSkip: { height: 42, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center' },
+  crewSkipText: { fontFamily: font.bold, fontSize: 13.5, color: 'rgba(255,255,255,0.5)' },
+  greeting: { fontFamily: font.extrabold, fontSize: 24, letterSpacing: -0.5, marginTop: 8, marginBottom: 2 },
+  sheet: { borderTopLeftRadius: 32, borderTopRightRadius: 32, marginTop: -28, paddingTop: 18, paddingHorizontal: SCREEN_PAD_X },
+  stats: { flexDirection: 'row', gap: 12, marginTop: 10 },
   statCard: { borderRadius: radius.card, padding: 18, height: 224, justifyContent: 'flex-start' },
-  statTitle: { fontFamily: font.extrabold, fontSize: 18, letterSpacing: -0.2, lineHeight: 21 },
+  statTitle: { fontFamily: font.extrabold, fontSize: 16.5, letterSpacing: -0.3, lineHeight: 20 },
   statSub: { fontFamily: font.semibold, fontSize: 13, marginTop: 5, lineHeight: 17 },
   partnerRow: { flexDirection: 'row', alignItems: 'center', marginTop: 'auto', minHeight: 60 },
   partnerLogo: { height: 29, width: 29, borderRadius: 9 },
   partnerLogoWide: { height: 29, width: 58, borderRadius: 9 },
   partnerOverlap: { marginLeft: -10 },
-  debtorRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginTop: 'auto', minHeight: 60 },
-  debtorCol: { alignItems: 'center', gap: 4, maxWidth: 52 },
-  debtorName: { fontFamily: font.bold, fontSize: 10.5 },
+  // Аватары в стопку, а не колонками с подписями.
+  //
+  // Колонки требовали 3 x 52 + отступы = 172 px, а внутри карточки на экране
+  // 360 dp есть ~122 px — ряд вылезал за правый край карточки. Стопка с
+  // нахлёстом умещается в 116 px, и лица при этом остаются крупными
+  // (vision §C4). Имена не теряются: строкой выше уже стоит «... · 4 человека».
+  debtorRow: { flexDirection: 'row', alignItems: 'center', marginTop: 'auto', minHeight: 60 },
+  debtorStacked: { marginLeft: -12 },
+  statSticker: { marginTop: 'auto', minHeight: 60, justifyContent: 'flex-end' },
+  statStickerImg: { width: 72, height: 58 },
+  debtorMore: { width: 38, height: 38, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  debtorMoreText: { fontFamily: font.extrabold, fontSize: 12.5 },
 
   sectionCard: { borderRadius: 28, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 6, marginTop: 12 },
   cardShadow: {

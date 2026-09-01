@@ -6,6 +6,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
+import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { CountUp } from '@/components/CountUp';
@@ -17,7 +18,7 @@ import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { money, humanDateLc } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 // логотипы к записям — как logoByTitle на вебе
 const LOGO_BY_TITLE: Record<string, number> = {
@@ -145,7 +146,9 @@ export function CashbackScreen() {
               <Text style={[styles.rowAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>{money(e.amount)}</Text>
             </Animated.View>
           ))}
-          {!rows.length ? <Text style={[styles.empty, { color: colors.muted }]}>{t('history.empty')}</Text> : null}
+          {!rows.length ? (
+            <EmptyState sticker="wallet" title={t('empty.cashbackTitle')} hint={t('empty.cashbackHint')} />
+          ) : null}
         </View>
 
         <View style={styles.spacer} />
@@ -206,14 +209,14 @@ export function CashbackScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 24 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3, marginTop: 24 },
   amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 12 },
   amount: { fontFamily: font.extrabold, fontSize: 44, letterSpacing: -1.4, lineHeight: 48 },
   unit: { fontFamily: font.monoBold, fontSize: 11, flexShrink: 1 },
   hint: { fontFamily: font.semibold, fontSize: 13, marginTop: 8 },
   filtersWrap: { flexGrow: 0, marginTop: 20 , marginHorizontal: -24 },
-  filters: { gap: 8 , paddingHorizontal: 24 },
+  filters: { gap: 8 , paddingHorizontal: SCREEN_PAD_X },
   filter: { height: 38, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   filterText: { fontFamily: font.bold, fontSize: 13 },
   filterTextActive: { fontFamily: font.extrabold, fontSize: 13 },

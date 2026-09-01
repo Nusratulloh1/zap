@@ -169,7 +169,8 @@
     "devFiscal": "DEV · fiscal receipt",
     "allowCamera": "Allow camera access",
     "aimAtQr": "Point at the receipt’s QR code",
-    "oncePerLaunch": "Needed once per ZAP! launch"
+    "oncePerLaunch": "Needed once per ZAP! launch",
+    "demo": "Demo receipt"
   },
   "bill": {
     "order": "order",
@@ -285,7 +286,30 @@
     "pinHint": "Cover the rest · {amount} UZS",
     "pinHintMerchant": "Cover the rest · {amount} UZS · {merchant}",
     "youSuffix": " · you",
-    "debtCovered": " · on credit, you covered it"
+    "debtCovered": " · on credit, you covered it",
+    "paidOfCount": "{paid} / {total} paid",
+    "allPaidHeadline": "Everyone paid. Beautiful. ⚡",
+    "zapped": "{name} zapped ⚡",
+    "youZapped": "You paid ⚡",
+    "waitingFor": "Waiting for {names}",
+    "pingAction": "⚡ Zap him",
+    "pinged": "Pinged 👀",
+    "pingToast": "{name} got a ⚡",
+    "reactAria": "React",
+    "reactedBy": "{name} {emoji} {target}",
+    "renameTitle": "Bill name",
+    "renameHint": "Boys Dinner 🍕 / Ali's birthday 🎂",
+    "renameSave": "Done",
+    "shareAction": "Share",
+    "coverAction": "Cover the rest — {amount}",
+    "yourShare": "Your share {amount}",
+    "closedBadge": "Fully Zapped ⚡",
+    "renamed": "Done ⚡",
+    "zapFlash": "ZAP!",
+    "shareMoment": "Share this moment →",
+    "shareMessage": "{title} — splitting the bill on ZAP! ⚡ Your share is here: {url}",
+    "shareFailed": "Could not share",
+    "allPaidDone": "Done"
   },
   "closed": {
     "title": "Done, split closed",
@@ -298,7 +322,8 @@
     "close": "Close",
     "viewReceipt": "View the receipt",
     "totalRow": "Total",
-    "paidWhole": " · paid in full"
+    "paidWhole": " · paid in full",
+    "shareMoment": "Share the moment"
   },
   "saveGroup": {
     "title": "Save this crew?",
@@ -430,7 +455,8 @@
     "tabDebts": "Debts",
     "empty": "Nothing yet",
     "today": "TODAY",
-    "yesterday": "YESTERDAY"
+    "yesterday": "YESTERDAY",
+    "searchPlaceholder": "Search history"
   },
   "profile": {
     "title": "Profile",
@@ -504,7 +530,7 @@
   },
   "errors": {
     "generic": "Something went wrong",
-    "network": "No connection — check your internet",
+    "network": "Could not reach the server. Check your connection and try again",
     "smsUnavailable": "SMS is temporarily unavailable",
     "tooOften": "Too often — try again later",
     "payCancelled": "Payment cancelled",
@@ -713,5 +739,94 @@
     "running": "Checking…",
     "run": "Run the check",
     "copy": "Copy the results"
+  },
+  "loading": {
+    "splitting1": "Splitting the bill ⚡",
+    "splitting2": "Doing the math…",
+    "splitting3": "Almost there",
+    "paying1": "Taking the payment ⚡",
+    "paying2": "One more second…",
+    "loading1": "Pulling it together ⚡",
+    "loading2": "Almost there",
+    "saving": "Saving ⚡",
+    "sharing": "Making the link ⚡",
+    "receipt": "Reading the receipt ⚡",
+    "photo1": "Reading the receipt ⚡",
+    "photo2": "Picking out the items…",
+    "photo3": "Almost there"
+  },
+  "empty": {
+    "splitsTitle": "Your first ZAP is still ahead ⚡",
+    "splitsHint": "Scan a receipt — splitting takes seconds",
+    "groupsTitle": "Quiet in here 👀",
+    "groupsHint": "Save the crew after a split — next time it is one tap",
+    "cashbackTitle": "No cashback yet",
+    "cashbackHint": "It lands after you split at partner spots",
+    "debtsTitle": "All clear ⚡",
+    "debtsHint": "Nobody owes anybody. Beautiful.",
+    "historyTitle": "Nothing here yet",
+    "historyHint": "All your splits will show up here"
+  },
+  "shareCard": {
+    "kicker": "⚡ ZAP COMPLETE",
+    "friends": "{n} friends",
+    "allPaid": "Everyone paid. Beautiful. ⚡",
+    "share": "Share the card",
+    "message": "{title} — we closed the bill on ZAP! ⚡ {url}",
+    "linkOnly": "Sending a link for now: the image arrives after an app update"
+  },
+  "theme": {
+    "titleFood": "🍕 Dinner",
+    "titleCoffee": "☕ Coffee",
+    "titleTaxi": "🚕 Ride",
+    "titleShopping": "🛒 Shopping",
+    "titleTrip": "✈️ Trip",
+    "titleGift": "🎁 Gift"
+  },
+  "activity": {
+    "greeting": "👋 Who is paying today?",
+    "yourShare": "your share",
+    "closedToday": "fully settled today",
+    "closedYesterday": "fully settled yesterday",
+    "closedDays": "settled {n} days ago",
+    "together": "{n} bills together",
+    "waitingOne": "waiting to be paid",
+    "waitingMany": "{n} bills waiting",
+    "remind": "Remind",
+    "pay": "Pay"
+  },
+  "reminders": {
+    "l1": "👀 {name} has not paid yet",
+    "l2": "⚡ One person left",
+    "l3": "🍕 The pizza is gone. The bill is not.",
+    "l4": "{name}, we remember everything 👀",
+    "l5": "⚡ {name}, your {amount} misses you",
+    "l6": "👀 The bill is waiting. So are we.",
+    "pushTitle": "⚡ You are being waited for",
+    "pushBody": "{amount} left to pay in ZAP",
+    "paidTitle": "⚡ {name} paid",
+    "paidBody": "{amount} settled",
+    "closedTitle": "🎉 Everyone paid",
+    "closedBody": "“{title}” is fully settled",
+    "cashbackTitle": "💸 Cashback credited",
+    "cashbackBody": "{amount} is already in ZAP"
+  },
+  "crew": {
+    "stats": "Crew history",
+    "zaps": "{n} ZAPs together",
+    "totalSplit": "{amount} split",
+    "favourite": "Favourite spot",
+    "owingNow": "Owing now",
+    "lastPaid": "👀 {name} paid last time",
+    "themeFood": "{n} dinners",
+    "themeCoffee": "{n} coffees",
+    "themeTaxi": "{n} rides",
+    "themeShopping": "{n} shopping runs",
+    "themeTrip": "{n} trips",
+    "themeGift": "{n} gifts",
+    "suggestTitle": "Make it a Crew?",
+    "suggestBody": "You split {n} bills with the same people",
+    "suggestCta": "Create Crew ⚡",
+    "suggestSkip": "Not now"
   }
 }

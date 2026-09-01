@@ -1,7 +1,8 @@
 // Пилюля-кнопка из веба: высота 56, radius 999, лайм/чернила/призрак.
 import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { PressableScale } from './PressableScale';
+import { ZapLoader } from '@/components/ZapLoader';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
@@ -37,7 +38,7 @@ export function Button({ title, onPress, variant = 'lime', disabled, loading, fi
       ]}
     >
       <View style={styles.row}>
-        {loading ? <ActivityIndicator color={fg} /> : <Text style={[styles.label, { color: fg }]}>{title}</Text>}
+        {loading ? <ZapLoader size="xs" /> : <Text style={[styles.label, { color: fg }]}>{title}</Text>}
       </View>
     </PressableScale>
   );

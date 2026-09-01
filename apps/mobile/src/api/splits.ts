@@ -89,3 +89,19 @@ export function saveGroup(
     body: JSON.stringify({ name, accrueCashback, memberIds }),
   });
 }
+
+/**
+ * Реакция на оплату участника: ⚡ 😂 ❤️ 🫡 🤝 (vision §16).
+ * Повторный тап тем же эмодзи снимает реакцию — сервер вернёт emoji: null.
+ */
+export function reactToMember(splitId: string, memberId: string, emoji: string): Promise<{ emoji: string | null }> {
+  return http(`/splits/${splitId}/reactions`, {
+    method: 'POST',
+    body: JSON.stringify({ memberId, emoji }),
+  });
+}
+
+/** Своё название счёта: «🍕 Boys Dinner» вместо мерчанта (vision §14). */
+export function renameSplit(splitId: string, title: string): Promise<{ title: string }> {
+  return http(`/splits/${splitId}`, { method: 'PATCH', body: JSON.stringify({ title }) });
+}

@@ -7,6 +7,8 @@ import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-na
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
+import { cue } from '@/lib/feedback';
+import { ZapOverlay } from '@/components/ZapOverlay';
 import { PressableScale } from '@/components/PressableScale';
 import { PayPad } from '@/components/PayPad';
 import { AnimatedAmount } from '@/components/AnimatedAmount';
@@ -20,9 +22,13 @@ import { payAlone } from '@/api/actions';
 import { toast } from '@/components/ToastHost';
 import { ScanIcon } from '@/components/icons';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 const DRAFT_KEY = 'zap:amount-draft';
+
+/** Подписи ожидания оплаты. */
+const PAY_STEPS = ['loading.paying1', 'loading.paying2'] as const;
+const PAY_STICKERS = ['heartZap', 'paidDone'] as const;
 
 export function AmountScreen() {
   const { t } = useTranslation();
@@ -40,6 +46,7 @@ export function AmountScreen() {
     });
   };
   const [paySheet, setPaySheet] = useState(false);
+  const [paying, setPaying] = useState(false);
 
   const amount = Number(raw || '0');
   const ready = amount > 0;
@@ -109,23 +116,29 @@ export function AmountScreen() {
         onConfirm={() => {
           setPaySheet(false);
           void (async () => {
+            // оплата идёт по сети — держим ZAP на экране, а не пустоту
+            setPaying(true);
             try {
               await payAlone(amount);
+              cue('paid');
               toast.success(t('amount.paidToast', { amount: money(amount) }));
               setRaw('');
               nav.navigate('Home');
             } catch (e) {
               toast(e instanceof Error && e.message ? e.message : t('errors.payCancelled'));
+            } finally {
+              setPaying(false);
             }
           })();
         }}
       />
+      <ZapOverlay open={paying} steps={PAY_STEPS} stickers={PAY_STICKERS} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 20 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 },
   iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   amountWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 8 },

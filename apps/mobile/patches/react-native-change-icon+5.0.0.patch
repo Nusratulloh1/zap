@@ -1,3 +1,154 @@
+diff --git a/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java b/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
+index b303063..9fba04b 100644
+--- a/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
++++ b/node_modules/react-native-change-icon/android/src/main/java/com/reactnativechangeicon/ChangeIconModule.java
+@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
+ 
+ import android.app.Activity;
+ import android.app.Application;
++import android.content.pm.ActivityInfo;
++import android.content.pm.PackageInfo;
+ import android.content.pm.PackageManager;
+ import android.content.ComponentName;
+ import android.os.Bundle;
+@@ -38,21 +40,26 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
+ 
+     @ReactMethod
+     public void getIcon(Promise promise) {
+-        final Activity activity = getCurrentActivity();
+-        if (activity == null) {
+-            promise.reject("ANDROID:ACTIVITY_NOT_FOUND");
+-            return;
++        // ПАТЧ: иконка меняется без перезапуска, поэтому текущая activity всё
++        // ещё та, из которой стартовали. Если алиас уже выбирали в этой
++        // сессии — правду знает componentClass, а не getComponentName().
++        String activityName = this.componentClass;
++        if (activityName.isEmpty()) {
++            final Activity activity = getCurrentActivity();
++            if (activity == null) {
++                promise.reject("ANDROID:ACTIVITY_NOT_FOUND");
++                return;
++            }
++            activityName = activity.getComponentName().getClassName();
+         }
+ 
+-        final String activityName = activity.getComponentName().getClassName();
+-
+         if (activityName.endsWith("MainActivity")) {
+             promise.resolve("Default");
+             return;
+         }
+         String[] activityNameSplit = activityName.split("MainActivity");
+         if (activityNameSplit.length != 2) {
+-            promise.reject("ANDROID:UNEXPECTED_COMPONENT_CLASS:" + this.componentClass);
++            promise.reject("ANDROID:UNEXPECTED_COMPONENT_CLASS:" + activityName);
+             return;
+         }
+         promise.resolve(activityNameSplit[1]);
+@@ -61,12 +68,14 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
+ 
+     @ReactMethod
+     public void changeIcon(String iconName, Promise promise) {
++        // ПАТЧ: апстрим дёргал activity.getComponentName() ДО проверки на null —
++        // вызов без активити падал с NullPointerException.
+         final Activity activity = getCurrentActivity();
+-        final String activityName = activity.getComponentName().getClassName();
+         if (activity == null) {
+             promise.reject("ANDROID:ACTIVITY_NOT_FOUND");
+             return;
+         }
++        final String activityName = activity.getComponentName().getClassName();
+         if (this.componentClass.isEmpty()) {
+             this.componentClass = activityName.endsWith("MainActivity") ? activityName + "Default" : activityName;
+         }
+@@ -77,35 +86,70 @@ public class ChangeIconModule extends ReactContextBaseJavaModule implements Appl
+             promise.reject("ANDROID:ICON_ALREADY_USED:" + this.componentClass);
+             return;
+         }
++
++        final PackageManager pm = getReactApplicationContext().getPackageManager();
+         try {
+-            activity.getPackageManager().setComponentEnabledSetting(
++            pm.setComponentEnabledSetting(
+                     new ComponentName(this.packageName, activeClass),
+                     PackageManager.COMPONENT_ENABLED_STATE_ENABLED,
+                     PackageManager.DONT_KILL_APP);
+-            promise.resolve(newIconName);
+         } catch (Exception e) {
+             promise.reject("ANDROID:ICON_INVALID");
+             return;
+         }
+-        this.classesToKill.add(this.componentClass);
++
++        // ПАТЧ: гасим остальные алиасы ЗДЕСЬ ЖЕ и синхронно.
++        //
++        // Апстрим откладывал это до onActivityPaused и брал PackageManager у
++        // getCurrentActivity(), который после finish() уже null — метод молча
++        // выходил по раннему return. Старый алиас оставался включённым, и на
++        // домашнем экране висели ДВЕ иконки приложения.
++        //
++        // Заодно это самолечение: гасим всё, кроме выбранного, поэтому у тех,
++        // кто уже получил вторую иконку, она пропадёт при следующей смене.
++        disableOtherAliases(pm, activeClass);
++
+         this.componentClass = activeClass;
+-        activity.getApplication().registerActivityLifecycleCallbacks(this);
+-        iconChanged = true;
+-        activity.finish();
++        this.classesToKill.clear();
++        this.iconChanged = false;
++        promise.resolve(newIconName);
++        // ПАТЧ: activity.finish() убран. Для смены иконки он не нужен
++        // (DONT_KILL_APP), а пользователю выглядел как вылет приложения.
+     }
+ 
++    /**
++     * Оставить включённым ровно один алиас — выбранный.
++     *
++     * Список алиасов берём у самой системы, а не держим в коде: имена заданы
++     * в манифесте приложения и модулю заранее не известны.
++     */
++    private void disableOtherAliases(PackageManager pm, String activeClass) {
++        final String prefix = this.packageName + ".MainActivity";
++        try {
++            final PackageInfo info = pm.getPackageInfo(
++                    this.packageName,
++                    PackageManager.GET_ACTIVITIES | PackageManager.MATCH_DISABLED_COMPONENTS);
++            if (info.activities == null) {
++                return;
++            }
++            for (ActivityInfo ai : info.activities) {
++                if (ai.name == null || !ai.name.startsWith(prefix) || ai.name.equals(activeClass)) {
++                    continue;
++                }
++                pm.setComponentEnabledSetting(
++                        new ComponentName(this.packageName, ai.name),
++                        PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
++                        PackageManager.DONT_KILL_APP);
++            }
++        } catch (Exception ignored) {
++            // Новый алиас уже включён; хуже, чем было, не станет.
++        }
++    }
++
++    /** ПАТЧ: гашение переехало в changeIcon, отложенный проход больше не нужен. */
+     private void completeIconChange() {
+-        if (!iconChanged)
+-            return;
+-        final Activity activity = getCurrentActivity();
+-        if (activity == null)
+-            return;
+-        classesToKill.forEach((cls) -> activity.getPackageManager().setComponentEnabledSetting(
+-                new ComponentName(this.packageName, cls),
+-                PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+-                PackageManager.DONT_KILL_APP));
+-        classesToKill.clear();
+-        iconChanged = false;
++        this.iconChanged = false;
++        this.classesToKill.clear();
+     }
+ 
+     @Override
 diff --git a/node_modules/react-native-change-icon/ios/ChangeIcon.mm b/node_modules/react-native-change-icon/ios/ChangeIcon.mm
 index 389fe05..d0e2934 100644
 --- a/node_modules/react-native-change-icon/ios/ChangeIcon.mm

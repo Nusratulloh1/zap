@@ -2,7 +2,7 @@
 // чип «ZAP! с мая 2026», стат-тайлы, КАРТЫ (добавление: форма → SMS → проверка),
 // НАСТРОЙКИ (смена PIN, уведомления, язык, тема, мои группы, выйти).
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -26,8 +26,9 @@ import { useHomeData } from '@/store/bootstrap';
 import { useSession } from '@/store/session';
 import { money, phone, monthYear } from '@/lib/format';
 import { LOCALE_NAMES, currentLocale } from '@/i18n';
+import { ZapLoader } from '@/components/ZapLoader';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import type { Card } from '@zap/shared/types';
 
 export function ProfileScreen() {
@@ -438,7 +439,9 @@ export function ProfileScreen() {
           ) : (
             <View style={styles.checking}>
               {/* кольцо-спиннер, как border-t-lime в вебе */}
-              <ActivityIndicator size="large" color={colors.lime} style={styles.checkingSpinner} />
+              <View style={styles.checkingSpinner}>
+                <ZapLoader size="sm" />
+              </View>
               <Text style={[styles.checkingTitle, { color: colors.ink }]}>{t('profile.checkingCard')}</Text>
               <Text style={[styles.checkingSub, { color: colors.muted }]}>
                 {cardNetwork} ·· {cardDigits.slice(-4)}
@@ -528,7 +531,7 @@ const styles = StyleSheet.create({
   topGlass: { position: 'absolute', left: 0, right: 0, top: 0, bottom: -22 },
   topGlassFill: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 22 },
   topGlassFade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
-  root: { paddingHorizontal: 24 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   headRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   headBody: { flex: 1, gap: 3 },
   name: { fontFamily: font.extrabold, fontSize: 23, letterSpacing: -0.2 },

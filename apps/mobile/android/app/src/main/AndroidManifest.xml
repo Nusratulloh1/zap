@@ -38,11 +38,21 @@
         </intent-filter>
       </activity>
 
-      <!-- Иконки приложения. Активен ровно один алиас; react-native-change-icon
-           ищет их по имени .MainActivity<Name>, поэтому имена завязаны на ключи
-           в src/lib/appIcon.ts. Default — «чеки», основная. -->
+      <!-- Иконки приложения. Активен ровно один алиас; имена завязаны на ключи
+           в src/lib/appIcon.ts. Default — «чеки», основная.
+
+           Имена АБСОЛЮТНЫЕ, а не «.MainActivityX». Точечная запись раскрылась бы
+           по namespace (com.zapmobile), а react-native-change-icon собирает имя
+           компонента как BuildConfig.APPLICATION_ID + ".MainActivity" + <Name>,
+           то есть uz.zapapp.app.*. Здесь namespace != applicationId, и при
+           относительных именах модуль включал бы несуществующий компонент —
+           приложение закрывалось, а иконка не менялась.
+
+           Класса с таким именем не существует и не требуется: для activity-alias
+           android:name — это идентификатор компонента, реальная activity задаётся
+           через targetActivity. -->
       <activity-alias
-        android:name=".MainActivityDefault"
+        android:name="uz.zapapp.app.MainActivityDefault"
         android:enabled="true"
         android:exported="true"
         android:icon="@mipmap/ic_launcher"
@@ -56,7 +66,7 @@
       </activity-alias>
 
       <activity-alias
-        android:name=".MainActivityMosaic"
+        android:name="uz.zapapp.app.MainActivityMosaic"
         android:enabled="false"
         android:exported="true"
         android:icon="@mipmap/ic_launcher_mosaic"
@@ -70,7 +80,7 @@
       </activity-alias>
 
       <activity-alias
-        android:name=".MainActivityHands"
+        android:name="uz.zapapp.app.MainActivityHands"
         android:enabled="false"
         android:exported="true"
         android:icon="@mipmap/ic_launcher_hands"

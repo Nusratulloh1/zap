@@ -13,7 +13,7 @@ import { BottomSheet } from '@/components/BottomSheet';
 import { useDraft } from '@/store/draft';
 import { money } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 interface EditItem {
   id: string;
@@ -32,9 +32,16 @@ export function ReviewItemsScreen() {
   const draft = useDraft();
 
   // как в вебе: без фискального чека проверять нечего
+  // Сторож срабатывает ТОЛЬКО при входе на экран.
+  //
+  // Раньше он висел на изменении черновика, и любое обновление стора уже
+  // ПОСЛЕ успешного распознавания выбрасывало обратно в камеру: человек видел
+  // «чек распознан», а оказывался снова перед сканером. Нет данных на входе —
+  // уходим; всё, что меняется дальше, экран разруливает сам.
   useEffect(() => {
     if (!draft.bill) nav.replace('Scan');
-  }, [draft.bill, nav]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [items, setItems] = useState<EditItem[]>(
     (draft.bill?.items ?? []).map((i) => ({ id: i.id, title: i.title, qty: i.qty, amount: i.amount })),
@@ -201,7 +208,7 @@ export function ReviewItemsScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 20 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   flex: { flex: 1, marginTop: 14 },
   title: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.3, marginTop: 22 },
   ocrNote: { borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, marginTop: 12 },

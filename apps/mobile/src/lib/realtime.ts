@@ -12,7 +12,8 @@ export type RealtimeEvent =
   | 'member_covered'
   | 'split_closed'
   | 'debt_settled'
-  | 'cashback_awarded';
+  | 'cashback_awarded'
+  | 'reaction_added';
 
 type Listener = (event: RealtimeEvent, payload: Record<string, unknown>) => void;
 
@@ -28,6 +29,7 @@ const EVENTS: RealtimeEvent[] = [
   'split_closed',
   'debt_settled',
   'cashback_awarded',
+  'reaction_added',
 ];
 
 export function onRealtime(fn: Listener): () => void {

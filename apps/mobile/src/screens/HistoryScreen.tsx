@@ -1,19 +1,20 @@
 // «История» — порт HistoryPage.vue (дизайн 5i): чипы-вкладки, моно-лейблы
 // дней, строки 68px, суммы со знаком. Вкладка нижнего пилл-нава.
-import React, { useMemo, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo, useRef, useState, type ComponentRef } from 'react';
+import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
+import { EmptyState } from '@/components/EmptyState';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { SearchIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { money, dayLabel } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import type { HistoryEntry } from '@zap/shared/types';
 
 type TabKey = 'all' | 'splits' | 'cashback' | 'debts';
@@ -37,9 +38,24 @@ export function HistoryScreen() {
   const nav = useNavigation<any>();
   const home = useHomeData();
   const [tab, setTab] = useState<TabKey>('all');
+  // Поиск. Кнопка-лупа существовала с первого дня, но не делала НИЧЕГО —
+  // без onPress и без логики. Теперь она раскрывает строку поиска.
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const searchRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   const grouped = useMemo(() => {
-    const rows = (home.db?.history ?? []).filter((e) => KIND_BY_TAB[tab].includes(e.kind));
+    const q = query.trim().toLowerCase();
+    const rows = (home.db?.history ?? []).filter((e) => {
+      if (!KIND_BY_TAB[tab].includes(e.kind)) return false;
+      if (!q) return true;
+      // ищем по названию, подписи и сумме — по тому, что человек видит в строке
+      return (
+        e.title.toLowerCase().includes(q) ||
+        e.subtitle.toLowerCase().includes(q) ||
+        String(Math.abs(e.amount)).includes(q.replace(/\s/g, ''))
+      );
+    });
     const out: { label: string; items: HistoryEntry[] }[] = [];
     for (const e of rows) {
       const label = dayLabel(e.createdAt);
@@ -48,7 +64,7 @@ export function HistoryScreen() {
       else out.push({ label, items: [e] });
     }
     return out;
-  }, [home.db?.history, tab]);
+  }, [home.db?.history, tab, query]);
 
   const amountText = (e: HistoryEntry) =>
     (e.amount > 0 ? '+' : e.amount < 0 ? '−' : '') + money(Math.abs(e.amount));
@@ -58,7 +74,18 @@ export function HistoryScreen() {
       <View style={styles.headRow}>
         <Text style={[styles.title, { color: colors.ink }]}>{t('history.title')}</Text>
         <View style={styles.headBtns}>
-          <PressableScale small accessibilityLabel={t('common.searchAria')} style={[styles.searchBtn, { backgroundColor: colors.sand }]}>
+          <PressableScale
+            small
+            accessibilityLabel={t('common.searchAria')}
+            style={[styles.searchBtn, { backgroundColor: searchOpen ? fixed.lime : colors.sand }]}
+            onPress={() => {
+              setSearchOpen((v) => {
+                if (v) setQuery('');
+                else setTimeout(() => searchRef.current?.focus(), 60);
+                return !v;
+              });
+            }}
+          >
             <SearchIcon size={18} color="#5B594F" />
           </PressableScale>
           <PressableScale small accessibilityLabel={t('common.profileAria')} onPress={() => nav.navigate('Profile')}>
@@ -66,6 +93,27 @@ export function HistoryScreen() {
           </PressableScale>
         </View>
       </View>
+
+      {searchOpen ? (
+        <View style={[styles.searchBar, { backgroundColor: colors.sand }]}>
+          <SearchIcon size={16} color="#8A887E" />
+          <TextInput
+            ref={searchRef}
+            value={query}
+            onChangeText={setQuery}
+            placeholder={t('history.searchPlaceholder')}
+            placeholderTextColor={colors.faint2}
+            style={[styles.searchInput, { color: colors.ink }]}
+            autoCorrect={false}
+            returnKeyType="search"
+          />
+          {query ? (
+            <PressableScale small onPress={() => setQuery('')}>
+              <Text style={[styles.searchClear, { color: colors.muted }]}>✕</Text>
+            </PressableScale>
+          ) : null}
+        </View>
+      ) : null}
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsWrap} contentContainerStyle={styles.tabs}>
         {TABS.map((tb) => {
@@ -138,7 +186,7 @@ export function HistoryScreen() {
             </View>
           ))}
           {!grouped.length ? (
-            <Text style={[styles.empty, { color: colors.muted }]}>{t('history.empty')}</Text>
+            <EmptyState sticker="oneBill" title={t('empty.historyTitle')} hint={t('empty.historyHint')} />
           ) : null}
         </Animated.View>
       </ScrollView>
@@ -147,13 +195,24 @@ export function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 24 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 },
   headBtns: { flexDirection: 'row', alignItems: 'center', gap: 12, marginRight: -4 },
+  searchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    height: 46,
+    borderRadius: 14,
+    paddingHorizontal: 14,
+    marginTop: 12,
+  },
+  searchInput: { flex: 1, minWidth: 0, fontFamily: font.semibold, fontSize: 15, padding: 0 },
+  searchClear: { fontFamily: font.bold, fontSize: 15, paddingHorizontal: 4 },
   searchBtn: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3 },
   tabsWrap: { flexGrow: 0, height: 42, marginTop: 18, marginBottom: 4, marginHorizontal: -24 },
-  tabs: { gap: 8, paddingHorizontal: 24, alignItems: 'center' },
+  tabs: { gap: 8, paddingHorizontal: SCREEN_PAD_X, alignItems: 'center' },
   tab: { height: 38, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   tabText: { fontFamily: font.bold, fontSize: 13 },
   tabTextActive: { fontFamily: font.extrabold, fontSize: 13 },

@@ -8,9 +8,11 @@ import { translate } from '@/i18n';
 export class ApiError extends Error {
   constructor(
     message: string,
+    /** HTTP-код; 0 — ответа не было вовсе (обрыв соединения, нет сети) */
     readonly status: number,
+    options?: { cause?: unknown },
   ) {
-    super(message);
+    super(message, options);
     this.name = 'ApiError';
   }
 }
@@ -67,7 +69,15 @@ export async function http<T = unknown>(path: string, init: Options = {}): Promi
       headers['X-Payment-Token'] = paymentToken;
       paymentToken = null; // одноразовый
     }
-    return fetch(API_URL + path, { ...init, headers });
+    try {
+      return await fetch(API_URL + path, { ...init, headers });
+    } catch (e) {
+      // fetch падает ДО ответа: нет сети, обрыв TLS — или сервер закрыл
+      // соединение на середине тела (nginx так делает при 413 на большой
+      // загрузке). Раньше это всплывало как голое «Network request failed»,
+      // и причину приходилось искать вручную.
+      throw new ApiError(translate('errors.network'), 0, { cause: e });
+    }
   };
 
   let res = await doFetch();

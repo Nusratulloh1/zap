@@ -16,7 +16,7 @@ import { joinSplitRoom, onRealtime } from '@/lib/realtime';
 import { useSession } from '@/store/session';
 import { money, peopleCount } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 const r1000 = (n: number) => Math.round(n / 1000) * 1000;
 
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   hint: { flex: 1, fontFamily: font.semibold, fontSize: 12 },
   customCurrency: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, textAlign: 'center', marginTop: 6 },
   sheetCtaText: { fontFamily: font.bold, fontSize: 15 },
-  root: { paddingHorizontal: 24 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingBottom: 60 },
   notFound: { fontFamily: font.bold, fontSize: 15 },
   meta: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 6 },

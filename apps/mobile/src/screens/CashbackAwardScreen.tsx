@@ -17,7 +17,7 @@ import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { money, equalShares } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function CashbackAwardScreen() {
   const { t } = useTranslation();
@@ -144,7 +144,7 @@ export function CashbackAwardScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: 24 },
+  root: { paddingHorizontal: SCREEN_PAD_X },
   head: { marginTop: 30 },
   logo: { width: 76, height: 76, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   logoLetter: { fontFamily: font.extrabold, fontSize: 26 },

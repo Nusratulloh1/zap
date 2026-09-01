@@ -12,6 +12,7 @@ type FullSplit = Split & {
   members: SplitMember[]
   merchant: Merchant | null
   bill: ({ items: BillItem[] } & Bill) | null
+  reactions?: { memberId: string; emoji: string; fromUserId: string; fromUser: { name: string | null } }[]
 }
 
 @Injectable()
@@ -166,7 +167,12 @@ export class UsersService {
         this.prisma.group.findMany({ where: { ownerId: userId }, include: { members: true, splits: { select: { merchantId: true } } } }),
         this.prisma.split.findMany({
           where: { OR: [{ creatorId: userId }, { members: { some: { userId } } }], status: { not: 'cancelled' } },
-          include: { members: { orderBy: { isCreator: 'desc' } }, merchant: true, bill: { include: { items: true } } },
+          include: {
+            members: { orderBy: { isCreator: 'desc' } },
+            merchant: true,
+            bill: { include: { items: true } },
+            reactions: { include: { fromUser: { select: { name: true } } }, orderBy: { createdAt: 'asc' } },
+          },
           orderBy: { createdAt: 'desc' },
           take: 50,
         }),
@@ -313,6 +319,12 @@ export class UsersService {
       groupId: s.groupId ?? undefined,
       cashback: s.cashback ?? undefined,
       cashbackX2: s.cashbackX2 || undefined,
+      reactions: (s.reactions ?? []).map((r) => ({
+        memberId: r.memberId,
+        emoji: r.emoji,
+        fromUserId: r.fromUserId,
+        fromName: (r.fromUser?.name || '').split(' ')[0],
+      })),
     }
   }
 }
