@@ -64,3 +64,41 @@ Home → SPLIT → pick friends → enter the amount.
 В `TEST_PHONES` на сервере лежат ещё `998900000092` и `998900000093` с тем же
 кодом `424242`. У них нет ни имени, ни PIN, ни данных — при необходимости их
 нужно готовить так же.
+
+## Ответ Apple на отказ 2.1(a)
+
+Текст ниже — то, что отправляется в App Store Connect ответом на сообщение
+ревьюера, ПОСЛЕ того как заполнены поля Beta App Review Information.
+
+```
+Hello,
+
+Thank you for the review. We have added demo account credentials in the Beta
+App Review Information section of App Store Connect.
+
+Sign-in uses a phone number and an SMS code. This is a demo account, so no
+real SMS is sent — the code is fixed and always works.
+
+How to sign in:
+
+1. On the first screen the +998 country prefix is fixed. Enter the number:
+   90 000 00 91
+2. Tap Continue and enter the SMS code: 424242
+3. Enter the PIN: 4242
+
+The account is pre-populated with 19 split bills, payment history, a group of
+friends, cashback and a saved card, so every screen shows real content.
+
+Payments in this build use an internal ledger — no real money is charged.
+You can therefore complete the full flow end to end: create a split, choose
+participants, pay your share and close the bill.
+
+Camera access is requested for the QR scanner and for photographing a paper
+receipt. Granting it is optional: a bill can also be created manually from
+Home → SPLIT → choose friends → enter the amount.
+
+Please let us know if you need anything else.
+
+Best regards,
+ZAP! team
+```
