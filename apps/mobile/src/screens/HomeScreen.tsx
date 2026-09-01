@@ -1,7 +1,7 @@
 // Главная — порт web/src/pages/HomePage.vue один в один: тёмный герой
 // (hero-иллюстрация / фото залов, категории с теми же SVG, поиск + «Сплит»),
 // светлый лист (стат-карты, «Мои группы» вертикальным списком, сплиты).
-import React, { useCallback, useDeferredValue, useMemo, useState } from 'react';
+import React, { useCallback, useDeferredValue, useEffect, useMemo, useState } from 'react';
 import {
   Image,
   RefreshControl,
@@ -42,6 +42,7 @@ import { money, peopleCount, humanDateLc } from '@/lib/format';
 import { reminderLine } from '@/lib/reminders';
 import type { ActivityItem } from '@/lib/activity';
 import { suggestCrew } from '@/lib/crewStats';
+import { setWidgetState } from '@/lib/liveActivity';
 import { buildActivity } from '@/lib/activity';
 import { storage, useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
@@ -132,6 +133,26 @@ export function HomeScreen() {
 
   // живой поиск по контактам (имя/номер) — как в вебе
   const q = query.trim().toLowerCase();
+
+  /*
+    Виджет домашнего экрана (vision §C19): «Friday Crew ⚡ Nothing owed ✓»
+    или «Dinner 3/4 paid». Ещё одна точка возврата без push-спама.
+
+    Пишем при каждом изменении данных главной: виджет живёт в другом процессе
+    и сам ничего не знает про сеть — он читает то, что положило приложение.
+  */
+  useEffect(() => {
+    const active = home.activeSplit;
+    if (active) {
+      const paid = active.members.filter((m) => m.status === 'paid' || m.status === 'debt').length;
+      const merchant = home.db?.merchants.find((m) => m.id === active.merchantId)?.name ?? active.title;
+      setWidgetState(merchant, t('home.widgetPaid', { paid, total: active.members.length }));
+      return;
+    }
+    const owed = (home.db?.debts ?? []).length;
+    setWidgetState('ZAP!', owed ? t('home.widgetOwed', { n: owed }) : t('home.widgetClear'));
+  }, [home.activeSplit, home.db, t]);
+
   const contactMatches = useMemo(() => {
     if (!q) return [];
     const digits = q.replace(/\D/g, '');

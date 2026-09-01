@@ -128,7 +128,10 @@
     "waitingFor": "{names} kutilmoqda · {amount}",
     "allPaid": "hammasi to‘landi",
     "participantOpened": "{name} havolani ochdi",
-    "participantFallback": "Ishtirokchi"
+    "participantFallback": "Ishtirokchi",
+    "widgetPaid": "{{paid}}/{{total}} to‘ladi",
+    "widgetOwed": "Ochiq hisoblar: {{n}}",
+    "widgetClear": "Hammasi yopilgan ✓"
   },
   "scan": {
     "hint": "Kamerani chekdagi QR kodga qarating",

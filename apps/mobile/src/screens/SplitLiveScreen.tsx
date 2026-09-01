@@ -52,6 +52,7 @@ import { useHomeData } from '@/store/bootstrap';
 import { money } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
+import { startLiveActivity, endLiveActivity } from '@/lib/liveActivity';
 import { EASE_ZAP, SPLIT_TIMELINE } from '@/lib/motion';
 import { reduceMotion } from '@/lib/feedback';
 
@@ -163,6 +164,33 @@ export function SplitLiveScreen() {
       progress: members.length ? paidList.length / members.length : 0,
     };
   }, [members]);
+
+
+  /*
+    Live Activity / Dynamic Island (vision §C18): «ZAP · Bellissimo / 3 of 4
+    paid / ⚡ Timur left, и обновлять состояние прямо с lock screen».
+
+    Держим плашку ровно пока счёт активен, и снимаем при закрытии — иначе на
+    локскрине останется «3 из 4» у давно закрытого счёта. Обновления идут по
+    тем же данным, что и полоска прогресса выше, поэтому расхождения быть не
+    может по построению.
+  */
+  const merchantName = useMemo(
+    () => home.db?.merchants.find((m) => m.id === split?.merchantId)?.name ?? split?.title ?? 'ZAP',
+    [home.db, split?.merchantId, split?.title],
+  );
+
+  useEffect(() => {
+    if (!split || split.status !== 'active') return;
+    const paidNow = members.filter((m) => m.status === 'paid' || m.status === 'debt').length;
+    const waiting = members.find((m) => m.status !== 'paid' && m.status !== 'debt');
+    const pending = waiting ? (waiting.isYou ? '' : (home.contactById(waiting.contactId)?.name ?? '')) : '';
+    startLiveActivity(split.id, merchantName, money(split.total), paidNow, members.length, pending);
+  }, [split, members, merchantName, home]);
+
+  useEffect(() => {
+    if (split?.status === 'closed') endLiveActivity(split.id);
+  }, [split?.status, split?.id]);
 
   const bar = useSharedValue(0);
   useEffect(() => {

@@ -128,7 +128,10 @@
     "waitingFor": "waiting for {names} · {amount}",
     "allPaid": "all paid",
     "participantOpened": "{name} opened the link",
-    "participantFallback": "A participant"
+    "participantFallback": "A participant",
+    "widgetPaid": "{{paid}}/{{total}} paid",
+    "widgetOwed": "{{n}} bills open",
+    "widgetClear": "Nothing owed ✓"
   },
   "scan": {
     "hint": "Point the camera at the QR code on the receipt",

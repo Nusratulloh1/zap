@@ -128,7 +128,10 @@
     "waitingFor": "ждём {names} · {amount}",
     "allPaid": "всё оплачено",
     "participantOpened": "{name} открыл ссылку",
-    "participantFallback": "Участник"
+    "participantFallback": "Участник",
+    "widgetPaid": "{{paid}}/{{total}} оплатили",
+    "widgetOwed": "Открытых счетов: {{n}}",
+    "widgetClear": "Всё закрыто ✓"
   },
   "scan": {
     "hint": "Наведите камеру на QR-код на чеке",

@@ -17,36 +17,76 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		81EF71510EC34B7E8A0ECB28 /* scan.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A830101539154A49BA427D4E /* scan.mp3 */; };
 		833D28DD0A5D4304B867B15C /* split_done.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3ABF7D8A31794B63ABFD04E2 /* split_done.mp3 */; };
+		93336785F0BCCAC65785EF7D /* ZapLiveActivity.mm in Sources */ = {isa = PBXBuildFile; fileRef = 6F71DDF243992F4E6AE792AD /* ZapLiveActivity.mm */; };
 		A400A48381024F6BB12F7605 /* reminder.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = CFEBBF2C5BD24C9CA630C530 /* reminder.mp3 */; };
 		AAB07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
+		AC1A60622BE5FEF1AA9BC20D /* ZapActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9502E6946234A1DA5ECB7 /* ZapActivityAttributes.swift */; };
+		AF09A8852D3AA1936582B2EE /* ZapActivity.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 34D65321F0E61F2A82D57ABD /* ZapActivity.appex */; };
 		B0768BA933EF4FF0A18D5530 /* JetBrainsMono-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 2F3252C46F6A4B76AC2626C4 /* JetBrainsMono-Bold.ttf */; };
 		B865DB0B1EFC4C6A9D29FD80 /* JetBrainsMono-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 65B1CE7B41714DBAB468BB12 /* JetBrainsMono-Medium.ttf */; };
 		BD6ED1E52E864877A63360A4 /* share.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9CFE4F154A2E4CE2A195CE03 /* share.mp3 */; };
+		C952CF0639A46235ACC6DCB4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1AA88D2A41965D8FEFC1EA0 /* Foundation.framework */; };
+		CCCDFA5A0702C55B6CECFD0E /* ZapLiveActivityImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EC11DE7F6F12D7374822694 /* ZapLiveActivityImpl.swift */; };
 		D501E8A291E64E3ABFFA575C /* Manrope-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 77B58AEBAAA84E0BB5E90BC4 /* Manrope-Bold.ttf */; };
 		D913068403224BC884295C50 /* Manrope-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 292041F622FF44AF9CE8AE1F /* Manrope-ExtraBold.ttf */; };
+		DBBC80D2589B99BFE968EA3E /* ZapActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9502E6946234A1DA5ECB7 /* ZapActivityAttributes.swift */; };
 		EC3F9361832A40BE8C4BDEEF /* Manrope-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 42595C6DF87F47F6808A7165 /* Manrope-SemiBold.ttf */; };
+		FBDA487F823B22F19ABF76D1 /* ZapActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D9C026BDE0F76852C785097 /* ZapActivityBundle.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BA9E799C42DDFBA64A9CFA24 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 1803B200A42D8D7BDE2A70E3;
+			remoteInfo = ZapActivity;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		04A94FF250FA00C9A94020E6 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				AF09A8852D3AA1936582B2EE /* ZapActivity.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		13B07F961A680F5B00A75B9A /* ZapMobile.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ZapMobile.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = ZapMobile/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = ZapMobile/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = ZapMobile/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		1EC11DE7F6F12D7374822694 /* ZapLiveActivityImpl.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ZapLiveActivityImpl.swift; path = ZapMobile/ZapLiveActivityImpl.swift; sourceTree = "<group>"; };
 		292041F622FF44AF9CE8AE1F /* Manrope-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-ExtraBold.ttf"; path = "../assets/fonts/Manrope-ExtraBold.ttf"; sourceTree = "<group>"; };
 		2F3252C46F6A4B76AC2626C4 /* JetBrainsMono-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "JetBrainsMono-Bold.ttf"; path = "../assets/fonts/JetBrainsMono-Bold.ttf"; sourceTree = "<group>"; };
+		34D65321F0E61F2A82D57ABD /* ZapActivity.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ZapActivity.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		3ABF7D8A31794B63ABFD04E2 /* split_done.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = split_done.mp3; path = ../assets/sounds/split_done.mp3; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-ZapMobile.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZapMobile.debug.xcconfig"; path = "Target Support Files/Pods-ZapMobile/Pods-ZapMobile.debug.xcconfig"; sourceTree = "<group>"; };
 		42595C6DF87F47F6808A7165 /* Manrope-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-SemiBold.ttf"; path = "../assets/fonts/Manrope-SemiBold.ttf"; sourceTree = "<group>"; };
+		48E5DF079934C574FB50F617 /* ZapActivity.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = ZapActivity.entitlements; sourceTree = "<group>"; };
+		4FD0E75DE62B0B1C1720E23D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-ZapMobile.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ZapMobile.release.xcconfig"; path = "Target Support Files/Pods-ZapMobile/Pods-ZapMobile.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-ZapMobile.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ZapMobile.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		5EA90E1FFE044D079E7F90DB /* everyone_paid.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = everyone_paid.mp3; path = ../assets/sounds/everyone_paid.mp3; sourceTree = "<group>"; };
 		65B1CE7B41714DBAB468BB12 /* JetBrainsMono-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "JetBrainsMono-Medium.ttf"; path = "../assets/fonts/JetBrainsMono-Medium.ttf"; sourceTree = "<group>"; };
+		6F71DDF243992F4E6AE792AD /* ZapLiveActivity.mm */ = {isa = PBXFileReference; includeInIndex = 1; name = ZapLiveActivity.mm; path = ZapMobile/ZapLiveActivity.mm; sourceTree = "<group>"; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = ZapMobile/AppDelegate.swift; sourceTree = "<group>"; };
 		77B58AEBAAA84E0BB5E90BC4 /* Manrope-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Bold.ttf"; path = "../assets/fonts/Manrope-Bold.ttf"; sourceTree = "<group>"; };
 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = ZapMobile/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		8328DC27707E42C481E308D8 /* Manrope-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Manrope-Medium.ttf"; path = "../assets/fonts/Manrope-Medium.ttf"; sourceTree = "<group>"; };
+		8D9C026BDE0F76852C785097 /* ZapActivityBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ZapActivityBundle.swift; sourceTree = "<group>"; };
 		8E1FDCC89DD547B889A97CE3 /* paid.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = paid.mp3; path = ../assets/sounds/paid.mp3; sourceTree = "<group>"; };
+		9660C9B19C3727ADD7A46B87 /* ZapLiveActivity.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ZapLiveActivity.h; path = ZapMobile/ZapLiveActivity.h; sourceTree = "<group>"; };
+		9AB9502E6946234A1DA5ECB7 /* ZapActivityAttributes.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ZapActivityAttributes.swift; sourceTree = "<group>"; };
 		9CFE4F154A2E4CE2A195CE03 /* share.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = share.mp3; path = ../assets/sounds/share.mp3; sourceTree = "<group>"; };
+		A1AA88D2A41965D8FEFC1EA0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS14.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		A830101539154A49BA427D4E /* scan.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = scan.mp3; path = ../assets/sounds/scan.mp3; sourceTree = "<group>"; };
 		CCF2E86B88DC4377B26DB638 /* split.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = split.mp3; path = ../assets/sounds/split.mp3; sourceTree = "<group>"; };
 		CFEBBF2C5BD24C9CA630C530 /* reminder.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = reminder.mp3; path = ../assets/sounds/reminder.mp3; sourceTree = "<group>"; };
@@ -62,9 +102,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		ACEBE7CDA84B0C496E33C152 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C952CF0639A46235ACC6DCB4 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		04D23F320A1EEE3E70400B04 /* ZapActivity */ = {
+			isa = PBXGroup;
+			children = (
+				9AB9502E6946234A1DA5ECB7 /* ZapActivityAttributes.swift */,
+				8D9C026BDE0F76852C785097 /* ZapActivityBundle.swift */,
+				4FD0E75DE62B0B1C1720E23D /* Info.plist */,
+				48E5DF079934C574FB50F617 /* ZapActivity.entitlements */,
+			);
+			name = ZapActivity;
+			path = ZapActivity;
+			sourceTree = "<group>";
+		};
 		13B07FAE1A68108700A75B9A /* ZapMobile */ = {
 			isa = PBXGroup;
 			children = (
@@ -73,8 +133,19 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				1EC11DE7F6F12D7374822694 /* ZapLiveActivityImpl.swift */,
+				6F71DDF243992F4E6AE792AD /* ZapLiveActivity.mm */,
+				9660C9B19C3727ADD7A46B87 /* ZapLiveActivity.h */,
 			);
 			name = ZapMobile;
+			sourceTree = "<group>";
+		};
+		176741223343DB12D66DF19D /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				A1AA88D2A41965D8FEFC1EA0 /* Foundation.framework */,
+			);
+			name = iOS;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
@@ -82,6 +153,7 @@
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
 				5DCACB8F33CDC322A6C60F78 /* libPods-ZapMobile.a */,
+				176741223343DB12D66DF19D /* iOS */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -102,6 +174,7 @@
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
 				BBD78D7AC51CEA395F1C20DB /* Pods */,
 				C03E0211AB4446DEB284AA7A /* Resources */,
+				04D23F320A1EEE3E70400B04 /* ZapActivity */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -112,6 +185,7 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* ZapMobile.app */,
+				34D65321F0E61F2A82D57ABD /* ZapActivity.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -160,15 +234,34 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				04A94FF250FA00C9A94020E6 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				1332247A905F7475ADEA1E88 /* PBXTargetDependency */,
 			);
 			name = ZapMobile;
 			productName = ZapMobile;
 			productReference = 13B07F961A680F5B00A75B9A /* ZapMobile.app */;
 			productType = "com.apple.product-type.application";
+		};
+		1803B200A42D8D7BDE2A70E3 /* ZapActivity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 52BB56987864FDD183C8B131 /* Build configuration list for PBXNativeTarget "ZapActivity" */;
+			buildPhases = (
+				171FE801C31651FF98C915D1 /* Sources */,
+				ACEBE7CDA84B0C496E33C152 /* Frameworks */,
+				F6A9A1A7BC07804862A2E6F2 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = ZapActivity;
+			productName = ZapActivity;
+			productReference = 34D65321F0E61F2A82D57ABD /* ZapActivity.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -197,6 +290,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* ZapMobile */,
+				1803B200A42D8D7BDE2A70E3 /* ZapActivity */,
 			);
 		};
 /* End PBXProject section */
@@ -222,6 +316,13 @@
 				833D28DD0A5D4304B867B15C /* split_done.mp3 in Resources */,
 				78626FB348C44E69B94066DB /* paid.mp3 in Resources */,
 				A400A48381024F6BB12F7605 /* reminder.mp3 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F6A9A1A7BC07804862A2E6F2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -308,10 +409,31 @@
 			buildActionMask = 2147483647;
 			files = (
 				761780ED2CA45674006654EE /* AppDelegate.swift in Sources */,
+				DBBC80D2589B99BFE968EA3E /* ZapActivityAttributes.swift in Sources */,
+				CCCDFA5A0702C55B6CECFD0E /* ZapLiveActivityImpl.swift in Sources */,
+				93336785F0BCCAC65785EF7D /* ZapLiveActivity.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		171FE801C31651FF98C915D1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AC1A60622BE5FEF1AA9BC20D /* ZapActivityAttributes.swift in Sources */,
+				FBDA487F823B22F19ABF76D1 /* ZapActivityBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		1332247A905F7475ADEA1E88 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = ZapActivity;
+			target = 1803B200A42D8D7BDE2A70E3 /* ZapActivity */;
+			targetProxy = BA9E799C42DDFBA64A9CFA24 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
@@ -536,6 +658,59 @@
 			};
 			name = Release;
 		};
+		B38BF782502DC4AE4CE52FBB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9QCQW78H54;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ZapActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ZAP!";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = uz.zapapp.app.ZapActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E59F58F418DFC480D19268DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9QCQW78H54;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ZapActivity/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "ZAP!";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.1;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = uz.zapapp.app.ZapActivity;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -544,6 +719,15 @@
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
 				13B07F951A680F5B00A75B9A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		52BB56987864FDD183C8B131 /* Build configuration list for PBXNativeTarget "ZapActivity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B38BF782502DC4AE4CE52FBB /* Release */,
+				E59F58F418DFC480D19268DA /* Debug */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

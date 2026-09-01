@@ -12,24 +12,8 @@
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIcons</key>
 	<dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconFiles</key>
-			<array>
-				<string>AppIcon</string>
-			</array>
-		</dict>
 		<key>CFBundleAlternateIcons</key>
 		<dict>
-			<key>IconMosaic</key>
-			<dict>
-				<key>CFBundleIconFiles</key>
-				<array>
-					<string>IconMosaic</string>
-				</array>
-				<key>UIPrerenderedIcon</key>
-				<false/>
-			</dict>
 			<key>IconHands</key>
 			<dict>
 				<key>CFBundleIconFiles</key>
@@ -39,6 +23,22 @@
 				<key>UIPrerenderedIcon</key>
 				<false/>
 			</dict>
+			<key>IconMosaic</key>
+			<dict>
+				<key>CFBundleIconFiles</key>
+				<array>
+					<string>IconMosaic</string>
+				</array>
+				<key>UIPrerenderedIcon</key>
+				<false/>
+			</dict>
+		</dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconFiles</key>
+			<array>
+				<string>AppIcon</string>
+			</array>
 		</dict>
 	</dict>
 	<key>CFBundleIdentifier</key>
@@ -83,6 +83,8 @@
 	<string>Face ID заменяет ввод PIN при входе в ZAP!</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Микрофон не используется: доступ требуется библиотеке камеры.</string>
+	<key>NSSupportsLiveActivities</key>
+	<true/>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>

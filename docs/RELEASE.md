@@ -159,6 +159,23 @@ client_max_body_size 10m;
 4. Аккаунты: Apple $99/год, Google Play $25 разово.
 5. `assetlinks.json` на `zapapp.uz` — без него Android App Links не верифицируются.
 6. Разблокировка SMS-провайдера на боевые номера.
+7. **App Group для виджета (§C19)** — единственное, что упирается в ваш
+   аккаунт Apple. Live Activity / Dynamic Island (§C18) уже работает и от
+   этого не зависит; виджет домашнего экрана — да. Что сделать:
+   1. developer.apple.com → Identifiers → App Groups → создать
+      `group.uz.zapapp.app`;
+   2. включить его на App ID `uz.zapapp.app` и `uz.zapapp.app.ZapActivity`;
+   3. вернуть в `ios/ZapMobile/ZapMobile.entitlements` и
+      `ios/ZapActivity/ZapActivity.entitlements` ключ
+      `com.apple.security.application-groups` со значением `group.uz.zapapp.app`,
+      а в `ZapActivity` вернуть `CODE_SIGN_ENTITLEMENTS`;
+   4. раскомментировать `ZapWidget()` в `ios/ZapActivity/ZapActivityBundle.swift`.
+
+   Код виджета и запись состояния из приложения (`setWidgetState` в
+   HomeScreen) уже на месте — включается этими четырьмя шагами. Пока
+   capability не заведена, автоподпись роняет сборку **обоих** таргетов,
+   поэтому сейчас App Group снят, а виджет не зарегистрирован: постоянно
+   одинаковая плашка в галерее хуже, чем её отсутствие.
 
 ---
 
