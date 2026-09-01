@@ -54,6 +54,9 @@ const JOIN = new Keyframe({
 }).duration(430);
 
 /** Подписи ожидания при создании сплита — крутятся по кругу. */
+/** Пока ждём сервер — показываем, ради чего всё это. */
+const CREATE_STICKERS = ['oneBill', 'howItWorks', 'receiptHero'] as const;
+
 const CREATE_STEPS = ['loading.splitting1', 'loading.splitting2', 'loading.splitting3'] as const;
 
 export function MembersScreen() {
@@ -639,7 +642,7 @@ export function MembersScreen() {
         }}
       />
       {/* создание сплита занимает секунды — показываем ZAP, а не пустой экран */}
-      <ZapOverlay open={busy} steps={CREATE_STEPS} splitAnim />
+      <ZapOverlay open={busy} steps={CREATE_STEPS} stickers={CREATE_STICKERS} />
     </Screen>
   );
 }
