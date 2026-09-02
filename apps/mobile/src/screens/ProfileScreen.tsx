@@ -289,7 +289,8 @@ export function ProfileScreen() {
   };
 
   return (
-    <Screen style={styles.root} edges={['bottom']}>
+    // без edges: отступ снизу задаёт сама прокрутка, иначе остаётся белая полоса
+    <Screen style={styles.root} edges={[]}>
       <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingTop: insets.top + 60, paddingBottom: insets.bottom + 16 }}>
         {me ? (
           <>
