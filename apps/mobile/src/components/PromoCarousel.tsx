@@ -77,11 +77,13 @@ export function PromoCarousel({ category }: Props) {
       <ScrollView ref={scroller} horizontal pagingEnabled showsHorizontalScrollIndicator={false} onMomentumScrollEnd={onMomentumEnd}>
         {/* hero: иллюстрация + заголовок + условия, всё по центру */}
         <Pressable style={{ width }} onPress={(e) => onTap(e.nativeEvent.locationX)}>
-          <View style={styles.heroImgWrap}>
-            <Image source={heroImg} style={styles.heroImg} resizeMode="contain" fadeDuration={0} />
+          <View style={styles.media}>
+            <Image source={heroImg} style={styles.mediaImg} resizeMode="contain" fadeDuration={0} />
           </View>
           <View style={styles.heroText}>
-            <Text style={styles.heroTitle}>{translate('home.promoHeroTitle')}</Text>
+            <Text style={styles.heroTitle} numberOfLines={2} adjustsFontSizeToFit>
+              {translate('home.promoHeroTitle')}
+            </Text>
             <Text style={styles.heroTerms}>{translate('home.promoHeroTerms')}</Text>
           </View>
         </Pressable>
@@ -92,7 +94,7 @@ export function PromoCarousel({ category }: Props) {
           const termsKey = `offers.${v.id}`;
           return (
             <Pressable key={v.id} style={{ width }} onPress={(e) => onTap(e.nativeEvent.locationX)}>
-              <View style={styles.venueImgWrap}>
+              <View style={styles.media}>
                 {/*
                   contain и одинаковая пропорция у всех файлов.
 
@@ -112,12 +114,11 @@ export function PromoCarousel({ category }: Props) {
                   сложить его в кадр повыше нельзя: рисунок цельный, элементы
                   соприкасаются и по отдельности не переставляются.
                 */}
-                <Image source={v.img} style={styles.venueImg} resizeMode="contain" fadeDuration={0} />
+                <Image source={v.img} style={styles.mediaImg} resizeMode="contain" fadeDuration={0} />
               </View>
               <View style={styles.heroText}>
-                {/* заголовок всегда в одну строку: длинный (Bellissimo)
-                    ужимается кеглем, а не переносится */}
-                <Text style={styles.heroTitle} numberOfLines={1} adjustsFontSizeToFit>
+                {/* заголовок ужимается кеглем в отведённые две строки */}
+                <Text style={styles.heroTitle} numberOfLines={2} adjustsFontSizeToFit>
                   {translate('home.offerAt', { label, name: v.name })}
                 </Text>
                 <Text style={styles.heroTerms}>
@@ -146,26 +147,27 @@ function Segment({ active }: { active: boolean }) {
 const styles = StyleSheet.create({
   segments: { flexDirection: 'row', gap: 6, paddingHorizontal: 24, marginBottom: 16 },
   segment: { flex: 1, height: 3, borderRadius: 999 },
-  heroImgWrap: { marginHorizontal: 24 },
-  // Без borderRadius: он остался от прежнего героя-карточки, а нынешний
-  // баннер — прозрачный коллаж, и скругление срезало монеты по углам.
-  // Высота под пропорцию 1.60:1 при ширине экрана минус поля.
-  heroImg: { height: 214, width: '100%' },
+  /*
+    Все слайды живут в ОДНОЙ рамке: одинаковая высота, одинаковые поля,
+    картинка прижата к низу. Раньше герой имел свои отступы (24 по бокам,
+    высота 214), а слайды заведений — свои (8 по бокам, отступ сверху 22 и
+    высота 204): рисунок и текст прыгали при листании.
+
+    Без borderRadius: баннеры — прозрачные коллажи, скругление срезало монеты.
+  */
+  media: { height: 230, marginHorizontal: 16, justifyContent: 'flex-end' },
+  mediaImg: { width: '100%', height: '100%' },
   heroText: { alignItems: 'center', gap: 6, paddingHorizontal: 16, marginTop: 16 },
   heroTitle: {
     fontFamily: font.extrabold,
     fontSize: 27,
     lineHeight: 31,
+    // две строки зарезервированы всегда: иначе на коротком заголовке условия
+    // подъезжали вверх и текст «прыгал» между слайдами
+    minHeight: 62,
     letterSpacing: -0.3,
     color: '#FFFFFF',
     textAlign: 'center',
   },
   heroTerms: { fontFamily: font.semibold, fontSize: 14.5, color: 'rgba(255,255,255,0.65)', textAlign: 'center' },
-  // paddingTop выравнивает слайды заведений по первому: без него их рисунок
-  // начинался у самого верха и ряд выглядел разнокалиберным
-  venueImgWrap: { paddingHorizontal: 8, paddingTop: 22 },
-  // Все пять баннеров приведены к одной пропорции 1.83:1 (feedup перерисован
-  // в кадре остальных, поля добиты прозрачным) — при contain они рисуются
-  // одной высотой и без обрезки. 204 ≈ (390−16)/1.83.
-  venueImg: { height: 204, width: '100%' },
 });
