@@ -1,10 +1,7 @@
-// Выбор аватара пользователя (vision V2, часть C1: «avatars повсюду»,
-// Airbuds-слой). Каталог — ТОЛЬКО характерные ассеты: фирменные стикеры и
-// арты иконок приложения, итого 12.
-//
-// Файлы assets/brand/avatars/a*.png сюда НЕ входят: это не персонажи, а
-// плоские кружки с буквами (А, И, Т…) — заглушки контактов из дизайна.
-// В ленте выбора они выглядели как сломанные пустые аватары.
+// Выбор аватара пользователя (vision V2 §C1). Каталог — 15 сгенерированных
+// персон (tools/gen-personas.py): flat-иллюстрации людей в стиле Notion
+// personas, разные тона кожи, причёски и аксессуары. Файлы уже круглые и
+// полноразмерные, рисуются обычным cover без подложек.
 //
 // Храним ключ в MMKV и раздаём через useSyncExternalStore: аватар виден в
 // шапке главной и в профиле одновременно, и смена в одном месте должна сразу
@@ -21,18 +18,21 @@ export interface AvatarOption {
 }
 
 export const MY_AVATARS: readonly AvatarOption[] = [
-  { key: 'receipt', src: require('../../assets/stickers/receipt-hero.png') },
-  { key: 'pizza', src: require('../../assets/stickers/theme-food.png') },
-  { key: 'coffee', src: require('../../assets/stickers/theme-coffee.png') },
-  { key: 'heart', src: require('../../assets/stickers/heart-zap.png') },
-  { key: 'fist', src: require('../../assets/stickers/fist-bump.png') },
-  { key: 'wallet', src: require('../../assets/stickers/wallet.png') },
-  { key: 'selfie', src: require('../../assets/stickers/selfie.png') },
-  { key: 'hands', src: require('../../assets/stickers/hands-heart.png') },
-  { key: 'paid', src: require('../../assets/stickers/paid-done.png') },
-  { key: 'iconReceipts', src: require('../../assets/app-icons/receipts.png') },
-  { key: 'iconMosaic', src: require('../../assets/app-icons/mosaic.png') },
-  { key: 'iconHands', src: require('../../assets/app-icons/hands.png') },
+  { key: 'p01', src: require('../../assets/brand/personas/p01.png') },
+  { key: 'p02', src: require('../../assets/brand/personas/p02.png') },
+  { key: 'p03', src: require('../../assets/brand/personas/p03.png') },
+  { key: 'p04', src: require('../../assets/brand/personas/p04.png') },
+  { key: 'p05', src: require('../../assets/brand/personas/p05.png') },
+  { key: 'p06', src: require('../../assets/brand/personas/p06.png') },
+  { key: 'p07', src: require('../../assets/brand/personas/p07.png') },
+  { key: 'p08', src: require('../../assets/brand/personas/p08.png') },
+  { key: 'p09', src: require('../../assets/brand/personas/p09.png') },
+  { key: 'p10', src: require('../../assets/brand/personas/p10.png') },
+  { key: 'p11', src: require('../../assets/brand/personas/p11.png') },
+  { key: 'p12', src: require('../../assets/brand/personas/p12.png') },
+  { key: 'p13', src: require('../../assets/brand/personas/p13.png') },
+  { key: 'p14', src: require('../../assets/brand/personas/p14.png') },
+  { key: 'p15', src: require('../../assets/brand/personas/p15.png') },
 ];
 
 const listeners = new Set<() => void>();

@@ -517,7 +517,8 @@
     "favouriteSplit": "Sevimli split",
     "fastestPayment": "Eng tez to‘lov",
     "seconds": "{{n}} soniya",
-    "achievements": "YUTUQLAR"
+    "achievements": "YUTUQLAR",
+    "avatarTitle": "Avataringni tanla"
   },
   "install": {
     "title": "ZAP! ni o'rnating",

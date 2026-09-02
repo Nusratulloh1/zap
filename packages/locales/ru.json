@@ -517,7 +517,8 @@
     "favouriteSplit": "Любимый сплит",
     "fastestPayment": "Самая быстрая оплата",
     "seconds": "{{n}} сек",
-    "achievements": "АЧИВКИ"
+    "achievements": "АЧИВКИ",
+    "avatarTitle": "Выбери аватар"
   },
   "install": {
     "title": "Установите ZAP!",

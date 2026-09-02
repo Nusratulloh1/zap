@@ -2,7 +2,7 @@
 // чип «ZAP! с мая 2026», стат-тайлы, КАРТЫ (добавление: форма → SMS → проверка),
 // НАСТРОЙКИ (смена PIN, уведомления, язык, тема, мои группы, выйти).
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, Image, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -12,7 +12,8 @@ import { Screen } from '@/components/Screen';
 import { PressableScale } from '@/components/PressableScale';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinDots } from '@/components/PinDots';
-import Svg, { Circle as SvgCircle, Defs, LinearGradient, Pattern, Stop, Rect as SvgRect } from 'react-native-svg';
+import { AvatarSheet } from '@/components/AvatarSheet';
+import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
 // SunIcon и MoonIcon нужны только скрытому переключателю темы, см. ниже
 import { BackIcon } from '@/components/icons';
 import { refocus, useKeyboardLock } from '@/lib/keyboard';
@@ -24,7 +25,7 @@ import { useHomeData } from '@/store/bootstrap';
 import { useSession } from '@/store/session';
 import { money, phone, monthYear } from '@/lib/format';
 import { titlesFor, personalBest, favouriteTheme, type TitleKey } from '@/lib/funStats';
-import { MY_AVATARS, myAvatarKey, setMyAvatar, useMyAvatar } from '@/lib/myAvatar';
+import { useMyAvatar } from '@/lib/myAvatar';
 import { APP_ICONS, ICON_PREVIEW, currentAppIcon, setAppIcon, type AppIconKey } from '@/lib/appIcon';
 import { applyLocale, LOCALES, type Locale } from '@/i18n';
 import { http } from '@/api/client';
@@ -191,6 +192,7 @@ export function ProfileScreen() {
   // ---- прочее ----
   const [groupsSheet, setGroupsSheet] = useState(false);
   const [logoutSheet, setLogoutSheet] = useState(false);
+  const [avatarSheet, setAvatarSheet] = useState(false);
   const loggingOut = useRef(false);
 
 
@@ -235,12 +237,6 @@ export function ProfileScreen() {
   */
   // vision V2 §C1: профиль — игровая карточка, всё открыто сразу
   const myAvatar = useMyAvatar();
-  const [avatarKey, setAvatarKey] = useState<string | null>(() => myAvatarKey());
-  const pickAvatar = (key: string) => {
-    trigger('impactMedium', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
-    setAvatarKey(key);
-    setMyAvatar(key);
-  };
 
   const [appIcon, setAppIconState] = useState<AppIconKey>('receipts');
   useEffect(() => {
@@ -286,56 +282,35 @@ export function ProfileScreen() {
 
   return (
     <Screen style={styles.root} edges={['bottom']}>
-      <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
+      <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingTop: insets.top + 60, paddingBottom: insets.bottom + 16 }}>
         {me ? (
           <>
             {/*
-              Игровая карточка игрока (vision V2 §C1): тёмная сцена с точечной
-              сеткой — та же, что у героя главной, — большой аватар по центру
-              и лента выбора аватара прямо здесь, без подменю.
+              Светлая шапка-карточка игрока (vision V2 §C1). Крупный аватар по
+              центру, тап по нему — выбор персоны в шите (character select).
             */}
-            <View style={[styles.heroCard, { paddingTop: insets.top + 64 }]}>
-              <Svg style={StyleSheet.absoluteFill as object} pointerEvents="none">
-                <Defs>
-                  <Pattern id="profDots" width={16} height={16} patternUnits="userSpaceOnUse">
-                    <SvgCircle cx={2} cy={2} r={1.25} fill="rgba(255,255,255,0.07)" />
-                  </Pattern>
-                </Defs>
-                <SvgRect x={0} y={0} width="100%" height="100%" fill="url(#profDots)" />
-              </Svg>
-
-              <View style={[styles.heroAvatar, { borderColor: fixed.lime }]}>
-                {myAvatar ? (
-                  <Image source={myAvatar} style={styles.heroAvatarImg} resizeMode="contain" />
-                ) : (
-                  <Text style={[styles.heroAvatarLetter, { color: fixed.lime }]}>{me.initials}</Text>
-                )}
-              </View>
-              <Text style={styles.heroName}>{me.name}</Text>
-              <Text style={styles.heroHandle}>
+            <View style={styles.head}>
+              <PressableScale haptic={false} onPress={() => setAvatarSheet(true)}>
+                <View style={[styles.heroAvatar, { borderColor: fixed.lime }]}>
+                  {myAvatar ? (
+                    <Image source={myAvatar} style={styles.heroAvatarImg} />
+                  ) : (
+                    <View style={[styles.heroAvatarFallback, { backgroundColor: colors.ink }]}>
+                      <Text style={[styles.heroAvatarLetter, { color: fixed.lime }]}>{me.initials}</Text>
+                    </View>
+                  )}
+                  <View style={[styles.editBadge, { backgroundColor: colors.ink }]}>
+                    <Text style={styles.editBadgeText}>✎</Text>
+                  </View>
+                </View>
+              </PressableScale>
+              <Text style={[styles.heroName, { color: colors.ink }]}>{me.name}</Text>
+              <Text style={[styles.heroHandle, { color: colors.muted }]}>
                 {me.handle} · {phone(me.phone)}
               </Text>
               <View style={[styles.sinceChip, { backgroundColor: fixed.lime }]}>
                 <Text style={styles.sinceText}>{t('profile.since', { date: sinceLabel })}</Text>
               </View>
-
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                style={styles.avatarStrip}
-                contentContainerStyle={styles.avatarStripBody}
-              >
-                {MY_AVATARS.map((a) => {
-                  const active = a.key === avatarKey;
-                  return (
-                    <PressableScale key={a.key} haptic={false} onPress={() => pickAvatar(a.key)}>
-                      <View style={[styles.avatarPick, active && { borderColor: fixed.lime, transform: [{ scale: 1.08 }] }]}>
-                        <Image source={a.src} style={styles.avatarPickImg} resizeMode="contain" />
-                      </View>
-                    </PressableScale>
-                  );
-                })}
-              </ScrollView>
             </View>
 
             <View style={styles.stats}>
@@ -399,17 +374,17 @@ export function ProfileScreen() {
               заблокированная ачивка — да.
             */}
             <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.achievements')}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgeRow}>
+            <View style={[styles.badgeCard, { backgroundColor: colors.shell }]}>
               {ALL_TITLES.map(([key, glyph]) => {
                 const unlocked = titles.some((tt) => tt.key === key);
                 return (
-                  <View key={key} style={[styles.badge, { transform: [{ rotate: `${ALL_TITLES.findIndex(([k]) => k === key) % 2 ? 2.5 : -2.5}deg` }] }]}>
+                  <View key={key} style={styles.badge}>
                     <View
                       style={[
                         styles.badgeCoin,
                         unlocked
-                          ? [styles.badgeCoinUp, { backgroundColor: fixed.lime, borderColor: colors.ink }]
-                          : { backgroundColor: colors.sand, borderColor: colors.sand2, borderStyle: 'dashed' as const },
+                          ? { backgroundColor: fixed.lime }
+                          : { backgroundColor: colors.sand },
                       ]}
                     >
                       <Text style={[styles.badgeGlyph, !unlocked && styles.badgeGlyphLocked]}>
@@ -425,7 +400,7 @@ export function ProfileScreen() {
                   </View>
                 );
               })}
-            </ScrollView>
+            </View>
 
             <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.cards')}</Text>
             {cards.map((card) => (
@@ -697,6 +672,8 @@ export function ProfileScreen() {
       </BottomSheet>
 
       {/* выход */}
+      <AvatarSheet open={avatarSheet} onClose={() => setAvatarSheet(false)} />
+
       <BottomSheet open={logoutSheet} onClose={() => setLogoutSheet(false)}>
         <Text style={[styles.confirmTitle, { color: colors.ink }]}>{t('profile.logoutConfirm')}</Text>
         <Text style={[styles.confirmNote, { color: colors.muted }]}>{t('profile.logoutNote')}</Text>
@@ -752,63 +729,51 @@ const styles = StyleSheet.create({
   recapTitle: { fontFamily: font.extrabold, fontSize: 15 },
   recapSub: { fontFamily: font.semibold, fontSize: 12.5, color: 'rgba(255,255,255,0.65)' },
   recapChevron: { fontFamily: font.extrabold, fontSize: 22 },
-  heroCard: {
-    marginHorizontal: -SCREEN_PAD_X,
-    marginBottom: 6,
-    paddingBottom: 18,
-    alignItems: 'center',
-    backgroundColor: '#0E0E0C',
-    borderBottomLeftRadius: 32,
-    borderBottomRightRadius: 32,
-    overflow: 'hidden',
-  },
+  head: { alignItems: 'center', paddingTop: 4, paddingBottom: 6 },
   heroAvatar: {
-    width: 116,
-    height: 116,
+    width: 124,
+    height: 124,
     borderRadius: 999,
     borderWidth: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    backgroundColor: '#1C1C1A',
+    overflow: 'visible',
   },
-  heroAvatarImg: { width: '76%', height: '76%' },
-  heroAvatarLetter: { fontFamily: font.extrabold, fontSize: 44 },
-  heroName: { fontFamily: font.extrabold, fontSize: 24, letterSpacing: -0.4, color: '#FFFFFF', marginTop: 12 },
-  heroHandle: { fontFamily: font.semibold, fontSize: 13.5, color: 'rgba(255,255,255,0.6)', marginTop: 3, marginBottom: 10 },
-  avatarStrip: { alignSelf: 'stretch', marginTop: 16 },
-  avatarStripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 10 },
-  avatarPick: {
-    width: 56,
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
+  heroAvatarImg: { width: '100%', height: '100%', borderRadius: 999 },
+  heroAvatarFallback: { width: '100%', height: '100%', borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  heroAvatarLetter: { fontFamily: font.extrabold, fontSize: 46 },
+  editBadge: {
+    position: 'absolute',
+    right: 0,
+    bottom: 2,
+    width: 34,
+    height: 34,
     borderRadius: 999,
-    borderWidth: 2.5,
-    borderColor: 'rgba(255,255,255,0.14)',
-    overflow: 'hidden',
-    backgroundColor: '#1C1C1A',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: '#FFFFFF',
   },
-  avatarPickImg: { width: '76%', height: '76%' },
-  badgeRow: { gap: 14, paddingVertical: 12 },
-  badge: { alignItems: 'center', width: 76 },
+  editBadgeText: { color: '#DDFF33', fontSize: 16 },
+  heroName: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.4, marginTop: 14 },
+  heroHandle: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 3, marginBottom: 10 },
+  badgeCard: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    borderRadius: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 8,
+    marginTop: 10,
+    rowGap: 18,
+  },
+  badge: { alignItems: 'center', width: '33.33%', paddingHorizontal: 4 },
   badgeCoin: {
-    width: 68,
-    height: 68,
-    borderRadius: 999,
-    borderWidth: 3.5,
+    width: 66,
+    height: 66,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  badgeCoinUp: {
-    shadowColor: '#1E1C10',
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
   },
   badgeGlyph: { fontSize: 30 },
-  badgeGlyphLocked: { fontSize: 22, opacity: 0.55 },
+  badgeGlyphLocked: { fontSize: 22, opacity: 0.45 },
   badgeLabel: { fontFamily: font.bold, fontSize: 11, textAlign: 'center', marginTop: 6 },
   inlinePills: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 'auto' },
   langPill: { height: 34, paddingHorizontal: 13, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },

@@ -517,7 +517,8 @@
     "favouriteSplit": "Favourite split",
     "fastestPayment": "Fastest payment",
     "seconds": "{{n}} sec",
-    "achievements": "ACHIEVEMENTS"
+    "achievements": "ACHIEVEMENTS",
+    "avatarTitle": "Pick your avatar"
   },
   "install": {
     "title": "Install ZAP!",

@@ -62,19 +62,6 @@ export function Avatar({ source, name, letter, color = '#8A887E', contactId, siz
   };
 
   if (photo) {
-    /*
-      source (выбранный аватар «меня») — это стикер с прозрачностью и полями,
-      cover его кадрирует уродливо. Рисуем contain на чернильной подложке с
-      небольшим внутренним отступом — получается «монетка» с персонажем.
-      Фото контактов из дизайна — квадратные, для них прежний cover.
-    */
-    if (source) {
-      return (
-        <View style={[frame, styles.stickerWrap, style]}>
-          <Image source={photo} style={styles.stickerImg} resizeMode="contain" />
-        </View>
-      );
-    }
     return (
       <Image
         source={photo}
@@ -111,8 +98,6 @@ export function Avatar({ source, name, letter, color = '#8A887E', contactId, siz
 }
 
 const styles = StyleSheet.create({
-  stickerWrap: { backgroundColor: '#161613', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  stickerImg: { width: '78%', height: '78%' },
   root: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   letter: { fontFamily: font.extrabold },
 });
