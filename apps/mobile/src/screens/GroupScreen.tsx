@@ -2,7 +2,7 @@
 // «Новый сплит» / «Позвать», кэшбэк группы, участники (напомнить должнику),
 // сплиты группы, меню «⋯» (переименовать / удалить).
 import React, { useMemo, useState } from 'react';
-import { Platform, Clipboard, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Clipboard, Image, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -21,6 +21,7 @@ import { useDraft } from '@/store/draft';
 import { money, peopleCount, dayMonth, humanDateLc } from '@/lib/format';
 import { crewStats } from '@/lib/crewStats';
 import { MerchantLogos } from '@/components/MerchantLogos';
+import { STICKER } from '@/components/EmptyState';
 import { FunStatCards } from '@/components/FunStatCards';
 import { SplitFaces } from '@/components/SplitFaces';
 import { funStats } from '@/lib/funStats';
@@ -50,10 +51,23 @@ export function GroupScreen() {
     и ставим себя первым.
   */
   const memberIds = useMemo(() => {
+    /*
+      Состав берём из группы И из её сплитов. На сервере до фикса
+      groups.service (см. коммит «отряд слотами») в группу попадал только
+      создатель — «Aziz + Shoshiy» в списке сплитов, а в отряде один Aziz.
+      Сплиты знают правду о том, кто ел вместе, поэтому дополняем ими.
+    */
     const ids = [...new Set(group?.memberIds ?? [])];
+    for (const sp of home.splits) {
+      if (sp.groupId !== id) continue;
+      for (const m of sp.members) {
+        const cid = m.isYou ? 'me' : m.contactId;
+        if (!ids.includes(cid)) ids.push(cid);
+      }
+    }
     if (!ids.includes('me')) ids.unshift('me');
     return ids.sort((a, b) => Number(b === 'me') - Number(a === 'me'));
-  }, [group?.memberIds]);
+  }, [group?.memberIds, home.splits, id]);
 
   const groupSplits = useMemo(() => home.splits.filter((s) => s.groupId === id), [home.splits, id]);
   // мерчанты, где компания реально была — по её же сплитам
@@ -175,15 +189,20 @@ export function GroupScreen() {
         {/* ачивки компании — сразу под кнопками, компактной лентой */}
         <FunStatCards fun={fun} nameOf={nameOf} />
 
-        <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
-          <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.cashback')}</Text>
+        {/*
+          Кэшбэк компании — лаймовая карточка со стикером-кошельком: раньше
+          это была строка цифр на белом и читалась как техническая сводка.
+        */}
+        <View style={[styles.cashCard, { backgroundColor: fixed.lime }]}>
+          <Image source={STICKER.wallet} style={styles.cashArt} resizeMode="contain" />
+          <Text style={styles.cashKicker}>{t('group.cashback')}</Text>
           <View style={styles.cashbackRow}>
-            <Text style={[styles.cashback, { color: colors.ink }]}>{money(group.cashback)}</Text>
-            <Text style={[styles.currency, { color: colors.faint2 }]}>UZS</Text>
+            <Text style={styles.cashValue} numberOfLines={1} adjustsFontSizeToFit>{money(group.cashback)}</Text>
+            <Text style={styles.cashCur}>UZS</Text>
           </View>
-          <View style={styles.logosRow}>
-            <MerchantLogos merchants={groupMerchants} size={36} />
-            <Text style={[styles.merchants, { color: colors.muted }]}>
+          <View style={styles.cashFoot}>
+            <MerchantLogos merchants={groupMerchants} size={30} />
+            <Text style={styles.cashMerchants}>
               {translate('group.merchantsCount', { n: groupMerchants.length || group.merchantsCount })}
             </Text>
           </View>
@@ -350,6 +369,13 @@ const styles = StyleSheet.create({
   title: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.2 },
   sub: { fontFamily: font.semibold, fontSize: 12.5 },
   ctaRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
+  cashCard: { borderRadius: 24, padding: 18, marginTop: 22, overflow: 'hidden' },
+  cashArt: { position: 'absolute', right: 10, top: 8, width: 92, height: 78, transform: [{ rotate: '8deg' }] },
+  cashKicker: { fontFamily: font.monoBold, fontSize: 9.5, letterSpacing: 1.5, color: 'rgba(17,17,16,0.55)' },
+  cashValue: { fontFamily: font.extrabold, fontSize: 40, letterSpacing: -1.4, color: '#111110' },
+  cashCur: { fontFamily: font.bold, fontSize: 12, color: 'rgba(17,17,16,0.5)', marginBottom: 7 },
+  cashFoot: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
+  cashMerchants: { fontFamily: font.bold, fontSize: 12, color: 'rgba(17,17,16,0.6)' },
   squadCount: { fontFamily: font.extrabold, fontSize: 12 },
   slots: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
   slot: { width: '31.5%', minWidth: 96, borderRadius: 20, paddingVertical: 14, paddingHorizontal: 8, alignItems: 'center' },
@@ -368,11 +394,7 @@ const styles = StyleSheet.create({
   headCtaLight: { fontFamily: font.bold, fontSize: 15 },
   section: { borderTopWidth: 1, paddingTop: 18, marginTop: 22 },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
-  cashbackRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 10 },
-  cashback: { fontFamily: font.extrabold, fontSize: 36, letterSpacing: -0.8, lineHeight: 40 },
-  currency: { fontFamily: font.monoBold, fontSize: 10.5 },
-  logosRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
-  merchants: { fontFamily: font.semibold, fontSize: 12.5, marginLeft: 12 },
+  cashbackRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 6 },
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   memberBody: { flex: 1, gap: 1 },
   memberName: { fontFamily: font.bold, fontSize: 15 },

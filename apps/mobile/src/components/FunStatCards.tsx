@@ -4,19 +4,21 @@
 // Горизонтальная лента крупных карточек: большая эмодзи-монета, жирное
 // значение, подпись. Тон остаётся ироничным (§C11) — это не лидерборд.
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { STICKER } from '@/components/EmptyState';
 import type { FunStat } from '@/lib/funStats';
 import { money } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 import { SCREEN_PAD_X } from '@/theme/tokens';
 
-const GLYPH: Record<FunStat['kind'], string> = {
-  fastest: '⚡',
-  alwaysLast: '👀',
-  biggest: '🍕',
-  buddy: '🤝',
+/** фирменные стикеры вместо эмодзи — по замечанию руководства */
+const ART: Record<FunStat['kind'], keyof typeof STICKER> = {
+  fastest: 'paidDone',
+  alwaysLast: 'receiptHero',
+  biggest: 'themeFood',
+  buddy: 'fistBump',
 };
 
 interface Props {
@@ -26,7 +28,7 @@ interface Props {
 
 export function FunStatCards({ fun, nameOf }: Props) {
   const { t } = useTranslation();
-  const { colors, fixed } = useTheme();
+  const { colors } = useTheme();
   if (!fun.length) return null;
 
   const value = (s: FunStat): string => {
@@ -50,9 +52,7 @@ export function FunStatCards({ fun, nameOf }: Props) {
     >
       {fun.map((s) => (
         <View key={s.kind} style={[styles.card, { backgroundColor: colors.paper }]}>
-          <View style={[styles.coin, { backgroundColor: fixed.lime }]}>
-            <Text style={styles.coinGlyph}>{GLYPH[s.kind]}</Text>
-          </View>
+          <Image source={STICKER[ART[s.kind]]} style={styles.art} resizeMode="contain" />
           <Text style={[styles.value, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
             {value(s)}
           </Text>
@@ -71,26 +71,10 @@ export function FunStatCards({ fun, nameOf }: Props) {
 const styles = StyleSheet.create({
   strip: { marginHorizontal: -SCREEN_PAD_X, marginTop: 14 },
   stripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 10, paddingVertical: 8 },
-  card: {
-    width: 142,
-    borderRadius: 20,
-    padding: 12,
-    shadowColor: '#1E1C10',
-    shadowOpacity: 0.1,
-    shadowRadius: 14,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 4,
-  },
-  coin: {
-    width: 42,
-    height: 42,
-    borderRadius: 999,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 9,
-  },
-  coinGlyph: { fontSize: 20 },
-  value: { fontFamily: font.extrabold, fontSize: 16.5, letterSpacing: -0.3 },
-  sub: { fontFamily: font.semibold, fontSize: 11, marginTop: 1 },
-  label: { fontFamily: font.semibold, fontSize: 11.5, marginTop: 4, lineHeight: 15 },
+  // без тени: крупная мягкая тень выглядела тяжело
+  card: { width: 126, borderRadius: 18, padding: 11 },
+  art: { width: 44, height: 38, marginBottom: 7, marginLeft: -2 },
+  value: { fontFamily: font.extrabold, fontSize: 15, letterSpacing: -0.3 },
+  sub: { fontFamily: font.semibold, fontSize: 10, marginTop: 1 },
+  label: { fontFamily: font.semibold, fontSize: 10.5, marginTop: 4, lineHeight: 15 },
 });
