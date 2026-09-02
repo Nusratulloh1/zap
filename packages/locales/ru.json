@@ -518,7 +518,11 @@
     "fastestPayment": "Самая быстрая оплата",
     "seconds": "{{n}} сек",
     "achievements": "АЧИВКИ",
-    "avatarTitle": "Выбери аватар"
+    "avatarTitle": "Выбери аватар",
+    "photoTitle": "Твоё фото",
+    "photoRetake": "Переснять",
+    "photoUse": "Использовать",
+    "photoFailed": "Не удалось сохранить фото"
   },
   "install": {
     "title": "Установите ZAP!",
@@ -840,7 +844,12 @@
     "statFastest": "Быстрее всех платит {{name}} — {{sec}} сек",
     "statAlwaysLast": "Вечно последний {{name}}",
     "statBiggest": "Самый крупный счёт {{amount}} · {{place}}",
-    "statBuddy": "Твой ZAP-бадди {{name}} — {{n}} вместе"
+    "statBuddy": "Твой ZAP-бадди {{name}} — {{n}} вместе",
+    "cardFastest": "Быстрее всех платит",
+    "cardAlwaysLast": "Вечно последний",
+    "cardBiggest": "Самый крупный счёт",
+    "cardBuddy": "ZAP-бадди",
+    "cardTogether": "{{n}} вместе"
   },
   "recap": {
     "title": "Твой {month} ⚡",

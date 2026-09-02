@@ -2,7 +2,7 @@
 // «Новый сплит» / «Позвать», кэшбэк группы, участники (напомнить должнику),
 // сплиты группы, меню «⋯» (переименовать / удалить).
 import React, { useMemo, useState } from 'react';
-import { Platform, Clipboard, Image, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Platform, Clipboard, ScrollView, Share, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -20,17 +20,15 @@ import { useHomeData } from '@/store/bootstrap';
 import { useDraft } from '@/store/draft';
 import { money, peopleCount, dayMonth, humanDateLc } from '@/lib/format';
 import { crewStats } from '@/lib/crewStats';
+import { MerchantLogos } from '@/components/MerchantLogos';
+import { FunStatCards } from '@/components/FunStatCards';
+import { useMyAvatar } from '@/lib/myAvatar';
 import { funStats } from '@/lib/funStats';
 import { translate } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 // те же знаки, что на слайде кэшбэка в онбординге
-const partnerLogos = [
-  require('../../assets/brand/partners/safia-sq.png'),
-  require('../../assets/brand/partners/evos-logo.png'),
-  require('../../assets/brand/partners/feedup-logo.png'),
-];
 
 export function GroupScreen() {
   const { t } = useTranslation();
@@ -45,6 +43,12 @@ export function GroupScreen() {
   const group = home.db?.groups.find((g) => g.id === id);
   const stats = useMemo(() => crewStats(home.db, id), [home.db, id]);
   const fun = useMemo(() => funStats(home.db, id), [home.db, id]);
+  const myAvatar = useMyAvatar();
+  // мерчанты, у которых компания реально была — по сплитам группы
+  const groupMerchants = useMemo(() => {
+    const ids = [...new Set((home.db?.splits ?? []).filter((s) => s.groupId === id && s.merchantId).map((s) => s.merchantId!))];
+    return ids.map((mid) => home.db?.merchants.find((m) => m.id === mid)).filter((m): m is NonNullable<typeof m> => !!m);
+  }, [home.db, id]);
 
   const groupSplits = useMemo(() => home.splits.filter((s) => s.groupId === id), [home.splits, id]);
   const openDebts = useMemo(
@@ -156,6 +160,34 @@ export function GroupScreen() {
           </PressableScale>
         </View>
 
+        {/*
+          Состав команды — как экран отряда в игре: кружки людей с именами,
+          над ачивками. Раньше участники жили только строками ниже по экрану,
+          и группа выглядела пустой.
+        */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.squadStrip} contentContainerStyle={styles.squadBody}>
+          {['me', ...(group.memberIds ?? [])].map((cid) => (
+            <View key={cid} style={styles.squadItem}>
+              <Avatar
+                source={cid === 'me' ? (myAvatar ?? undefined) : undefined}
+                name={nameOf(cid)}
+                letter={cid === 'me' ? undefined : home.contactById(cid)?.initials}
+                contactId={cid}
+                color={cid === 'me' ? '#111110' : (home.contactById(cid)?.color ?? '#8A887E')}
+                size={58}
+                ring={fixed.lime}
+                ringWidth={2.5}
+              />
+              <Text style={[styles.squadName, { color: colors.ink }]} numberOfLines={1}>
+                {nameOf(cid).split(' ')[0]}
+              </Text>
+            </View>
+          ))}
+        </ScrollView>
+
+        {/* крупные ачивки компании — PUBG-статы, а не строчки списком */}
+        <FunStatCards fun={fun} nameOf={nameOf} />
+
         <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
           <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.cashback')}</Text>
           <View style={styles.cashbackRow}>
@@ -163,11 +195,9 @@ export function GroupScreen() {
             <Text style={[styles.currency, { color: colors.faint2 }]}>UZS</Text>
           </View>
           <View style={styles.logosRow}>
-            {partnerLogos.map((l, i) => (
-              <Image key={i} source={l} style={[styles.partnerLogo, i > 0 && styles.logoOverlap]} />
-            ))}
+            <MerchantLogos merchants={groupMerchants} size={36} />
             <Text style={[styles.merchants, { color: colors.muted }]}>
-              {translate('group.merchantsCount', { n: group.merchantsCount })}
+              {translate('group.merchantsCount', { n: groupMerchants.length || group.merchantsCount })}
             </Text>
           </View>
         </View>
@@ -207,7 +237,6 @@ export function GroupScreen() {
 
         {/* история компании: сколько ужинов и кофе вместе, кто должен, кто платил */}
         <CrewStatsBlock
-          fun={fun}
           stats={stats}
           nameOf={(cid) => home.contactById(cid)?.name ?? ''}
           initialsOf={(cid) => home.contactById(cid)?.initials}
@@ -314,6 +343,10 @@ const styles = StyleSheet.create({
   title: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.2 },
   sub: { fontFamily: font.semibold, fontSize: 12.5 },
   ctaRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
+  squadStrip: { marginHorizontal: -16, marginTop: 20 },
+  squadBody: { paddingHorizontal: 16, gap: 14 },
+  squadItem: { alignItems: 'center', width: 64 },
+  squadName: { fontFamily: font.bold, fontSize: 11.5, marginTop: 6 },
   headCta: { flex: 1, height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   headCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },
   headCtaLight: { fontFamily: font.bold, fontSize: 15 },
@@ -323,9 +356,6 @@ const styles = StyleSheet.create({
   cashback: { fontFamily: font.extrabold, fontSize: 36, letterSpacing: -0.8, lineHeight: 40 },
   currency: { fontFamily: font.monoBold, fontSize: 10.5 },
   logosRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
-  partnerLogo: { height: 28, width: 28, borderRadius: 9 },
-  partnerLogoWide: { height: 28, width: 56, borderRadius: 9, marginLeft: -10 },
-  logoOverlap: { marginLeft: -10 },
   merchants: { fontFamily: font.semibold, fontSize: 12.5, marginLeft: 12 },
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   memberBody: { flex: 1, gap: 1 },

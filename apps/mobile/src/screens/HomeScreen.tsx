@@ -38,6 +38,7 @@ import { money, peopleCount, humanDateLc } from '@/lib/format';
 import { suggestCrew } from '@/lib/crewStats';
 import { setWidgetState } from '@/lib/liveActivity';
 import { useMyAvatar } from '@/lib/myAvatar';
+import { MerchantLogos } from '@/components/MerchantLogos';
 import { storage, useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
 import type { Split } from '@zap/shared/types';
@@ -66,6 +67,11 @@ export function HomeScreen() {
 
   const home = useHomeData();
   const myAvatar = useMyAvatar();
+  // мерчанты, где пользователь реально был — для плитки кэшбэка
+  const myMerchants = useMemo(() => {
+    const ids = [...new Set((home.db?.splits ?? []).filter((s) => s.merchantId).map((s) => s.merchantId!))];
+    return ids.map((mid) => home.db?.merchants.find((m) => m.id === mid)).filter((m): m is NonNullable<typeof m> => !!m);
+  }, [home.db]);
 
   // лента считается из уже загруженного /bootstrap — без лишних запросов
   // живой сплит уже показан пилюлей внизу — лента его не дублирует
@@ -339,9 +345,7 @@ export function HomeScreen() {
               </Text>
               {home.cashbackCount ? (
                 <View style={styles.partnerRow}>
-                  <Image source={require('../../assets/brand/partners/safia-sq.png')} style={styles.partnerLogo} />
-                  <Image source={require('../../assets/brand/partners/evos-logo.png')} style={[styles.partnerLogo, styles.partnerOverlap]} resizeMode="contain" />
-                  <Image source={require('../../assets/brand/partners/feedup-logo.png')} style={[styles.partnerLogo, styles.partnerOverlap]} resizeMode="contain" />
+                  <MerchantLogos merchants={myMerchants} size={36} />
                 </View>
               ) : (
                 // низ карточки всё равно пустует — пусть там живёт стикер
@@ -562,8 +566,6 @@ const styles = StyleSheet.create({
   statTitle: { fontFamily: font.extrabold, fontSize: 16.5, letterSpacing: -0.3, lineHeight: 20 },
   statSub: { fontFamily: font.semibold, fontSize: 13, marginTop: 5, lineHeight: 17 },
   partnerRow: { flexDirection: 'row', alignItems: 'center', marginTop: 'auto', minHeight: 60 },
-  partnerLogo: { height: 29, width: 29, borderRadius: 9 },
-  partnerOverlap: { marginLeft: -10 },
   // Аватары в стопку, а не колонками с подписями.
   //
   // Колонки требовали 3 x 52 + отступы = 172 px, а внутри карточки на экране
@@ -586,7 +588,8 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   sectionHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 },
-  sectionTitle: { fontFamily: font.extrabold, fontSize: 18, letterSpacing: -0.2 },
+  // тот же кегль, что statTitle («Накопленные кэшбеки») — единая шкала
+  sectionTitle: { fontFamily: font.extrabold, fontSize: 16.5, letterSpacing: -0.3, lineHeight: 20 },
 
   groupRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 62 },
   groupAvatars: { flexDirection: 'row' },

@@ -518,7 +518,11 @@
     "fastestPayment": "Fastest payment",
     "seconds": "{{n}} sec",
     "achievements": "ACHIEVEMENTS",
-    "avatarTitle": "Pick your avatar"
+    "avatarTitle": "Pick your avatar",
+    "photoTitle": "Your photo",
+    "photoRetake": "Retake",
+    "photoUse": "Use photo",
+    "photoFailed": "Could not save the photo"
   },
   "install": {
     "title": "Install ZAP!",
@@ -840,7 +844,12 @@
     "statFastest": "Fastest payer {{name}} — {{sec}} sec",
     "statAlwaysLast": "Always last {{name}}",
     "statBiggest": "Biggest bill {{amount}} · {{place}}",
-    "statBuddy": "Your ZAP buddy {{name}} — {{n}} together"
+    "statBuddy": "Your ZAP buddy {{name}} — {{n}} together",
+    "cardFastest": "Fastest payer",
+    "cardAlwaysLast": "Always last",
+    "cardBiggest": "Biggest bill",
+    "cardBuddy": "ZAP buddy",
+    "cardTogether": "{{n}} together"
   },
   "recap": {
     "title": "Your {month} ⚡",

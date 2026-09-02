@@ -672,7 +672,7 @@ export function ProfileScreen() {
       </BottomSheet>
 
       {/* выход */}
-      <AvatarSheet open={avatarSheet} onClose={() => setAvatarSheet(false)} />
+      <AvatarSheet open={avatarSheet} onClose={() => setAvatarSheet(false)} onCamera={() => nav.navigate('AvatarCamera')} />
 
       <BottomSheet open={logoutSheet} onClose={() => setLogoutSheet(false)}>
         <Text style={[styles.confirmTitle, { color: colors.ink }]}>{t('profile.logoutConfirm')}</Text>

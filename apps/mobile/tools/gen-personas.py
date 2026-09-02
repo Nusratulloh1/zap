@@ -85,7 +85,7 @@ def darker(c, k=0.82):
     return (int(c[0] * k), int(c[1] * k), int(c[2] * k), 255)
 
 
-def draw_person(bg, skin, hair, hairstyle, shirt, acc):
+def draw_person(bg, skin, hair, hairstyle, shirt, acc, beard=None, freckles=False, grin=False):
     img, d = new_canvas()
     d.ellipse([0, 0, W, W], fill=BG[bg])
 
@@ -169,6 +169,28 @@ def draw_person(bg, skin, hair, hairstyle, shirt, acc):
                    cx + head_r + px(14), head_cy + px(6)], fill=hc)
         d.ellipse([cx - head_r + px(4), head_cy - head_r + px(2),
                    cx + head_r - px(4), head_cy + head_r], fill=SKIN[skin])
+    elif hairstyle == "mohawk":
+        d.pieslice([cx - head_r, head_cy - head_r - px(2),
+                    cx + head_r, head_cy + head_r - px(34)], 180, 360, fill=darker(SKIN[skin], 0.8))
+        for fx, hh in ((-16, 30), (-6, 40), (4, 44), (14, 36)):
+            d.rounded_rectangle([cx + px(fx) - px(5), head_cy - head_r - px(hh),
+                                 cx + px(fx) + px(5), head_cy - head_r + px(14)],
+                                radius=px(4), fill=BG["lime"] if hair == "grey" else HAIR[hair])
+    elif hairstyle == "hood":
+        d.pieslice([cx - head_r - px(16), head_cy - head_r - px(18),
+                    cx + head_r + px(16), head_cy + head_r + px(10)], 160, 380, fill=SHIRT[shirt])
+        d.ellipse([cx - head_r + px(6), head_cy - head_r + px(6),
+                   cx + head_r - px(6), head_cy + head_r], fill=SKIN[skin])
+        d.pieslice([cx - head_r + px(4), head_cy - head_r + px(2),
+                    cx + head_r - px(4), head_cy + head_r - px(30)], 180, 360, fill=HAIR[hair])
+    elif hairstyle == "braids":
+        d.pieslice([cx - head_r - px(3), head_cy - head_r - px(6),
+                    cx + head_r + px(3), head_cy + head_r - px(14)], 180, 360, fill=hc)
+        for side in (-1, 1):
+            bx = cx + side * (head_r + px(6))
+            for k in range(3):
+                d.ellipse([bx - px(8), head_cy + px(6) + k * px(16),
+                           bx + px(8), head_cy + px(22) + k * px(16)], fill=hc)
     elif hairstyle == "buzz":
         d.pieslice([cx - head_r, head_cy - head_r - px(2),
                     cx + head_r, head_cy + head_r - px(34)], 180, 360, fill=darker(SKIN[skin], 0.8))
@@ -180,12 +202,28 @@ def draw_person(bg, skin, hair, hairstyle, shirt, acc):
     # брови
     for ex in (cx - px(20), cx + px(20)):
         d.arc([ex - px(9), eye_y - px(20), ex + px(9), eye_y - px(2)], 210, 330, fill=INK, width=px(3))
-    # улыбка
-    d.arc([cx - px(16), eye_y + px(6), cx + px(16), eye_y + px(30)], 20, 160, fill=INK, width=px(4))
+    # улыбка: дуга или открытая
+    if grin:
+        d.pieslice([cx - px(14), eye_y + px(8), cx + px(14), eye_y + px(30)], 0, 180, fill=INK)
+        d.pieslice([cx - px(9), eye_y + px(16), cx + px(9), eye_y + px(30)], 0, 180, fill=(226, 106, 106, 255))
+    else:
+        d.arc([cx - px(16), eye_y + px(6), cx + px(16), eye_y + px(30)], 20, 160, fill=INK, width=px(4))
     # румянец
     for ex in (cx - px(34), cx + px(34)):
         d.ellipse([ex - px(6), eye_y + px(8), ex + px(6), eye_y + px(17)],
                   fill=(*darker(SKIN[skin], 0.9)[:3], 110))
+
+    # ── растительность ──
+    if beard == "full":
+        # борода начинается ниже глаз, рот прорезан узкой дугой — без светлой
+        # «маски» поперёк лица
+        d.pieslice([cx - head_r + px(4), head_cy - px(2),
+                    cx + head_r - px(4), head_cy + head_r + px(10)], 0, 180, fill=HAIR[hair])
+        d.pieslice([cx - px(13), head_cy + px(10), cx + px(13), head_cy + px(28)], 0, 360, fill=SKIN[skin])
+        d.arc([cx - px(12), head_cy + px(10), cx + px(12), head_cy + px(28)], 20, 160, fill=INK, width=px(4))
+    elif beard == "stache":
+        d.arc([cx - px(15), head_cy + px(8), cx - px(1), head_cy + px(22)], 180, 330, fill=HAIR[hair], width=px(5))
+        d.arc([cx + px(1), head_cy + px(8), cx + px(15), head_cy + px(22)], 210, 360, fill=HAIR[hair], width=px(5))
 
     # ── аксессуары ──
     if acc == "glasses":
@@ -193,36 +231,65 @@ def draw_person(bg, skin, hair, hairstyle, shirt, acc):
         for ex in (cx - px(20), cx + px(20)):
             d.ellipse([ex - gr, eye_y - gr, ex + gr, eye_y + gr], outline=INK, width=px(3))
         d.line([cx - px(7), eye_y - px(2), cx + px(7), eye_y - px(2)], fill=INK, width=px(3))
+    elif acc == "sunglasses":
+        gr = px(13)
+        for ex in (cx - px(20), cx + px(20)):
+            d.ellipse([ex - gr, eye_y - gr, ex + gr, eye_y + gr], fill=INK)
+        d.line([cx - px(7), eye_y - px(4), cx + px(7), eye_y - px(4)], fill=INK, width=px(4))
+        d.line([cx - px(33), eye_y - px(6), cx - px(44), eye_y - px(10)], fill=INK, width=px(3))
+        d.line([cx + px(33), eye_y - px(6), cx + px(44), eye_y - px(10)], fill=INK, width=px(3))
+    elif acc == "headphones":
+        d.arc([cx - head_r - px(8), head_cy - head_r - px(14),
+               cx + head_r + px(8), head_cy + px(20)], 190, 350, fill=INK, width=px(7))
+        for ex in (cx - head_r - px(2), cx + head_r + px(2)):
+            d.rounded_rectangle([ex - px(9), head_cy - px(12), ex + px(9), head_cy + px(16)],
+                                radius=px(7), fill=INK)
+            d.rounded_rectangle([ex - px(5), head_cy - px(8), ex + px(5), head_cy + px(12)],
+                                radius=px(4), fill=BG["lime"])
     elif acc == "earrings":
         for ex in (cx - head_r, cx + head_r):
             d.ellipse([ex - px(3.4), head_cy + px(10), ex + px(3.4), head_cy + px(17)],
                       fill=(240, 200, 60, 255))
+    if freckles:
+        for fx, fy in ((-28, 12), (-22, 16), (-32, 18), (28, 12), (22, 16), (32, 18)):
+            d.ellipse([cx + px(fx) - px(1.6), eye_y + px(fy) - px(1.6),
+                       cx + px(fx) + px(1.6), eye_y + px(fy) + px(1.6)],
+                      fill=(*darker(SKIN[skin], 0.75)[:3], 160))
 
     return clip_circle(img)
 
 
-# 15 персон, собраны вручную: тона кожи, причёски и цвета не повторяются подряд
+# 24 персоны, собраны вручную. p01 — дефолт для всех новых пользователей.
 PERSONAS = [
-    ("p01", "lime",  "s2", "black",  "short",  "ink",   None),
-    ("p02", "sky",   "s1", "chest",  "long",   "white", "earrings"),
-    ("p03", "peach", "s4", "black",  "curly",  "lime",  None),
-    ("p04", "mint",  "s3", "black",  "cap",    "ink",   None),
-    ("p05", "lilac", "s1", "blond",  "bun",    "green", None),
-    ("p06", "cream", "s5", "black",  "afro",   "blue",  None),
-    ("p07", "coral", "s2", "brown",  "fringe", "white", "glasses"),
-    ("p08", "sand",  "s3", "black",  "buzz",   "red",   None),
-    ("p09", "sky",   "s2", "ginger", "curly",  "white", None),
-    ("p10", "mint",  "s1", "brown",  "short",  "blue",  "glasses"),
-    ("p11", "peach", "s5", "black",  "bun",    "white", "earrings"),
-    ("p12", "lilac", "s3", "brown",  "beanie", "ink",   None),
-    ("p13", "cream", "s2", "black",  "long",   "red",   None),
-    ("p14", "coral", "s4", "black",  "short",  "lime",  "glasses"),
-    ("p15", "lime",  "s1", "grey",   "fringe", "ink",   None),
+    ("p01", "lime",  "s1", "brown",  "short",  "ink",   None,        None,    False, False),
+    ("p02", "sky",   "s1", "chest",  "long",   "white", "earrings",  None,    False, False),
+    ("p03", "peach", "s4", "black",  "curly",  "lime",  None,        None,    False, True),
+    ("p04", "mint",  "s3", "black",  "cap",    "ink",   None,        None,    False, False),
+    ("p05", "lilac", "s1", "blond",  "bun",    "green", None,        None,    True,  False),
+    ("p06", "cream", "s5", "black",  "afro",   "blue",  None,        None,    False, True),
+    ("p07", "coral", "s2", "brown",  "fringe", "white", "glasses",   None,    False, False),
+    ("p08", "sand",  "s3", "black",  "buzz",   "red",   None,        "full",  False, False),
+    ("p09", "sky",   "s2", "ginger", "curly",  "white", None,        None,    True,  False),
+    ("p10", "mint",  "s1", "brown",  "short",  "blue",  "sunglasses",None,    False, False),
+    ("p11", "peach", "s5", "black",  "bun",    "white", "earrings",  None,    False, False),
+    ("p12", "lilac", "s3", "brown",  "beanie", "ink",   None,        "stache",False, False),
+    ("p13", "cream", "s2", "black",  "long",   "red",   None,        None,    False, True),
+    ("p14", "coral", "s4", "black",  "short",  "lime",  "glasses",   None,    False, False),
+    ("p15", "lime",  "s1", "grey",   "mohawk", "ink",   None,        None,    False, True),
+    ("p16", "sky",   "s3", "black",  "hood",   "ink",   None,        None,    False, False),
+    ("p17", "mint",  "s2", "brown",  "short",  "white", "headphones",None,    False, False),
+    ("p18", "peach", "s1", "blond",  "braids", "lime",  None,        None,    True,  True),
+    ("p19", "cream", "s4", "black",  "mohawk", "red",   "sunglasses",None,    False, False),
+    ("p20", "lilac", "s2", "black",  "hood",   "blue",  None,        "stache",False, False),
+    ("p21", "sand",  "s1", "ginger", "short",  "green", None,        "full",  True,  False),
+    ("p22", "coral", "s3", "black",  "braids", "white", "earrings",  None,    False, False),
+    ("p23", "sky",   "s5", "black",  "buzz",   "lime",  "headphones",None,    False, True),
+    ("p24", "cream", "s2", "brown",  "cap",    "white", "sunglasses",None,    False, False),
 ]
 
-for key, bg, skin, hair, style, shirt, acc in PERSONAS:
-    img = draw_person(bg, skin, hair, style, shirt, acc)
+for key, bg, skin, hair, style, shirt, acc, beard, freck, grin in PERSONAS:
+    img = draw_person(bg, skin, hair, style, shirt, acc, beard, freck, grin)
     img = img.resize((R, R), Image.LANCZOS)
     img.save(os.path.join(OUT, f"{key}.png"))
-    print(key, bg, style, shirt, acc or "-")
+    print(key, bg, style, shirt, acc or "-", beard or "-")
 print("готово:", len(PERSONAS))

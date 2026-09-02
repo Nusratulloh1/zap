@@ -518,7 +518,11 @@
     "fastestPayment": "Eng tez to‘lov",
     "seconds": "{{n}} soniya",
     "achievements": "YUTUQLAR",
-    "avatarTitle": "Avataringni tanla"
+    "avatarTitle": "Avataringni tanla",
+    "photoTitle": "Sizning suratingiz",
+    "photoRetake": "Qayta olish",
+    "photoUse": "Ishlatish",
+    "photoFailed": "Suratni saqlab bo‘lmadi"
   },
   "install": {
     "title": "ZAP! ni o'rnating",
@@ -840,7 +844,12 @@
     "statFastest": "Eng tez to‘laydi {{name}} — {{sec}} soniya",
     "statAlwaysLast": "Doim oxirgi {{name}}",
     "statBiggest": "Eng katta hisob {{amount}} · {{place}}",
-    "statBuddy": "ZAP-hamrohing {{name}} — {{n}} marta birga"
+    "statBuddy": "ZAP-hamrohing {{name}} — {{n}} marta birga",
+    "cardFastest": "Eng tez to‘lovchi",
+    "cardAlwaysLast": "Doim oxirgi",
+    "cardBiggest": "Eng katta hisob",
+    "cardBuddy": "ZAP-hamroh",
+    "cardTogether": "{{n}} marta birga"
   },
   "recap": {
     "title": "Sizning {month} oyingiz",
