@@ -72,13 +72,16 @@ export function HistoryScreen() {
     (e.amount > 0 ? '+' : e.amount < 0 ? '−' : '') + money(Math.abs(e.amount));
 
   return (
-    <Screen style={styles.root}>
+    <Screen style={styles.flex}>
       {/*
         Один скролл на весь экран: заголовок, поиск и вкладки едут вместе со
         списком. Закреплённая шапка отъедала верх, и длинная история
         прокручивалась в узком окне.
       */}
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={[styles.scrollBody, { paddingBottom: insets.bottom + 120 }]}
+      >
         <View style={styles.headRow}>
           <Text style={[styles.title, { color: colors.ink }]}>{t('history.title')}</Text>
           <View style={styles.headBtns}>
@@ -201,7 +204,14 @@ export function HistoryScreen() {
 }
 
 const styles = StyleSheet.create({
-  root: { paddingHorizontal: SCREEN_PAD_X },
+  flex: { flex: 1 },
+  /*
+    Боковой отступ живёт здесь, а не на экране. ScrollView обрезает всё, что
+    выходит за его границы: когда padding был на экране, ScrollView занимал
+    ширину без него, и кнопка шапки, чуть выступавшая за отступ, обрезалась
+    посреди себя. Теперь ScrollView во всю ширину, а отступ — у содержимого.
+  */
+  scrollBody: { paddingHorizontal: SCREEN_PAD_X },
   headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 },
   headBtns: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   searchBar: {
@@ -217,7 +227,10 @@ const styles = StyleSheet.create({
   searchClear: { fontFamily: font.bold, fontSize: 15, paddingHorizontal: 4 },
   searchBtn: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3 },
-  tabsWrap: { flexGrow: 0, height: 42, marginTop: 18, marginBottom: 4, marginHorizontal: -24 },
+  // Отрицательный отступ ровно на боковой padding: лента вкладок доезжает до
+  // края экрана и ни на пиксель дальше. Было -24 при отступе 16 — лишние 8 px
+  // с каждой стороны уходили за экран.
+  tabsWrap: { flexGrow: 0, height: 42, marginTop: 18, marginBottom: 4, marginHorizontal: -SCREEN_PAD_X },
   tabs: { gap: 8, paddingHorizontal: SCREEN_PAD_X, alignItems: 'center' },
   tab: { height: 38, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   tabText: { fontFamily: font.bold, fontSize: 13 },

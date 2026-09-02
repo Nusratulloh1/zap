@@ -2,15 +2,21 @@
 // Активная вкладка — в круге: лайм у главной и истории, чернила с лаймовыми
 // точками у пада, как в вебе.
 //
-// Настоящего блюра нет: в проекте не стоит нативная библиотека размытия
-// (@react-native-community/blur), поэтому пилл — плотная тёмная подложка.
-// Если понадобится именно стекло — это отдельная нативная зависимость.
+// Стекло собрано ровно как в вебе (.zap-tabbar в apps/web/src/styles/main.css):
+// белая подложка с НИЗКОЙ альфой, размытие, светлая рамка, верхний глянец и
+// мягкая тень. Низкая альфа там оговорена отдельно: при 0.5+ подложка «съедает»
+// размытие и пилл выглядит сплошным.
+//
+// Тёмный пилл, который был здесь до этого, — моя ошибка: я ориентировался на
+// скриншоты в тёмной теме, а не на веб-исходник.
 import React, { useEffect } from 'react';
 import { Platform, StyleSheet, View } from 'react-native';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { trigger } from 'react-native-haptic-feedback';
+import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
+import { Glass } from '@/components/Glass';
 import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
 import { HomeIcon, ClockIcon } from '@/components/icons';
@@ -24,22 +30,22 @@ const ICON_SIZE = 24;
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { fixed } = useTheme();
-  /*
-    Пилл всегда тёмный и полупрозрачный.
-
-    От блюра отказались осознанно: UIVisualEffectView честно размывал фон, но
-    светлый материал поверх светлой темы визуально не отличался от сплошной
-    заливки — «стекла» не было видно ни на одном материале, вплоть до
-    ultraThin. Тёмный полупрозрачный слой на светлом контенте даёт тот эффект,
-    ради которого блюр и ставили: сквозь пилл видно, что под ним.
-
-    Иконки при этом всегда светлые — на тёмной подложке иначе не прочитать.
-  */
-  const dark = true;
+  // пилл светлый, как в вебе — значит иконки чернильные
+  const dark = false;
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
-      <View style={[styles.pill, styles.pillSurface]}>
+      <Glass thin fallback="rgba(255,255,255,0.92)" style={[styles.pill, styles.pillSurface]}>
+        {/* верхний глянец — блик на стекле, .zap-tabbar::before из веба */}
+        <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
+          <Defs>
+            <LinearGradient id="tabGloss" x1="0" y1="0" x2="0" y2="1">
+              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.5} />
+              <Stop offset="0.58" stopColor="#FFFFFF" stopOpacity={0} />
+            </LinearGradient>
+          </Defs>
+          <SvgRect x={0} y={0} width="100%" height="100%" fill="url(#tabGloss)" />
+        </Svg>
         {state.routes.map((route, i) => {
           const focused = state.index === i;
           const kind = ICON[route.name as keyof typeof ICON] ?? 'home';
@@ -58,7 +64,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
             />
           );
         })}
-      </View>
+      </Glass>
     </View>
   );
 }
@@ -135,9 +141,8 @@ function Icon({ kind, focused, lime, dark }: { kind: IconKind; focused: boolean;
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center' },
-  // непрозрачность подобрана так, чтобы контент под пиллом угадывался, но
-  // иконки на нём оставались читаемыми
-  pillSurface: { backgroundColor: 'rgba(17,17,16,0.72)', borderColor: 'rgba(255,255,255,0.12)' },
+  // альфа 0.3 и рамка — как в вебе; выше 0.5 подложка съедает размытие
+  pillSurface: { backgroundColor: 'rgba(255,255,255,0.30)', borderColor: 'rgba(255,255,255,0.7)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -147,10 +152,10 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     // подложка по теме — как no-blur фолбэк .zap-tabbar в вебе
     borderWidth: 1,
-    shadowColor: '#000',
-    shadowOpacity: 0.3,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 10 },
+    shadowColor: '#111110',
+    shadowOpacity: 0.34,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 12 },
     elevation: 12,
   },
   btn: { width: 46, height: 46, alignItems: 'center', justifyContent: 'center', borderRadius: 999 },
