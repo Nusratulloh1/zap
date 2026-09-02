@@ -56,10 +56,12 @@ export function FunStatCards({ fun, nameOf }: Props) {
           <Text style={[styles.value, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
             {value(s)}
           </Text>
-          <Text style={[styles.label, { color: colors.muted }]} numberOfLines={2}>
+          <Text style={[styles.label, { color: colors.muted }]} numberOfLines={1}>
             {t(`crew.card${s.kind.charAt(0).toUpperCase()}${s.kind.slice(1)}`)}
-            {sub(s) ? ` · ${sub(s)}` : ''}
           </Text>
+          {sub(s) ? (
+            <Text style={[styles.sub, { color: colors.faint }]} numberOfLines={1}>{sub(s)}</Text>
+          ) : null}
         </View>
       ))}
     </ScrollView>
@@ -68,9 +70,9 @@ export function FunStatCards({ fun, nameOf }: Props) {
 
 const styles = StyleSheet.create({
   strip: { marginHorizontal: -SCREEN_PAD_X, marginTop: 18 },
-  stripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 10 },
+  stripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 10, paddingVertical: 8 },
   card: {
-    width: 148,
+    width: 168,
     borderRadius: 22,
     padding: 14,
     shadowColor: '#1E1C10',
@@ -89,5 +91,6 @@ const styles = StyleSheet.create({
   },
   coinGlyph: { fontSize: 26 },
   value: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.3 },
-  label: { fontFamily: font.semibold, fontSize: 12, marginTop: 4, lineHeight: 16 },
+  sub: { fontFamily: font.semibold, fontSize: 11, marginTop: 1 },
+  label: { fontFamily: font.semibold, fontSize: 11.5, marginTop: 4, lineHeight: 15 },
 });

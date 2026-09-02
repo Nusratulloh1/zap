@@ -131,7 +131,8 @@
     "participantFallback": "Ishtirokchi",
     "widgetPaid": "{{paid}}/{{total}} to‘ladi",
     "widgetOwed": "Ochiq hisoblar: {{n}}",
-    "widgetClear": "Hammasi yopilgan ✓"
+    "widgetClear": "Hammasi yopilgan ✓",
+    "waitingNames": "{{names}}ni kutyapmiz"
   },
   "scan": {
     "hint": "Kamerani chekdagi QR kodga qarating",
@@ -526,7 +527,16 @@
     "photoTitle": "Sizning suratingiz",
     "photoRetake": "Qayta olish",
     "photoUse": "Ishlatish",
-    "photoFailed": "Suratni saqlab bo‘lmadi"
+    "photoFailed": "Suratni saqlab bo‘lmadi",
+    "rank0": "Yangi",
+    "rank1": "O‘ziniki",
+    "rank2": "Doimiy",
+    "rank3": "Afsona",
+    "rank4": "ZAP-usta",
+    "rank5": "Tirik afsona",
+    "toNextRank": "«{{rank}}»gacha yana {{n}} ta zap",
+    "maxRank": "Eng yuqori daraja ⚡",
+    "achievementsOf": "{{total}} tadan {{done}} ta"
   },
   "install": {
     "title": "ZAP! ni o'rnating",

@@ -41,7 +41,7 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
   const progress = split.total > 0 ? Math.min(1, paid / split.total) : 0;
 
   const label = waitingNames.length
-    ? t('split.waitingFor', { names: waitingNames.join(t('common.and')) })
+    ? t('home.waitingNames', { names: waitingNames.join(t('common.and')) })
     : t('home.allPaid');
 
   // прогресс подъезжает за 500 мс — как transition в вебе

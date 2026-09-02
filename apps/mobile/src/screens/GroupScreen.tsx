@@ -45,13 +45,26 @@ export function GroupScreen() {
   const stats = useMemo(() => crewStats(home.db, id), [home.db, id]);
   const fun = useMemo(() => funStats(home.db, id), [home.db, id]);
   const myAvatar = useMyAvatar();
-  // мерчанты, у которых компания реально была — по сплитам группы
-  const groupMerchants = useMemo(() => {
-    const ids = [...new Set((home.db?.splits ?? []).filter((s) => s.groupId === id && s.merchantId).map((s) => s.merchantId!))];
-    return ids.map((mid) => home.db?.merchants.find((m) => m.id === mid)).filter((m): m is NonNullable<typeof m> => !!m);
-  }, [home.db, id]);
+  /*
+    memberIds приходит с бэкенда уже вместе со мной (contactId(m.phone) →
+    'me' для своего телефона). Раньше я добавлял 'me' сверху — получались
+    дубли ключей и два одинаковых лица. Здесь только страхуемся от повторов
+    и ставим себя первым.
+  */
+  const memberIds = useMemo(() => {
+    const ids = [...new Set(group?.memberIds ?? [])];
+    if (!ids.includes('me')) ids.unshift('me');
+    return ids.sort((a, b) => Number(b === 'me') - Number(a === 'me'));
+  }, [group?.memberIds]);
 
   const groupSplits = useMemo(() => home.splits.filter((s) => s.groupId === id), [home.splits, id]);
+  // мерчанты, где компания реально была — по её же сплитам
+  const groupMerchants = useMemo(() => {
+    const ids = [...new Set(groupSplits.map((s) => s.merchantId).filter(Boolean))] as string[];
+    return ids
+      .map((mid) => home.db?.merchants.find((m) => m.id === mid))
+      .filter((m): m is NonNullable<typeof m> => !!m);
+  }, [groupSplits, home.db]);
   const openDebts = useMemo(
     () => (home.db?.debts ?? []).filter((d) => d.direction === 'owedToMe' && d.status === 'open'),
     [home.db?.debts],
@@ -140,14 +153,14 @@ export function GroupScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
         <View style={styles.headRow}>
           <View style={styles.stack}>
-            {['me', ...group.memberIds].slice(0, 3).map((cid, i) => (
+            {memberIds.slice(0, 3).map((cid, i) => (
               <Avatar key={cid} name={nameOf(cid)} contactId={cid} color={colorOf(cid)} size={46} ring={colors.paper} style={i > 0 ? styles.stacked : undefined} />
             ))}
           </View>
           <View style={styles.headBody}>
             <Text style={[styles.title, { color: colors.ink }]}>{group.name}</Text>
             <Text style={[styles.sub, { color: colors.faint }]}>
-              {t('group.sinceWith', { people: peopleCount(group.memberIds.length + 1), date: dayMonth(new Date(group.createdAt)) })}
+              {t('group.sinceWith', { people: peopleCount(memberIds.length), date: dayMonth(new Date(group.createdAt)) })}
             </Text>
           </View>
         </View>
@@ -167,7 +180,7 @@ export function GroupScreen() {
           и группа выглядела пустой.
         */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.squadStrip} contentContainerStyle={styles.squadBody}>
-          {['me', ...(group.memberIds ?? [])].map((cid) => (
+          {memberIds.map((cid) => (
             <View key={cid} style={styles.squadItem}>
               <Avatar
                 source={cid === 'me' ? (myAvatar ?? undefined) : undefined}
@@ -175,7 +188,7 @@ export function GroupScreen() {
                 letter={cid === 'me' ? undefined : home.contactById(cid)?.initials}
                 contactId={cid}
                 color={cid === 'me' ? '#111110' : (home.contactById(cid)?.color ?? '#8A887E')}
-                size={58}
+                size={62}
                 ring={fixed.lime}
                 ringWidth={2.5}
               />
@@ -205,7 +218,7 @@ export function GroupScreen() {
 
         <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
           <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.members')}</Text>
-          {group.memberIds.map((cid) => (
+          {memberIds.map((cid) => (
             <View key={cid} style={styles.memberRow}>
               <Avatar name={nameOf(cid)} contactId={cid} color={colorOf(cid)} size={40} />
               <View style={styles.memberBody}>
@@ -342,9 +355,9 @@ const styles = StyleSheet.create({
   title: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.2 },
   sub: { fontFamily: font.semibold, fontSize: 12.5 },
   ctaRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
-  squadStrip: { marginHorizontal: -16, marginTop: 20 },
+  squadStrip: { marginHorizontal: -16, marginTop: 22 },
   squadBody: { paddingHorizontal: 16, gap: 14 },
-  squadItem: { alignItems: 'center', width: 64 },
+  squadItem: { alignItems: 'center', width: 70 },
   squadName: { fontFamily: font.bold, fontSize: 11.5, marginTop: 6 },
   headCta: { flex: 1, height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   headCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },

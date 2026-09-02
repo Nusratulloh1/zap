@@ -131,7 +131,8 @@
     "participantFallback": "A participant",
     "widgetPaid": "{{paid}}/{{total}} paid",
     "widgetOwed": "{{n}} bills open",
-    "widgetClear": "Nothing owed ✓"
+    "widgetClear": "Nothing owed ✓",
+    "waitingNames": "waiting for {{names}}"
   },
   "scan": {
     "hint": "Point the camera at the QR code on the receipt",
@@ -526,7 +527,16 @@
     "photoTitle": "Your photo",
     "photoRetake": "Retake",
     "photoUse": "Use photo",
-    "photoFailed": "Could not save the photo"
+    "photoFailed": "Could not save the photo",
+    "rank0": "Rookie",
+    "rank1": "Regular",
+    "rank2": "Veteran",
+    "rank3": "Legend",
+    "rank4": "ZAP master",
+    "rank5": "Living legend",
+    "toNextRank": "{{n}} more zaps to {{rank}}",
+    "maxRank": "Top rank reached ⚡",
+    "achievementsOf": "{{done}} of {{total}}"
   },
   "install": {
     "title": "Install ZAP!",

@@ -131,7 +131,8 @@
     "participantFallback": "Участник",
     "widgetPaid": "{{paid}}/{{total}} оплатили",
     "widgetOwed": "Открытых счетов: {{n}}",
-    "widgetClear": "Всё закрыто ✓"
+    "widgetClear": "Всё закрыто ✓",
+    "waitingNames": "ждём {{names}}"
   },
   "scan": {
     "hint": "Наведите камеру на QR-код на чеке",
@@ -526,7 +527,16 @@
     "photoTitle": "Твоё фото",
     "photoRetake": "Переснять",
     "photoUse": "Использовать",
-    "photoFailed": "Не удалось сохранить фото"
+    "photoFailed": "Не удалось сохранить фото",
+    "rank0": "Новичок",
+    "rank1": "Свой",
+    "rank2": "Завсегдатай",
+    "rank3": "Легенда",
+    "rank4": "ZAP-мастер",
+    "rank5": "Живая легенда",
+    "toNextRank": "ещё {{n}} zap до «{{rank}}»",
+    "maxRank": "Максимальный ранг ⚡",
+    "achievementsOf": "{{done}} из {{total}}"
   },
   "install": {
     "title": "Установите ZAP!",

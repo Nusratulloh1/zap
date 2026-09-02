@@ -13,6 +13,7 @@ import { PressableScale } from '@/components/PressableScale';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinDots } from '@/components/PinDots';
 import { AvatarSheet } from '@/components/AvatarSheet';
+import { PlayerCard } from '@/components/PlayerCard';
 import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
 // SunIcon и MoonIcon нужны только скрытому переключателю темы, см. ниже
 import { BackIcon } from '@/components/icons';
@@ -285,50 +286,17 @@ export function ProfileScreen() {
       <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingTop: insets.top + 60, paddingBottom: insets.bottom + 16 }}>
         {me ? (
           <>
-            {/*
-              Светлая шапка-карточка игрока (vision V2 §C1). Крупный аватар по
-              центру, тап по нему — выбор персоны в шите (character select).
-            */}
-            <View style={styles.head}>
-              <PressableScale haptic={false} onPress={() => setAvatarSheet(true)}>
-                <View style={[styles.heroAvatar, { borderColor: fixed.lime }]}>
-                  {myAvatar ? (
-                    <Image source={myAvatar} style={styles.heroAvatarImg} />
-                  ) : (
-                    <View style={[styles.heroAvatarFallback, { backgroundColor: colors.ink }]}>
-                      <Text style={[styles.heroAvatarLetter, { color: fixed.lime }]}>{me.initials}</Text>
-                    </View>
-                  )}
-                  <View style={[styles.editBadge, { backgroundColor: colors.ink }]}>
-                    <Text style={styles.editBadgeText}>✎</Text>
-                  </View>
-                </View>
-              </PressableScale>
-              <Text style={[styles.heroName, { color: colors.ink }]}>{me.name}</Text>
-              <Text style={[styles.heroHandle, { color: colors.muted }]}>
-                {me.handle} · {phone(me.phone)}
-              </Text>
-              <View style={[styles.sinceChip, { backgroundColor: fixed.lime }]}>
-                <Text style={styles.sinceText}>{t('profile.since', { date: sinceLabel })}</Text>
-              </View>
-            </View>
-
-            <View style={styles.stats}>
-              <View style={[styles.stat, { backgroundColor: colors.shell }]}>
-                <Text style={[styles.statValue, { color: colors.ink }]}>{me.splitsCount}</Text>
-                <Text style={[styles.statLabel, { color: colors.muted }]}>{t('profile.statSplitsUnit')}</Text>
-              </View>
-              <View style={[styles.stat, { backgroundColor: colors.shell }]}>
-                <Text style={[styles.statValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
-                  {money(home.cashbackBalance)}
-                </Text>
-                <Text style={[styles.statLabel, { color: colors.muted }]}>{t('profile.statCashbackUnit')}</Text>
-              </View>
-              <View style={[styles.stat, { backgroundColor: colors.shell }]}>
-                <Text style={[styles.statValue, { color: colors.ink }]}>{groups.length}</Text>
-                <Text style={[styles.statLabel, { color: colors.muted }]}>{t('profile.statGroupsUnit')}</Text>
-              </View>
-            </View>
+            <PlayerCard
+              avatar={myAvatar}
+              initials={me.initials}
+              name={me.name}
+              handle={me.handle}
+              since={t('profile.since', { date: sinceLabel })}
+              splits={me.splitsCount}
+              cashback={money(home.cashbackBalance)}
+              groups={groups.length}
+              onAvatarPress={() => setAvatarSheet(true)}
+            />
 
             {recap ? (
               <PressableScale
@@ -373,7 +341,12 @@ export function ProfileScreen() {
               шесть, закрытые — серые с замком. Пустое место не мотивирует,
               заблокированная ачивка — да.
             */}
-            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.achievements')}</Text>
+            <View style={styles.badgeHead}>
+              <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.achievements')}</Text>
+              <Text style={[styles.badgeCount, { color: colors.muted }]}>
+                {t('profile.achievementsOf', { done: titles.length, total: ALL_TITLES.length })}
+              </Text>
+            </View>
             <View style={[styles.badgeCard, { backgroundColor: colors.shell }]}>
               {ALL_TITLES.map(([key, glyph]) => {
                 const unlocked = titles.some((tt) => tt.key === key);
@@ -755,6 +728,8 @@ const styles = StyleSheet.create({
   editBadgeText: { color: '#DDFF33', fontSize: 16 },
   heroName: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.4, marginTop: 14 },
   heroHandle: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 3, marginBottom: 10 },
+  badgeHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  badgeCount: { fontFamily: font.extrabold, fontSize: 12 },
   badgeCard: {
     flexDirection: 'row',
     flexWrap: 'wrap',
