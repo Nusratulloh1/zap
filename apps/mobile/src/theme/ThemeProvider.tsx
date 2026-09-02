@@ -49,14 +49,24 @@ function readPref(): ThemePref {
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const system = useColorScheme();
+  // системная тема нужна только закомментированной строке ниже
+  void useColorScheme();
   const [pref, setPrefState] = useState<ThemePref>(readPref);
 
   useEffect(() => {
     storage.set(KEY, pref);
   }, [pref]);
 
-  const name: ThemeName = pref === 'system' ? (system === 'dark' ? 'dark' : 'light') : pref;
+  /*
+    Тёмная тема отключена по продуктовому решению — приложение всегда светлое.
+
+    Механика оставлена целиком (палитра, хранение выбора, системная тема):
+    вернуть тёмную — это снять комментарий со строки ниже и с кнопки в
+    ProfileScreen. Вырезать её насовсем значило бы потом переверстывать
+    каждый экран заново.
+  */
+  // const name: ThemeName = pref === 'system' ? (system === 'dark' ? 'dark' : 'light') : pref;
+  const name: ThemeName = 'light';
 
   const value = useMemo<ThemeValue>(
     () => ({ colors: palette[name], fixed: fixedPalette, name, pref, setPref: setPrefState }),

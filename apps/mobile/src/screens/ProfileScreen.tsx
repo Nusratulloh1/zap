@@ -14,7 +14,8 @@ import { Avatar } from '@/components/Avatar';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinDots } from '@/components/PinDots';
 import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
-import { SunIcon, MoonIcon, BackIcon } from '@/components/icons';
+// SunIcon и MoonIcon нужны только скрытому переключателю темы, см. ниже
+import { BackIcon } from '@/components/icons';
 import { refocus, useKeyboardLock } from '@/lib/keyboard';
 import { Toggle } from '@/components/Toggle';
 import { toast } from '@/components/ToastHost';
@@ -35,7 +36,7 @@ import type { Card } from '@zap/shared/types';
 
 export function ProfileScreen() {
   const { t } = useTranslation();
-  const { colors, fixed, name, setPref } = useTheme();
+  const { colors, fixed } = useTheme();
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const qc = useQueryClient();
@@ -385,14 +386,19 @@ export function ProfileScreen() {
         >
           <BackIcon size={20} color={colors.ink} />
         </PressableScale>
-        <PressableScale
+        {/*
+          Переключатель темы скрыт: тёмная тема отключена по продуктовому
+          решению, см. ThemeProvider. Кнопка оставлена в разметке — вернуть
+          тему значит снять комментарий здесь и там.
+        */}
+        {/* <PressableScale
           small
           accessibilityLabel={name === 'dark' ? t('common.themeLight') : t('common.themeDark')}
           style={[styles.topBtn, { backgroundColor: colors.sand }]}
           onPress={() => setPref(name === 'dark' ? 'light' : 'dark')}
         >
           {name === 'dark' ? <MoonIcon size={19} color={colors.slate} /> : <SunIcon size={19} color={colors.slate} />}
-        </PressableScale>
+        </PressableScale> */}
       </View>
 
       {/* новая карта */}
