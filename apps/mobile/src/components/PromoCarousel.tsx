@@ -101,10 +101,16 @@ export function PromoCarousel({ category }: Props) {
                   вдвое ниже прочих. cover это выравнивал, но резал рисунок —
                   у feedup уходил край лаваша.
 
-                  Поэтому выравнивание сделано в самих файлах: остальным
-                  четырём добавлены прозрачные поля по бокам до пропорции
-                  feedup. Теперь все рисуются одной высотой и ничего не
-                  обрезается.
+                  Поэтому выравнивание сделано в самих файлах: четырём новым
+                  добавлены прозрачные поля по бокам. Не до пропорции feedup —
+                  тогда все мельчали до 156 pt, — а до 2.05:1. Они рисуются
+                  182 pt против 156 у feedup: разница почти не читается, и
+                  ничего не обрезано.
+
+                  Полностью это чинится только перерисовкой feedup в
+                  пропорциях остальных четырёх — он единственный 2.4:1, и
+                  сложить его в кадр повыше нельзя: рисунок цельный, элементы
+                  соприкасаются и по отдельности не переставляются.
                 */}
                 <Image source={v.img} style={styles.venueImg} resizeMode="contain" fadeDuration={0} />
               </View>
@@ -151,9 +157,8 @@ const styles = StyleSheet.create({
   },
   heroTerms: { fontFamily: font.semibold, fontSize: 14.5, color: 'rgba(255,255,255,0.65)', textAlign: 'center' },
   venueImgWrap: { paddingHorizontal: 8, paddingTop: 4 },
-  // 162, а не 218: после выравнивания пропорций баннеры рисуются высотой
-  // ~156, и прежний кадр оставлял по 30 pt пустоты сверху и снизу
-  venueImg: { height: 162, width: '100%' },
+  // под самый высокий из баннеров (182 pt) плюс немного воздуха
+  venueImg: { height: 188, width: '100%' },
   venueText: { alignItems: 'center', gap: 4, paddingHorizontal: 12, marginTop: 12 },
   venueTitle: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.2, color: '#FFFFFF', textAlign: 'center' },
   venueTerms: { fontFamily: font.semibold, fontSize: 13, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
