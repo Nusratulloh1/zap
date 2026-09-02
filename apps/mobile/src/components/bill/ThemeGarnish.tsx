@@ -41,9 +41,10 @@ export function ThemeGarnish({ theme, placement = 'corner' }: Props) {
 }
 
 const styles = StyleSheet.create({
-  // угол экрана: заметно, но вне колонки содержимого
-  corner: { position: 'absolute', right: -14, top: -6, opacity: 0.5, zIndex: 1 },
-  stickerCorner: { width: 96, height: 82 },
+  // Угол карточки, но ВНУТРИ её границ. При отрицательных отступах стикер
+  // вылезал за чек и обрезался краем экрана — выглядело как брак вёрстки.
+  corner: { position: 'absolute', right: 10, top: 8, opacity: 0.45, zIndex: 1 },
+  stickerCorner: { width: 76, height: 66 },
   glyphCorner: { fontSize: 46 },
 
   header: { marginLeft: 'auto' },

@@ -443,7 +443,6 @@ export function HomeScreen() {
           <View style={[styles.sectionCard, styles.cardShadow, { backgroundColor: colors.paper }]}>
           <View style={styles.sectionHead}>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>{t('home.myGroups')}</Text>
-            {home.groups.length ? <Text style={[styles.seeAll, { color: colors.muted }]}>{t('home.seeAll')}</Text> : null}
           </View>
 
           {home.loading ? (
@@ -502,11 +501,6 @@ export function HomeScreen() {
           <View style={[styles.sectionCard, styles.cardShadow, { backgroundColor: colors.paper }]}>
           <View style={styles.sectionHead}>
             <Text style={[styles.sectionTitle, { color: colors.ink }]}>{t('home.yourSplits')}</Text>
-            {splitRows.length ? (
-              <PressableScale onPress={() => nav.popTo('Tabs', { screen: 'History' })}>
-                <Text style={[styles.seeAll, { color: colors.muted }]}>{t('home.seeAll')}</Text>
-              </PressableScale>
-            ) : null}
           </View>
 
           {home.loading ? (
@@ -659,7 +653,6 @@ const styles = StyleSheet.create({
   },
   sectionHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 4 },
   sectionTitle: { fontFamily: font.extrabold, fontSize: 18, letterSpacing: -0.2 },
-  seeAll: { fontFamily: font.bold, fontSize: 14 },
 
   groupRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 62 },
   groupAvatars: { flexDirection: 'row' },

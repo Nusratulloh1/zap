@@ -32,9 +32,14 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
+      {/*
+        Тонкий материал и полупрозрачный запасной цвет: с плотным пилл читался
+        как сплошная плашка, и «стекло» не было заметно вообще.
+      */}
       <Glass
         dark={dark}
-        fallback={dark ? 'rgba(26,25,22,0.94)' : 'rgba(255,255,255,0.92)'}
+        thin
+        fallback={dark ? 'rgba(26,25,22,0.72)' : 'rgba(255,255,255,0.70)'}
         style={[
           styles.pill,
           { borderColor: dark ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.7)' },

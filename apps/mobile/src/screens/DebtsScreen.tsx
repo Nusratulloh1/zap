@@ -5,6 +5,7 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigation } from '@react-navigation/native';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -20,6 +21,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function DebtsScreen() {
+  const nav = useNavigation<any>();
   const { t } = useTranslation();
   const { colors, fixed, name: themeName } = useTheme();
   const qc = useQueryClient();
@@ -62,36 +64,41 @@ export function DebtsScreen() {
     <Screen style={styles.root}>
       <ScreenHeader />
 
-      <Text style={[styles.title, { color: colors.ink }]}>{t('debts.title')}</Text>
-      <View style={styles.amountRow}>
-        <View style={styles.amountBox}>
-          <CountUp value={home.totalOwedToMe} duration={800} style={[styles.amount, { color: colors.ink }]} />
-        </View>
-        <Text style={[styles.unit, { color: colors.faint2 }]}>
-          UZS · {home.debtors.length} {t('debts.peopleUnit')}
-        </Text>
-      </View>
-
-      <View style={styles.tabs}>
-        {(['owedToMe', 'iOwe'] as const).map((k) => {
-          const active = tab === k;
-          return (
-            <PressableScale
-              key={k}
-              style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.sand }]}
-              onPress={() => setTab(k)}
-            >
-              <Text style={[styles.tabText, { color: active ? '#111110' : colors.slate }]}>
-                {k === 'owedToMe' ? t('debts.tabOwedToMe') : t('debts.iOweZero')}
+      {/*
+        Один скролл на весь экран: шапка со суммой и вкладками едет вместе со
+        списком. Раньше она была закреплена, и длинный список долгов ютился в
+        остатке экрана — прокрутка шла в узком окне.
+      */}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
+            <Text style={[styles.title, { color: colors.ink }]}>{t('debts.title')}</Text>
+            <View style={styles.amountRow}>
+              <View style={styles.amountBox}>
+                <CountUp value={home.totalOwedToMe} duration={800} style={[styles.amount, { color: colors.ink }]} />
+              </View>
+              <Text style={[styles.unit, { color: colors.faint2 }]}>
+                UZS · {home.debtors.length} {t('debts.peopleUnit')}
               </Text>
-            </PressableScale>
-          );
-        })}
-      </View>
+            </View>
 
-      {tab === 'owedToMe' ? (
-        <Animated.View key="owed" entering={FadeIn.duration(200)} style={styles.flex}>
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
+            <View style={styles.tabs}>
+              {(['owedToMe', 'iOwe'] as const).map((k) => {
+                const active = tab === k;
+                return (
+                  <PressableScale
+                    key={k}
+                    style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.sand }]}
+                    onPress={() => setTab(k)}
+                  >
+                    <Text style={[styles.tabText, { color: active ? '#111110' : colors.slate }]}>
+                      {k === 'owedToMe' ? t('debts.tabOwedToMe') : t('debts.iOweZero')}
+                    </Text>
+                  </PressableScale>
+                );
+              })}
+            </View>
+
+        {tab === 'owedToMe' ? (
+          <Animated.View key="owed" entering={FadeIn.duration(200)}>
             <View style={styles.list}>
               {openDebts.map((d, i) => {
                 const c = home.contactById(d.contactId);
@@ -99,13 +106,23 @@ export function DebtsScreen() {
                   <Animated.View
                     key={d.id}
                     entering={FadeInDown.delay(Math.min(i, 8) * 40).duration(240)}
+                  >
+                  <PressableScale
+                    haptic={false}
+                    disabled={!d.splitId}
+                    onPress={() => d.splitId && nav.navigate('SplitLive', { id: d.splitId })}
                     style={[styles.row, i < openDebts.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
                   >
                     <Avatar name={c?.name} letter={c?.initials} contactId={d.contactId} color={c?.color ?? '#8A887E'} size={48} />
                     <View style={styles.rowBody}>
                       <Text style={[styles.rowName, { color: colors.ink }]} numberOfLines={1}>{c?.name ?? '?'}</Text>
+                      {/*
+                        Дата первой, причина после неё. Раньше было наоборот, и
+                        при длинном названии заведения многоточие съедало ровно
+                        то, ради чего строка и нужна, — когда возник долг.
+                      */}
                       <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>
-                        {d.reason} · {humanDateLc(d.createdAt)}
+                        {humanDateLc(d.createdAt)} · {d.reason}
                       </Text>
                     </View>
                     <View style={styles.rowRight}>
@@ -128,6 +145,7 @@ export function DebtsScreen() {
                         </PressableScale>
                       )}
                     </View>
+                  </PressableScale>
                   </Animated.View>
                 );
               })}
@@ -147,14 +165,14 @@ export function DebtsScreen() {
                 <Text style={styles.ctaText}>{t('debts.remindAll')}</Text>
               </PressableScale>
             ) : null}
-          </ScrollView>
-        </Animated.View>
-      ) : (
-        <Animated.View key="iowe" entering={FadeIn.duration(200)} style={styles.center}>
-          <Text style={styles.emoji}>🎉</Text>
-          <EmptyState sticker="fistBump" title={t('empty.debtsTitle')} hint={t('empty.debtsHint')} />
-        </Animated.View>
-      )}
+          </Animated.View>
+        ) : (
+          <Animated.View key="iowe" entering={FadeIn.duration(200)} style={styles.center}>
+            <Text style={styles.emoji}>🎉</Text>
+            <EmptyState sticker="fistBump" title={t('empty.debtsTitle')} hint={t('empty.debtsHint')} />
+          </Animated.View>
+        )}
+      </ScrollView>
     </Screen>
   );
 }

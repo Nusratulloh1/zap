@@ -16,6 +16,11 @@ const BlurView: React.ComponentType<Record<string, unknown>> | null =
 interface Props {
   /** тёмная поверхность (пилл на тёмной теме, подложка шита) */
   dark?: boolean;
+  /**
+   * Тонкий материал вместо плотного: сквозь пилл таб-бара должен просвечивать
+   * контент, иначе стекло неотличимо от заливки.
+   */
+  thin?: boolean;
   /** цвет-заглушка для Android и как подложка под стекло на iOS */
   fallback: string;
   /** сила размытия iOS */
@@ -24,7 +29,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export function Glass({ dark, fallback, amount = 18, style, children }: Props) {
+export function Glass({ dark, thin, fallback, amount = 18, style, children }: Props) {
   if (Platform.OS !== 'ios' || !BlurView) {
     return <View style={[style, { backgroundColor: fallback }]}>{children}</View>;
   }
@@ -36,7 +41,7 @@ export function Glass({ dark, fallback, amount = 18, style, children }: Props) {
     <View style={[style, styles.clip]}>
       <BlurView
         style={StyleSheet.absoluteFill as object}
-        blurType={dark ? 'thickMaterialDark' : 'chromeMaterial'}
+        blurType={thin ? (dark ? 'thinMaterialDark' : 'thinMaterialLight') : dark ? 'thickMaterialDark' : 'chromeMaterial'}
         blurAmount={amount}
         reducedTransparencyFallbackColor={fallback}
       />
