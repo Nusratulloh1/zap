@@ -536,7 +536,8 @@
     "rank5": "Живая легенда",
     "toNextRank": "ещё {{n}} zap до «{{rank}}»",
     "maxRank": "Максимальный ранг ⚡",
-    "achievementsOf": "{{done}} из {{total}}"
+    "achievementsOf": "{{done}} из {{total}}",
+    "recapKicker": "ИТОГИ МЕСЯЦА"
   },
   "install": {
     "title": "Установите ZAP!",

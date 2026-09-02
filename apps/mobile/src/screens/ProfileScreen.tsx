@@ -14,6 +14,7 @@ import { BottomSheet } from '@/components/BottomSheet';
 import { PinDots } from '@/components/PinDots';
 import { AvatarSheet } from '@/components/AvatarSheet';
 import { PlayerCard } from '@/components/PlayerCard';
+import { AchievementStrip } from '@/components/AchievementStrip';
 import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
 // SunIcon и MoonIcon нужны только скрытому переключателю темы, см. ниже
 import { BackIcon } from '@/components/icons';
@@ -298,82 +299,65 @@ export function ProfileScreen() {
               onAvatarPress={() => setAvatarSheet(true)}
             />
 
+            {/* ачивки сразу под полосой опыта — компактной лентой медалей */}
+            <AchievementStrip all={ALL_TITLES} unlocked={titles.map((tt) => tt.key)} />
+
+            {/*
+              Итоги месяца — мини-афиша, а не строка со стрелкой: чернильная
+              карточка с лаймовым штампом-молнией, крупный месяц и кнопка.
+            */}
             {recap ? (
               <PressableScale
                 style={[styles.recapCard, { backgroundColor: fixed.ink }]}
                 onPress={() => nav.navigate('Recap')}
               >
-                <View style={styles.recapBody}>
-                  <Text style={[styles.recapTitle, { color: fixed.lime }]}>{t('recap.ready', { month: recapMonth })}</Text>
-                  <Text style={styles.recapSub}>{t('recap.open')}</Text>
+                <View style={[styles.recapStamp, { borderColor: fixed.lime }]}>
+                  <Text style={[styles.recapStampGlyph, { color: fixed.lime }]}>⚡</Text>
                 </View>
-                <Text style={[styles.recapChevron, { color: fixed.lime }]}>›</Text>
+                <View style={styles.recapBody}>
+                  <Text style={[styles.recapKicker, { color: fixed.lime }]}>{t('profile.recapKicker')}</Text>
+                  <Text style={styles.recapMonth} numberOfLines={1}>{recapMonth}</Text>
+                </View>
+                <View style={[styles.recapBtn, { backgroundColor: fixed.lime }]}>
+                  <Text style={styles.recapBtnText}>{t('recap.open')}</Text>
+                </View>
               </PressableScale>
             ) : null}
 
             {/*
-              §C13: «Не Islam Karimov / +998… / Settings, а ISLAM ⚡ / 27 ZAPs /
-              любимый сплит / самая быстрая оплата» плюс коллекция титулов.
-              Строки появляются только когда есть данные — пустой профиль с
-              прочерками хуже, чем профиль без блока.
+              §C13: «не Islam Karimov / +998…», а любимый сплит и самая быстрая
+              оплата — двумя плитками с крупным знаком, как статы в игре.
             */}
             {favTheme || best !== null ? (
-              <View style={[styles.identity, { backgroundColor: colors.shell }]}>
+              <View style={styles.identityRow2}>
                 {favTheme ? (
-                  <View style={styles.identityRow}>
-                    <Text style={styles.identityGlyph}>{favTheme.glyph}</Text>
-                    <Text style={[styles.identityLabel, { color: colors.muted }]}>{t('profile.favouriteSplit')}</Text>
-                    <Text style={[styles.identityValue, { color: colors.ink }]}>{t(favTheme.titleKey)}</Text>
+                  <View style={[styles.identityTile, { backgroundColor: colors.shell }]}>
+                    <View style={[styles.identityIcon, { backgroundColor: colors.sand }]}>
+                      <Text style={styles.identityGlyph}>{favTheme.glyph}</Text>
+                    </View>
+                    <Text style={[styles.identityValue, { color: colors.ink }]} numberOfLines={1}>
+                      {t(favTheme.titleKey)}
+                    </Text>
+                    <Text style={[styles.identityLabel, { color: colors.muted }]} numberOfLines={2}>
+                      {t('profile.favouriteSplit')}
+                    </Text>
                   </View>
                 ) : null}
                 {best !== null ? (
-                  <View style={styles.identityRow}>
-                    <Text style={styles.identityGlyph}>⚡</Text>
-                    <Text style={[styles.identityLabel, { color: colors.muted }]}>{t('profile.fastestPayment')}</Text>
-                    <Text style={[styles.identityValue, { color: colors.ink }]}>{t('profile.seconds', { n: best })}</Text>
+                  <View style={[styles.identityTile, { backgroundColor: colors.shell }]}>
+                    <View style={[styles.identityIcon, { backgroundColor: fixed.lime }]}>
+                      <Text style={styles.identityGlyph}>⚡</Text>
+                    </View>
+                    <Text style={[styles.identityValue, { color: colors.ink }]} numberOfLines={1}>
+                      {t('profile.seconds', { n: best })}
+                    </Text>
+                    <Text style={[styles.identityLabel, { color: colors.muted }]} numberOfLines={2}>
+                      {t('profile.fastestPayment')}
+                    </Text>
                   </View>
                 ) : null}
               </View>
             ) : null}
-
-            {/*
-              Ачивки как в игре (vision V2 §C1, слой Duolingo): видны ВСЕ
-              шесть, закрытые — серые с замком. Пустое место не мотивирует,
-              заблокированная ачивка — да.
-            */}
-            <View style={styles.badgeHead}>
-              <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.achievements')}</Text>
-              <Text style={[styles.badgeCount, { color: colors.muted }]}>
-                {t('profile.achievementsOf', { done: titles.length, total: ALL_TITLES.length })}
-              </Text>
-            </View>
-            <View style={[styles.badgeCard, { backgroundColor: colors.shell }]}>
-              {ALL_TITLES.map(([key, glyph]) => {
-                const unlocked = titles.some((tt) => tt.key === key);
-                return (
-                  <View key={key} style={styles.badge}>
-                    <View
-                      style={[
-                        styles.badgeCoin,
-                        unlocked
-                          ? { backgroundColor: fixed.lime }
-                          : { backgroundColor: colors.sand },
-                      ]}
-                    >
-                      <Text style={[styles.badgeGlyph, !unlocked && styles.badgeGlyphLocked]}>
-                        {unlocked ? glyph : '🔒'}
-                      </Text>
-                    </View>
-                    <Text
-                      style={[styles.badgeLabel, { color: unlocked ? colors.ink : colors.faint }]}
-                      numberOfLines={2}
-                    >
-                      {t(`titles.${key}`)}
-                    </Text>
-                  </View>
-                );
-              })}
-            </View>
 
             <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.cards')}</Text>
             {cards.map((card) => (
@@ -667,6 +651,38 @@ export function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  // ── итоги месяца: мини-афиша ──
+  recapCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 22,
+    padding: 14,
+    marginTop: 22,
+  },
+  recapStamp: {
+    width: 44,
+    height: 44,
+    borderRadius: 999,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  recapStampGlyph: { fontSize: 20 },
+  recapBody: { flex: 1, minWidth: 0 },
+  recapKicker: { fontFamily: font.monoBold, fontSize: 9.5, letterSpacing: 1.4 },
+  recapMonth: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.3, color: '#F6F4EE', marginTop: 2 },
+  recapBtn: { height: 34, paddingHorizontal: 14, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  recapBtnText: { fontFamily: font.extrabold, fontSize: 12.5, color: '#111110' },
+
+  // ── две плитки «про меня» ──
+  identityRow2: { flexDirection: 'row', gap: 10, marginTop: 10 },
+  identityTile: { flex: 1, borderRadius: 22, padding: 14 },
+  identityIcon: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
+  identityGlyph: { fontSize: 20 },
+  identityValue: { fontFamily: font.extrabold, fontSize: 17, letterSpacing: -0.3 },
+  identityLabel: { fontFamily: font.semibold, fontSize: 11.5, marginTop: 3, lineHeight: 15 },
+
   topRow: {
     position: 'absolute',
     left: 0,
@@ -689,19 +705,6 @@ const styles = StyleSheet.create({
   stat: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 14, gap: 3 },
   statValue: { fontFamily: font.extrabold, fontSize: 20 },
   statLabel: { fontFamily: font.bold, fontSize: 11.5 },
-  recapCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    marginTop: 14,
-  },
-  recapBody: { flex: 1, gap: 2 },
-  recapTitle: { fontFamily: font.extrabold, fontSize: 15 },
-  recapSub: { fontFamily: font.semibold, fontSize: 12.5, color: 'rgba(255,255,255,0.65)' },
-  recapChevron: { fontFamily: font.extrabold, fontSize: 22 },
   head: { alignItems: 'center', paddingTop: 4, paddingBottom: 6 },
   heroAvatar: {
     width: 124,
@@ -728,38 +731,11 @@ const styles = StyleSheet.create({
   editBadgeText: { color: '#DDFF33', fontSize: 16 },
   heroName: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.4, marginTop: 14 },
   heroHandle: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 3, marginBottom: 10 },
-  badgeHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-  badgeCount: { fontFamily: font.extrabold, fontSize: 12 },
-  badgeCard: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    borderRadius: 20,
-    paddingVertical: 18,
-    paddingHorizontal: 8,
-    marginTop: 10,
-    rowGap: 18,
-  },
-  badge: { alignItems: 'center', width: '33.33%', paddingHorizontal: 4 },
-  badgeCoin: {
-    width: 66,
-    height: 66,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  badgeGlyph: { fontSize: 30 },
-  badgeGlyphLocked: { fontSize: 22, opacity: 0.45 },
-  badgeLabel: { fontFamily: font.bold, fontSize: 11, textAlign: 'center', marginTop: 6 },
   inlinePills: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 'auto' },
   langPill: { height: 34, paddingHorizontal: 13, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   langPillText: { fontFamily: font.extrabold, fontSize: 12.5 },
   settingRowTall: { minHeight: 72 },
   iconPreview: { width: 46, height: 46, borderRadius: 12, borderWidth: 2.5, borderColor: 'transparent' },
-  identity: { borderRadius: 20, paddingHorizontal: 16, paddingVertical: 12, gap: 10, marginTop: 12 },
-  identityRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  identityGlyph: { fontSize: 16, width: 22, textAlign: 'center' },
-  identityLabel: { flex: 1, fontFamily: font.semibold, fontSize: 13.5 },
-  identityValue: { fontFamily: font.extrabold, fontSize: 14 },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 26 },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 62, borderBottomWidth: 1, borderBottomColor: 'transparent' },
   cardBadge: { width: 42, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },

@@ -536,7 +536,8 @@
     "rank5": "Tirik afsona",
     "toNextRank": "«{{rank}}»gacha yana {{n}} ta zap",
     "maxRank": "Eng yuqori daraja ⚡",
-    "achievementsOf": "{{total}} tadan {{done}} ta"
+    "achievementsOf": "{{total}} tadan {{done}} ta",
+    "recapKicker": "OYLIK YAKUN"
   },
   "install": {
     "title": "ZAP! ni o'rnating",

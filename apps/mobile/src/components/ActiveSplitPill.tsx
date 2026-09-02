@@ -59,8 +59,8 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
     <Animated.View
       entering={FadeInDown.duration(320)}
       exiting={FadeOutDown.duration(180)}
-      // над таб-баром: его высота 62 + отступ 14 + безопасная зона
-      style={[styles.wrap, { bottom: insets.bottom + 90 }]}
+      // над таб-баром, но ближе к нему — по замечанию, плашка висела высоко
+      style={[styles.wrap, { bottom: insets.bottom + 74 }]}
       pointerEvents="box-none"
     >
       <PressableScale style={[styles.pill, { backgroundColor: fixed.ink }]} onPress={onPress}>

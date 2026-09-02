@@ -536,7 +536,8 @@
     "rank5": "Living legend",
     "toNextRank": "{{n}} more zaps to {{rank}}",
     "maxRank": "Top rank reached ⚡",
-    "achievementsOf": "{{done}} of {{total}}"
+    "achievementsOf": "{{done}} of {{total}}",
+    "recapKicker": "MONTH RECAP"
   },
   "install": {
     "title": "Install ZAP!",
