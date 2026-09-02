@@ -69,12 +69,12 @@ export function FunStatCards({ fun, nameOf }: Props) {
 }
 
 const styles = StyleSheet.create({
-  strip: { marginHorizontal: -SCREEN_PAD_X, marginTop: 18 },
+  strip: { marginHorizontal: -SCREEN_PAD_X, marginTop: 14 },
   stripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 10, paddingVertical: 8 },
   card: {
-    width: 168,
-    borderRadius: 22,
-    padding: 14,
+    width: 142,
+    borderRadius: 20,
+    padding: 12,
     shadowColor: '#1E1C10',
     shadowOpacity: 0.1,
     shadowRadius: 14,
@@ -82,15 +82,15 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   coin: {
-    width: 54,
-    height: 54,
+    width: 42,
+    height: 42,
     borderRadius: 999,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 12,
+    marginBottom: 9,
   },
-  coinGlyph: { fontSize: 26 },
-  value: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.3 },
+  coinGlyph: { fontSize: 20 },
+  value: { fontFamily: font.extrabold, fontSize: 16.5, letterSpacing: -0.3 },
   sub: { fontFamily: font.semibold, fontSize: 11, marginTop: 1 },
   label: { fontFamily: font.semibold, fontSize: 11.5, marginTop: 4, lineHeight: 15 },
 });

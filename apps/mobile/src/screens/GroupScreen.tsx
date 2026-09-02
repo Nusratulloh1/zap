@@ -23,7 +23,6 @@ import { crewStats } from '@/lib/crewStats';
 import { MerchantLogos } from '@/components/MerchantLogos';
 import { FunStatCards } from '@/components/FunStatCards';
 import { SplitFaces } from '@/components/SplitFaces';
-import { useMyAvatar } from '@/lib/myAvatar';
 import { funStats } from '@/lib/funStats';
 import { translate } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -33,7 +32,7 @@ import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function GroupScreen() {
   const { t } = useTranslation();
-  const { colors, fixed, name: themeName } = useTheme();
+  const { colors, fixed } = useTheme();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const qc = useQueryClient();
@@ -44,7 +43,6 @@ export function GroupScreen() {
   const group = home.db?.groups.find((g) => g.id === id);
   const stats = useMemo(() => crewStats(home.db, id), [home.db, id]);
   const fun = useMemo(() => funStats(home.db, id), [home.db, id]);
-  const myAvatar = useMyAvatar();
   /*
     memberIds приходит с бэкенда уже вместе со мной (contactId(m.phone) →
     'me' для своего телефона). Раньше я добавлял 'me' сверху — получались
@@ -174,32 +172,7 @@ export function GroupScreen() {
           </PressableScale>
         </View>
 
-        {/*
-          Состав команды — как экран отряда в игре: кружки людей с именами,
-          над ачивками. Раньше участники жили только строками ниже по экрану,
-          и группа выглядела пустой.
-        */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.squadStrip} contentContainerStyle={styles.squadBody}>
-          {memberIds.map((cid) => (
-            <View key={cid} style={styles.squadItem}>
-              <Avatar
-                source={cid === 'me' ? (myAvatar ?? undefined) : undefined}
-                name={nameOf(cid)}
-                letter={cid === 'me' ? undefined : home.contactById(cid)?.initials}
-                contactId={cid}
-                color={cid === 'me' ? '#111110' : (home.contactById(cid)?.color ?? '#8A887E')}
-                size={62}
-                ring={fixed.lime}
-                ringWidth={2.5}
-              />
-              <Text style={[styles.squadName, { color: colors.ink }]} numberOfLines={1}>
-                {nameOf(cid).split(' ')[0]}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
-
-        {/* крупные ачивки компании — PUBG-статы, а не строчки списком */}
+        {/* ачивки компании — сразу под кнопками, компактной лентой */}
         <FunStatCards fun={fun} nameOf={nameOf} />
 
         <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
@@ -216,37 +189,59 @@ export function GroupScreen() {
           </View>
         </View>
 
+        {/*
+          Отряд — слоты как в лобби игры: рамка вокруг аватара, шеврон с
+          ролью, снизу имя и строка состояния. Пустой слот с пунктиром зовёт
+          добавить человека — компания из одного больше не выглядит поломкой.
+        */}
         <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
-          <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.members')}</Text>
-          {memberIds.map((cid) => (
-            <View key={cid} style={styles.memberRow}>
-              <Avatar name={nameOf(cid)} contactId={cid} color={colorOf(cid)} size={40} />
-              <View style={styles.memberBody}>
-                <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
-                  {nameOf(cid)}
-                  {cid === 'me' ? t('group.youSuffix') : ''}
-                </Text>
-                <Text style={[styles.memberSub, { color: colors.faint }]} numberOfLines={1}>
-                  {cid === 'me' ? translate('group.allClosed', { n: groupSplits.length }) : memberSub(cid)}
-                </Text>
-              </View>
-              {cid === group.ownerId ? (
-                <View style={[styles.ownerChip, { backgroundColor: colors.sand }]}>
-                  <Text style={[styles.ownerText, { color: colors.muted }]}>{t('group.owner')}</Text>
-                </View>
-              ) : debtOf(cid) > 0 ? (
-                <PressableScale
-                  disabled={reminded.has(cid)}
-                  style={[styles.remindChip, { backgroundColor: themeName === 'dark' ? 'rgba(255,255,255,0.08)' : colors.ink }, reminded.has(cid) && styles.disabled]}
-                  onPress={() => void remind(cid)}
-                >
-                  <Text style={[styles.remindText, { color: fixed.lime }]}>
-                    {reminded.has(cid) ? t('group.reminded') : t('group.remind')}
+          <View style={styles.splitsHead}>
+            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.squad')}</Text>
+            <Text style={[styles.squadCount, { color: colors.muted }]}>{memberIds.length}</Text>
+          </View>
+          <View style={styles.slots}>
+            {memberIds.map((cid) => {
+              const owner = cid === group.ownerId;
+              const debt = debtOf(cid);
+              return (
+                <View key={cid} style={[styles.slot, { backgroundColor: colors.shell }]}>
+                  <View style={[styles.slotFrame, { borderColor: owner ? fixed.lime : colors.sand2 }]}>
+                    <Avatar contactId={cid} name={nameOf(cid)} color={colorOf(cid)} size={54} />
+                  </View>
+                  <View style={[styles.slotChevron, { backgroundColor: owner ? fixed.lime : colors.sand }]}>
+                    <Text style={[styles.slotChevronText, { color: owner ? '#111110' : colors.muted }]} numberOfLines={1}>
+                      {owner ? t('group.owner') : t('group.member')}
+                    </Text>
+                  </View>
+                  <Text style={[styles.slotName, { color: colors.ink }]} numberOfLines={1}>
+                    {nameOf(cid).split(' ')[0]}
+                    {cid === 'me' ? t('group.youSuffix') : ''}
                   </Text>
-                </PressableScale>
-              ) : null}
-            </View>
-          ))}
+                  <Text style={[styles.slotSub, { color: colors.faint }]} numberOfLines={1}>
+                    {cid === 'me' ? translate('group.allClosed', { n: groupSplits.length }) : memberSub(cid)}
+                  </Text>
+                  {!owner && debt > 0 ? (
+                    <PressableScale
+                      disabled={reminded.has(cid)}
+                      style={[styles.slotRemind, { backgroundColor: colors.ink }, reminded.has(cid) && styles.disabled]}
+                      onPress={() => void remind(cid)}
+                    >
+                      <Text style={[styles.slotRemindText, { color: fixed.lime }]} numberOfLines={1}>
+                        {reminded.has(cid) ? t('group.reminded') : t('group.remind')}
+                      </Text>
+                    </PressableScale>
+                  ) : null}
+                </View>
+              );
+            })}
+            {/* свободный слот — приглашение */}
+            <PressableScale style={[styles.slot, styles.slotEmpty, { borderColor: colors.sand2 }]} onPress={() => void invite()}>
+              <View style={[styles.slotFrame, styles.slotPlusFrame, { borderColor: colors.sand2 }]}>
+                <Text style={[styles.slotPlus, { color: colors.faint }]}>+</Text>
+              </View>
+              <Text style={[styles.slotName, { color: colors.muted }]} numberOfLines={1}>{t('group.invite')}</Text>
+            </PressableScale>
+          </View>
         </View>
 
         {/* история компании: сколько ужинов и кофе вместе, кто должен, кто платил */}
@@ -355,10 +350,19 @@ const styles = StyleSheet.create({
   title: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.2 },
   sub: { fontFamily: font.semibold, fontSize: 12.5 },
   ctaRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
-  squadStrip: { marginHorizontal: -16, marginTop: 22 },
-  squadBody: { paddingHorizontal: 16, gap: 14 },
-  squadItem: { alignItems: 'center', width: 70 },
-  squadName: { fontFamily: font.bold, fontSize: 11.5, marginTop: 6 },
+  squadCount: { fontFamily: font.extrabold, fontSize: 12 },
+  slots: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
+  slot: { width: '31.5%', minWidth: 96, borderRadius: 20, paddingVertical: 14, paddingHorizontal: 8, alignItems: 'center' },
+  slotEmpty: { borderWidth: 2, borderStyle: 'dashed', justifyContent: 'center' },
+  slotFrame: { padding: 3, borderRadius: 999, borderWidth: 2.5 },
+  slotPlusFrame: { width: 60, height: 60, alignItems: 'center', justifyContent: 'center', borderStyle: 'dashed' },
+  slotPlus: { fontFamily: font.extrabold, fontSize: 26, marginTop: -2 },
+  slotChevron: { marginTop: -9, paddingHorizontal: 8, height: 18, borderRadius: 999, justifyContent: 'center' },
+  slotChevronText: { fontFamily: font.monoBold, fontSize: 8.5, letterSpacing: 0.8, textTransform: 'uppercase' },
+  slotName: { fontFamily: font.extrabold, fontSize: 12.5, marginTop: 7 },
+  slotSub: { fontFamily: font.semibold, fontSize: 10, marginTop: 2, textAlign: 'center' },
+  slotRemind: { marginTop: 8, height: 26, paddingHorizontal: 10, borderRadius: 999, justifyContent: 'center' },
+  slotRemindText: { fontFamily: font.extrabold, fontSize: 10.5 },
   headCta: { flex: 1, height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   headCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },
   headCtaLight: { fontFamily: font.bold, fontSize: 15 },

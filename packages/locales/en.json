@@ -418,7 +418,9 @@
     "deleteNote": "Splits stay in your history",
     "deleteAction": "Delete",
     "deleted": "Group deleted",
-    "shareText": "Join the Zap group on ZAP! ⚡"
+    "shareText": "Join the Zap group on ZAP! ⚡",
+    "squad": "SQUAD",
+    "member": "member"
   },
   "debts": {
     "title": "Owed to you",

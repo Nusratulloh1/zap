@@ -418,7 +418,9 @@
     "deleteNote": "Bo‘lishlar tarixda qoladi",
     "deleteAction": "O‘chirish",
     "deleted": "Guruh o‘chirildi",
-    "shareText": "ZAP! dagi Zap group ga qo‘shil ⚡"
+    "shareText": "ZAP! dagi Zap group ga qo‘shil ⚡",
+    "squad": "JAMOA",
+    "member": "a’zo"
   },
   "debts": {
     "title": "Sizga qarzdor",

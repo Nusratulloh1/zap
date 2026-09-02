@@ -418,7 +418,9 @@
     "deleteNote": "Сплиты останутся в истории",
     "deleteAction": "Удалить",
     "deleted": "Группа удалена",
-    "shareText": "Заходи в Zap group в ZAP! ⚡"
+    "shareText": "Заходи в Zap group в ZAP! ⚡",
+    "squad": "ОТРЯД",
+    "member": "участник"
   },
   "debts": {
     "title": "Вам должны",

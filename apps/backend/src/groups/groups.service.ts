@@ -9,7 +9,22 @@ export class GroupsService {
     const split = await this.prisma.split.findUnique({ where: { id: splitId }, include: { members: true } })
     if (!split || split.creatorId !== ownerId) throw new NotFoundException('Сплит не найден')
 
-    const members = split.members.filter((m) => !memberIds?.length || memberIds.includes(m.id) || m.isCreator)
+    /*
+      Приложение присылает contactId участников ('me', 'c_…'), а не id строк
+      SplitMember. Раньше фильтр сверял только m.id — совпадений не было, и в
+      группу попадал один создатель: любая компания сохранялась как «1 человек».
+      Сопоставляем и по id строки, и по contactId (через телефон контакта).
+    */
+    const owner = await this.prisma.user.findUnique({ where: { id: ownerId }, select: { phone: true } })
+    const contacts = await this.prisma.contact.findMany({ where: { ownerId }, select: { id: true, phone: true } })
+    const contactIdByPhone = new Map(contacts.map((c) => [c.phone, c.id]))
+    const contactIdOf = (phone: string) =>
+      phone === owner?.phone ? 'me' : (contactIdByPhone.get(phone) ?? phone)
+
+    const wanted = new Set(memberIds ?? [])
+    const members = split.members.filter(
+      (m) => !wanted.size || wanted.has(m.id) || wanted.has(contactIdOf(m.phone)) || m.isCreator,
+    )
     const phones = members.map((m) => m.phone).sort()
 
     // тот же состав → обновляем существующую группу, не плодим дубли
