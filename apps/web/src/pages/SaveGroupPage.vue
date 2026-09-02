@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import VenueIcon from '@/components/VenueIcon.vue'
+import { CREW_COLORS, CREW_EMOJI, colorForGlyph, setCrewColor, setCrewEmoji } from '@/lib/crewStyle'
 // Дизайн 3h: «Сохранить эту компанию?» — стек аватаров, карточка с названием
 // и участниками, тумблер группового кэшбэка, CTA.
 import { computed, onMounted, ref, watch } from 'vue'
@@ -80,6 +82,9 @@ function remove(cid: string) {
   memberIds.value = memberIds.value.filter((x) => x !== cid)
 }
 
+const glyph = ref('🍕')
+const color = ref(colorForGlyph('🍕'))
+
 async function save() {
   if (saving.value || !name.value.trim()) return
   saving.value = true
@@ -89,6 +94,12 @@ async function save() {
     memberIds: memberIds.value,
     accrueCashback: accrue.value,
   })
+  // знак живёт локально: привязываем к id созданной компании
+  const created = groups.groups.find((g) => g.name === name.value.trim())
+  if (created) {
+    setCrewEmoji(created.id, glyph.value)
+    setCrewColor(created.id, color.value)
+  }
   toast.success(t('saveGroup.saved'))
   router.replace(`/split/${id.value}/cashback`)
 }
@@ -105,19 +116,34 @@ async function save() {
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" /></svg>
     </button>
 
+    <!-- знак компании: сначала показываем, потом даём поменять -->
     <div class="mt-6 flex justify-center">
-      <div class="flex">
-        <ZapAvatar
-          v-for="(cid, i) in memberIds.slice(0, 4)"
-          :key="cid"
-          :name="nameOf(cid)"
-          :color="colorOf(cid)"
-          :contact-id="cid"
-          class="h-[58px] w-[58px] border-[3px] border-dune"
-          :class="i > 0 ? '-ml-4' : ''"
-          size="lg"
-        />
-      </div>
+      <VenueIcon :name="name" :glyph="glyph" :color="color" size="lg" class="h-[76px] w-[76px] text-[34px]" />
+    </div>
+
+    <div class="mt-4 flex justify-center gap-2.5">
+      <button
+        v-for="c in CREW_COLORS"
+        :key="c"
+        type="button"
+        class="press h-[30px] w-[30px] rounded-full"
+        :style="{ background: c }"
+        :class="c === color ? 'ring-[3px] ring-ink' : ''"
+        @click="color = c"
+      />
+    </div>
+
+    <div class="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5">
+      <button
+        v-for="e in CREW_EMOJI"
+        :key="e"
+        type="button"
+        class="press grid h-12 w-12 shrink-0 place-items-center rounded-2xl text-[23px]"
+        :class="e === glyph ? 'bg-lime' : 'bg-paper'"
+        @click="glyph = e; color = colorForGlyph(e)"
+      >
+        {{ e }}
+      </button>
     </div>
 
     <h1 class="mt-3.5 text-center text-[23px] font-extrabold tracking-[-0.01em]">{{ t('saveGroup.title') }}</h1>

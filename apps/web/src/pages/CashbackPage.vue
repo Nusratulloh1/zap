@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import MerchantCashbackSlider from '@/components/MerchantCashbackSlider.vue'
+import VenueIcon from '@/components/VenueIcon.vue'
 // Дизайн 5h: «Накопленные кэшбеки» — баланс 44px, чипы групп,
 // записи с логотипами мерчантов, CTA «Потратить» / «Вывести».
 import { computed, onMounted, ref } from 'vue'
@@ -14,11 +16,6 @@ import BottomSheet from '@/components/BottomSheet.vue'
 import AmountField from '@/components/AmountField.vue'
 import PinSheet from '@/components/PinSheet.vue'
 import AnimatedList from '@/components/AnimatedList.vue'
-import CountUp from '@/components/CountUp.vue'
-import partnerSafia from '@/assets/brand/partners/safia-sq.png'
-import partnerTexnomart from '@/assets/brand/partners/texnomart-sq.png'
-import partnerIdea from '@/assets/brand/partners/idea-sq.png'
-import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
@@ -44,12 +41,6 @@ const rows = computed(() =>
   filter.value === 'all' ? cashback.entries : cashback.entries.filter((e) => e.groupId === filter.value),
 )
 
-const logoByTitle: Record<string, string> = {
-  'Bellissimo Pizza': bellissimoLogo,
-  'Safia café': partnerSafia,
-  Texnomart: partnerTexnomart,
-  idea: partnerIdea,
-}
 
 function badgeOf(e: { badge: string }): string {
   // в дизайне бейдж — только множитель/процент, группа отдельно
@@ -110,11 +101,9 @@ async function confirmWithdraw() {
     </button>
 
     <h1 class="mt-6 text-[27px] font-extrabold tracking-[-0.01em]">{{ t('home.cashbackCard') }}</h1>
-    <div class="mt-3 flex items-baseline gap-2">
-      <CountUp :value="cashback.balance" :duration="800" class="text-[44px] font-extrabold leading-none tracking-[-0.03em]" />
-      <span class="font-mono text-[11px] font-bold text-faint-2">{{ t('common.currency') }} · {{ t('cashback.available') }}</span>
-    </div>
-    <p class="mt-2 text-[13px] font-semibold text-muted">{{ t('cashback.empty') }}</p>
+    <!-- свайп-карточки по заведениям: общая сумма + где именно накопилось -->
+    <MerchantCashbackSlider :entries="cashback.entries" :total="cashback.balance" />
+    <p class="mt-[18px] text-[13px] font-semibold text-muted">{{ t('cashback.empty') }}</p>
 
     <div class="no-scrollbar -mx-6 mt-5 flex gap-2 overflow-x-auto px-6">
       <button
@@ -138,10 +127,7 @@ async function confirmWithdraw() {
           :class="i < rows.length - 1 && 'border-b border-sand-2'"
           :style="{ '--i': i }"
         >
-          <img v-if="logoByTitle[e.title]" :src="logoByTitle[e.title]" :alt="e.title" class="h-11 w-11 rounded-[13px] object-cover" />
-          <div v-else class="flex h-11 w-11 items-center justify-center rounded-[13px] bg-ink text-[15px] font-extrabold text-paper">
-            {{ e.title[0]?.toUpperCase() }}
-          </div>
+          <VenueIcon :name="e.title" size="md" />
           <div class="flex min-w-0 flex-1 flex-col gap-0.5">
             <span class="truncate text-[15.5px] font-bold">{{ e.title }}</span>
             <span class="text-[12px] font-semibold text-faint">

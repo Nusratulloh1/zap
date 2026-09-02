@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import VenueIcon from '@/components/VenueIcon.vue'
+import FunStatCards from '@/components/FunStatCards.vue'
+import CrewEmojiSheet from '@/components/CrewEmojiSheet.vue'
+import { crewColor, crewEmoji } from '@/lib/crewStyle'
+import { funStats } from '@/lib/funStats'
+import { snapshot } from '@/api/real'
 // Дизайн 5f: группа — стек аватаров + название, «Новый сплит»/«Позвать»,
 // КЭШБЭК ГРУППЫ с логотипами партнёров, УЧАСТНИКИ, СПЛИТЫ ГРУППЫ.
 import { computed, onMounted, ref } from 'vue'
@@ -16,9 +21,6 @@ import { useDraftStore } from '@/entities/stores/draft'
 import { fetchFeaturedBill, renameGroup, deleteGroup } from '@/api'
 import BottomSheet from '@/components/BottomSheet.vue'
 import ZapAvatar from '@/components/ZapAvatar.vue'
-import partnerSafia from '@/assets/brand/partners/safia.png'
-import partnerTexnomart from '@/assets/brand/partners/texnomart.png'
-import partnerIdea from '@/assets/brand/partners/idea.png'
 import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
@@ -41,6 +43,40 @@ onMounted(() => {
   void debts.hydrate()
   void user.hydrate()
 })
+
+const emojiSheet = ref(false)
+// смена знака хранится в localStorage — дергаем перерисовку счётчиком
+const bump = ref(0)
+
+/*
+  Состав отряда берём из группы И из её сплитов: до фикса на сервере в группу
+  попадал только создатель, и «вы + Shoshiy» в списке соседствовало с отрядом
+  из одного человека.
+*/
+const memberIds = computed(() => {
+  const ids = [...new Set(group.value?.memberIds ?? [])]
+  for (const s of splits.splits) {
+    if (s.groupId !== group.value?.id) continue
+    for (const m of s.members) if (!ids.includes(m.contactId)) ids.push(m.contactId)
+  }
+  if (!ids.includes('me')) ids.unshift('me')
+  return ids.sort((a, b) => Number(b === 'me') - Number(a === 'me'))
+})
+
+const crewGlyph = computed(() =>
+  bump.value >= 0 && group.value ? crewEmoji({ splits: splits.splits, merchants: contacts.merchants }, group.value.id) : '⚡',
+)
+const crewTint = computed(() =>
+  bump.value >= 0 && group.value ? crewColor({ splits: splits.splits, merchants: contacts.merchants }, group.value.id) : '#5B8CFF',
+)
+
+/** Мерчанты, где компания реально была — по её сплитам. */
+const groupMerchants = computed(() => {
+  const ids = [...new Set(groupSplits.value.map((s) => s.merchantId).filter(Boolean))] as string[]
+  return ids.map((id) => contacts.merchantById(id)).filter((m): m is NonNullable<typeof m> => !!m)
+})
+
+const fun = computed(() => (group.value ? funStats(snapshot(), group.value.id) : []))
 
 const groupSplits = computed(() => splits.splits.filter((s) => s.groupId === id.value))
 
@@ -151,18 +187,10 @@ async function applyDelete() {
 
     <template v-if="group">
       <div class="mt-[22px] flex items-center gap-3.5">
-        <div class="flex">
-          <ZapAvatar
-            v-for="(cid, i) in group.memberIds.slice(0, 3)"
-            :key="cid"
-            :name="nameOf(cid)"
-            :color="colorOf(cid)"
-            :contact-id="cid"
-            class="h-[46px] w-[46px] border-[2.5px] border-paper"
-            :class="i > 0 ? '-ml-3.5' : ''"
-            size="md"
-          />
-        </div>
+        <!-- знак компании: тап меняет эмодзи и цвет -->
+        <button type="button" class="press" @click="emojiSheet = true">
+          <VenueIcon :name="group.name" :glyph="crewGlyph" :color="crewTint" size="lg" />
+        </button>
         <div class="flex flex-col gap-0.5">
           <h1 class="text-[22px] font-extrabold tracking-[-0.01em]">{{ group.name }}</h1>
           <p class="text-[12.5px] font-semibold text-faint">{{ t('group.sinceWith', { people: peopleCount(group.memberIds.length), date: dateShort(group.createdAt) }) }}</p>
@@ -178,42 +206,76 @@ async function applyDelete() {
         </button>
       </div>
 
-      <!-- кэшбэк группы -->
-      <div class="mt-6 border-t border-sand-2 pt-5">
-        <p class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('group.cashback') }}</p>
-        <div class="mt-2.5 flex items-baseline gap-2">
-          <span class="text-[36px] font-extrabold leading-none tracking-[-0.02em]">{{ money(group.cashback) }}</span>
-          <span class="font-mono text-[10.5px] font-bold text-faint-2">UZS</span>
+      <!-- ачивки компании: сетка 2×2, всё помещается в экран -->
+      <FunStatCards :fun="fun" :name-of="nameOf" class="mt-4" />
+
+      <!--
+        Кэшбэк компании — лаймовая карточка: раньше это была строка цифр на
+        белом и читалась как техническая сводка. Логотипы — реальные заведения
+        компании, а не статичная тройка из дизайна.
+      -->
+      <div class="mt-5 rounded-[24px] bg-lime p-[18px] text-on-lime">
+        <p class="font-mono text-[9.5px] font-bold tracking-[0.15em] opacity-60">{{ t('group.cashback') }}</p>
+        <div class="mt-1.5 flex items-baseline gap-2">
+          <span class="text-[40px] font-extrabold leading-none tracking-[-0.035em]">{{ money(group.cashback) }}</span>
+          <span class="text-[12px] font-bold opacity-50">UZS</span>
         </div>
-        <div class="mt-3 flex items-center">
-          <img :src="partnerSafia" alt="Safia" class="h-7 w-auto rounded-[9px]" />
-          <img :src="partnerTexnomart" alt="texnomart" class="-ml-2.5 h-7 w-auto rounded-[9px]" />
-          <img :src="partnerIdea" alt="idea" class="-ml-2.5 h-7 w-auto rounded-[9px]" />
-          <span class="ml-3 text-[12.5px] font-semibold text-muted">{{ t('group.merchantsCount', group.merchantsCount, { named: { n: group.merchantsCount } }) }}</span>
+        <div class="mt-3 flex items-center gap-2.5">
+          <VenueIcon v-for="m in groupMerchants.slice(0, 3)" :key="m.id" :name="m.name" size="sm" />
+          <span class="text-[12px] font-bold opacity-60">
+            {{ t('group.merchantsCount', groupMerchants.length || group.merchantsCount, { named: { n: groupMerchants.length || group.merchantsCount } }) }}
+          </span>
         </div>
       </div>
 
-      <!-- участники -->
+      <!--
+        Отряд — слоты как в лобби игры: рамка вокруг аватара, шеврон с ролью,
+        имя и состояние. Пустой пунктирный слот зовёт добавить человека —
+        компания из одного больше не выглядит поломкой.
+      -->
       <div class="mt-[22px] border-t border-sand-2 pt-[18px]">
-        <p class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('group.members') }}</p>
-        <div class="mt-2 flex flex-col">
-          <div v-for="cid in group.memberIds" :key="cid" class="flex min-h-[58px] items-center gap-3">
-            <ZapAvatar :name="nameOf(cid)" :color="colorOf(cid)" :contact-id="cid" class="h-10 w-10" size="sm" />
-            <div class="flex min-w-0 flex-1 flex-col gap-px">
-              <span class="text-[15px] font-bold">{{ nameOf(cid) }}<template v-if="cid === 'me'">{{ t('group.youSuffix') }}</template></span>
-              <span class="text-[12px] font-semibold text-faint">{{ cid === 'me' ? t('group.allClosed', groupSplits.length, { named: { n: groupSplits.length } }) : memberSub(cid) }}</span>
+        <div class="flex items-baseline justify-between">
+          <p class="font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('group.squad') }}</p>
+          <span class="text-[12px] font-extrabold text-muted">{{ memberIds.length }}</span>
+        </div>
+        <div class="mt-3 grid grid-cols-3 gap-2">
+          <div
+            v-for="cid in memberIds"
+            :key="cid"
+            class="flex flex-col items-center rounded-[20px] bg-shell px-1.5 py-3.5"
+          >
+            <div class="rounded-full border-[2.5px] p-[3px]" :class="cid === group.ownerId ? 'border-lime' : 'border-sand-2'">
+              <ZapAvatar :name="nameOf(cid)" :color="colorOf(cid)" :contact-id="cid" class="h-12 w-12" size="md" />
             </div>
-            <span v-if="cid === group.ownerId" class="flex h-7 items-center rounded-full bg-sand px-3 text-[11.5px] font-bold text-muted">{{ t('group.owner') }}</span>
+            <span
+              class="-mt-2 flex h-[18px] items-center rounded-full px-2 font-mono text-[8.5px] font-bold uppercase tracking-[0.08em]"
+              :class="cid === group.ownerId ? 'bg-lime text-on-lime' : 'bg-sand text-muted'"
+            >
+              {{ cid === group.ownerId ? t('group.owner') : t('group.member') }}
+            </span>
+            <span class="mt-[7px] truncate text-[12px] font-extrabold">{{ nameOf(cid).split(' ')[0] }}<template v-if="cid === 'me'">{{ t('group.youSuffix') }}</template></span>
+            <span class="mt-0.5 line-clamp-2 text-center text-[9.5px] font-semibold text-faint">
+              {{ cid === 'me' ? t('group.allClosed', groupSplits.length, { named: { n: groupSplits.length } }) : memberSub(cid) }}
+            </span>
             <button
-              v-else-if="debtOf(cid) > 0"
+              v-if="cid !== group.ownerId && debtOf(cid) > 0"
               type="button"
-              class="remind-chip press flex h-[30px] items-center rounded-full bg-ink px-3 text-[12px] font-bold text-lime disabled:opacity-50"
+              class="remind-chip press mt-2 flex h-[25px] items-center rounded-full bg-ink px-2 text-[10.5px] font-extrabold text-lime disabled:opacity-50"
               :disabled="reminded.has(cid)"
               @click="remind(cid)"
             >
               {{ reminded.has(cid) ? t('group.reminded') : t('group.remind') }}
             </button>
           </div>
+
+          <button
+            type="button"
+            class="press flex flex-col items-center justify-center gap-2 rounded-[20px] border-2 border-dashed border-sand-2 px-1.5 py-3.5"
+            @click="invite"
+          >
+            <span class="grid h-[54px] w-[54px] place-items-center rounded-full border-2 border-dashed border-sand-2 text-[26px] font-extrabold text-faint">+</span>
+            <span class="text-[12px] font-extrabold text-muted">{{ t('group.invite') }}</span>
+          </button>
         </div>
       </div>
 
@@ -287,4 +349,14 @@ async function applyDelete() {
       </div>
     </BottomSheet>
   </div>
+
+  <CrewEmojiSheet
+    v-if="group"
+    :open="emojiSheet"
+    :group-id="group.id"
+    :glyph="crewGlyph"
+    :color="crewTint"
+    @close="emojiSheet = false"
+    @changed="bump++"
+  />
 </template>

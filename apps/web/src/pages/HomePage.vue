@@ -18,6 +18,7 @@ import { useCashbackStore } from '@/entities/stores/cashback'
 import type { Split } from '@zap/shared/types'
 import ZapAvatar from '@/components/ZapAvatar.vue'
 import VenueIcon from '@/components/VenueIcon.vue'
+import GenderSheet from '@/components/GenderSheet.vue'
 import { crewColor, crewEmoji } from '@/lib/crewStyle'
 import AnimatedList from '@/components/AnimatedList.vue'
 import Skeleton from '@/components/ui/Skeleton.vue'
@@ -289,6 +290,9 @@ const splitRows = computed(() => {
 const homeDate = (ts: number) => humanDateLc(ts)
 
 // знак и цвет компании из локального выбора (или по её заведениям)
+// пол спрашиваем один раз, ради подбора аватара
+const genderSheet = ref(localStorage.getItem('zap:gender') === null)
+
 const crewSrc = computed(() => ({ splits: splits.splits, merchants: contacts.merchants }))
 function crewGlyph(groupId: string): string {
   return crewEmoji(crewSrc.value, groupId)
@@ -632,4 +636,6 @@ function splitSub(s: Split): string {
       </div>
     </div>
   </div>
+
+  <GenderSheet :open="genderSheet" @close="genderSheet = false" />
 </template>

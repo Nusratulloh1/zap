@@ -95,7 +95,12 @@ async function confirmCover() {
 </script>
 
 <template>
-  <div class="flex min-h-dvh flex-col bg-paper px-5 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]">
+  <!-- закрытый счёт открывается лаймовым, как экран закрытия: статус читается
+       сразу, без чтения подписей -->
+  <div
+    class="flex min-h-dvh flex-col px-5 pb-[46px] pt-[calc(env(safe-area-inset-top)+24px)]"
+    :class="split?.status === 'closed' ? 'bg-lime text-on-lime' : 'bg-paper'"
+  >
     <button
       type="button"
       :aria-label="t('common.backAria')"
