@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import VenueIcon from '@/components/VenueIcon.vue'
 // Дизайн 5f: группа — стек аватаров + название, «Новый сплит»/«Позвать»,
 // КЭШБЭК ГРУППЫ с логотипами партнёров, УЧАСТНИКИ, СПЛИТЫ ГРУППЫ.
 import { computed, onMounted, ref } from 'vue'
@@ -18,7 +19,6 @@ import ZapAvatar from '@/components/ZapAvatar.vue'
 import partnerSafia from '@/assets/brand/partners/safia.png'
 import partnerTexnomart from '@/assets/brand/partners/texnomart.png'
 import partnerIdea from '@/assets/brand/partners/idea.png'
-import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
 import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
@@ -230,10 +230,7 @@ async function applyDelete() {
             class="flex min-h-[58px] cursor-pointer items-center gap-3"
             @click="router.push(`/split/${s.id}`)"
           >
-            <img v-if="s.merchantId === 'm_bellissimo'" :src="bellissimoLogo" alt="" class="merchant-img h-10 w-10 rounded-xl object-cover" />
-            <div v-else class="flex h-10 w-10 items-center justify-center rounded-xl bg-ink text-[15px] font-extrabold text-paper">
-              {{ contacts.merchantById(s.merchantId)?.letter ?? 'S' }}
-            </div>
+            <VenueIcon :name="contacts.merchantById(s.merchantId)?.name ?? s.title" size="md" />
             <div class="flex min-w-0 flex-1 flex-col gap-px">
               <span class="truncate text-[15px] font-bold">
                 {{ contacts.merchantById(s.merchantId)?.name ?? s.title }}<template v-if="s.bill"> · #{{ s.bill.orderNo }}</template>

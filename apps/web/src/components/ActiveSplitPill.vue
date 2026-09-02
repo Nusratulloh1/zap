@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import VenueIcon from '@/components/VenueIcon.vue'
 // Дизайн 4a: чёрная плашка активного сплита над таб-баром —
 // логотип мерчанта, «Активный сплит», «ждём Бека · 128 000», лаймовый прогресс.
 import { computed } from 'vue'
@@ -7,7 +8,6 @@ import { useSplitsStore } from '@/entities/stores/splits'
 import { useContactsStore } from '@/entities/stores/contacts'
 import { useUserStore } from '@/entities/stores/user'
 import { money } from '@/lib/format'
-import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
 import { useI18n } from 'vue-i18n'
 
 const route = useRoute()
@@ -46,7 +46,6 @@ const progress = computed(() => {
   return Math.round((paid / split.value.total) * 100)
 })
 
-const isBellissimo = computed(() => split.value?.merchantId === 'm_bellissimo')
 const merchant = computed(() => contacts.merchantById(split.value?.merchantId))
 </script>
 
@@ -58,14 +57,7 @@ const merchant = computed(() => contacts.merchantById(split.value?.merchantId))
       class="press fixed bottom-[calc(86px+env(safe-area-inset-bottom))] left-1/2 z-30 flex w-[calc(100%-28px)] max-w-[374px] -translate-x-1/2 items-center gap-3 rounded-full bg-ink py-[13px] pl-[11px] pr-[18px] text-left shadow-[0_14px_34px_rgba(30,28,16,0.35)]"
       @click="router.push(`/split/${split.id}`)"
     >
-      <img v-if="isBellissimo" :src="bellissimoLogo" alt="" class="merchant-img h-[42px] w-[42px] rounded-full object-cover" />
-      <div
-        v-else
-        class="flex h-[42px] w-[42px] items-center justify-center rounded-full text-[16px] font-extrabold text-paper"
-        :style="{ background: merchant?.color ?? '#3E3C35' }"
-      >
-        {{ merchant?.letter ?? split.title[0]?.toUpperCase() }}
-      </div>
+      <VenueIcon :name="merchant?.name ?? split.title" size="md" class="h-[42px] w-[42px]" />
       <div class="min-w-0 flex-1 space-y-[7px]">
         <div class="flex items-baseline justify-between gap-2">
           <span class="whitespace-nowrap text-[14.5px] font-extrabold text-paper">{{ t('home.activeSplit') }}</span>

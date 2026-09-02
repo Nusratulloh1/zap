@@ -17,6 +17,8 @@ import { useDebtsStore } from '@/entities/stores/debts'
 import { useCashbackStore } from '@/entities/stores/cashback'
 import type { Split } from '@zap/shared/types'
 import ZapAvatar from '@/components/ZapAvatar.vue'
+import VenueIcon from '@/components/VenueIcon.vue'
+import { crewColor, crewEmoji } from '@/lib/crewStyle'
 import AnimatedList from '@/components/AnimatedList.vue'
 import Skeleton from '@/components/ui/Skeleton.vue'
 import wordmark from '@/assets/brand/logo/zap-wordmark-large.png'
@@ -286,6 +288,15 @@ const splitRows = computed(() => {
 
 const homeDate = (ts: number) => humanDateLc(ts)
 
+// знак и цвет компании из локального выбора (или по её заведениям)
+const crewSrc = computed(() => ({ splits: splits.splits, merchants: contacts.merchants }))
+function crewGlyph(groupId: string): string {
+  return crewEmoji(crewSrc.value, groupId)
+}
+function crewTint(groupId: string): string {
+  return crewColor(crewSrc.value, groupId)
+}
+
 function splitSub(s: Split): string {
   const g = s.groupId ? groups.byId(s.groupId) : undefined
   const date = homeDate(s.createdAt)
@@ -302,9 +313,6 @@ function splitSub(s: Split): string {
   return t('home.splitSubPeople', { names: others.join(', '), date })
 }
 
-function splitLetter(s: Split): string {
-  return contacts.merchantById(s.merchantId)?.letter ?? s.title[0]?.toUpperCase() ?? 'S'
-}
 </script>
 
 <template>
@@ -557,18 +565,8 @@ function splitLetter(s: Split): string {
             :class="gi < groups.groups.length - 1 && 'border-b border-sand-2'"
             @click="router.push(`/groups/${g.id}`)"
           >
-            <div class="flex">
-              <ZapAvatar
-                v-for="(cid, i) in g.memberIds.slice(0, 3)"
-                :key="cid"
-                :name="contacts.byId(cid)?.name ?? t('home.me')"
-                :color="contacts.byId(cid)?.color ?? '#111110'"
-                :contact-id="cid"
-                class="h-8 w-8 border-2 border-paper"
-                :class="i > 0 ? '-ml-2.5' : ''"
-                size="xs"
-              />
-            </div>
+            <!-- знак компании: свой эмодзи и цвет, как в приложении -->
+            <VenueIcon :name="g.name" :glyph="crewGlyph(g.id)" :color="crewTint(g.id)" size="md" />
             <div class="flex min-w-0 flex-1 flex-col gap-px">
               <span class="text-[15px] font-bold">{{ g.name }}</span>
               <span class="text-[12px] font-semibold text-faint">{{ t('home.groupSub', { people: peopleCount(g.memberIds.length), amount: money(g.cashback) }) }}</span>
@@ -610,9 +608,7 @@ function splitLetter(s: Split): string {
               :style="{ '--i': i }"
               @click="router.push(`/split/${s.id}`)"
             >
-              <div class="flex h-10 w-10 items-center justify-center rounded-[14px] bg-ink text-[15px] font-extrabold text-paper">
-                {{ splitLetter(s) }}
-              </div>
+              <VenueIcon :name="contacts.merchantById(s.merchantId)?.name ?? s.title" size="md" />
               <div class="flex min-w-0 flex-1 flex-col gap-px">
                 <span class="truncate text-[15.5px] font-bold">{{ contacts.merchantById(s.merchantId)?.name ?? s.title }}</span>
                 <span class="truncate text-[12.5px] font-semibold text-muted">{{ splitSub(s) }}</span>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { cn } from '@/lib/cn'
-import { avatarOf } from '@/lib/avatars'
+import { myPersona, personaFor } from '@/lib/personas'
 
 const props = defineProps<{
   name: string
@@ -10,10 +10,20 @@ const props = defineProps<{
   contactId?: string
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   ring?: boolean
+  /** не подставлять персону (мерчант, а не человек) */
+  noPersona?: boolean
   class?: string
 }>()
 
-const photo = computed(() => (props.contactId ? avatarOf(props.contactId) : undefined))
+/*
+  Персона есть у КАЖДОГО: «me» — выбранная в профиле, остальным — закреплённая
+  по id. Буква остаётся только там, где человека нет (мерчант, пустой слот) —
+  для этого есть noPersona.
+*/
+const photo = computed(() => {
+  if (props.noPersona || !props.contactId) return undefined
+  return props.contactId === 'me' ? myPersona() : personaFor(props.contactId)
+})
 
 const sizes = {
   xs: 'h-7 w-7 text-[11px]',

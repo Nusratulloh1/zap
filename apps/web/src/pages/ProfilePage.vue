@@ -14,12 +14,29 @@ import PinDots from '@/components/PinDots.vue'
 import { setPrimaryCard, changePin } from '@/api'
 import ThemeToggle from '@/components/ThemeToggle.vue'
 import { install, isInstalled } from '@/lib/installPrompt'
-import UserAvatar from '@/components/UserAvatar.vue'
+import PlayerCard from '@/components/PlayerCard.vue'
+import AchievementStrip from '@/components/AchievementStrip.vue'
+import AvatarPickSheet from '@/components/AvatarPickSheet.vue'
+import { titlesFor, type TitleKey } from '@/lib/funStats'
+import { snapshot } from '@/api/real'
 import LanguageSheet from '@/components/LanguageSheet.vue'
 import { useI18n } from 'vue-i18n'
 import { LOCALE_NAMES, type Locale } from '@/lib/i18n'
 
 const installed = isInstalled()
+
+/** Полный набор ачивок: закрытые тоже видны — пустое место не мотивирует. */
+const ALL_TITLES: readonly (readonly [TitleKey, string])[] = [
+  ['fastestFinger', '⚡'],
+  ['reliableOne', '🤝'],
+  ['bigSpender', '💸'],
+  ['pizzaCFO', '🍕'],
+  ['coffeeAddict', '☕'],
+  ['lastPayer', '👀'],
+]
+
+const avatarSheet = ref(false)
+const myTitles = computed(() => titlesFor(snapshot(), 'me').map((x) => x.key))
 
 const router = useRouter()
 const user = useUserStore()
@@ -209,31 +226,19 @@ async function confirmLogout() {
     </div>
 
     <template v-if="user.user">
-      <div class="mt-[22px] flex items-center gap-4">
-        <UserAvatar :size="76" :border="3" />
-        <div class="flex flex-col gap-[3px]">
-          <h1 class="text-[23px] font-extrabold tracking-[-0.01em]">{{ user.user.name }}</h1>
-          <p class="text-[13.5px] font-semibold text-muted">{{ user.user.handle }} · {{ phone(user.user.phone) }}</p>
-          <span class="flex h-[26px] w-fit items-center rounded-full bg-lime px-[11px] text-[11px] font-extrabold text-on-lime">
-            {{ t('profile.since', { date: sinceLabel }) }}
-          </span>
-        </div>
-      </div>
+      <PlayerCard
+        :name="user.user.name"
+        :handle="user.user.handle"
+        :since="t('profile.since', { date: sinceLabel })"
+        :splits="user.user.splitsCount"
+        :cashback="money(cashback.balance)"
+        :groups="groups.groups.length"
+        class="mt-[22px]"
+        @pick="avatarSheet = true"
+      />
 
-      <div class="mt-[22px] flex gap-2.5">
-        <div class="flex flex-1 flex-col gap-[3px] rounded-[20px] bg-shell px-4 py-3.5">
-          <span class="text-[20px] font-extrabold">{{ user.user.splitsCount }}</span>
-          <span class="text-[11.5px] font-bold text-muted">{{ t('profile.statSplitsUnit') }}</span>
-        </div>
-        <div class="flex flex-1 flex-col gap-[3px] rounded-[20px] bg-shell px-4 py-3.5">
-          <span class="text-[20px] font-extrabold">{{ money(cashback.balance) }}</span>
-          <span class="text-[11.5px] font-bold text-muted">{{ t('profile.statCashbackUnit') }}</span>
-        </div>
-        <div class="flex flex-1 flex-col gap-[3px] rounded-[20px] bg-shell px-4 py-3.5">
-          <span class="text-[20px] font-extrabold">{{ groups.groups.length }}</span>
-          <span class="text-[11.5px] font-bold text-muted">{{ t('profile.statGroupsUnit') }}</span>
-        </div>
-      </div>
+      <!-- ачивки сразу под полосой опыта — как в приложении -->
+      <AchievementStrip :all="ALL_TITLES" :unlocked="myTitles" />
 
       <!-- карты -->
       <p class="mt-[26px] font-mono text-[10px] font-bold tracking-[0.16em] text-faint-2">{{ t('profile.cards') }}</p>
@@ -432,4 +437,6 @@ async function confirmLogout() {
     </BottomSheet>
   </div>
     <LanguageSheet :open="languageSheet" @close="languageSheet = false" />
+
+  <AvatarPickSheet :open="avatarSheet" @close="avatarSheet = false" />
 </template>

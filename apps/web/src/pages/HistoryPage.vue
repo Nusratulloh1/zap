@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import VenueIcon from '@/components/VenueIcon.vue'
 // Дизайн 5i: «История» — поиск + аватар в шапке, чипы, моно-лейблы дней,
 // строки 68px (лого мерчанта / лаймовый % / фото должника), суммы в ink.
 import { computed, onMounted, ref } from 'vue'
@@ -9,7 +10,6 @@ import { useHistoryStore } from '@/entities/stores/history'
 import ZapAvatar from '@/components/ZapAvatar.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import AnimatedList from '@/components/AnimatedList.vue'
-import bellissimoLogo from '@/assets/brand/partners/bellissimo.png'
 import { useI18n } from 'vue-i18n'
 
 const router = useRouter()
@@ -114,10 +114,8 @@ function amountText(e: HistoryEntry): string {
               class="h-[42px] w-[42px]"
               size="sm"
             />
-            <img v-else-if="e.letter === 'B'" :src="bellissimoLogo" alt="" class="merchant-img h-[42px] w-[42px] rounded-[13px] object-cover" />
-            <span v-else class="flex h-[42px] w-[42px] items-center justify-center rounded-[13px] bg-ink text-[15px] font-extrabold text-paper">
-              {{ e.letter }}
-            </span>
+            <!-- знак заведения: логотип партнёра или эмодзи категории -->
+            <VenueIcon v-else :name="e.title" size="md" class="h-[42px] w-[42px]" />
 
             <div class="flex min-w-0 flex-1 flex-col gap-0.5">
               <span class="truncate text-[15px] font-bold">{{ e.title }}</span>
