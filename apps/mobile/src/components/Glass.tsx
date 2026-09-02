@@ -17,9 +17,13 @@ interface Props {
   /** тёмная поверхность (пилл на тёмной теме, подложка шита) */
   dark?: boolean;
   /**
-   * Тонкий материал для таб-бара. Не ultraThin: он почти не размывает, и пилл
-   * выглядел просто полупрозрачным прямоугольником. thin даёт заметное
-   * размытие и при этом всё ещё пропускает контент.
+   * Классический blur для таб-бара вместо системных материалов.
+   *
+   * Диагностика на устройстве (три плитки рядом) показала: материалы
+   * (ultraThin/thin/chrome) на светлом контенте визуально не отличаются от
+   * плоской заливки — у них сильный собственный тинт и слабое размытие.
+   * Классический UIBlurEffectStyleLight даёт честное «морозное стекло»,
+   * которое видно. Он же ближе всего к backdrop-filter веба.
    */
   thin?: boolean;
   /** цвет-заглушка для Android и как подложка под стекло на iOS */
@@ -39,7 +43,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export function Glass({ dark, thin, fallback, tint, amount = 28, style, children }: Props) {
+export function Glass({ dark, thin, fallback, tint, amount = 25, style, children }: Props) {
   /*
     «Уменьшение прозрачности» в настройках iOS полностью отключает
     UIVisualEffectView: система подставляет вместо блюра сплошной
@@ -70,7 +74,7 @@ export function Glass({ dark, thin, fallback, tint, amount = 28, style, children
     <View style={[style, styles.clip]}>
       <BlurView
         style={StyleSheet.absoluteFill as object}
-        blurType={thin ? (dark ? 'thinMaterialDark' : 'thinMaterialLight') : dark ? 'thickMaterialDark' : 'chromeMaterial'}
+        blurType={thin ? (dark ? 'dark' : 'light') : dark ? 'thickMaterialDark' : 'chromeMaterial'}
         blurAmount={amount}
         reducedTransparencyFallbackColor={fallback}
       />
