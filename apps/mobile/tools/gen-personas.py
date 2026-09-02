@@ -1,19 +1,17 @@
 #!/usr/bin/env python3
-"""Аватары-персоны для профиля: 15 плоских иллюстраций людей.
+"""Аватары-персоны: 24 объёмные (clay/3D) иллюстрации людей.
 
-Стиль — flat personas (Notion / avataaars): пастельный круг, голова и плечи,
-минимальное лицо. Это не «нарисованный от руки арт», а чистая геометрия —
-поэтому программная генерация здесь даёт ровный, профессиональный результат.
+Прошлая версия была плоской заливкой — руководство просило вид Meta-аватаров.
+Объём здесь делается светом, а не полигонами: под каждую форму подкладывается
+размытое светлое пятно сверху-слева и тёмное снизу-справа, обрезанные маской
+самой формы. Плюс градиентный фон, блик в глазу, мягкая тень головы на плечи.
 
-Каждая персона — осмысленная комбинация тона кожи, причёски, одежды и
-аксессуаров, подобранная вручную (не рандом: рандом даёт двойников и мусор).
-
-Рисуем в 4x и уменьшаем до 240 — края получаются гладкими.
+Рисуем в 4x и уменьшаем — края получаются гладкими.
 Запуск:  python3 tools/gen-personas.py
 """
 import os
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "assets", "brand", "personas")
@@ -25,271 +23,450 @@ W = R * S
 
 INK = (23, 19, 15, 255)
 
-# пастельные подложки — спокойные, лайм оставлен двум персонам как акцент
+# фон — пара цветов для вертикального градиента
 BG = {
-    "lime":  (221, 255, 51, 255),
-    "cream": (243, 238, 226, 255),
-    "peach": (255, 214, 179, 255),
-    "sky":   (191, 217, 255, 255),
-    "mint":  (203, 239, 211, 255),
-    "lilac": (224, 212, 255, 255),
-    "sand":  (232, 226, 210, 255),
-    "coral": (255, 196, 186, 255),
+    "lime":  ((228, 255, 92), (186, 224, 40)),
+    "cream": ((248, 244, 234), (226, 219, 202)),
+    "peach": ((255, 224, 196), (247, 190, 148)),
+    "sky":   ((205, 228, 255), (160, 196, 246)),
+    "mint":  ((214, 245, 224), (170, 219, 187)),
+    "lilac": ((233, 223, 255), (198, 180, 245)),
+    "sand":  ((238, 232, 217), (214, 205, 184)),
+    "coral": ((255, 208, 199), (250, 168, 158)),
 }
 
 SKIN = {
-    "s1": (246, 205, 163, 255),
-    "s2": (232, 177, 129, 255),
-    "s3": (198, 136, 91, 255),
-    "s4": (156, 106, 68, 255),
-    "s5": (122, 78, 46, 255),
+    "s1": (247, 209, 172),
+    "s2": (233, 181, 137),
+    "s3": (199, 140, 96),
+    "s4": (158, 108, 71),
+    "s5": (124, 80, 49),
 }
 
 HAIR = {
-    "black": (26, 21, 16, 255),
-    "brown": (74, 50, 28, 255),
-    "chest": (128, 82, 40, 255),
-    "blond": (216, 168, 84, 255),
-    "grey":  (206, 199, 186, 255),
-    "ginger": (188, 84, 38, 255),
+    "black": (32, 26, 22),
+    "brown": (82, 55, 32),
+    "chest": (134, 88, 45),
+    "blond": (219, 174, 92),
+    "grey":  (208, 202, 190),
+    "ginger": (192, 90, 42),
 }
 
 SHIRT = {
-    "ink":   (23, 19, 15, 255),
-    "white": (250, 248, 243, 255),
-    "lime":  (221, 255, 51, 255),
-    "blue":  (58, 92, 160, 255),
-    "green": (58, 122, 84, 255),
-    "red":   (196, 74, 54, 255),
+    "ink":   (30, 26, 22),
+    "white": (250, 248, 243),
+    "lime":  (221, 255, 51),
+    "blue":  (64, 100, 172),
+    "green": (64, 130, 92),
+    "red":   (202, 80, 60),
 }
 
-
-def px(v):  # координаты заданы в сетке 240 — переводим в холст 960
-    return v * S
+EYE = (54, 40, 30)
 
 
-def new_canvas():
-    img = Image.new("RGBA", (W, W), (0, 0, 0, 0))
-    return img, ImageDraw.Draw(img)
+def px(v):
+    return int(v * S)
 
 
-def clip_circle(img):
-    mask = Image.new("L", (W, W), 0)
-    ImageDraw.Draw(mask).ellipse([0, 0, W, W], fill=255)
+def new_layer():
+    return Image.new("RGBA", (W, W), (0, 0, 0, 0))
+
+
+def darker(c, k=0.8):
+    return (int(c[0] * k), int(c[1] * k), int(c[2] * k))
+
+
+def lighter(c, k=0.25):
+    return (
+        int(c[0] + (255 - c[0]) * k),
+        int(c[1] + (255 - c[1]) * k),
+        int(c[2] + (255 - c[2]) * k),
+    )
+
+
+def shade(target, mask, dx_light, dy_light, dx_dark, dy_dark, light=90, dark=95, blur=26):
+    """Объём: размытый блик и тень, обрезанные маской формы."""
+    # Серп появляется ТАМ, ГДЕ маска есть, а сдвинутая копия — нет, то есть с
+    # противоположной сдвигу стороны. Поэтому для блика сдвигаем маску вниз-
+    # вправо, для тени — вверх-влево (иначе свет ложится снизу, как в подвале).
+    for dx, dy, col, a in ((-dx_light, -dy_light, (255, 255, 255), light),
+                           (-dx_dark, -dy_dark, (0, 0, 0), dark)):
+        lay = Image.new("RGBA", (W, W), (0, 0, 0, 0))
+        m = mask.copy()
+        # смещаем маску и вычитаем исходную — получаем «серп» света или тени
+        shifted = Image.new("L", (W, W), 0)
+        shifted.paste(m, (px(dx), px(dy)))
+        sub = Image.new("L", (W, W), 0)
+        sub.paste(
+            Image.eval(shifted, lambda v: v),
+            (0, 0),
+        )
+        band = Image.new("L", (W, W), 0)
+        band.paste(m, (0, 0))
+        # свет: часть формы, не покрытая сдвинутой копией в обратную сторону
+        inv = Image.eval(sub, lambda v: 255 - v)
+        crescent = Image.new("L", (W, W), 0)
+        crescent.paste(inv, (0, 0), band)
+        crescent = crescent.filter(ImageFilter.GaussianBlur(px(blur / S)))
+        crescent = Image.eval(crescent, lambda v: int(v * a / 255))
+        solid = Image.new("RGBA", (W, W), (*col, 255))
+        lay.paste(solid, (0, 0), crescent)
+        # ещё раз обрезаем строго по форме
+        out = Image.new("RGBA", (W, W), (0, 0, 0, 0))
+        out.paste(lay, (0, 0), band)
+        target.alpha_composite(out)
+
+
+def mask_of(draw_fn):
+    m = Image.new("L", (W, W), 0)
+    draw_fn(ImageDraw.Draw(m))
+    return m
+
+
+def gradient_circle(c_top, c_bot):
+    """Фон-круг с вертикальным градиентом."""
+    grad = Image.new("RGBA", (W, W))
+    d = ImageDraw.Draw(grad)
+    for y in range(W):
+        t = y / (W - 1)
+        d.line(
+            [(0, y), (W, y)],
+            fill=(
+                int(c_top[0] + (c_bot[0] - c_top[0]) * t),
+                int(c_top[1] + (c_bot[1] - c_top[1]) * t),
+                int(c_top[2] + (c_bot[2] - c_top[2]) * t),
+                255,
+            ),
+        )
+    circle = Image.new("L", (W, W), 0)
+    ImageDraw.Draw(circle).ellipse([0, 0, W - 1, W - 1], fill=255)
     out = Image.new("RGBA", (W, W), (0, 0, 0, 0))
-    out.paste(img, (0, 0), mask)
+    out.paste(grad, (0, 0), circle)
     return out
 
 
-def darker(c, k=0.82):
-    return (int(c[0] * k), int(c[1] * k), int(c[2] * k), 255)
-
-
 def draw_person(bg, skin, hair, hairstyle, shirt, acc, beard=None, freckles=False, grin=False):
-    img, d = new_canvas()
-    d.ellipse([0, 0, W, W], fill=BG[bg])
+    img = gradient_circle(*BG[bg])
 
     cx = px(120)
-    head_r = px(52)
-    head_cy = px(104)
+    head_r = px(53)
+    head_cy = px(100)
+    sk = SKIN[skin]
+    hc = HAIR[hair]
+    sh = SHIRT[shirt]
 
-    # ── волосы сзади (длинные) — рисуются до торса и головы ──
-    if hairstyle == "long":
-        d.rounded_rectangle([cx - head_r - px(10), head_cy - head_r - px(6),
-                             cx + head_r + px(10), px(214)],
-                            radius=px(42), fill=HAIR[hair])
+    # ── длинные волосы за спиной ──
+    if hairstyle in ("long", "braids"):
+        back = new_layer()
+        ImageDraw.Draw(back).rounded_rectangle(
+            [cx - head_r - px(14), head_cy - head_r, cx + head_r + px(14), px(226)],
+            radius=px(46), fill=(*darker(hc, 0.82), 255))
+        img.alpha_composite(back)
 
     # ── торс ──
-    sh = SHIRT[shirt]
-    d.rounded_rectangle([px(56), px(168), px(184), px(262)], radius=px(34), fill=sh)
-    # ворот
-    d.pieslice([cx - px(20), px(160), cx + px(20), px(196)], 0, 180, fill=SKIN[skin])
-    if shirt == "ink":
-        # маленькая лаймовая молния на груди — фирменная деталь
-        d.polygon([(cx + px(2), px(206)), (px(112), px(224)), (px(120), px(224)),
-                   (px(112), px(244)), (px(130), px(220)), (px(122), px(220)),
-                   (px(128), px(206))], fill=BG["lime"])
+    torso_box = [px(50), px(166), px(190), px(266)]
+    torso_mask = mask_of(lambda d: d.rounded_rectangle(torso_box, radius=px(38), fill=255))
+    torso = new_layer()
+    ImageDraw.Draw(torso).rounded_rectangle(torso_box, radius=px(38), fill=(*sh, 255))
+    shade(torso, torso_mask, -10, -8, 12, 10, light=70, dark=80, blur=30)
+    img.alpha_composite(torso)
 
-    # ── шея и голова ──
-    d.rectangle([cx - px(12), px(148), cx + px(12), px(172)], fill=SKIN[skin])
-    d.ellipse([cx - head_r, head_cy - head_r, cx + head_r, head_cy + head_r], fill=SKIN[skin])
-    # ушки
-    er = px(9)
-    for ex in (cx - head_r, cx + head_r):
-        d.ellipse([ex - er, head_cy - er, ex + er, head_cy + er], fill=SKIN[skin])
+    # ворот
+    collar = new_layer()
+    ImageDraw.Draw(collar).pieslice(
+        [cx - px(22), px(156), cx + px(22), px(196)], 0, 180, fill=(*darker(sk, 0.9), 255))
+    img.alpha_composite(collar)
+
+    if shirt == "ink":
+        bolt = new_layer()
+        ImageDraw.Draw(bolt).polygon(
+            [(cx + px(2), px(204)), (px(112), px(222)), (px(120), px(222)),
+             (px(112), px(242)), (px(130), px(218)), (px(122), px(218)),
+             (px(128), px(204))], fill=(221, 255, 51, 255))
+        img.alpha_composite(bolt)
+
+    # ── шея с тенью от головы ──
+    neck_box = [cx - px(14), px(142), cx + px(14), px(176)]
+    neck = new_layer()
+    ImageDraw.Draw(neck).rounded_rectangle(neck_box, radius=px(10), fill=(*darker(sk, 0.86), 255))
+    img.alpha_composite(neck)
+
+    # ── уши ──
+    ears = new_layer()
+    de = ImageDraw.Draw(ears)
+    for ex in (cx - head_r + px(2), cx + head_r - px(2)):
+        de.ellipse([ex - px(10), head_cy - px(6), ex + px(10), head_cy + px(16)], fill=(*sk, 255))
+    img.alpha_composite(ears)
+
+    # ── голова ──
+    head_box = [cx - head_r, head_cy - head_r - px(4), cx + head_r, head_cy + head_r + px(6)]
+    head_mask = mask_of(lambda d: d.ellipse(head_box, fill=255))
+    head = new_layer()
+    ImageDraw.Draw(head).ellipse(head_box, fill=(*sk, 255))
+    shade(head, head_mask, -13, -12, 14, 13, light=105, dark=88, blur=24)
+    img.alpha_composite(head)
+
+    eye_y = head_cy + px(4)
+
+    # румянец
+    blush = new_layer()
+    db = ImageDraw.Draw(blush)
+    for ex in (cx - px(33), cx + px(33)):
+        db.ellipse([ex - px(11), eye_y + px(8), ex + px(11), eye_y + px(22)],
+                   fill=(*darker(sk, 0.86), 120))
+    img.alpha_composite(blush.filter(ImageFilter.GaussianBlur(px(3))))
+
+    if freckles:
+        fr = new_layer()
+        dfr = ImageDraw.Draw(fr)
+        for fx, fy in ((-28, 12), (-22, 16), (-33, 18), (28, 12), (22, 16), (33, 18)):
+            dfr.ellipse([cx + px(fx) - px(2), eye_y + px(fy) - px(2),
+                         cx + px(fx) + px(2), eye_y + px(fy) + px(2)],
+                        fill=(*darker(sk, 0.7), 150))
+        img.alpha_composite(fr)
 
     # ── причёска ──
-    hc = HAIR[hair]
-    if hairstyle == "short":
-        d.pieslice([cx - head_r - px(3), head_cy - head_r - px(6),
-                    cx + head_r + px(3), head_cy + head_r], 180, 360, fill=hc)
-    elif hairstyle == "fringe":
-        d.pieslice([cx - head_r - px(3), head_cy - head_r - px(6),
-                    cx + head_r + px(3), head_cy + head_r - px(20)], 180, 360, fill=hc)
-        for i, fx in enumerate((-30, -10, 10, 30)):
-            rr = px(16 if i % 2 == 0 else 13)
-            d.ellipse([cx + px(fx) - rr, head_cy - head_r + px(2) - rr,
-                       cx + px(fx) + rr, head_cy - head_r + px(2) + rr], fill=hc)
-    elif hairstyle == "curly":
-        for fx, fy, rr in ((-38, -34, 17), (-16, -46, 19), (8, -48, 19), (32, -40, 17),
-                           (46, -22, 14), (-48, -18, 14)):
-            d.ellipse([cx + px(fx) - px(rr), head_cy + px(fy) - px(rr),
-                       cx + px(fx) + px(rr), head_cy + px(fy) + px(rr)], fill=hc)
-        d.pieslice([cx - head_r - px(2), head_cy - head_r - px(4),
-                    cx + head_r + px(2), head_cy + head_r - px(30)], 180, 360, fill=hc)
-    elif hairstyle == "bun":
-        d.ellipse([cx - px(16), head_cy - head_r - px(26),
-                   cx + px(16), head_cy - head_r + px(4)], fill=hc)
-        d.pieslice([cx - head_r - px(3), head_cy - head_r - px(6),
-                    cx + head_r + px(3), head_cy + head_r - px(16)], 180, 360, fill=hc)
-    elif hairstyle == "long":
-        d.pieslice([cx - head_r - px(4), head_cy - head_r - px(8),
-                    cx + head_r + px(4), head_cy + head_r - px(10)], 180, 360, fill=hc)
-    elif hairstyle == "cap":
-        d.pieslice([cx - head_r - px(4), head_cy - head_r - px(8),
-                    cx + head_r + px(4), head_cy + head_r - px(18)], 180, 360, fill=SHIRT["lime"])
-        d.rounded_rectangle([cx - head_r - px(6), head_cy - px(28),
-                             cx + px(30), head_cy - px(16)], radius=px(6), fill=darker(SHIRT["lime"], 0.9))
-        # козырёк
-        d.rounded_rectangle([cx - head_r - px(26), head_cy - px(26),
-                             cx - head_r + px(14), head_cy - px(14)], radius=px(7), fill=SHIRT["lime"])
-        # молния на тулье
-        d.polygon([(cx - px(4), head_cy - px(50)), (cx + px(8), head_cy - px(50)),
-                   (cx + px(1), head_cy - px(40)), (cx + px(9), head_cy - px(40)),
-                   (cx - px(6), head_cy - px(24)), (cx - px(1), head_cy - px(36)),
-                   (cx - px(9), head_cy - px(36))], fill=INK)
-    elif hairstyle == "beanie":
-        d.pieslice([cx - head_r - px(4), head_cy - head_r - px(10),
-                    cx + head_r + px(4), head_cy + head_r - px(14)], 180, 360, fill=SHIRT["red"])
-        d.rounded_rectangle([cx - head_r - px(5), head_cy - px(34),
-                             cx + head_r + px(5), head_cy - px(20)], radius=px(7),
-                            fill=darker(SHIRT["red"], 0.85))
-    elif hairstyle == "afro":
-        d.ellipse([cx - head_r - px(14), head_cy - head_r - px(26),
-                   cx + head_r + px(14), head_cy + px(6)], fill=hc)
-        d.ellipse([cx - head_r + px(4), head_cy - head_r + px(2),
-                   cx + head_r - px(4), head_cy + head_r], fill=SKIN[skin])
-    elif hairstyle == "mohawk":
-        d.pieslice([cx - head_r, head_cy - head_r - px(2),
-                    cx + head_r, head_cy + head_r - px(34)], 180, 360, fill=darker(SKIN[skin], 0.8))
-        for fx, hh in ((-16, 30), (-6, 40), (4, 44), (14, 36)):
-            d.rounded_rectangle([cx + px(fx) - px(5), head_cy - head_r - px(hh),
-                                 cx + px(fx) + px(5), head_cy - head_r + px(14)],
-                                radius=px(4), fill=BG["lime"] if hair == "grey" else HAIR[hair])
-    elif hairstyle == "hood":
-        d.pieslice([cx - head_r - px(16), head_cy - head_r - px(18),
-                    cx + head_r + px(16), head_cy + head_r + px(10)], 160, 380, fill=SHIRT[shirt])
-        d.ellipse([cx - head_r + px(6), head_cy - head_r + px(6),
-                   cx + head_r - px(6), head_cy + head_r], fill=SKIN[skin])
-        d.pieslice([cx - head_r + px(4), head_cy - head_r + px(2),
-                    cx + head_r - px(4), head_cy + head_r - px(30)], 180, 360, fill=HAIR[hair])
-    elif hairstyle == "braids":
-        d.pieslice([cx - head_r - px(3), head_cy - head_r - px(6),
-                    cx + head_r + px(3), head_cy + head_r - px(14)], 180, 360, fill=hc)
-        for side in (-1, 1):
-            bx = cx + side * (head_r + px(6))
-            for k in range(3):
-                d.ellipse([bx - px(8), head_cy + px(6) + k * px(16),
-                           bx + px(8), head_cy + px(22) + k * px(16)], fill=hc)
-    elif hairstyle == "buzz":
-        d.pieslice([cx - head_r, head_cy - head_r - px(2),
-                    cx + head_r, head_cy + head_r - px(34)], 180, 360, fill=darker(SKIN[skin], 0.8))
+    hair_lay = new_layer()
+    dh = ImageDraw.Draw(hair_lay)
 
-    # ── лицо ──
-    eye_y = head_cy + px(2)
+    def cap_shape(d, lift=0, fill=None, temples=True):
+        col = fill or (*hc, 255)
+        d.pieslice([cx - head_r - px(3), head_cy - head_r - px(8),
+                    cx + head_r + px(3), head_cy + head_r - px(lift)], 180, 360, fill=col)
+        if temples:
+            # без них срез волос читается как повязка на лбу
+            for side in (-1, 1):
+                tx = cx + side * (head_r - px(6))
+                d.ellipse([tx - px(13), head_cy - px(26), tx + px(13), head_cy + px(18)], fill=col)
+
+    if hairstyle == "short":
+        cap_shape(dh, 30)
+    elif hairstyle == "fringe":
+        cap_shape(dh, 30)
+        for i, fx in enumerate((-32, -12, 10, 30)):
+            rr = px(17 if i % 2 == 0 else 14)
+            dh.ellipse([cx + px(fx) - rr, head_cy - head_r - px(2) - rr,
+                        cx + px(fx) + rr, head_cy - head_r - px(2) + rr], fill=(*hc, 255))
+    elif hairstyle == "curly":
+        for fx, fy, rr in ((-40, -34, 18), (-17, -47, 20), (9, -49, 20), (33, -41, 18),
+                           (48, -22, 15), (-49, -18, 15)):
+            dh.ellipse([cx + px(fx) - px(rr), head_cy + px(fy) - px(rr),
+                        cx + px(fx) + px(rr), head_cy + px(fy) + px(rr)], fill=(*hc, 255))
+        cap_shape(dh, 34)
+    elif hairstyle == "bun":
+        dh.ellipse([cx - px(18), head_cy - head_r - px(30), cx + px(18), head_cy - head_r + px(4)],
+                   fill=(*hc, 255))
+        cap_shape(dh, 26)
+    elif hairstyle in ("long", "braids"):
+        cap_shape(dh, 22)
+        if hairstyle == "braids":
+            for side in (-1, 1):
+                bx = cx + side * (head_r + px(10))
+                for k in range(3):
+                    dh.ellipse([bx - px(10), head_cy + px(6) + k * px(18),
+                                bx + px(10), head_cy + px(24) + k * px(18)], fill=(*hc, 255))
+    elif hairstyle == "afro":
+        dh.ellipse([cx - head_r - px(16), head_cy - head_r - px(28),
+                    cx + head_r + px(16), head_cy + px(8)], fill=(*hc, 255))
+    elif hairstyle == "buzz":
+        cap_shape(dh, 40, fill=(*darker(sk, 0.78), 255), temples=False)
+    elif hairstyle == "mohawk":
+        cap_shape(dh, 40, fill=(*darker(sk, 0.78), 255), temples=False)
+        for fx, hh in ((-16, 30), (-6, 42), (5, 46), (16, 36)):
+            dh.rounded_rectangle([cx + px(fx) - px(6), head_cy - head_r - px(hh),
+                                  cx + px(fx) + px(6), head_cy - head_r + px(16)],
+                                 radius=px(5), fill=(*hc, 255))
+
+    if hairstyle == "afro":
+        # лицо поверх шапки волос
+        face = new_layer()
+        ImageDraw.Draw(face).ellipse(
+            [cx - head_r + px(5), head_cy - head_r + px(3),
+             cx + head_r - px(5), head_cy + head_r + px(6)], fill=(*sk, 255))
+        hair_lay.alpha_composite(face)
+
+    if hairstyle not in ("cap", "beanie", "hood"):
+        hm = hair_lay.split()[3]
+        shade(hair_lay, hm, -12, -11, 12, 12, light=95, dark=70, blur=22)
+        img.alpha_composite(hair_lay)
+
+    # головные уборы рисуем после лица — ниже
+
+    # ── глаза ──
+    eyes = new_layer()
+    de = ImageDraw.Draw(eyes)
     for ex in (cx - px(20), cx + px(20)):
-        d.ellipse([ex - px(4.6), eye_y - px(4.6), ex + px(4.6), eye_y + px(4.6)], fill=INK)
+        de.ellipse([ex - px(8), eye_y - px(8), ex + px(8), eye_y + px(8)], fill=(255, 255, 255, 255))
+        de.ellipse([ex - px(6), eye_y - px(5), ex + px(6), eye_y + px(7)], fill=(*EYE, 255))
+        de.ellipse([ex - px(3), eye_y - px(1), ex + px(3), eye_y + px(5)], fill=(12, 10, 8, 255))
+        # блик — от него взгляд «живой»
+        de.ellipse([ex - px(5), eye_y - px(5), ex - px(1), eye_y - px(1)], fill=(255, 255, 255, 235))
     # брови
     for ex in (cx - px(20), cx + px(20)):
-        d.arc([ex - px(9), eye_y - px(20), ex + px(9), eye_y - px(2)], 210, 330, fill=INK, width=px(3))
-    # улыбка: дуга или открытая
-    if grin:
-        d.pieslice([cx - px(14), eye_y + px(8), cx + px(14), eye_y + px(30)], 0, 180, fill=INK)
-        d.pieslice([cx - px(9), eye_y + px(16), cx + px(9), eye_y + px(30)], 0, 180, fill=(226, 106, 106, 255))
-    else:
-        d.arc([cx - px(16), eye_y + px(6), cx + px(16), eye_y + px(30)], 20, 160, fill=INK, width=px(4))
-    # румянец
-    for ex in (cx - px(34), cx + px(34)):
-        d.ellipse([ex - px(6), eye_y + px(8), ex + px(6), eye_y + px(17)],
-                  fill=(*darker(SKIN[skin], 0.9)[:3], 110))
+        de.arc([ex - px(11), eye_y - px(24), ex + px(11), eye_y - px(4)], 205, 335,
+               fill=(*darker(hc, 0.8), 255), width=px(4))
+    img.alpha_composite(eyes)
 
-    # ── растительность ──
+    # нос — мягкая тень
+    nose = new_layer()
+    ImageDraw.Draw(nose).arc([cx - px(6), eye_y + px(4), cx + px(7), eye_y + px(16)],
+                             300, 60, fill=(*darker(sk, 0.72), 190), width=px(3))
+    img.alpha_composite(nose.filter(ImageFilter.GaussianBlur(px(0.8))))
+
+    # ── рот ──
+    mouth = new_layer()
+    dm = ImageDraw.Draw(mouth)
+    if grin:
+        dm.pieslice([cx - px(15), eye_y + px(10), cx + px(15), eye_y + px(32)], 0, 180,
+                    fill=(78, 42, 40, 255))
+        dm.pieslice([cx - px(13), eye_y + px(11), cx + px(13), eye_y + px(20)], 0, 180,
+                    fill=(255, 252, 248, 255))
+    else:
+        dm.arc([cx - px(16), eye_y + px(8), cx + px(16), eye_y + px(30)], 20, 160,
+               fill=(96, 52, 44, 255), width=px(4))
+    img.alpha_composite(mouth)
+
+    # ── борода/усы ──
     if beard == "full":
-        # борода начинается ниже глаз, рот прорезан узкой дугой — без светлой
-        # «маски» поперёк лица
-        d.pieslice([cx - head_r + px(4), head_cy - px(2),
-                    cx + head_r - px(4), head_cy + head_r + px(10)], 0, 180, fill=HAIR[hair])
-        d.pieslice([cx - px(13), head_cy + px(10), cx + px(13), head_cy + px(28)], 0, 360, fill=SKIN[skin])
-        d.arc([cx - px(12), head_cy + px(10), cx + px(12), head_cy + px(28)], 20, 160, fill=INK, width=px(4))
+        b = new_layer()
+        dbd = ImageDraw.Draw(b)
+        dbd.pieslice([cx - head_r + px(4), head_cy - px(4),
+                      cx + head_r - px(4), head_cy + head_r + px(14)], 0, 180, fill=(*hc, 255))
+        dbd.pieslice([cx - px(14), eye_y + px(8), cx + px(14), eye_y + px(30)], 0, 180,
+                     fill=(*sk, 255))
+        dbd.arc([cx - px(14), eye_y + px(8), cx + px(14), eye_y + px(30)], 20, 160,
+                fill=(96, 52, 44, 255), width=px(4))
+        bm = b.split()[3]
+        shade(b, bm, -8, -8, 9, 9, light=60, dark=60, blur=16)
+        img.alpha_composite(b)
     elif beard == "stache":
-        d.arc([cx - px(15), head_cy + px(8), cx - px(1), head_cy + px(22)], 180, 330, fill=HAIR[hair], width=px(5))
-        d.arc([cx + px(1), head_cy + px(8), cx + px(15), head_cy + px(22)], 210, 360, fill=HAIR[hair], width=px(5))
+        b = new_layer()
+        dbd = ImageDraw.Draw(b)
+        dbd.arc([cx - px(16), eye_y + px(2), cx - px(1), eye_y + px(18)], 175, 330,
+                fill=(*hc, 255), width=px(6))
+        dbd.arc([cx + px(1), eye_y + px(2), cx + px(16), eye_y + px(18)], 210, 5,
+                fill=(*hc, 255), width=px(6))
+        img.alpha_composite(b)
+
+    # ── головные уборы ──
+    if hairstyle == "cap":
+        cap = new_layer()
+        dc = ImageDraw.Draw(cap)
+        dc.pieslice([cx - head_r - px(5), head_cy - head_r - px(12),
+                     cx + head_r + px(5), head_cy + head_r - px(18)], 180, 360,
+                    fill=(221, 255, 51, 255))
+        dc.rounded_rectangle([cx - head_r - px(28), head_cy - px(28),
+                              cx - head_r + px(16), head_cy - px(14)], radius=px(7),
+                             fill=(206, 240, 40, 255))
+        dc.polygon([(cx - px(4), head_cy - px(52)), (cx + px(9), head_cy - px(52)),
+                    (cx + px(1), head_cy - px(40)), (cx + px(10), head_cy - px(40)),
+                    (cx - px(7), head_cy - px(22)), (cx - px(1), head_cy - px(36)),
+                    (cx - px(10), head_cy - px(36))], fill=INK)
+        cm = cap.split()[3]
+        shade(cap, cm, -10, -9, 11, 10, light=80, dark=70, blur=20)
+        img.alpha_composite(cap)
+    elif hairstyle == "beanie":
+        bn = new_layer()
+        dbn = ImageDraw.Draw(bn)
+        dbn.pieslice([cx - head_r - px(5), head_cy - head_r - px(14),
+                      cx + head_r + px(5), head_cy + head_r - px(14)], 180, 360,
+                     fill=(*SHIRT["red"], 255))
+        dbn.rounded_rectangle([cx - head_r - px(6), head_cy - px(36),
+                               cx + head_r + px(6), head_cy - px(20)], radius=px(8),
+                              fill=(*darker(SHIRT["red"], 0.82), 255))
+        bm = bn.split()[3]
+        shade(bn, bm, -10, -9, 11, 10, light=80, dark=70, blur=20)
+        img.alpha_composite(bn)
+    elif hairstyle == "hood":
+        hd = new_layer()
+        dhd = ImageDraw.Draw(hd)
+        dhd.pieslice([cx - head_r - px(20), head_cy - head_r - px(20),
+                      cx + head_r + px(20), head_cy + head_r + px(14)], 158, 382, fill=(*sh, 255))
+        dhd.ellipse([cx - head_r + px(4), head_cy - head_r + px(2),
+                     cx + head_r - px(4), head_cy + head_r + px(6)], fill=(0, 0, 0, 0))
+        hm = hd.split()[3]
+        shade(hd, hm, -12, -10, 12, 11, light=70, dark=80, blur=24)
+        img.alpha_composite(hd)
 
     # ── аксессуары ──
+    acc_lay = new_layer()
+    da = ImageDraw.Draw(acc_lay)
     if acc == "glasses":
-        gr = px(13)
-        for ex in (cx - px(20), cx + px(20)):
-            d.ellipse([ex - gr, eye_y - gr, ex + gr, eye_y + gr], outline=INK, width=px(3))
-        d.line([cx - px(7), eye_y - px(2), cx + px(7), eye_y - px(2)], fill=INK, width=px(3))
+        gr = px(15)
+        for ex in (cx - px(21), cx + px(21)):
+            da.ellipse([ex - gr, eye_y - gr, ex + gr, eye_y + gr], fill=(255, 255, 255, 38))
+            da.ellipse([ex - gr, eye_y - gr, ex + gr, eye_y + gr], outline=INK, width=px(3))
+        da.line([cx - px(7), eye_y - px(2), cx + px(7), eye_y - px(2)], fill=INK, width=px(3))
     elif acc == "sunglasses":
-        gr = px(13)
-        for ex in (cx - px(20), cx + px(20)):
-            d.ellipse([ex - gr, eye_y - gr, ex + gr, eye_y + gr], fill=INK)
-        d.line([cx - px(7), eye_y - px(4), cx + px(7), eye_y - px(4)], fill=INK, width=px(4))
-        d.line([cx - px(33), eye_y - px(6), cx - px(44), eye_y - px(10)], fill=INK, width=px(3))
-        d.line([cx + px(33), eye_y - px(6), cx + px(44), eye_y - px(10)], fill=INK, width=px(3))
+        gr = px(15)
+        for ex in (cx - px(21), cx + px(21)):
+            da.ellipse([ex - gr, eye_y - gr, ex + gr, eye_y + gr], fill=(26, 22, 20, 255))
+            da.ellipse([ex - gr + px(3), eye_y - gr + px(3), ex - px(2), eye_y - px(4)],
+                       fill=(255, 255, 255, 60))
+        da.line([cx - px(7), eye_y - px(4), cx + px(7), eye_y - px(4)], fill=INK, width=px(4))
+        da.line([cx - px(36), eye_y - px(6), cx - px(48), eye_y - px(10)], fill=INK, width=px(4))
+        da.line([cx + px(36), eye_y - px(6), cx + px(48), eye_y - px(10)], fill=INK, width=px(4))
     elif acc == "headphones":
-        d.arc([cx - head_r - px(8), head_cy - head_r - px(14),
-               cx + head_r + px(8), head_cy + px(20)], 190, 350, fill=INK, width=px(7))
-        for ex in (cx - head_r - px(2), cx + head_r + px(2)):
-            d.rounded_rectangle([ex - px(9), head_cy - px(12), ex + px(9), head_cy + px(16)],
-                                radius=px(7), fill=INK)
-            d.rounded_rectangle([ex - px(5), head_cy - px(8), ex + px(5), head_cy + px(12)],
-                                radius=px(4), fill=BG["lime"])
+        da.arc([cx - head_r - px(12), head_cy - head_r - px(20),
+                cx + head_r + px(12), head_cy + px(22)], 188, 352, fill=INK, width=px(9))
+        for ex in (cx - head_r - px(4), cx + head_r + px(4)):
+            da.rounded_rectangle([ex - px(11), head_cy - px(14), ex + px(11), head_cy + px(18)],
+                                 radius=px(9), fill=INK)
+            da.rounded_rectangle([ex - px(6), head_cy - px(9), ex + px(6), head_cy + px(13)],
+                                 radius=px(5), fill=(221, 255, 51, 255))
     elif acc == "earrings":
-        for ex in (cx - head_r, cx + head_r):
-            d.ellipse([ex - px(3.4), head_cy + px(10), ex + px(3.4), head_cy + px(17)],
-                      fill=(240, 200, 60, 255))
-    if freckles:
-        for fx, fy in ((-28, 12), (-22, 16), (-32, 18), (28, 12), (22, 16), (32, 18)):
-            d.ellipse([cx + px(fx) - px(1.6), eye_y + px(fy) - px(1.6),
-                       cx + px(fx) + px(1.6), eye_y + px(fy) + px(1.6)],
-                      fill=(*darker(SKIN[skin], 0.75)[:3], 160))
+        for ex in (cx - head_r + px(1), cx + head_r - px(1)):
+            da.ellipse([ex - px(4), head_cy + px(14), ex + px(4), head_cy + px(22)],
+                       fill=(242, 202, 68, 255))
+            da.ellipse([ex - px(2), head_cy + px(15), ex + px(1), head_cy + px(18)],
+                       fill=(255, 246, 210, 220))
+    img.alpha_composite(acc_lay)
 
-    return clip_circle(img)
+    # ── общая мягкая виньетка: круг выглядит объёмным ──
+    vig = new_layer()
+    ImageDraw.Draw(vig).ellipse([px(6), px(6), W - px(6), W - px(6)], outline=(0, 0, 0, 46),
+                                width=px(10))
+    img.alpha_composite(vig.filter(ImageFilter.GaussianBlur(px(6))))
+
+    # финальная обрезка по кругу
+    circle = Image.new("L", (W, W), 0)
+    ImageDraw.Draw(circle).ellipse([0, 0, W - 1, W - 1], fill=255)
+    out = Image.new("RGBA", (W, W), (0, 0, 0, 0))
+    out.paste(img, (0, 0), circle)
+    return out
 
 
-# 24 персоны, собраны вручную. p01 — дефолт для всех новых пользователей.
+# 24 персоны. p01 — дефолт для всех новых пользователей.
 PERSONAS = [
-    ("p01", "lime",  "s1", "brown",  "short",  "ink",   None,        None,    False, False),
-    ("p02", "sky",   "s1", "chest",  "long",   "white", "earrings",  None,    False, False),
-    ("p03", "peach", "s4", "black",  "curly",  "lime",  None,        None,    False, True),
-    ("p04", "mint",  "s3", "black",  "cap",    "ink",   None,        None,    False, False),
-    ("p05", "lilac", "s1", "blond",  "bun",    "green", None,        None,    True,  False),
-    ("p06", "cream", "s5", "black",  "afro",   "blue",  None,        None,    False, True),
-    ("p07", "coral", "s2", "brown",  "fringe", "white", "glasses",   None,    False, False),
-    ("p08", "sand",  "s3", "black",  "buzz",   "red",   None,        "full",  False, False),
-    ("p09", "sky",   "s2", "ginger", "curly",  "white", None,        None,    True,  False),
-    ("p10", "mint",  "s1", "brown",  "short",  "blue",  "sunglasses",None,    False, False),
-    ("p11", "peach", "s5", "black",  "bun",    "white", "earrings",  None,    False, False),
-    ("p12", "lilac", "s3", "brown",  "beanie", "ink",   None,        "stache",False, False),
-    ("p13", "cream", "s2", "black",  "long",   "red",   None,        None,    False, True),
-    ("p14", "coral", "s4", "black",  "short",  "lime",  "glasses",   None,    False, False),
-    ("p15", "lime",  "s1", "grey",   "mohawk", "ink",   None,        None,    False, True),
-    ("p16", "sky",   "s3", "black",  "hood",   "ink",   None,        None,    False, False),
-    ("p17", "mint",  "s2", "brown",  "short",  "white", "headphones",None,    False, False),
-    ("p18", "peach", "s1", "blond",  "braids", "lime",  None,        None,    True,  True),
-    ("p19", "cream", "s4", "black",  "mohawk", "red",   "sunglasses",None,    False, False),
-    ("p20", "lilac", "s2", "black",  "hood",   "blue",  None,        "stache",False, False),
-    ("p21", "sand",  "s1", "ginger", "short",  "green", None,        "full",  True,  False),
-    ("p22", "coral", "s3", "black",  "braids", "white", "earrings",  None,    False, False),
-    ("p23", "sky",   "s5", "black",  "buzz",   "lime",  "headphones",None,    False, True),
-    ("p24", "cream", "s2", "brown",  "cap",    "white", "sunglasses",None,    False, False),
+    ("p01", "lime",  "s1", "brown",  "short",  "ink",   None,         None,     False, False),
+    ("p02", "sky",   "s1", "chest",  "long",   "white", "earrings",   None,     False, False),
+    ("p03", "peach", "s4", "black",  "curly",  "lime",  None,         None,     False, True),
+    ("p04", "mint",  "s3", "black",  "cap",    "ink",   None,         None,     False, False),
+    ("p05", "lilac", "s1", "blond",  "bun",    "green", None,         None,     True,  False),
+    ("p06", "cream", "s5", "black",  "afro",   "blue",  None,         None,     False, True),
+    ("p07", "coral", "s2", "brown",  "fringe", "white", "glasses",    None,     False, False),
+    ("p08", "sand",  "s3", "black",  "buzz",   "red",   None,         "full",   False, False),
+    ("p09", "sky",   "s2", "ginger", "curly",  "white", None,         None,     True,  False),
+    ("p10", "mint",  "s1", "brown",  "short",  "blue",  "sunglasses", None,     False, False),
+    ("p11", "peach", "s5", "black",  "bun",    "white", "earrings",   None,     False, False),
+    ("p12", "lilac", "s3", "brown",  "beanie", "ink",   None,         "stache", False, False),
+    ("p13", "cream", "s2", "black",  "long",   "red",   None,         None,     False, True),
+    ("p14", "coral", "s4", "black",  "short",  "lime",  "glasses",    None,     False, False),
+    ("p15", "lime",  "s1", "grey",   "mohawk", "ink",   None,         None,     False, True),
+    ("p16", "sky",   "s3", "black",  "hood",   "ink",   None,         None,     False, False),
+    ("p17", "mint",  "s2", "brown",  "short",  "white", "headphones", None,     False, False),
+    ("p18", "peach", "s1", "blond",  "braids", "lime",  None,         None,     True,  True),
+    ("p19", "cream", "s4", "black",  "mohawk", "red",   "sunglasses", None,     False, False),
+    ("p20", "lilac", "s2", "black",  "hood",   "blue",  None,         "stache", False, False),
+    ("p21", "sand",  "s1", "ginger", "short",  "green", None,         "full",   True,  False),
+    ("p22", "coral", "s3", "black",  "braids", "white", "earrings",   None,     False, False),
+    ("p23", "sky",   "s5", "black",  "buzz",   "lime",  "headphones", None,     False, True),
+    ("p24", "cream", "s2", "brown",  "cap",    "white", "sunglasses", None,     False, False),
 ]
 
 for key, bg, skin, hair, style, shirt, acc, beard, freck, grin in PERSONAS:
-    img = draw_person(bg, skin, hair, style, shirt, acc, beard, freck, grin)
-    img = img.resize((R, R), Image.LANCZOS)
-    img.save(os.path.join(OUT, f"{key}.png"))
+    im = draw_person(bg, skin, hair, style, shirt, acc, beard, freck, grin)
+    im = im.resize((R, R), Image.LANCZOS)
+    im.save(os.path.join(OUT, f"{key}.png"))
     print(key, bg, style, shirt, acc or "-", beard or "-")
 print("готово:", len(PERSONAS))
