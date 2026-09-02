@@ -81,9 +81,11 @@ export function PromoCarousel({ category }: Props) {
             <Image source={heroImg} style={styles.mediaImg} resizeMode="contain" fadeDuration={0} />
           </View>
           <View style={styles.heroText}>
-            <Text style={styles.heroTitle} numberOfLines={2} adjustsFontSizeToFit>
-              {translate('home.promoHeroTitle')}
-            </Text>
+            <View style={styles.titleBox}>
+              <Text style={styles.heroTitle} numberOfLines={2} adjustsFontSizeToFit>
+                {translate('home.promoHeroTitle')}
+              </Text>
+            </View>
             <Text style={styles.heroTerms}>{translate('home.promoHeroTerms')}</Text>
           </View>
         </Pressable>
@@ -117,10 +119,14 @@ export function PromoCarousel({ category }: Props) {
                 <Image source={v.img} style={styles.mediaImg} resizeMode="contain" fadeDuration={0} />
               </View>
               <View style={styles.heroText}>
-                {/* заголовок ужимается кеглем в отведённые две строки */}
-                <Text style={styles.heroTitle} numberOfLines={2} adjustsFontSizeToFit>
-                  {translate('home.offerAt', { label, name: v.name })}
-                </Text>
+                {/* название заведения — всегда в одну строку: длинное
+                    («Bellissimo Pizza») ужимается кеглем, а не переносится.
+                    Высоту держит titleBox, поэтому условия не подъезжают. */}
+                <View style={styles.titleBox}>
+                  <Text style={styles.heroTitle} numberOfLines={1} adjustsFontSizeToFit>
+                    {translate('home.offerAt', { label, name: v.name })}
+                  </Text>
+                </View>
                 <Text style={styles.heroTerms}>
                   {hasKey(termsKey) ? translate(termsKey) : translate('home.promoText')}
                 </Text>
@@ -158,13 +164,13 @@ const styles = StyleSheet.create({
   media: { height: 230, marginHorizontal: 16, justifyContent: 'flex-end' },
   mediaImg: { width: '100%', height: '100%' },
   heroText: { alignItems: 'center', gap: 6, paddingHorizontal: 16, marginTop: 16 },
+  // высота под две строки резервируется всегда, даже когда заголовок в одну:
+  // иначе условия подъезжают вверх и текст «прыгает» между слайдами
+  titleBox: { height: 62, justifyContent: 'center', alignSelf: 'stretch' },
   heroTitle: {
     fontFamily: font.extrabold,
     fontSize: 27,
     lineHeight: 31,
-    // две строки зарезервированы всегда: иначе на коротком заголовке условия
-    // подъезжали вверх и текст «прыгал» между слайдами
-    minHeight: 62,
     letterSpacing: -0.3,
     color: '#FFFFFF',
     textAlign: 'center',
