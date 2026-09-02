@@ -35,12 +35,12 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
-      <Glass thin fallback="rgba(255,255,255,0.92)" style={[styles.pill, styles.pillSurface]}>
+      <Glass thin fallback="rgba(255,255,255,0.86)" style={[styles.pill, styles.pillSurface]}>
         {/* верхний глянец — блик на стекле, .zap-tabbar::before из веба */}
         <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
           <Defs>
             <LinearGradient id="tabGloss" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.5} />
+              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.26} />
               <Stop offset="0.58" stopColor="#FFFFFF" stopOpacity={0} />
             </LinearGradient>
           </Defs>
@@ -141,8 +141,10 @@ function Icon({ kind, focused, lime, dark }: { kind: IconKind; focused: boolean;
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center' },
-  // альфа 0.3 и рамка — как в вебе; выше 0.5 подложка съедает размытие
-  pillSurface: { backgroundColor: 'rgba(255,255,255,0.30)', borderColor: 'rgba(255,255,255,0.7)' },
+  // Веб держит 0.30, но там backdrop-filter ЗАТЕМНЯЕТ фон, а iOS-материал,
+  // наоборот, подсветляет — при той же альфе пилл выходил заметно плотнее
+  // оригинала. Тинт ослаблен, работу берёт на себя размытие.
+  pillSurface: { backgroundColor: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.55)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
