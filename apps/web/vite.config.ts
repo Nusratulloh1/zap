@@ -9,6 +9,13 @@ import mkcert from 'vite-plugin-mkcert'
 const DEV_HTTPS = process.env.DEV_HTTPS === '1'
 
 export default defineConfig({
+  /*
+    .env.production лежит в корне репозитория, а Vite по умолчанию ищет env
+    рядом с собой — после переезда в apps/web он их перестал видеть. В проде
+    VITE_API_URL оказывался пустым, api/index.ts считал это «бэкенда нет» и
+    подставлял мок: страница сплита по реальному коду отвечала «не найден».
+  */
+  envDir: fileURLToPath(new URL('../../', import.meta.url)),
   define: { __BUILD_ID__: JSON.stringify(String(Date.now())) },
   server: DEV_HTTPS
     ? {
