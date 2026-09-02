@@ -7,6 +7,7 @@ import React from 'react';
 import { Image, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
 import { colorForGlyph } from '@/lib/crewEmoji';
+import { useTheme } from '@/theme/ThemeProvider';
 import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 
 interface Props {
@@ -36,6 +37,7 @@ function darken(hex: string, k: number): string {
 }
 
 export function VenueIcon({ name, size = 46, glyph, color, style }: Props) {
+  const { colors } = useTheme();
   /*
     У наших партнёров — их собственный знак (Bellissimo, EVOS, Feed Up, Safia,
     Bon!), эмодзи остаётся для всех прочих заведений. Если знак компании выбран
@@ -44,11 +46,16 @@ export function VenueIcon({ name, size = 46, glyph, color, style }: Props) {
   const logo = glyph ? null : merchantLogo(name);
   if (logo) {
     return (
+      /*
+        Подложка обязательна: на белой карточке белая плитка сливалась, и знак
+        Bellissimo висел в воздухе. Песочный тон + тонкий кант — плитка
+        читается так же, как цветные эмодзи-плитки рядом.
+      */
       <View
         style={[
           styles.root,
-          styles.logoTile,
-          { width: size, height: size, borderRadius: size * 0.32 },
+          { width: size, height: size, borderRadius: size * 0.32,
+            backgroundColor: colors.sand, borderWidth: 1, borderColor: colors.sand2 },
           style,
         ]}
       >
@@ -89,7 +96,6 @@ export function VenueIcon({ name, size = 46, glyph, color, style }: Props) {
 }
 
 const styles = StyleSheet.create({
-  logoTile: { backgroundColor: '#FFFFFF' },
   logo: { width: '78%', height: '78%' },
   root: {
     alignItems: 'center',
