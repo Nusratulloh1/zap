@@ -40,9 +40,8 @@ import { setWidgetState } from '@/lib/liveActivity';
 import { useMyAvatar } from '@/lib/myAvatar';
 import { VenueIcon } from '@/components/VenueIcon';
 import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
-import { useCrewEmoji } from '@/lib/crewEmoji';
+import { useCrewColor, useCrewEmoji } from '@/lib/crewEmoji';
 import type { Db } from '@zap/shared/types';
-import { venueGlyph } from '@/lib/merchantTheme';
 import { storage, useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
 import type { Split } from '@zap/shared/types';
@@ -439,7 +438,6 @@ export function HomeScreen() {
                   <VenueIcon name={home.db?.merchants.find((mm) => mm.id === s.merchantId)?.name ?? s.title} size={46} />
                   <View style={styles.flex1}>
                     <Text style={[styles.splitTitle, { color: colors.ink }]} numberOfLines={1}>
-                      {venueGlyph(home.db?.merchants.find((mm) => mm.id === s.merchantId)?.name ?? s.title)}
                       {home.db?.merchants.find((mm) => mm.id === s.merchantId)?.name ?? s.title}
                     </Text>
                     <Text style={[styles.splitSub, { color: colors.muted }]} numberOfLines={1}>{splitSub(s)}</Text>
@@ -481,13 +479,17 @@ export function HomeScreen() {
 /** Знак компании отдельным компонентом: хук нельзя звать внутри map. */
 function CrewIcon({ db, groupId, name }: { db: Db | undefined; groupId: string; name: string }) {
   const glyph = useCrewEmoji(db, groupId);
-  return <VenueIcon name={name} glyph={glyph} size={46} />;
+  const color = useCrewColor(db, groupId);
+  return <VenueIcon name={name} glyph={glyph} color={color} size={46} />;
 }
 
 /** Шит выбора: отдельный компонент, иначе хук звался бы условно. */
 function CrewEmojiPicker({ db, groupId, onClose }: { db: Db | undefined; groupId: string; onClose: () => void }) {
   const current = useCrewEmoji(db, groupId);
-  return <CrewEmojiSheet open groupId={groupId} current={current} onClose={onClose} />;
+  const color = useCrewColor(db, groupId);
+  return (
+    <CrewEmojiSheet open groupId={groupId} current={current} currentColor={color} onClose={onClose} />
+  );
 }
 
 const styles = StyleSheet.create({

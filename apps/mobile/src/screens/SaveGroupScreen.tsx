@@ -10,6 +10,8 @@ import { Screen } from '@/components/Screen';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
+import { VenueIcon } from '@/components/VenueIcon';
+import { CREW_COLORS, CREW_EMOJI, colorForGlyph, setCrewColor, setCrewEmoji } from '@/lib/crewEmoji';
 import { Toggle } from '@/components/Toggle';
 import { toast } from '@/components/ToastHost';
 import { fetchSplit, saveGroup } from '@/api/splits';
@@ -44,6 +46,9 @@ export function SaveGroupScreen() {
   const [name, setName] = useState('');
   const [accrue, setAccrue] = useState(true);
   const [memberIds, setMemberIds] = useState<string[]>([]);
+  // знак и цвет компании выбираются здесь же, при создании
+  const [glyph, setGlyph] = useState<string>('🍕');
+  const [color, setColor] = useState<string>(colorForGlyph('🍕'));
   const [saving, setSaving] = useState(false);
 
   // название по умолчанию — из имён участников: «Nusrat + Amal»
@@ -73,7 +78,10 @@ export function SaveGroupScreen() {
     if (saving || !name.trim()) return;
     setSaving(true);
     try {
-      await saveGroup(id, name.trim(), accrue, memberIds);
+      const created = await saveGroup(id, name.trim(), accrue, memberIds);
+      // знак живёт локально: привязываем к id, который вернул сервер
+      setCrewEmoji(created.id, glyph);
+      setCrewColor(created.id, color);
       await qc.invalidateQueries({ queryKey: qk.bootstrap });
       toast.success(t('saveGroup.saved'));
       nav.replace('CashbackAward', { id });
@@ -87,19 +95,52 @@ export function SaveGroupScreen() {
       <ScreenHeader onBack={() => nav.popTo('SplitClosed', { id })} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
-        <View style={styles.stack}>
-          {memberIds.slice(0, 4).map((cid, i) => (
-            <Avatar
-              key={cid}
-              name={nameOf(cid)}
-              contactId={cid}
-              color={colorOf(cid)}
-              size={58}
-              ring={colors.dune}
-              style={i > 0 ? styles.stacked : undefined}
-            />
+        {/* значок компании: сначала показываем, потом даём поменять */}
+        <View style={styles.iconWrap}>
+          <VenueIcon name={name} glyph={glyph} color={color} size={76} />
+        </View>
+
+        <View style={styles.swatches}>
+          {CREW_COLORS.map((c) => (
+            <PressableScale key={c} haptic onPress={() => setColor(c)}>
+              <View
+                style={[
+                  styles.swatch,
+                  { backgroundColor: c },
+                  c === color && { borderWidth: 3, borderColor: colors.ink },
+                ]}
+              />
+            </PressableScale>
           ))}
         </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.glyphStrip}
+          contentContainerStyle={styles.glyphBody}
+        >
+          {CREW_EMOJI.map((e) => (
+            <PressableScale
+              key={e}
+              haptic
+              onPress={() => {
+                setGlyph(e);
+                setColor(colorForGlyph(e));
+              }}
+            >
+              <View
+                style={[
+                  styles.glyphCell,
+                  { backgroundColor: colors.paper },
+                  e === glyph && { backgroundColor: fixed.lime },
+                ]}
+              >
+                <Text style={styles.glyphText}>{e}</Text>
+              </View>
+            </PressableScale>
+          ))}
+        </ScrollView>
 
         <Text style={[styles.title, { color: colors.ink }]}>{t('saveGroup.title')}</Text>
         <Text style={[styles.sub, { color: colors.muted }]}>{t('saveGroup.subtitle')}</Text>
@@ -174,6 +215,14 @@ export function SaveGroupScreen() {
 }
 
 const styles = StyleSheet.create({
+  iconWrap: { alignItems: 'center', marginTop: 8 },
+  swatches: { flexDirection: 'row', gap: 9, justifyContent: 'center', marginTop: 16 },
+  swatch: { width: 30, height: 30, borderRadius: 999 },
+  glyphStrip: { marginHorizontal: -SCREEN_PAD_X, marginTop: 12 },
+  glyphBody: { paddingHorizontal: SCREEN_PAD_X, gap: 8 },
+  glyphCell: { width: 48, height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  glyphText: { fontSize: 23 },
+
   root: { paddingHorizontal: SCREEN_PAD_X },
   stack: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
   stacked: { marginLeft: -16 },

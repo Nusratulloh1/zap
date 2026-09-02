@@ -30,7 +30,17 @@ export function merchantLogo(name: string | null | undefined): ImageSourcePropTy
   return null;
 }
 
-/** Чем подписать кружок, когда логотипа нет: знак категории или чек. */
+/**
+ * Знак для плитки, когда логотипа нет.
+ *
+ * 1) категория заведения («Bellissimo» → 🍕);
+ * 2) эмодзи из самого названия («Ужин пятница 🍕» → 🍕);
+ * 3) молния — фирменный запасной вариант. Чек 🧾 отсюда убран: бледный
+ *    документ на плитке читался как «картинка не загрузилась».
+ */
 export function merchantGlyph(name: string | null | undefined): string {
-  return themeForMerchant(name)?.glyph ?? '🧾';
+  const th = themeForMerchant(name);
+  if (th) return th.glyph;
+  const found = name?.match(/\p{Extended_Pictographic}/u);
+  return found?.[0] ?? '⚡';
 }

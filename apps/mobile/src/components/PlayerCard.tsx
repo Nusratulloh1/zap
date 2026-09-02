@@ -11,7 +11,6 @@ import { Image, StyleSheet, Text, View, type ImageSourcePropType } from 'react-n
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { PressableScale } from '@/components/PressableScale';
-import { STICKER } from '@/components/EmptyState';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
@@ -45,9 +44,6 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
 
   return (
     <Animated.View entering={FadeIn.duration(260)} style={[styles.card, { backgroundColor: colors.shell }]}>
-      {/* фирменный стикер в углу карточки — вместо пустого поля */}
-      <Image source={STICKER.heartZap} style={styles.corner} resizeMode="contain" pointerEvents="none" />
-
       {/*
         Аватар по центру, показатели по бокам — как в присланном образце
         игрового профиля: слева уровень, справа число сплитов.
@@ -125,7 +121,6 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   card: { borderRadius: 26, padding: 18, marginTop: 4, overflow: 'hidden' },
-  corner: { position: 'absolute', right: -10, top: -8, width: 74, height: 62, opacity: 0.9, transform: [{ rotate: '12deg' }] },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   side: { width: 82, alignItems: 'center', gap: 14 },
   stat: { alignItems: 'center', alignSelf: 'stretch' },

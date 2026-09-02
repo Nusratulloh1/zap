@@ -16,7 +16,6 @@ import { useHomeData } from '@/store/bootstrap';
 import { money, dayLabel } from '@/lib/format';
 import { entryText } from '@/lib/entryText';
 import { useMyAvatar } from '@/lib/myAvatar';
-import { venueGlyph } from '@/lib/merchantTheme';
 import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
@@ -176,7 +175,6 @@ export function HistoryScreen() {
                     )}
                     <View style={styles.rowBody}>
                       <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>
-                        {venueGlyph(e.title)}
                         {entryText(e.title, e.titleKey)}
                       </Text>
                       <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>{e.subtitle}</Text>

@@ -19,7 +19,7 @@ import { qk } from '@/api/data';
 import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { money } from '@/lib/format';
-import { themeForMerchant, venueGlyph } from '@/lib/merchantTheme';
+import { themeForMerchant } from '@/lib/merchantTheme';
 import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 import { momentFor } from '@/lib/moments';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -82,7 +82,7 @@ export function SplitClosedScreen() {
           )}
           <Text style={[styles.title, { color: fixed.ink }]}>{t('closed.title')}</Text>
           <Text style={styles.sub}>
-            {venueGlyph(merchant?.name ?? split.title)}{merchant?.name ?? split.title}
+            {merchant?.name ?? split.title}
             {split.bill ? t('live.orderNo', { no: split.bill.orderNo }) : ''}
             {group ? ` · ${group.name}` : isSolo ? t('closed.paidWhole') : ''}
           </Text>
@@ -180,7 +180,7 @@ export function SplitClosedScreen() {
         {split.bill ? (
           <View style={styles.billBody}>
             <Text style={[styles.billTitle, { color: colors.ink }]}>
-              {venueGlyph(merchant?.name ?? split.title)}{merchant?.name ?? split.title} · #{split.bill.orderNo}
+              {merchant?.name ?? split.title} · #{split.bill.orderNo}
             </Text>
             <View style={[styles.dashed, { borderColor: colors.hairline }]} />
             {split.bill.items.map((item) => (

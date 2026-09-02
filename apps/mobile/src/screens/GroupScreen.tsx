@@ -25,11 +25,10 @@ import { STICKER } from '@/components/EmptyState';
 import { FunStatCards } from '@/components/FunStatCards';
 import { VenueIcon } from '@/components/VenueIcon';
 import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
-import { useCrewEmoji } from '@/lib/crewEmoji';
+import { useCrewColor, useCrewEmoji } from '@/lib/crewEmoji';
 import { SplitFaces } from '@/components/SplitFaces';
 import { funStats } from '@/lib/funStats';
 import { translate } from '@/i18n';
-import { venueGlyph } from '@/lib/merchantTheme';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -89,6 +88,7 @@ export function GroupScreen() {
   const [menuSheet, setMenuSheet] = useState(false);
   const [emojiSheet, setEmojiSheet] = useState(false);
   const crewEmoji = useCrewEmoji(home.db, id);
+  const crewColor = useCrewColor(home.db, id);
   const [renameSheet, setRenameSheet] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -172,7 +172,7 @@ export function GroupScreen() {
         <View style={styles.headRow}>
           {/* знак компании — тап меняет: «Select emoji for Crew» */}
           <PressableScale haptic onPress={() => setEmojiSheet(true)}>
-            <VenueIcon name={group.name} glyph={crewEmoji} size={52} />
+            <VenueIcon name={group.name} glyph={crewEmoji} color={crewColor} size={52} />
           </PressableScale>
           <View style={styles.headBody}>
             <Text style={[styles.title, { color: colors.ink }]}>{group.name}</Text>
@@ -290,7 +290,6 @@ export function GroupScreen() {
                 <SplitFaces split={s} size={40} />
                 <View style={styles.memberBody}>
                   <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
-                    {venueGlyph(merchant?.name ?? s.title)}
                     {merchant?.name ?? s.title}
                     {s.bill ? ` · #${s.bill.orderNo}` : ''}
                   </Text>
@@ -310,7 +309,13 @@ export function GroupScreen() {
       </ScrollView>
 
       {/* меню группы */}
-      <CrewEmojiSheet open={emojiSheet} groupId={id} current={crewEmoji} onClose={() => setEmojiSheet(false)} />
+      <CrewEmojiSheet
+        open={emojiSheet}
+        groupId={id}
+        current={crewEmoji}
+        currentColor={crewColor}
+        onClose={() => setEmojiSheet(false)}
+      />
 
       <BottomSheet open={menuSheet} onClose={() => setMenuSheet(false)}>
         <PressableScale
