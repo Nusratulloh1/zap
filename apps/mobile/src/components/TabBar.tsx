@@ -141,9 +141,15 @@ function Icon({ kind, focused, lime, dark }: { kind: IconKind; focused: boolean;
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center' },
-  // Своего тинта нет — цвет даёт сам материал; осталась рамка, чтобы пилл не
-  // растворялся на светлом контенте.
-  pillSurface: { backgroundColor: 'transparent', borderColor: 'rgba(255,255,255,0.45)' },
+  /*
+    Серый тинт, а не белый и не лаймовый.
+
+    Белый поверх светлого материала не давал ничего — он совпадал с самим
+    материалом, и пилл выглядел плоской заливкой. Нейтральный серый той же
+    низкой альфы работает как затемняющее стекло: под ним видно контент, но
+    пилл отделён от фона. Держим 0.14 — выше сквозь него перестаёт быть видно.
+  */
+  pillSurface: { backgroundColor: 'rgba(88,88,84,0.14)', borderColor: 'rgba(255,255,255,0.5)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
