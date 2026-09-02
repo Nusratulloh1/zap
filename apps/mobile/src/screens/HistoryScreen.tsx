@@ -8,6 +8,11 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
+import { ActivityFeed } from '@/components/ActivityFeed';
+import { toast } from '@/components/ToastHost';
+import { remindDebt } from '@/api/actions';
+import { buildActivity, type ActivityItem } from '@/lib/activity';
+import { reminderLine } from '@/lib/reminders';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { SearchIcon } from '@/components/icons';
@@ -38,6 +43,33 @@ export function HistoryScreen() {
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const home = useHomeData();
+
+  /*
+    Лента активности переехала сюда с главной: там она дублировала список
+    счетов и раздувала первый экран. Здесь она на своём месте — это те же
+    события, только свёрнутые в одну строку.
+
+    «⚡ Напомнить» бьёт по долгам человека прямо отсюда, без захода в экран
+    долгов. «Оплатить» просто открывает счёт: платить в один тап без
+    подтверждения было бы неправильно.
+  */
+  const feedAction = async (it: ActivityItem) => {
+    if (it.kind === 'waitingForYou' && it.debtIds?.length) {
+      try {
+        for (const id of it.debtIds) await remindDebt(id);
+        toast.success(
+          reminderLine(it.contactId ?? it.id, 0, { name: it.title, amount: money(it.amount ?? 0) }),
+        );
+      } catch (e) {
+        toast(e instanceof Error && e.message ? e.message : t('errors.generic'));
+      }
+      return;
+    }
+    if (it.splitId) nav.navigate('SplitLive', { id: it.splitId });
+  };
+
+  const activity = useMemo(() => buildActivity(home.db, home.activeSplit?.id), [home.db, home.activeSplit?.id]);
+
   const [tab, setTab] = useState<TabKey>('all');
   // Поиск. Кнопка-лупа существовала с первого дня, но не делала НИЧЕГО —
   // без onPress и без логики. Теперь она раскрывает строку поиска.
@@ -72,66 +104,85 @@ export function HistoryScreen() {
 
   return (
     <Screen style={styles.root}>
-      <View style={styles.headRow}>
-        <Text style={[styles.title, { color: colors.ink }]}>{t('history.title')}</Text>
-        <View style={styles.headBtns}>
-          <PressableScale
-            small
-            accessibilityLabel={t('common.searchAria')}
-            style={[styles.searchBtn, { backgroundColor: searchOpen ? fixed.lime : colors.sand }]}
-            onPress={() => {
-              setSearchOpen((v) => {
-                if (v) setQuery('');
-                else setTimeout(() => searchRef.current?.focus(), 60);
-                return !v;
-              });
-            }}
-          >
-            <SearchIcon size={18} color="#5B594F" />
-          </PressableScale>
-          <PressableScale small accessibilityLabel={t('common.profileAria')} onPress={() => nav.navigate('Profile')}>
-            <Avatar name={home.db?.user?.name} letter={home.db?.user?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
-          </PressableScale>
-        </View>
-      </View>
-
-      {searchOpen ? (
-        <View style={[styles.searchBar, { backgroundColor: colors.sand }]}>
-          <SearchIcon size={16} color="#8A887E" />
-          <TextInput
-            ref={searchRef}
-            value={query}
-            onChangeText={setQuery}
-            placeholder={t('history.searchPlaceholder')}
-            placeholderTextColor={colors.faint2}
-            style={[styles.searchInput, { color: colors.ink }]}
-            autoCorrect={false}
-            returnKeyType="search"
-          />
-          {query ? (
-            <PressableScale small onPress={() => setQuery('')}>
-              <Text style={[styles.searchClear, { color: colors.muted }]}>✕</Text>
-            </PressableScale>
-          ) : null}
-        </View>
-      ) : null}
-
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsWrap} contentContainerStyle={styles.tabs}>
-        {TABS.map((tb) => {
-          const active = tab === tb.key;
-          return (
-            <PressableScale
-              key={tb.key}
-              style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.sand }]}
-              onPress={() => setTab(tb.key)}
-            >
-              <Text style={[active ? styles.tabTextActive : styles.tabText, { color: active ? '#111110' : colors.slate }]}>{t(tb.label)}</Text>
-            </PressableScale>
-          );
-        })}
-      </ScrollView>
-
+      {/*
+        Один скролл на весь экран: заголовок, поиск и вкладки едут вместе со
+        списком. Закреплённая шапка отъедала верх, и длинная история
+        прокручивалась в узком окне.
+      */}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}>
+        <View style={styles.headRow}>
+          <Text style={[styles.title, { color: colors.ink }]}>{t('history.title')}</Text>
+          <View style={styles.headBtns}>
+            <PressableScale
+              small
+              accessibilityLabel={t('common.searchAria')}
+              style={[styles.searchBtn, { backgroundColor: searchOpen ? fixed.lime : colors.sand }]}
+              onPress={() => {
+                setSearchOpen((v) => {
+                  if (v) setQuery('');
+                  else setTimeout(() => searchRef.current?.focus(), 60);
+                  return !v;
+                });
+              }}
+            >
+              <SearchIcon size={18} color="#5B594F" />
+            </PressableScale>
+            <PressableScale small accessibilityLabel={t('common.profileAria')} onPress={() => nav.navigate('Profile')}>
+              <Avatar name={home.db?.user?.name} letter={home.db?.user?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
+            </PressableScale>
+          </View>
+        </View>
+
+        {searchOpen ? (
+          <View style={[styles.searchBar, { backgroundColor: colors.sand }]}>
+            <SearchIcon size={16} color="#8A887E" />
+            <TextInput
+              ref={searchRef}
+              value={query}
+              onChangeText={setQuery}
+              placeholder={t('history.searchPlaceholder')}
+              placeholderTextColor={colors.faint2}
+              style={[styles.searchInput, { color: colors.ink }]}
+              autoCorrect={false}
+              returnKeyType="search"
+            />
+            {query ? (
+              <PressableScale small onPress={() => setQuery('')}>
+                <Text style={[styles.searchClear, { color: colors.muted }]}>✕</Text>
+              </PressableScale>
+            ) : null}
+          </View>
+        ) : null}
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsWrap} contentContainerStyle={styles.tabs}>
+          {TABS.map((tb) => {
+            const active = tab === tb.key;
+            return (
+              <PressableScale
+                key={tb.key}
+                style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.sand }]}
+                onPress={() => setTab(tb.key)}
+              >
+                <Text style={[active ? styles.tabTextActive : styles.tabText, { color: active ? '#111110' : colors.slate }]}>{t(tb.label)}</Text>
+              </PressableScale>
+            );
+          })}
+        </ScrollView>
+        {/* лента активности — над списком, только на вкладке «все» */}
+        {tab === 'all' && activity.length ? (
+          <ActivityFeed
+            items={activity}
+            nameOf={(cid) => home.contactById(cid)?.name ?? ''}
+            initialsOf={(cid) => home.contactById(cid)?.initials}
+            colorOf={(cid) => home.contactById(cid)?.color ?? '#8A887E'}
+            onPress={(it) => {
+              if (it.splitId) nav.navigate('SplitLive', { id: it.splitId });
+              else nav.navigate('Debts');
+            }}
+            onAction={(it) => void feedAction(it)}
+          />
+        ) : null}
+
         <Animated.View key={tab} entering={FadeIn.duration(200)}>
           {grouped.map((g) => (
             <View key={g.label}>

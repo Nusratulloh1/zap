@@ -7,7 +7,7 @@ import Animated, { interpolate, useAnimatedScrollHandler, useAnimatedStyle, useS
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
@@ -21,7 +21,7 @@ import { Toggle } from '@/components/Toggle';
 import { toast } from '@/components/ToastHost';
 import { LanguagePickerSheet } from '@/components/LanguageSheet';
 import { AppIconSheet } from '@/components/AppIconSheet';
-import { addCard, setPrimaryCard, changePin, toggleDebtNotifications } from '@/api/actions';
+import { addCard, setPrimaryCard, changePin, toggleDebtNotifications, fetchRecap } from '@/api/actions';
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { useSession } from '@/store/session';
@@ -218,6 +218,15 @@ export function ProfileScreen() {
   const best = useMemo(() => personalBest(home.db, 'me'), [home.db]);
   const favTheme = useMemo(() => themeByKey(favouriteTheme(home.db, 'me')), [home.db]);
 
+  /*
+    Итоги месяца переехали сюда с главной: это личная статистика, а не ответ
+    на вопрос «кто сегодня платит». Карточку показываем только когда есть что
+    показать — пустой рекап выглядел бы как сломанный блок.
+  */
+  const recapQuery = useQuery({ queryKey: ['recap'], queryFn: () => fetchRecap(), staleTime: 60 * 60_000 });
+  const recap = recapQuery.data && !recapQuery.data.empty ? recapQuery.data : null;
+  const recapMonth = recap ? t(`recap.month.${Number(recap.month.split('-')[1])}`) : '';
+
   const toggleNotifs = (v: boolean) => {
     setNotifs(v);
     void toggleDebtNotifications(v).catch(() => setNotifs(!v));
@@ -257,6 +266,19 @@ export function ProfileScreen() {
                 <Text style={[styles.statLabel, { color: colors.muted }]}>{t('profile.statGroupsUnit')}</Text>
               </View>
             </View>
+
+            {recap ? (
+              <PressableScale
+                style={[styles.recapCard, { backgroundColor: fixed.ink }]}
+                onPress={() => nav.navigate('Recap')}
+              >
+                <View style={styles.recapBody}>
+                  <Text style={[styles.recapTitle, { color: fixed.lime }]}>{t('recap.ready', { month: recapMonth })}</Text>
+                  <Text style={styles.recapSub}>{t('recap.open')}</Text>
+                </View>
+                <Text style={[styles.recapChevron, { color: fixed.lime }]}>›</Text>
+              </PressableScale>
+            ) : null}
 
             {/*
               §C13: «Не Islam Karimov / +998… / Settings, а ISLAM ⚡ / 27 ZAPs /
@@ -593,6 +615,19 @@ const styles = StyleSheet.create({
   stat: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 14, gap: 3 },
   statValue: { fontFamily: font.extrabold, fontSize: 20 },
   statLabel: { fontFamily: font.bold, fontSize: 11.5 },
+  recapCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginTop: 14,
+  },
+  recapBody: { flex: 1, gap: 2 },
+  recapTitle: { fontFamily: font.extrabold, fontSize: 15 },
+  recapSub: { fontFamily: font.semibold, fontSize: 12.5, color: 'rgba(255,255,255,0.65)' },
+  recapChevron: { fontFamily: font.extrabold, fontSize: 22 },
   identity: { borderRadius: 20, paddingHorizontal: 16, paddingVertical: 12, gap: 10, marginTop: 12 },
   identityRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   identityGlyph: { fontSize: 16, width: 22, textAlign: 'center' },

@@ -39,7 +39,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
       <Glass
         dark={dark}
         thin
-        fallback={dark ? 'rgba(26,25,22,0.72)' : 'rgba(255,255,255,0.70)'}
+        fallback={dark ? 'rgba(26,25,22,0.58)' : 'rgba(255,255,255,0.55)'}
         style={[
           styles.pill,
           { borderColor: dark ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.7)' },

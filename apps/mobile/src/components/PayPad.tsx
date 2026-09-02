@@ -2,7 +2,7 @@
 // Нажатие: scale 0.9 с пружинным отскоком + радиальная вспышка ink-8 %,
 // как в web/src/components/PayPad.vue.
 import React from 'react';
-import { Platform, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { Pressable } from 'react-native';
 import { trigger } from 'react-native-haptic-feedback';
@@ -52,7 +52,10 @@ function Key({ label, color, onPress }: { label: string; color: string; onPress:
     <Pressable
       style={styles.cell}
       onPress={() => {
-        trigger(Platform.OS === 'ios' ? 'selection' : 'impactLight', { enableVibrateFallback: false, ignoreAndroidSystemSettings: false });
+        // impactMedium, а не selection: селекторный тик на iPhone почти не
+        // ощущается, и набор суммы получался «немым». Для клавиатуры нужен
+        // отчётливый отклик на каждую цифру.
+        trigger('impactMedium', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
         // как в вебе: клавиша уходит на 0.9 и возвращается с лёгким
         // перелётом, вспышка расходится от центра
         scale.value = 0.9;
@@ -80,5 +83,5 @@ const styles = StyleSheet.create({
   glow: { position: 'absolute', left: 8, right: 8, top: 0, bottom: 0, borderRadius: 16, backgroundColor: 'rgba(17,17,16,0.08)' },
   label: { fontFamily: font.bold, fontSize: 26 },
   triple: { fontFamily: font.extrabold, fontSize: 23 },
-  back: { fontSize: 22 },
+  back: { fontSize: 30, lineHeight: 34 },
 });

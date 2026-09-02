@@ -17,8 +17,10 @@ interface Props {
   /** тёмная поверхность (пилл на тёмной теме, подложка шита) */
   dark?: boolean;
   /**
-   * Тонкий материал вместо плотного: сквозь пилл таб-бара должен просвечивать
-   * контент, иначе стекло неотличимо от заливки.
+   * Самый прозрачный из системных материалов: сквозь пилл таб-бара должен
+   * просвечивать контент. thin поверх светлого фона всё ещё читался как
+   * сплошная заливка — на светлой теме разница между ним и фоном почти
+   * нулевая.
    */
   thin?: boolean;
   /** цвет-заглушка для Android и как подложка под стекло на iOS */
@@ -41,7 +43,7 @@ export function Glass({ dark, thin, fallback, amount = 18, style, children }: Pr
     <View style={[style, styles.clip]}>
       <BlurView
         style={StyleSheet.absoluteFill as object}
-        blurType={thin ? (dark ? 'thinMaterialDark' : 'thinMaterialLight') : dark ? 'thickMaterialDark' : 'chromeMaterial'}
+        blurType={thin ? (dark ? 'ultraThinMaterialDark' : 'ultraThinMaterialLight') : dark ? 'thickMaterialDark' : 'chromeMaterial'}
         blurAmount={amount}
         reducedTransparencyFallbackColor={fallback}
       />
