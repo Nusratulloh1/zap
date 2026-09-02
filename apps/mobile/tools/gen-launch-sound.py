@@ -1,71 +1,108 @@
 #!/usr/bin/env python3
-"""Звук запуска приложения — тихая тёплая подпись бренда.
+"""Звук запуска — электрический разряд, а не музыкальная фраза.
 
-Первая версия звучала дёшево, и по вполне понятным причинам. Что изменено:
+Две прошлые версии были нотами: сначала аккорд, потом колокольчик. Обе мимо —
+у ZAP! звук должен быть тем же, чем и логотип: разрядом. Ноты в брендах
+уместны там, где продукт про спокойствие; здесь продукт про скорость.
 
-  • Убран шумовой транзиент. Всплеск шума читается как «клик» интерфейса, а
-    не как подпись бренда — именно он и делал звук дешёвым.
-  • Мягкая атака (25 мс вместо 4). Резкий фронт — главный признак «системного
-    бипа»; у дорогих звуков нота входит плавно.
-  • Обертоны затухают быстрее основного тона, как у настоящего колокольчика
-    или маримбы. Ровный по спектру звук слышится синтетическим.
-  • Добавлена реверберация (Шрёдер: четыре гребёнки + два allpass). Хвост
-    в пространстве — то, что сильнее всего отличает «дорогой» звук от
-    сгенерированного.
-  • Тише. Пик −13 дБФС вместо −1: звук запуска не должен перебивать музыку и
-    пугать в тишине. Громкость дополнительно приглушена в feedback.ts.
-  • Ноты идут вверх: B4 → F#5 → B5. Восходящая последовательность читается
-    как «открылось»; нисходящая — как «закрылось» или ошибка.
+Как устроен разряд:
+
+  1. Треск — несколько микро-импульсов в первые 50 мс. Именно нерегулярность
+     импульсов читается ухом как «электричество»; ровный шум звучит как
+     помеха, а не как искра.
+  2. Сам разряд — белый шум через резонансный полосовой фильтр, центральная
+     частота которого быстро падает с 5 кГц до 400 Гц. Падение высоты и даёт
+     тот самый «цвирк».
+  3. Тело — короткий обертонный свип вниз, 700 → 150 Гц. Он не мелодия, а
+     вес: без него разряд звучит тонко и дёшево.
+  4. Воздух — высокочастотный шум с медленным спадом. Остаточное шипение
+     после искры.
+  5. Короткая реверберация малым миксом. Полностью сухой разряд звучит как
+     сэмпл из архива, а не как звук продукта.
+
+Тише остальных звуков (пик ≈ −14 дБФС): он играет без спроса сразу после
+нажатия на иконку. Длительность 520 мс — разряд обязан быть быстрым.
 
 Запуск:  python3 tools/gen-launch-sound.py   (нужен ffmpeg для mp3)
 """
 import math
 import os
+import random
 import struct
 import subprocess
 import tempfile
 import wave
 
 SR = 44100
-DUR = 1.25          # вместе с хвостом реверберации
-PEAK = 0.225        # ≈ −13 дБФС
+DUR = 0.52
+PEAK = 0.20                     # ≈ −14 дБФС
 OUT = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                    "assets", "sounds", "launch.mp3")
 
-# B4, F#5, B5 — квинта и октава. Открытый, спокойный интервал; минор на входе
-# в платёжное приложение читался бы как предупреждение.
-NOTES = [(493.88, 0.00, 1.00), (739.99, 0.085, 0.72), (987.77, 0.170, 0.55)]
-
-# Обертоны колокольчика: номер гармоники, громкость, во сколько раз быстрее
-# затухает по сравнению с основным тоном.
-PARTIALS = [(1.0, 1.00, 1.0), (2.0, 0.34, 1.9), (3.01, 0.16, 3.1), (4.02, 0.07, 4.6)]
+random.seed(11)                 # звук должен быть одинаковым при пересборке
+N = int(SR * DUR)
 
 
-def mallet(t, dur):
-    """Огибающая удара мягкой колотушкой: плавный вход, экспоненциальный спад."""
-    attack = 0.025
-    if t < 0:
-        return 0.0
-    a = 0.5 - 0.5 * math.cos(math.pi * min(1.0, t / attack))   # косинусный фронт
-    return a * math.exp(-t * dur)
+class SVF:
+    """Резонансный фильтр с перестраиваемой частотой (state-variable)."""
+
+    def __init__(self, q=3.2):
+        self.low = 0.0
+        self.band = 0.0
+        self.q = 1.0 / q
+
+    def band_pass(self, x, fc):
+        f = 2.0 * math.sin(math.pi * min(fc, SR * 0.45) / SR)
+        high = x - self.low - self.q * self.band
+        self.band += f * high
+        self.low += f * self.band
+        return self.band
 
 
-dry = []
-for i in range(int(SR * DUR)):
+def expdrop(t, a, b, tau):
+    """Частота падает с a до b с постоянной времени tau."""
+    return b + (a - b) * math.exp(-t / tau)
+
+
+# ── треск: редкие импульсы, чем дальше, тем реже ───────────────────────────
+crackle = [0.0] * N
+pos = 0.002
+while pos < 0.05:
+    i = int(pos * SR)
+    if i < N:
+        crackle[i] += random.uniform(0.6, 1.0) * random.choice((-1, 1))
+    pos += random.uniform(0.004, 0.013)
+
+zap = SVF(q=2.4)
+air = SVF(q=0.9)
+body_prev = 0.0
+samples = []
+
+for i in range(N):
     t = i / SR
-    v = 0.0
-    for freq, delay, amp in NOTES:
-        tt = t - delay
-        if tt < 0:
-            continue
-        for mult, pamp, pdecay in PARTIALS:
-            v += amp * pamp * mallet(tt, 2.6 * pdecay) * math.sin(2 * math.pi * freq * mult * tt)
-    dry.append(v * 0.25)
+    n = random.uniform(-1, 1)
+
+    # 1+2. разряд: шум и треск через полосовой фильтр с падающей частотой
+    fc = expdrop(t, 5000.0, 400.0, 0.055)
+    env_zap = math.exp(-t / 0.055)
+    spark = zap.band_pass(n * 0.8 + crackle[i] * 6.0, fc) * env_zap * 1.1
+
+    # 3. тело: свип вниз с обертоном, даёт вес
+    f_body = expdrop(t, 700.0, 150.0, 0.075)
+    env_body = math.exp(-t / 0.10) * (1 - math.exp(-t / 0.004))
+    phase = 2 * math.pi * f_body * t
+    body = (math.sin(phase) + 0.30 * math.sin(2 * phase)) * env_body * 0.42
+
+    # 4. воздух: шипение после искры
+    hiss = air.band_pass(n, expdrop(t, 9000.0, 5200.0, 0.20)) * math.exp(-t / 0.13) * 0.16
+
+    v = spark + body + hiss
+    # мягкое ограничение — резкие пики разряда иначе клиппуют
+    samples.append(math.tanh(v * 1.15))
 
 
-def comb(sig, delay_ms, feedback, damp):
-    """Гребёнчатый фильтр с затуханием верхов в петле — стены не звенят."""
-    d = int(SR * delay_ms / 1000)
+def comb(sig, ms, fb, damp):
+    d = int(SR * ms / 1000)
     buf = [0.0] * d
     out = [0.0] * len(sig)
     store = 0.0
@@ -73,12 +110,12 @@ def comb(sig, delay_ms, feedback, damp):
         y = buf[i % d]
         out[i] = y
         store = y * (1 - damp) + store * damp
-        buf[i % d] = x + store * feedback
+        buf[i % d] = x + store * fb
     return out
 
 
-def allpass(sig, delay_ms, gain=0.5):
-    d = int(SR * delay_ms / 1000)
+def allpass(sig, ms, gain=0.5):
+    d = int(SR * ms / 1000)
     buf = [0.0] * d
     out = [0.0] * len(sig)
     for i, x in enumerate(sig):
@@ -88,22 +125,19 @@ def allpass(sig, delay_ms, gain=0.5):
     return out
 
 
-# Реверберация Шрёдера: несколько гребёнок параллельно, затем allpass подряд.
-wet = [0.0] * len(dry)
-for ms, fb in ((29.7, 0.78), (37.1, 0.76), (41.1, 0.75), (43.7, 0.73)):
-    c = comb(dry, ms, fb, 0.28)
+# 5. маленькая комната: миксом 0.18, только чтобы разряд не был «плоским»
+wet = [0.0] * N
+for ms, fb in ((17.3, 0.62), (23.9, 0.60), (29.1, 0.58)):
+    c = comb(samples, ms, fb, 0.42)
     for i, v in enumerate(c):
-        wet[i] += v * 0.25
-wet = allpass(allpass(wet, 5.0), 1.7)
+        wet[i] += v * 0.33
+wet = allpass(wet, 4.1)
+samples = [d + w * 0.18 for d, w in zip(samples, wet)]
 
-# Хвост слышен, но не размывает саму ноту
-samples = [d + w * 0.42 for d, w in zip(dry, wet)]
-
-# Мягкий уход в тишину — обрыв хвоста слышен как щелчок
-fade = int(SR * 0.18)
+# уход в тишину без щелчка
+fade = int(SR * 0.06)
 for i in range(fade):
-    k = i / fade
-    samples[len(samples) - fade + i] *= (1 - k) ** 2
+    samples[N - fade + i] *= (1 - i / fade) ** 2
 
 peak = max(abs(s) for s in samples) or 1.0
 samples = [s / peak * PEAK for s in samples]
@@ -122,4 +156,4 @@ subprocess.run(
     check=True,
 )
 os.remove(wav_path)
-print("launch.mp3", os.path.getsize(OUT) // 1024, "КБ, пик", round(20 * math.log10(PEAK), 1), "дБФС")
+print("launch.mp3", os.path.getsize(OUT) // 1024, "КБ,", int(DUR * 1000), "мс")
