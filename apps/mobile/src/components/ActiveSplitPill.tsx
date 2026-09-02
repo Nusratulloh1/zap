@@ -8,7 +8,7 @@ import Animated, { Easing, FadeInDown, FadeOutDown, useAnimatedStyle, useSharedV
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { PressableScale } from '@/components/PressableScale';
-import { SplitFaces } from '@/components/SplitFaces';
+import { VenueIcon } from '@/components/VenueIcon';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 import { money } from '@/lib/format';
@@ -59,7 +59,7 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
       pointerEvents="box-none"
     >
       <PressableScale style={[styles.pill, { backgroundColor: fixed.ink }]} onPress={onPress}>
-        <SplitFaces split={split} size={38} ring={fixed.ink} />
+        <VenueIcon name={merchant?.name ?? split.title} size={42} />
         <View style={styles.body}>
           <Text style={[styles.title, { color: fixed.paper }]} numberOfLines={1}>
             {merchant?.name ?? split.title}

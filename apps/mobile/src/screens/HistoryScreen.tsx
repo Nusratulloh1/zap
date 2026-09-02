@@ -10,13 +10,13 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
-import { SplitFaces } from '@/components/SplitFaces';
+import { VenueIcon } from '@/components/VenueIcon';
 import { SearchIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { money, dayLabel } from '@/lib/format';
 import { entryText } from '@/lib/entryText';
 import { useMyAvatar } from '@/lib/myAvatar';
-import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
+import { merchantLogo } from '@/lib/merchantLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import type { HistoryEntry } from '@zap/shared/types';
@@ -42,7 +42,6 @@ export function HistoryScreen() {
   const nav = useNavigation<any>();
   const home = useHomeData();
   const myAvatar = useMyAvatar();
-  const splitById = (id: string) => home.db?.splits.find((sp) => sp.id === id);
 
   const [tab, setTab] = useState<TabKey>('all');
   // Поиск. Кнопка-лупа существовала с первого дня, но не делала НИЧЕГО —
@@ -163,15 +162,10 @@ export function HistoryScreen() {
                       </View>
                     ) : e.kind === 'debt' && e.contactId ? (
                       <Avatar name={e.title} letter={e.letter} contactId={e.contactId} color={e.color} size={42} />
-                    ) : e.splitId && splitById(e.splitId) ? (
-                      /* сплит в истории — лица участников, а не буква мерчанта */
-                      <SplitFaces split={splitById(e.splitId)!} size={42} />
                     ) : merchantLogo(e.title) ? (
                       <Image source={merchantLogo(e.title)!} style={styles.icon} />
                     ) : (
-                      <View style={[styles.icon, { backgroundColor: colors.sand }]}>
-                        <Text style={styles.iconLetter}>{merchantGlyph(e.title)}</Text>
-                      </View>
+                      <VenueIcon name={e.title} size={42} />
                     )}
                     <View style={styles.rowBody}>
                       <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>

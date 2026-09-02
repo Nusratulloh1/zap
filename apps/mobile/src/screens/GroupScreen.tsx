@@ -26,7 +26,6 @@ import { FunStatCards } from '@/components/FunStatCards';
 import { VenueIcon } from '@/components/VenueIcon';
 import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
 import { useCrewColor, useCrewEmoji } from '@/lib/crewEmoji';
-import { SplitFaces } from '@/components/SplitFaces';
 import { funStats } from '@/lib/funStats';
 import { translate } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -287,7 +286,7 @@ export function GroupScreen() {
             const merchant = home.db?.merchants.find((m) => m.id === s.merchantId);
             return (
               <PressableScale key={s.id} haptic={false} style={styles.splitRow} onPress={() => nav.navigate('SplitLive', { id: s.id })}>
-                <SplitFaces split={s} size={40} />
+                <VenueIcon name={merchant?.name ?? s.title} size={44} />
                 <View style={styles.memberBody}>
                   <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
                     {merchant?.name ?? s.title}
