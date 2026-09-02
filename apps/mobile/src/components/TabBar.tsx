@@ -40,7 +40,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
           <Defs>
             <LinearGradient id="tabGloss" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.26} />
+              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.16} />
               <Stop offset="0.58" stopColor="#FFFFFF" stopOpacity={0} />
             </LinearGradient>
           </Defs>
@@ -141,10 +141,10 @@ function Icon({ kind, focused, lime, dark }: { kind: IconKind; focused: boolean;
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center' },
-  // Веб держит 0.30, но там backdrop-filter ЗАТЕМНЯЕТ фон, а iOS-материал,
-  // наоборот, подсветляет — при той же альфе пилл выходил заметно плотнее
-  // оригинала. Тинт ослаблен, работу берёт на себя размытие.
-  pillSurface: { backgroundColor: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.55)' },
+  // Собственный тинт снят полностью: любой белый слой поверх материала делает
+  // пилл плотнее, а материал iOS и так подсветляет фон. Осталась только рамка,
+  // чтобы пилл не растворялся на светлом контенте, и размытие.
+  pillSurface: { backgroundColor: 'transparent', borderColor: 'rgba(255,255,255,0.45)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',

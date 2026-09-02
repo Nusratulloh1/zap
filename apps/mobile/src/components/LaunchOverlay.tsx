@@ -16,7 +16,7 @@
 //     не должно — это не событие, а запуск.
 import React, { useCallback, useEffect } from 'react';
 import { Image, StyleSheet, View } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
+import Svg, { G, Path } from 'react-native-svg';
 import Animated, {
   Easing,
   runOnJS,
@@ -31,6 +31,16 @@ import { cue, reduceMotion } from '@/lib/feedback';
 import { useTheme } from '@/theme/ThemeProvider';
 
 const WORDMARK = require('../../assets/brand/zap-wordmark-large.png');
+
+/*
+  Геометрия разряда. Излом неравномерный: у настоящей молнии сегменты разной
+  длины и углы не повторяются — ровный зигзаг сразу читается как иконка.
+  Путь зафиксирован, а не генерируется случайно: он должен быть одинаковым при
+  каждом запуске, иначе вход перестаёт быть узнаваемым.
+*/
+const BOLT = 'M50 0 L41 21 L52 30 L37 52 L49 63 L31 90 L42 99 L26 128';
+/** Ветки — второй признак настоящего разряда после неровного излома. */
+const FORKS = 'M52 30 L67 45 L60 53 L73 70 M37 52 L24 63 L30 70 M42 99 L57 110';
 
 /** Держим общую длительность в пределах, за которыми вход читается как ожидание. */
 const HOLD_MS = 260;
@@ -71,9 +81,19 @@ export function LaunchOverlay({ ready, onDone }: Props) {
     );
     // блик-молния проходит по вордмарку слева направо, как в ZapLoader
     bolt.value = withDelay(120, withTiming(1, { duration: 420, easing: Easing.out(Easing.cubic) }));
-    // Разряд бьёт вниз прямо из-под вордмарка. Быстро — молния не «выезжает»,
-    // а появляется целиком; поэтому короткий timing, а не пружина.
-    strike.value = withDelay(150, withTiming(1, { duration: 240, easing: Easing.out(Easing.quad) }));
+    /*
+      Разряд бьёт вниз прямо из-под вордмарка и МЕРЦАЕТ. Мерцание —
+      третий признак настоящей молнии после неровного излома и веток:
+      настоящий разряд это несколько импульсов подряд, а не одна вспышка.
+      Поэтому не плавное появление, а серия почти мгновенных шагов.
+    */
+    strike.value = withDelay(150, withSequence(
+      withTiming(1, { duration: 45 }),
+      withTiming(0.35, { duration: 55 }),
+      withTiming(1, { duration: 35 }),
+      withTiming(0.65, { duration: 70 }),
+      withTiming(1, { duration: 40 }),
+    ));
     cue('launch');
   }, [still, mark, bolt, strike]);
 
@@ -97,11 +117,9 @@ export function LaunchOverlay({ ready, onDone }: Props) {
 
   const veilStyle = useAnimatedStyle(() => ({ opacity: veil.value }));
   const markStyle = useAnimatedStyle(() => ({ transform: [{ scale: mark.value }] }));
-  const strikeStyle = useAnimatedStyle(() => ({
-    opacity: strike.value,
-    // растёт из основания вордмарка вниз
-    transform: [{ scaleY: 0.35 + 0.65 * strike.value }],
-  }));
+  // Длину не анимируем: молния появляется целиком и мерцает. Растущий сверху
+  // вниз разряд читается как загрузка, а не как удар.
+  const strikeStyle = useAnimatedStyle(() => ({ opacity: strike.value }));
   const boltStyle = useAnimatedStyle(() => ({
     // блик идёт по вордмарку и гаснет к концу прохода
     opacity: bolt.value < 0.5 ? bolt.value * 1.6 : (1 - bolt.value) * 1.6,
@@ -124,14 +142,21 @@ export function LaunchOverlay({ ready, onDone }: Props) {
           и удар читается как отдельная картинка рядом.
         */}
         <Animated.View style={[styles.strike, strikeStyle]}>
-          <Svg width={54} height={76} viewBox="0 0 54 76">
-            <Path
-              d="M30 0 L8 40 H24 L18 76 L46 30 H28 L36 0 Z"
-              fill={fixed.lime}
-              stroke="#111110"
-              strokeWidth={3}
-              strokeLinejoin="round"
-            />
+          <Svg width={96} height={128} viewBox="0 0 96 128">
+            {/*
+              Настоящая молния — это не залитый зигзаг, а ломаная с ветками и
+              светящимся ядром. Рисуем один и тот же путь три раза: широкое
+              свечение, тело и тонкое белое ядро. Именно ядро и делает разряд
+              похожим на разряд, а не на иконку.
+            */}
+            <G strokeLinecap="round" strokeLinejoin="round" fill="none">
+              <Path d={BOLT} stroke={fixed.lime} strokeWidth={13} strokeOpacity={0.22} />
+              <Path d={FORKS} stroke={fixed.lime} strokeWidth={8} strokeOpacity={0.18} />
+              <Path d={FORKS} stroke={fixed.lime} strokeWidth={3.4} />
+              <Path d={BOLT} stroke={fixed.lime} strokeWidth={6} />
+              <Path d={FORKS} stroke="#FFFFFF" strokeWidth={1.3} strokeOpacity={0.9} />
+              <Path d={BOLT} stroke="#FFFFFF" strokeWidth={2.4} />
+            </G>
           </Svg>
         </Animated.View>
       </Animated.View>
@@ -146,7 +171,7 @@ const styles = StyleSheet.create({
   // те же 150×100, что у картинки в LaunchScreen.storyboard
   mark: { width: 150, height: 100 },
   // вплотную к вордмарку: −18 гасит прозрачные поля картинки
-  strike: { marginTop: -18, transformOrigin: 'top' },
+  strike: { marginTop: -22 },
   bolt: {
     position: 'absolute',
     top: -30,
