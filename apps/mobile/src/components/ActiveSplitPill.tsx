@@ -1,12 +1,14 @@
-// Плашка активного сплита над таб-баром — порт ActiveSplitPill.vue:
-// круг мерчанта (лого Bellissimo или буква на цвете), «Активный сплит» +
-// «ждём … · сумма» справа, лаймовый прогресс-бар 6px.
+// Плашка активного сплита над таб-баром — устроена как строка в «Zaps»
+// (требование руководства): лица участников, название заведения, сумма
+// справа. Служебная надпись «Активный сплит» убрана — понятно и без неё.
+// Под строкой — лаймовый прогресс-бар оплаты.
 import React, { useEffect } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import Animated, { Easing, FadeInDown, FadeOutDown, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { PressableScale } from '@/components/PressableScale';
+import { SplitFaces } from '@/components/SplitFaces';
 import { STICKER } from '@/components/EmptyState';
 import { themeForMerchant } from '@/lib/merchantTheme';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -39,7 +41,7 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
   const progress = split.total > 0 ? Math.min(1, paid / split.total) : 0;
 
   const label = waitingNames.length
-    ? t('home.waitingFor', { names: waitingNames.join(t('common.and')), amount: money(remaining) })
+    ? t('split.waitingFor', { names: waitingNames.join(t('common.and')) })
     : t('home.allPaid');
 
   // прогресс подъезжает за 500 мс — как transition в вебе
@@ -49,7 +51,6 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
   }, [progress, p]);
   const barStyle = useAnimatedStyle(() => ({ width: `${p.value * 100}%` }));
 
-  const isBellissimo = split.merchantId === 'm_bellissimo';
   // стикер темы заведения — «наклейка» на плашке (замечание: карточка слишком
   // обычная; стикеры делают её фирменной)
   const theme = themeForMerchant(merchant?.name ?? split.title);
@@ -69,30 +70,21 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
         ) : theme ? (
           <Text style={styles.stickerGlyph} pointerEvents="none">{theme.glyph}</Text>
         ) : null}
-        {isBellissimo ? (
-          <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.logo} />
-        ) : (
-          <View style={[styles.logo, { backgroundColor: merchant?.color ?? '#3E3C35', alignItems: 'center', justifyContent: 'center' }]}>
-            <Text style={[styles.logoLetter, { color: fixed.paper }]}>
-              {merchant?.letter ?? split.title[0]?.toUpperCase()}
-            </Text>
-          </View>
-        )}
+        <SplitFaces split={split} size={38} ring={fixed.ink} />
         <View style={styles.body}>
-          <View style={styles.titleRow}>
-            <Text style={[styles.title, { color: fixed.paper }]} numberOfLines={1}>
-              <Text style={{ color: fixed.lime }}>⚡ </Text>
-              {t('home.activeSplit')}
-            </Text>
-            <Text style={[styles.sub, { color: fixed.paper }]} numberOfLines={1}>
-              {label}
-            </Text>
-          </View>
+          <Text style={[styles.title, { color: fixed.paper }]} numberOfLines={1}>
+            {merchant?.name ?? split.title}
+          </Text>
+          <Text style={[styles.sub, { color: fixed.paper }]} numberOfLines={1}>
+            {label}
+          </Text>
           <View style={styles.track}>
             <Animated.View style={[styles.bar, { backgroundColor: fixed.lime }, barStyle]} />
           </View>
         </View>
-        <Text style={[styles.chevron, { color: fixed.paper }]}>›</Text>
+        <Text style={[styles.amount, { color: fixed.paper }]} numberOfLines={1}>
+          {money(remaining)}
+        </Text>
       </PressableScale>
     </Animated.View>
   );
@@ -120,11 +112,11 @@ const styles = StyleSheet.create({
   },
   logo: { width: 42, height: 42, borderRadius: 999, borderWidth: 2, borderColor: '#DDFF33' },
   logoLetter: { fontFamily: font.extrabold, fontSize: 16 },
-  body: { flex: 1, minWidth: 0, gap: 7 },
-  titleRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
+  body: { flex: 1, minWidth: 0, gap: 3 },
   title: { fontFamily: font.extrabold, fontSize: 14.5 },
-  sub: { flexShrink: 1, fontFamily: font.bold, fontSize: 12, opacity: 0.55 },
-  track: { height: 6, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
+  amount: { fontFamily: font.extrabold, fontSize: 14.5 },
+  sub: { fontFamily: font.bold, fontSize: 11.5, opacity: 0.55 },
+  track: { height: 5, borderRadius: 999, marginTop: 5, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
   bar: { height: '100%', borderRadius: 999 },
   chevron: { fontFamily: font.semibold, fontSize: 17, opacity: 0.5 },
   sticker: {
