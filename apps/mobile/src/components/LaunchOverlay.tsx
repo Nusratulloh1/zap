@@ -1,4 +1,4 @@
-// Вход в приложение: вордмарк ZAP! делает оборот и уходит, открывая интерфейс.
+// Вход в приложение: вордмарк ZAP! раскручивается и уходит, открывая интерфейс.
 //
 // Что здесь важно и почему сделано именно так:
 //
@@ -8,7 +8,7 @@
 //     корневой вид RN покрашены в лайм (AppDelegate) — без этого в зазоре
 //     между storyboard и первым кадром JS мелькал белый фон.
 //   • Оверлей не задерживает запуск: он лежит ПОВЕРХ уже смонтированного
-//     интерфейса и снимается, когда закончились и оборот, и загрузка сессии.
+//     интерфейса и снимается, когда закончились и вращение, и загрузка сессии.
 //   • Показывается один раз за холодный старт. При возврате из фона его быть
 //     не должно — это не событие, а запуск.
 import React, { useCallback, useEffect } from 'react';
@@ -27,10 +27,11 @@ import { useTheme } from '@/theme/ThemeProvider';
 
 const WORDMARK = require('../../assets/brand/zap-wordmark-large.png');
 
-/** Оборот ускоряется и мягко тормозит — равномерное вращение выглядит механическим. */
-const SPIN_MS = 720;
-/** Пауза после оборота, чтобы логотип «встал», прежде чем уйти. */
-const HOLD_MS = 180;
+/** Сколько полных оборотов делает вордмарк. */
+const TURNS = 3;
+const SPIN_MS = 620;
+/** Пауза после вращения, чтобы логотип «встал», прежде чем уйти. */
+const HOLD_MS = 110;
 const OUT_MS = 300;
 
 interface Props {
@@ -54,10 +55,13 @@ export function LaunchOverlay({ ready, onDone }: Props) {
 
   useEffect(() => {
     if (still) return;
-    spin.value = withTiming(1, { duration: SPIN_MS, easing: Easing.inOut(Easing.cubic) });
+    // Easing.out, а не inOut: на нескольких оборотах нужен резкий старт с
+    // торможением к концу — так вращение читается как раскрутка и остановка,
+    // а не как равномерно крутящийся индикатор загрузки.
+    spin.value = withTiming(1, { duration: SPIN_MS, easing: Easing.out(Easing.cubic) });
   }, [still, spin]);
 
-  // Уходим только когда и оборот отыграл, и сессия определилась: иначе под
+  // Уходим только когда и вращение отыграло, и сессия определилась: иначе под
   // оверлеем окажется пустой экран, и вход превратится в мигание.
   useEffect(() => {
     if (!ready) return;
@@ -81,7 +85,7 @@ export function LaunchOverlay({ ready, onDone }: Props) {
 
   const veilStyle = useAnimatedStyle(() => ({ opacity: veil.value }));
   const markStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${spin.value * 360}deg` }, { scale: scale.value }],
+    transform: [{ rotate: `${spin.value * 360 * TURNS}deg` }, { scale: scale.value }],
   }));
 
   return (
