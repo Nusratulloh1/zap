@@ -17,10 +17,9 @@ interface Props {
   /** тёмная поверхность (пилл на тёмной теме, подложка шита) */
   dark?: boolean;
   /**
-   * Самый прозрачный из системных материалов: сквозь пилл таб-бара должен
-   * просвечивать контент. thin поверх светлого фона всё ещё читался как
-   * сплошная заливка — на светлой теме разница между ним и фоном почти
-   * нулевая.
+   * Тонкий материал для таб-бара. Не ultraThin: он почти не размывает, и пилл
+   * выглядел просто полупрозрачным прямоугольником. thin даёт заметное
+   * размытие и при этом всё ещё пропускает контент.
    */
   thin?: boolean;
   /** цвет-заглушка для Android и как подложка под стекло на iOS */
@@ -31,7 +30,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export function Glass({ dark, thin, fallback, amount = 18, style, children }: Props) {
+export function Glass({ dark, thin, fallback, amount = 28, style, children }: Props) {
   if (Platform.OS !== 'ios' || !BlurView) {
     return <View style={[style, { backgroundColor: fallback }]}>{children}</View>;
   }
@@ -43,7 +42,7 @@ export function Glass({ dark, thin, fallback, amount = 18, style, children }: Pr
     <View style={[style, styles.clip]}>
       <BlurView
         style={StyleSheet.absoluteFill as object}
-        blurType={thin ? (dark ? 'ultraThinMaterialDark' : 'ultraThinMaterialLight') : dark ? 'thickMaterialDark' : 'chromeMaterial'}
+        blurType={thin ? (dark ? 'thinMaterialDark' : 'thinMaterialLight') : dark ? 'thickMaterialDark' : 'chromeMaterial'}
         blurAmount={amount}
         reducedTransparencyFallbackColor={fallback}
       />

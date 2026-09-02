@@ -145,9 +145,10 @@ const styles = StyleSheet.create({
   segments: { flexDirection: 'row', gap: 6, paddingHorizontal: 24, marginBottom: 16 },
   segment: { flex: 1, height: 3, borderRadius: 999 },
   heroImgWrap: { marginHorizontal: 24 },
-  // 192 под пропорцию баннера 1.79:1 при ширине экрана минус поля: при 148
-  // рисунок упирался в высоту и терял почти четверть размера
-  heroImg: { height: 192, width: '100%', borderRadius: 20 },
+  // Без borderRadius: он остался от прежнего героя-карточки, а нынешний
+  // баннер — прозрачный коллаж, и скругление срезало монеты и молнии по
+  // углам. 188, а не 192, чтобы contain оставлял волосок поля.
+  heroImg: { height: 188, width: '100%' },
   heroText: { alignItems: 'center', gap: 6, paddingHorizontal: 16, marginTop: 16 },
   heroTitle: {
     fontFamily: font.extrabold,
