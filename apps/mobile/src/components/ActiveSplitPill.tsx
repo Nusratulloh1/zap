@@ -3,14 +3,12 @@
 // справа. Служебная надпись «Активный сплит» убрана — понятно и без неё.
 // Под строкой — лаймовый прогресс-бар оплаты.
 import React, { useEffect } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Animated, { Easing, FadeInDown, FadeOutDown, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { PressableScale } from '@/components/PressableScale';
 import { SplitFaces } from '@/components/SplitFaces';
-import { STICKER } from '@/components/EmptyState';
-import { themeForMerchant } from '@/lib/merchantTheme';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 import { money } from '@/lib/format';
@@ -51,9 +49,6 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
   }, [progress, p]);
   const barStyle = useAnimatedStyle(() => ({ width: `${p.value * 100}%` }));
 
-  // стикер темы заведения — «наклейка» на плашке (замечание: карточка слишком
-  // обычная; стикеры делают её фирменной)
-  const theme = themeForMerchant(merchant?.name ?? split.title);
 
   return (
     <Animated.View
@@ -64,12 +59,6 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
       pointerEvents="box-none"
     >
       <PressableScale style={[styles.pill, { backgroundColor: fixed.ink }]} onPress={onPress}>
-        {/* наклейка темы, чуть вылезающая за верх — как стикер, шлёпнутый на плашку */}
-        {theme?.sticker ? (
-          <Image source={STICKER[theme.sticker]} style={styles.sticker} pointerEvents="none" />
-        ) : theme ? (
-          <Text style={styles.stickerGlyph} pointerEvents="none">{theme.glyph}</Text>
-        ) : null}
         <SplitFaces split={split} size={38} ring={fixed.ink} />
         <View style={styles.body}>
           <Text style={[styles.title, { color: fixed.paper }]} numberOfLines={1}>
@@ -128,5 +117,4 @@ const styles = StyleSheet.create({
     transform: [{ rotate: '-10deg' }],
     zIndex: 1,
   },
-  stickerGlyph: { position: 'absolute', right: 48, top: -14, fontSize: 26, transform: [{ rotate: '-10deg' }], zIndex: 1 },
 });
