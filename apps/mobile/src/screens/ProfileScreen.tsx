@@ -15,6 +15,7 @@ import { PinDots } from '@/components/PinDots';
 import { AvatarSheet } from '@/components/AvatarSheet';
 import { PlayerCard } from '@/components/PlayerCard';
 import { AchievementStrip } from '@/components/AchievementStrip';
+import { STICKER } from '@/components/EmptyState';
 import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
 // SunIcon и MoonIcon нужны только скрытому переключателю темы, см. ниже
 import { BackIcon } from '@/components/icons';
@@ -48,6 +49,11 @@ const ALL_TITLES: readonly [TitleKey, string][] = [
   ['coffeeAddict', '☕'],
   ['lastPayer', '👀'],
 ];
+
+/** убирает ведущий эмодзи из названия темы — стикер уже показан рядом */
+function stripGlyph(v: string): string {
+  return v.replace(/^[^\p{L}\p{N}]+/u, '').trim();
+}
 
 export function ProfileScreen() {
   const { t } = useTranslation();
@@ -332,26 +338,26 @@ export function ProfileScreen() {
               <View style={styles.identityRow2}>
                 {favTheme ? (
                   <View style={[styles.identityTile, { backgroundColor: colors.shell }]}>
-                    <View style={[styles.identityIcon, { backgroundColor: colors.sand }]}>
-                      <Text style={styles.identityGlyph}>{favTheme.glyph}</Text>
-                    </View>
+                    <Image
+                      source={favTheme.sticker ? STICKER[favTheme.sticker] : STICKER.receiptHero}
+                      style={styles.identitySticker}
+                      resizeMode="contain"
+                    />
                     <Text style={[styles.identityValue, { color: colors.ink }]} numberOfLines={1}>
-                      {t(favTheme.titleKey)}
+                      {stripGlyph(t(favTheme.titleKey))}
                     </Text>
-                    <Text style={[styles.identityLabel, { color: colors.muted }]} numberOfLines={2}>
+                    <Text style={[styles.identityLabel, { color: colors.faint2 }]} numberOfLines={1}>
                       {t('profile.favouriteSplit')}
                     </Text>
                   </View>
                 ) : null}
                 {best !== null ? (
                   <View style={[styles.identityTile, { backgroundColor: colors.shell }]}>
-                    <View style={[styles.identityIcon, { backgroundColor: fixed.lime }]}>
-                      <Text style={styles.identityGlyph}>⚡</Text>
-                    </View>
+                    <Image source={STICKER.paidDone} style={styles.identitySticker} resizeMode="contain" />
                     <Text style={[styles.identityValue, { color: colors.ink }]} numberOfLines={1}>
                       {t('profile.seconds', { n: best })}
                     </Text>
-                    <Text style={[styles.identityLabel, { color: colors.muted }]} numberOfLines={2}>
+                    <Text style={[styles.identityLabel, { color: colors.faint2 }]} numberOfLines={1}>
                       {t('profile.fastestPayment')}
                     </Text>
                   </View>
@@ -359,90 +365,103 @@ export function ProfileScreen() {
               </View>
             ) : null}
 
-            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.cards')}</Text>
-            {cards.map((card) => (
-              <PressableScale
-                key={card.id}
-                haptic={false}
-                style={[styles.cardRow, { borderBottomColor: colors.sand2 }]}
-                onPress={() => !card.primary && void makePrimary(card.id, card.last4)}
-              >
-                <View style={[styles.cardBadge, { backgroundColor: card.network === 'UZCARD' ? '#111110' : colors.sand }]}>
-                  <Text style={[styles.cardBadgeText, { color: card.network === 'UZCARD' ? fixed.lime : colors.muted }]}>
-                    {card.network === 'UZCARD' ? 'UZC' : 'HUMO'}
-                  </Text>
-                </View>
-                <Text style={[styles.cardName, { color: colors.ink }]}>
-                  {card.network} ·· {card.last4}
-                </Text>
-                {card.primary ? (
-                  <View style={[styles.primaryChip, { backgroundColor: fixed.lime }]}>
-                    <Text style={styles.primaryText}>{t('profile.primary')}</Text>
+            {/*
+              Карты и настройки — сгруппированными карточками с иконками, а не
+              сплошной лентой линий (замечание руководства). Разделители только
+              внутри группы и с отступом под иконку.
+            */}
+            <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('profile.cards')}</Text>
+            <View style={[styles.group, { backgroundColor: colors.shell }]}>
+              {cards.map((card, ci) => (
+                <PressableScale
+                  key={card.id}
+                  haptic={false}
+                  style={[styles.gRow, ci < cards.length && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
+                  onPress={() => !card.primary && void makePrimary(card.id, card.last4)}
+                >
+                  <View style={[styles.cardBadge, { backgroundColor: card.network === 'UZCARD' ? '#111110' : colors.sand }]}>
+                    <Text style={[styles.cardBadgeText, { color: card.network === 'UZCARD' ? fixed.lime : colors.muted }]}>
+                      {card.network === 'UZCARD' ? 'UZC' : 'HUMO'}
+                    </Text>
                   </View>
-                ) : (
-                  <Text style={[styles.makePrimary, { color: colors.faint2 }]}>{t('profile.makePrimary')}</Text>
-                )}
+                  <Text style={[styles.gTitle, { color: colors.ink }]}>
+                    {card.network} ·· {card.last4}
+                  </Text>
+                  {card.primary ? (
+                    <View style={[styles.primaryChip, { backgroundColor: fixed.lime }]}>
+                      <Text style={styles.primaryText}>{t('profile.primary')}</Text>
+                    </View>
+                  ) : (
+                    <Text style={[styles.makePrimary, { color: colors.faint2 }]}>{t('profile.makePrimary')}</Text>
+                  )}
+                </PressableScale>
+              ))}
+              <PressableScale haptic={false} style={styles.gRow} onPress={openCardSheet}>
+                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}>
+                  <Text style={[styles.plusGlyph, { color: colors.faint2 }]}>+</Text>
+                </View>
+                <Text style={[styles.gTitle, { color: colors.faint2 }]}>{t('profile.addCardRow')}</Text>
               </PressableScale>
-            ))}
-            <PressableScale haptic={false} style={styles.cardRow} onPress={openCardSheet}>
-              <View style={[styles.cardBadge, { backgroundColor: colors.sand }]}>
-                <Text style={[styles.plusGlyph, { color: colors.faint2 }]}>+</Text>
-              </View>
-              <Text style={[styles.cardName, { color: colors.faint2 }]}>{t('profile.addCardRow')}</Text>
-            </PressableScale>
+            </View>
 
             <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('profile.settings')}</Text>
+            <View style={[styles.group, { backgroundColor: colors.shell }]}>
+              <PressableScale haptic={false} style={[styles.gRow, styles.gDiv, { borderBottomColor: colors.sand2 }]} onPress={openPinFlow}>
+                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>🔐</Text></View>
+                <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.pinFaceId')}</Text>
+                <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
+              </PressableScale>
 
-            <PressableScale haptic={false} style={[styles.settingRow, { borderBottomColor: colors.sand2 }]} onPress={openPinFlow}>
-              <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.pinFaceId')}</Text>
-              <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
-            </PressableScale>
-
-            <View style={[styles.settingRow, { borderBottomColor: colors.sand2 }]}>
-              <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.debtNotifs')}</Text>
-              <Toggle value={notifs} onChange={toggleNotifs} />
-            </View>
-
-            {/* язык — инлайн, без шита: «всё открыто сразу» (vision V2 §C1) */}
-            <View style={[styles.settingRow, { borderBottomColor: colors.sand2 }]}>
-              <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.language')}</Text>
-              <View style={styles.inlinePills}>
-                {LOCALES.map((l) => (
-                  <PressableScale
-                    key={l}
-                    haptic={false}
-                    style={[styles.langPill, { backgroundColor: l === locale ? fixed.lime : colors.sand }]}
-                    onPress={() => pickLocale(l)}
-                  >
-                    <Text style={[styles.langPillText, { color: '#111110' }]}>{l.toUpperCase()}</Text>
-                  </PressableScale>
-                ))}
+              <View style={[styles.gRow, styles.gDiv, { borderBottomColor: colors.sand2 }]}>
+                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>🔔</Text></View>
+                <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.debtNotifs')}</Text>
+                <Toggle value={notifs} onChange={toggleNotifs} />
               </View>
-            </View>
 
-            {/* иконка приложения — три превью прямо здесь */}
-            <View style={[styles.settingRow, styles.settingRowTall, { borderBottomColor: colors.sand2 }]}>
-              <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.appIcon')}</Text>
-              <View style={styles.inlinePills}>
-                {APP_ICONS.map((k) => (
-                  <PressableScale key={k} haptic={false} onPress={() => pickAppIcon(k)}>
-                    <Image
-                      source={ICON_PREVIEW[k]}
-                      style={[styles.iconPreview, k === appIcon && { borderColor: fixed.lime }]}
-                    />
-                  </PressableScale>
-                ))}
+              {/* язык — инлайн, без шита: «всё открыто сразу» (vision V2 §C1) */}
+              <View style={[styles.gRow, styles.gDiv, { borderBottomColor: colors.sand2 }]}>
+                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>🌐</Text></View>
+                <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.language')}</Text>
+                <View style={styles.inlinePills}>
+                  {LOCALES.map((l) => (
+                    <PressableScale
+                      key={l}
+                      haptic={false}
+                      style={[styles.langPill, { backgroundColor: l === locale ? fixed.lime : colors.sand }]}
+                      onPress={() => pickLocale(l)}
+                    >
+                      <Text style={[styles.langPillText, { color: '#111110' }]}>{l.toUpperCase()}</Text>
+                    </PressableScale>
+                  ))}
+                </View>
               </View>
+
+              {/* иконка приложения — три превью прямо здесь */}
+              <View style={[styles.gRow, styles.gRowTall, styles.gDiv, { borderBottomColor: colors.sand2 }]}>
+                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>✨</Text></View>
+                <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.appIcon')}</Text>
+                <View style={styles.inlinePills}>
+                  {APP_ICONS.map((k) => (
+                    <PressableScale key={k} haptic={false} onPress={() => pickAppIcon(k)}>
+                      <Image
+                        source={ICON_PREVIEW[k]}
+                        style={[styles.iconPreview, k === appIcon && { borderColor: fixed.lime }]}
+                      />
+                    </PressableScale>
+                  ))}
+                </View>
+              </View>
+
+              <PressableScale haptic={false} style={styles.gRow} onPress={() => setGroupsSheet(true)}>
+                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>👥</Text></View>
+                <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.myGroups')}</Text>
+                <Text style={[styles.settingValue, { color: colors.muted }]}>{groups.length}</Text>
+                <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
+              </PressableScale>
             </View>
 
-            <PressableScale haptic={false} style={[styles.settingRow, { borderBottomColor: colors.sand2 }]} onPress={() => setGroupsSheet(true)}>
-              <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.myGroups')}</Text>
-              <Text style={[styles.settingValue, { color: colors.muted }]}>{groups.length}</Text>
-              <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
-            </PressableScale>
-
-            <PressableScale haptic={false} style={styles.settingRow} onPress={() => setLogoutSheet(true)}>
-              <Text style={[styles.settingText, { color: colors.ember }]}>{t('profile.logout')}</Text>
+            <PressableScale haptic={false} style={[styles.logoutBtn, { borderColor: colors.sand2 }]} onPress={() => setLogoutSheet(true)}>
+              <Text style={[styles.logoutText, { color: colors.ember }]}>{t('profile.logout')}</Text>
             </PressableScale>
           </>
         ) : null}
@@ -651,6 +670,17 @@ export function ProfileScreen() {
 }
 
 const styles = StyleSheet.create({
+  // ── сгруппированные карточки настроек ──
+  group: { borderRadius: 22, marginTop: 10, overflow: 'hidden' },
+  gRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58, paddingHorizontal: 14 },
+  gRowTall: { minHeight: 72 },
+  gDiv: { borderBottomWidth: 1 },
+  gIcon: { width: 36, height: 36, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  gGlyph: { fontSize: 17 },
+  gTitle: { flex: 1, fontFamily: font.bold, fontSize: 15, letterSpacing: -0.2 },
+  logoutBtn: { marginTop: 18, height: 52, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+  logoutText: { fontFamily: font.extrabold, fontSize: 15 },
+
   // ── итоги месяца: мини-афиша ──
   recapCard: {
     flexDirection: 'row',
@@ -677,11 +707,11 @@ const styles = StyleSheet.create({
 
   // ── две плитки «про меня» ──
   identityRow2: { flexDirection: 'row', gap: 10, marginTop: 10 },
-  identityTile: { flex: 1, borderRadius: 22, padding: 14 },
-  identityIcon: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginBottom: 10 },
-  identityGlyph: { fontSize: 20 },
-  identityValue: { fontFamily: font.extrabold, fontSize: 17, letterSpacing: -0.3 },
-  identityLabel: { fontFamily: font.semibold, fontSize: 11.5, marginTop: 3, lineHeight: 15 },
+  identityTile: { flex: 1, borderRadius: 22, paddingTop: 6, paddingBottom: 14, paddingHorizontal: 14, overflow: 'hidden' },
+  // стикер крупный и «наклеен» — плитка перестаёт быть просто текстом в рамке
+  identitySticker: { width: 66, height: 56, marginBottom: 6, marginLeft: -4 },
+  identityValue: { fontFamily: font.extrabold, fontSize: 18, letterSpacing: -0.3 },
+  identityLabel: { fontFamily: font.monoBold, fontSize: 9, letterSpacing: 1.2, marginTop: 4, textTransform: 'uppercase' },
 
   topRow: {
     position: 'absolute',
@@ -734,19 +764,14 @@ const styles = StyleSheet.create({
   inlinePills: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 'auto' },
   langPill: { height: 34, paddingHorizontal: 13, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   langPillText: { fontFamily: font.extrabold, fontSize: 12.5 },
-  settingRowTall: { minHeight: 72 },
   iconPreview: { width: 46, height: 46, borderRadius: 12, borderWidth: 2.5, borderColor: 'transparent' },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 26 },
-  cardRow: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 62, borderBottomWidth: 1, borderBottomColor: 'transparent' },
   cardBadge: { width: 42, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   cardBadgeText: { fontFamily: font.monoBold, fontSize: 8 },
   plusGlyph: { fontSize: 16, fontFamily: font.semibold },
-  cardName: { flex: 1, fontFamily: font.bold, fontSize: 15 },
   primaryChip: { height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center' },
   primaryText: { fontFamily: font.extrabold, fontSize: 11, color: '#111110' },
   makePrimary: { fontFamily: font.bold, fontSize: 12 },
-  settingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 56, borderBottomWidth: 1, borderBottomColor: 'transparent' },
-  settingText: { flex: 1, fontFamily: font.bold, fontSize: 15 },
   settingValue: { fontFamily: font.bold, fontSize: 13 },
   chevron: { fontFamily: font.semibold, fontSize: 15 },
   sheetBody: { paddingBottom: 8 },
