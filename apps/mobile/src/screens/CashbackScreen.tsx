@@ -211,7 +211,8 @@ const styles = StyleSheet.create({
   amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 12 },
   amount: { fontFamily: font.extrabold, fontSize: 44, letterSpacing: -1.4, lineHeight: 48 },
   unit: { fontFamily: font.monoBold, fontSize: 11, flexShrink: 1 },
-  hint: { fontFamily: font.semibold, fontSize: 13, marginTop: 8 },
+  // с запасом от точек слайдера: подпись прилипала к карточкам
+  hint: { fontFamily: font.semibold, fontSize: 13, marginTop: 18 },
   filtersWrap: { flexGrow: 0, marginTop: 20 , marginHorizontal: -24 },
   filters: { gap: 8 , paddingHorizontal: SCREEN_PAD_X },
   filter: { height: 38, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },

@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
   value: { fontFamily: font.extrabold, fontSize: 30, letterSpacing: -0.9, marginTop: 12 },
   cardFoot: { fontFamily: font.bold, fontSize: 12, color: 'rgba(17,17,16,0.55)', marginTop: 6 },
   cardFootDim: { fontFamily: font.extrabold, fontSize: 13.5, letterSpacing: -0.2 },
-  dots: { flexDirection: 'row', gap: 5, justifyContent: 'center', marginTop: 12 },
+  dots: { flexDirection: 'row', gap: 5, justifyContent: 'center', marginTop: 14, marginBottom: 4 },
   dot: { width: 6, height: 6, borderRadius: 999 },
   dotActive: { width: 16 },
 });
