@@ -94,14 +94,17 @@ export function PromoCarousel({ category }: Props) {
             <Pressable key={v.id} style={{ width }} onPress={(e) => onTap(e.nativeEvent.locationX)}>
               <View style={styles.venueImgWrap}>
                 {/*
-                  cover, а не contain. Баннеры пришли в разных пропорциях —
-                  от 1.6:1 до 2.43:1, — и при contain каждый упирался в свою
-                  сторону: широкий feedup рисовался высотой 156 pt против 218
-                  у остальных и выглядел заметно мельче. С cover все
-                  заполняют кадр одинаково, платой идут срезанные кончики
-                  молний по краям.
+                  Только contain: cover уравнивал размеры, но резал рисунок по
+                  краям — у feedup уходил край лаваша.
+
+                  Из-за этого feedup рисуется мельче прочих: он 2.43:1, а
+                  остальные баннеры 1.6–1.9:1, и при равной ширине широкий
+                  кадр выходит ниже. Полями это не лечится — он и так упирается
+                  в ширину, поля лишь уменьшат рисунок. Чинится только
+                  перерисовкой feedup в тех же пропорциях, что и остальные
+                  четыре (2752×1536).
                 */}
-                <Image source={v.img} style={styles.venueImg} resizeMode="cover" fadeDuration={0} />
+                <Image source={v.img} style={styles.venueImg} resizeMode="contain" fadeDuration={0} />
               </View>
               <View style={styles.venueText}>
                 <Text style={styles.venueTitle} numberOfLines={1}>
@@ -146,7 +149,7 @@ const styles = StyleSheet.create({
   },
   heroTerms: { fontFamily: font.semibold, fontSize: 14.5, color: 'rgba(255,255,255,0.65)', textAlign: 'center' },
   venueImgWrap: { paddingHorizontal: 8, paddingTop: 4 },
-  venueImg: { height: 218, width: '100%', borderRadius: 18 },
+  venueImg: { height: 218, width: '100%' },
   venueText: { alignItems: 'center', gap: 4, paddingHorizontal: 12, marginTop: 12 },
   venueTitle: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.2, color: '#FFFFFF', textAlign: 'center' },
   venueTerms: { fontFamily: font.semibold, fontSize: 13, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
