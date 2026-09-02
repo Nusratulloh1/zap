@@ -24,13 +24,22 @@ interface Props {
   thin?: boolean;
   /** цвет-заглушка для Android и как подложка под стекло на iOS */
   fallback: string;
+  /**
+   * Оттенок ПОВЕРХ размытия.
+   *
+   * Класть тон фоном контейнера нельзя: UIVisualEffectView размывает то, что
+   * находится ЗА ним, то есть размывал бы этот самый фон — и стекло всегда
+   * выходило плоской заливкой, каким бы материал ни был. Тон должен лежать
+   * НАД блюром.
+   */
+  tint?: string;
   /** сила размытия iOS */
   amount?: number;
   style?: StyleProp<ViewStyle>;
   children?: React.ReactNode;
 }
 
-export function Glass({ dark, thin, fallback, amount = 28, style, children }: Props) {
+export function Glass({ dark, thin, fallback, tint, amount = 28, style, children }: Props) {
   /*
     «Уменьшение прозрачности» в настройках iOS полностью отключает
     UIVisualEffectView: система подставляет вместо блюра сплошной
@@ -65,6 +74,7 @@ export function Glass({ dark, thin, fallback, amount = 28, style, children }: Pr
         blurAmount={amount}
         reducedTransparencyFallbackColor={fallback}
       />
+      {tint ? <View style={[StyleSheet.absoluteFill, { backgroundColor: tint }]} pointerEvents="none" /> : null}
       {children}
     </View>
   );
