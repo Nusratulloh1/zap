@@ -8,13 +8,14 @@
 //   • «линия отрыва» вынесена отдельным слоем (по ней пойдёт разрыв);
 //   • содержимое не завязано на layout соседей — куски можно вырезать.
 import React, { useEffect } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, type ImageSourcePropType, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedRef } from 'react-native-reanimated';
 import Svg, { Path } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
 import { CountUp } from '@/components/CountUp';
 import { useBillStage } from '@/lib/billStage';
 import { money } from '@/lib/format';
+import { merchantGlyph } from '@/lib/merchantLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { receiptTitle } from '@/lib/merchant';
 import { font, radius } from '@/theme/tokens';
@@ -34,7 +35,7 @@ function notchPath(): string {
 interface Props {
   title: string;
   merchantName?: string;
-  merchantLogo?: number;
+  merchantLogo?: ImageSourcePropType;
   orderLine?: string;
   total: number;
   paidAmount: number;
@@ -43,7 +44,7 @@ interface Props {
 
 export function BillReceipt({ title, merchantName, merchantLogo, orderLine, total, paidAmount, onPressTitle }: Props) {
   const { t } = useTranslation();
-  const { colors, fixed } = useTheme();
+  const { colors } = useTheme();
   const stage = useBillStage();
   const ref = useAnimatedRef<View>();
 
@@ -63,8 +64,8 @@ export function BillReceipt({ title, merchantName, merchantLogo, orderLine, tota
           <Image source={merchantLogo} style={styles.logo} />
         ) : (
           <View style={[styles.logo, styles.logoFallback, { backgroundColor: colors.ink }]}>
-            <Text style={[styles.logoLetter, { color: fixed.lime }]}>
-              {(merchantName ?? shown)[0]?.toUpperCase()}
+            <Text style={styles.logoLetter}>
+              {merchantGlyph(merchantName ?? shown)}
             </Text>
           </View>
         )}

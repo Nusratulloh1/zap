@@ -16,6 +16,7 @@ import { qk } from '@/api/data';
 import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { money, equalShares } from '@/lib/format';
+import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -67,14 +68,12 @@ export function CashbackAwardScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>
-          {split?.merchantId === 'm_bellissimo' ? (
-            <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.logo} />
+          {merchantLogo(merchant?.name ?? split.title) ? (
+            <Image source={merchantLogo(merchant?.name ?? split.title)!} style={styles.logo} />
           ) : (
-          <View style={[styles.logo, { backgroundColor: fixed.ink }]}>
-            <Text style={[styles.logoLetter, { color: fixed.lime }]}>
-              {merchant?.letter ?? split.title[0]?.toUpperCase() ?? 'Z'}
-            </Text>
-          </View>
+            <View style={[styles.logo, { backgroundColor: fixed.ink }]}>
+              <Text style={styles.logoLetter}>{merchantGlyph(merchant?.name ?? split.title)}</Text>
+            </View>
           )}
           <Text style={[styles.title, { color: colors.ink }]}>{t('cashbackAward.title')}</Text>
           <Text style={[styles.sub, { color: colors.muted }]}>

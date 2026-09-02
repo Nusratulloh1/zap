@@ -19,7 +19,8 @@ import { qk } from '@/api/data';
 import type { Db } from '@zap/shared/types';
 import { useHomeData } from '@/store/bootstrap';
 import { money } from '@/lib/format';
-import { themeForMerchant } from '@/lib/merchantTheme';
+import { themeForMerchant, venueGlyph } from '@/lib/merchantTheme';
+import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 import { momentFor } from '@/lib/moments';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
@@ -72,18 +73,16 @@ export function SplitClosedScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>
           <ThemeGarnish theme={themeForMerchant(merchant?.name ?? split.title)} />
-          {split.merchantId === 'm_bellissimo' ? (
-            <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.logoImg} />
+          {merchantLogo(merchant?.name ?? split.title) ? (
+            <Image source={merchantLogo(merchant?.name ?? split.title)!} style={styles.logoImg} />
           ) : (
             <View style={[styles.logo, { backgroundColor: fixed.ink }]}>
-              <Text style={[styles.logoLetter, { color: fixed.lime }]}>
-                {merchant?.letter ?? split.title[0]?.toUpperCase() ?? 'Z'}
-              </Text>
+              <Text style={styles.logoLetter}>{merchantGlyph(merchant?.name ?? split.title)}</Text>
             </View>
           )}
           <Text style={[styles.title, { color: fixed.ink }]}>{t('closed.title')}</Text>
           <Text style={styles.sub}>
-            {merchant?.name ?? split.title}
+            {venueGlyph(merchant?.name ?? split.title)}{merchant?.name ?? split.title}
             {split.bill ? t('live.orderNo', { no: split.bill.orderNo }) : ''}
             {group ? ` · ${group.name}` : isSolo ? t('closed.paidWhole') : ''}
           </Text>
@@ -181,7 +180,7 @@ export function SplitClosedScreen() {
         {split.bill ? (
           <View style={styles.billBody}>
             <Text style={[styles.billTitle, { color: colors.ink }]}>
-              {merchant?.name ?? split.title} · #{split.bill.orderNo}
+              {venueGlyph(merchant?.name ?? split.title)}{merchant?.name ?? split.title} · #{split.bill.orderNo}
             </Text>
             <View style={[styles.dashed, { borderColor: colors.hairline }]} />
             {split.bill.items.map((item) => (

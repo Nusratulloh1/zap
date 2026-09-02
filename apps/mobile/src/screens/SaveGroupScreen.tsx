@@ -177,7 +177,7 @@ const styles = StyleSheet.create({
   root: { paddingHorizontal: SCREEN_PAD_X },
   stack: { flexDirection: 'row', justifyContent: 'center', marginTop: 24 },
   stacked: { marginLeft: -16 },
-  title: { fontFamily: font.extrabold, fontSize: 23, letterSpacing: -0.3, textAlign: 'center', marginTop: 14 },
+  title: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.3, textAlign: 'center', marginTop: 14 },
   sub: { fontFamily: font.semibold, fontSize: 13.5, textAlign: 'center', marginTop: 5 },
   card: { borderRadius: radius.card, paddingHorizontal: 18, paddingVertical: 4, marginTop: 20 , shadowColor: '#1E1C10', shadowOpacity: 0.05, shadowRadius: 24, shadowOffset: { width: 0, height: 10 }, elevation: 3 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, borderBottomWidth: 1 },

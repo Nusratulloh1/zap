@@ -17,6 +17,7 @@ import { money, dayLabel } from '@/lib/format';
 import { entryText } from '@/lib/entryText';
 import { useMyAvatar } from '@/lib/myAvatar';
 import { venueGlyph } from '@/lib/merchantTheme';
+import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import type { HistoryEntry } from '@zap/shared/types';
@@ -166,11 +167,11 @@ export function HistoryScreen() {
                     ) : e.splitId && splitById(e.splitId) ? (
                       /* сплит в истории — лица участников, а не буква мерчанта */
                       <SplitFaces split={splitById(e.splitId)!} size={42} />
-                    ) : e.letter === 'B' ? (
-                      <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.icon} />
+                    ) : merchantLogo(e.title) ? (
+                      <Image source={merchantLogo(e.title)!} style={styles.icon} />
                     ) : (
-                      <View style={[styles.icon, { backgroundColor: colors.ink }]}>
-                        <Text style={[styles.iconLetter, { color: colors.cream }]}>{e.letter}</Text>
+                      <View style={[styles.icon, { backgroundColor: colors.sand }]}>
+                        <Text style={styles.iconLetter}>{merchantGlyph(e.title)}</Text>
                       </View>
                     )}
                     <View style={styles.rowBody}>

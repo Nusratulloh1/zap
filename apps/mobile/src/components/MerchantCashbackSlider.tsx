@@ -20,15 +20,9 @@ import { useTranslation } from 'react-i18next';
 import { CountUp } from '@/components/CountUp';
 import type { CashbackEntry } from '@zap/shared/types';
 import { money } from '@/lib/format';
+import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
-
-const LOGO_BY_TITLE: Record<string, number> = {
-  'Bellissimo Pizza': require('../../assets/brand/partners/bellissimo.png'),
-  'Safia café': require('../../assets/brand/partners/safia-sq.png'),
-  EVOS: require('../../assets/brand/partners/evos-logo.png'),
-  'Feed Up': require('../../assets/brand/partners/feedup-logo.png'),
-};
 
 const GAP = 10;
 
@@ -87,11 +81,11 @@ export function MerchantCashbackSlider({ entries, total }: Props) {
         {byMerchant.map((m) => (
           <View key={m.title} style={[styles.card, { width: CARD_W, backgroundColor: colors.shell }]}>
             <View style={styles.cardHead}>
-              {LOGO_BY_TITLE[m.title] ? (
-                <Image source={LOGO_BY_TITLE[m.title]} style={styles.logo} />
+              {merchantLogo(m.title) ? (
+                <Image source={merchantLogo(m.title)!} style={styles.logo} />
               ) : (
-                <View style={[styles.logo, styles.logoLetter, { backgroundColor: colors.ink }]}>
-                  <Text style={[styles.logoLetterText, { color: fixed.lime }]}>{m.title[0]?.toUpperCase()}</Text>
+                <View style={[styles.logo, styles.logoLetter, { backgroundColor: colors.sand }]}>
+                  <Text style={styles.logoLetterText}>{merchantGlyph(m.title)}</Text>
                 </View>
               )}
               <View style={[styles.pct, { backgroundColor: fixed.lime }]}>

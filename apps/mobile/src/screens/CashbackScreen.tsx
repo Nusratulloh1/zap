@@ -18,17 +18,10 @@ import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { money, humanDateLc } from '@/lib/format';
 import { entryText } from '@/lib/entryText';
-import { themeForMerchant, venueGlyph } from '@/lib/merchantTheme';
+import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
+import { venueGlyph } from '@/lib/merchantTheme';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
-
-// логотипы к записям — как logoByTitle на вебе
-const LOGO_BY_TITLE: Record<string, number> = {
-  'Bellissimo Pizza': require('../../assets/brand/partners/bellissimo.png'),
-  'Safia café': require('../../assets/brand/partners/safia-sq.png'),
-  EVOS: require('../../assets/brand/partners/evos-logo.png'),
-  'Feed Up': require('../../assets/brand/partners/feedup-logo.png'),
-};
 
 export function CashbackScreen() {
   const { t } = useTranslation();
@@ -129,12 +122,12 @@ export function CashbackScreen() {
               entering={FadeInDown.delay(Math.min(i, 8) * 40).duration(240)}
               style={[styles.row, i < rows.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
             >
-              {LOGO_BY_TITLE[e.title] ? (
-                <Image source={LOGO_BY_TITLE[e.title]} style={styles.icon} />
+              {merchantLogo(e.title) ? (
+                <Image source={merchantLogo(e.title)!} style={styles.icon} />
               ) : (
                 <View style={[styles.icon, { backgroundColor: colors.sand }]}>
                   {/* знак заведения вместо безликой буквы */}
-                  <Text style={styles.iconLetter}>{themeForMerchant(e.title)?.glyph ?? '🧾'}</Text>
+                  <Text style={styles.iconLetter}>{merchantGlyph(e.title)}</Text>
                 </View>
               )}
               <View style={styles.rowBody}>

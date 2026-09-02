@@ -53,12 +53,11 @@ import { money } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import { startLiveActivity, endLiveActivity } from '@/lib/liveActivity';
+import { merchantLogo } from '@/lib/merchantLogo';
 import { EASE_ZAP, SPLIT_TIMELINE } from '@/lib/motion';
 import { reduceMotion } from '@/lib/feedback';
 
-const MERCHANT_LOGOS: Record<string, number> = {
-  m_bellissimo: require('../../assets/brand/partners/bellissimo.png'),
-};
+
 
 /** Подписи ожидания оплаты. */
 const PAY_STEPS = ['loading.paying1', 'loading.paying2'] as const;
@@ -402,7 +401,7 @@ export function SplitLiveScreen() {
             <BillReceipt
             title={split.title}
             merchantName={merchant?.name}
-            merchantLogo={split.merchantId ? MERCHANT_LOGOS[split.merchantId] : undefined}
+            merchantLogo={merchantLogo(merchantName) ?? undefined}
             orderLine={split.bill ? t('live.orderNo', { no: split.bill.orderNo }).trim() : undefined}
             total={split.total}
             paidAmount={paidAmount}
@@ -555,7 +554,7 @@ export function SplitLiveScreen() {
           title={split.title}
           total={split.total}
           code={split.code}
-          merchantLogo={split.merchantId ? MERCHANT_LOGOS[split.merchantId] : undefined}
+          merchantLogo={merchantLogo(merchantName) ?? undefined}
           members={members.map((m) => ({
             contactId: m.contactId,
             name: nameOf(m.contactId),

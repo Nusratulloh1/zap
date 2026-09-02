@@ -21,6 +21,7 @@ import { useDraft } from '@/store/draft';
 import { useHomeData } from '@/store/bootstrap';
 import { money } from '@/lib/format';
 import { themeForMerchant } from '@/lib/merchantTheme';
+import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -128,14 +129,12 @@ export function BillScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>
-          {/* демо-счёт Bellissimo — фирменный логотип, как в вебе */}
-          {!isFiscal ? (
-            <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.merchantImg} />
+          {/* знак заведения: логотип партнёра, иначе категория (🍕 ☕ 🍻) */}
+          {merchantLogo(draft.fiscal?.merchant ?? merchant?.name) ? (
+            <Image source={merchantLogo(draft.fiscal?.merchant ?? merchant?.name)!} style={styles.merchantImg} />
           ) : (
             <View style={[styles.logo, { backgroundColor: colors.ink }]}>
-              <Text style={[styles.logoLetter, { color: fixed.lime }]}>
-                {(draft.fiscal?.merchant ?? merchant?.name ?? t('bill.merchantInitialFallback'))[0]?.toUpperCase()}
-              </Text>
+              <Text style={styles.logoLetter}>{merchantGlyph(draft.fiscal?.merchant ?? merchant?.name)}</Text>
             </View>
           )}
           <ThemeGarnish theme={theme} />
