@@ -94,15 +94,17 @@ export function PromoCarousel({ category }: Props) {
             <Pressable key={v.id} style={{ width }} onPress={(e) => onTap(e.nativeEvent.locationX)}>
               <View style={styles.venueImgWrap}>
                 {/*
-                  Только contain: cover уравнивал размеры, но резал рисунок по
-                  краям — у feedup уходил край лаваша.
+                  contain и одинаковая пропорция у всех файлов.
 
-                  Из-за этого feedup рисуется мельче прочих: он 2.43:1, а
-                  остальные баннеры 1.6–1.9:1, и при равной ширине широкий
-                  кадр выходит ниже. Полями это не лечится — он и так упирается
-                  в ширину, поля лишь уменьшат рисунок. Чинится только
-                  перерисовкой feedup в тех же пропорциях, что и остальные
-                  четыре (2752×1536).
+                  Баннеры пришли разной ширины (1.6–2.43:1), и при contain
+                  каждый упирался в свою сторону кадра: широкий feedup выходил
+                  вдвое ниже прочих. cover это выравнивал, но резал рисунок —
+                  у feedup уходил край лаваша.
+
+                  Поэтому выравнивание сделано в самих файлах: остальным
+                  четырём добавлены прозрачные поля по бокам до пропорции
+                  feedup. Теперь все рисуются одной высотой и ничего не
+                  обрезается.
                 */}
                 <Image source={v.img} style={styles.venueImg} resizeMode="contain" fadeDuration={0} />
               </View>
@@ -149,7 +151,9 @@ const styles = StyleSheet.create({
   },
   heroTerms: { fontFamily: font.semibold, fontSize: 14.5, color: 'rgba(255,255,255,0.65)', textAlign: 'center' },
   venueImgWrap: { paddingHorizontal: 8, paddingTop: 4 },
-  venueImg: { height: 218, width: '100%' },
+  // 162, а не 218: после выравнивания пропорций баннеры рисуются высотой
+  // ~156, и прежний кадр оставлял по 30 pt пустоты сверху и снизу
+  venueImg: { height: 162, width: '100%' },
   venueText: { alignItems: 'center', gap: 4, paddingHorizontal: 12, marginTop: 12 },
   venueTitle: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.2, color: '#FFFFFF', textAlign: 'center' },
   venueTerms: { fontFamily: font.semibold, fontSize: 13, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
