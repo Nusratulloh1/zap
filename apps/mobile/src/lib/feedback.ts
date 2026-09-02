@@ -13,7 +13,7 @@ import { AccessibilityInfo, Platform } from 'react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { storage } from '@/theme/ThemeProvider';
 
-export type Cue = 'launch' | 'scan' | 'split' | 'splitDone' | 'paid' | 'everyonePaid' | 'reminder' | 'share';
+export type Cue = 'scan' | 'split' | 'splitDone' | 'paid' | 'everyonePaid' | 'reminder' | 'share';
 
 const MUTE_KEY = 'zap:sound-muted';
 
@@ -48,7 +48,6 @@ export function reduceMotion(): boolean {
 // подлежат замене, когда придут финальные звуки от дизайна.
 // ---------------------------------------------------------------------------
 const FILES: Record<Cue, string> = {
-  launch: 'launch.mp3',
   scan: 'scan.mp3',
   split: 'split.mp3',
   // «сплит готов» — не разрыв бумаги, а фирменный разряд с аккордом
@@ -81,12 +80,8 @@ function lib() {
   return SoundLib;
 }
 
-/**
- * Громкость по звуку. Запуск намеренно тише остальных: он звучит без спроса,
- * сразу после нажатия на иконку, и в тишине не должен пугать. Остальные —
- * ответ на действие пользователя, их слышно должно быть отчётливо.
- */
-const VOLUME: Partial<Record<Cue, number>> = { launch: 0.45 };
+/** Громкость воспроизведения; отдельные звуки можно приглушить точечно. */
+const VOLUME: Partial<Record<Cue, number>> = {};
 const DEFAULT_VOLUME = 0.7;
 
 function playSound(cue: Cue) {
@@ -121,8 +116,6 @@ function playSound(cue: Cue) {
 }
 
 const HAPTICS: Record<Cue, HapticFeedbackTypes> = {
-  // вход: один мягкий отклик вместе с искрой вордмарка
-  launch: HapticFeedbackTypes.impactLight,
   scan: HapticFeedbackTypes.impactLight,
   share: HapticFeedbackTypes.selection,
   split: HapticFeedbackTypes.impactMedium,
