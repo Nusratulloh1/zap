@@ -38,8 +38,10 @@ import { money, peopleCount, humanDateLc } from '@/lib/format';
 import { suggestCrew } from '@/lib/crewStats';
 import { setWidgetState } from '@/lib/liveActivity';
 import { useMyAvatar } from '@/lib/myAvatar';
-import { MerchantLogos } from '@/components/MerchantLogos';
-import { SplitFaces } from '@/components/SplitFaces';
+import { VenueIcon } from '@/components/VenueIcon';
+import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
+import { useCrewEmoji } from '@/lib/crewEmoji';
+import type { Db } from '@zap/shared/types';
 import { venueGlyph } from '@/lib/merchantTheme';
 import { storage, useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
@@ -69,11 +71,8 @@ export function HomeScreen() {
 
   const home = useHomeData();
   const myAvatar = useMyAvatar();
-  // мерчанты, где пользователь реально был — для плитки кэшбэка
-  const myMerchants = useMemo(() => {
-    const ids = [...new Set((home.db?.splits ?? []).filter((s) => s.merchantId).map((s) => s.merchantId!))];
-    return ids.map((mid) => home.db?.merchants.find((m) => m.id === mid)).filter((m): m is NonNullable<typeof m> => !!m);
-  }, [home.db]);
+  // какой компании сейчас выбирают знак (null — шит закрыт)
+  const [emojiFor, setEmojiFor] = useState<string | null>(null);
 
   // лента считается из уже загруженного /bootstrap — без лишних запросов
   // живой сплит уже показан пилюлей внизу — лента его не дублирует
@@ -345,16 +344,14 @@ export function HomeScreen() {
                     })
                   : t('home.cashbackEmpty')}
               </Text>
-              {home.cashbackCount ? (
-                <View style={styles.partnerRow}>
-                  <MerchantLogos merchants={myMerchants} size={36} />
-                </View>
-              ) : (
-                // низ карточки всё равно пустует — пусть там живёт стикер
-                <View style={styles.statSticker}>
-                  <Image source={STICKER.wallet} style={styles.statStickerImg} resizeMode="contain" />
-                </View>
-              )}
+              {/*
+                Только стикер: логотипы партнёров и аватары должников убраны по
+                замечанию руководства — плитки должны читаться как наклейки, а
+                не как сводка с иконками.
+              */}
+              <View style={styles.statSticker}>
+                <Image source={STICKER.wallet} style={styles.statStickerImg} resizeMode="contain" />
+              </View>
             </PressableScale>
 
             <PressableScale
@@ -370,24 +367,9 @@ export function HomeScreen() {
                     })
                   : t('home.debtorsEmpty')}
               </Text>
-              {home.debtors.length ? (
-              <View style={styles.debtorRow}>
-                {home.debtors.slice(0, 3).map((d, i) => (
-                  <View key={d.id} style={i ? styles.debtorStacked : undefined}>
-                    <Avatar name={d.name} letter={d.initials} contactId={d.id} color={d.color} size={38} />
-                  </View>
-                ))}
-                {home.debtors.length > 3 ? (
-                  <View style={[styles.debtorMore, styles.debtorStacked, { backgroundColor: colors.ink }]}>
-                    <Text style={[styles.debtorMoreText, { color: fixed.lime }]}>+{home.debtors.length - 3}</Text>
-                  </View>
-                ) : null}
+              <View style={styles.statSticker}>
+                <Image source={STICKER.receiptHero} style={styles.statStickerImg} resizeMode="contain" />
               </View>
-              ) : (
-                <View style={styles.statSticker}>
-                  <Image source={STICKER.fistBump} style={styles.statStickerImg} resizeMode="contain" />
-                </View>
-              )}
             </PressableScale>
           </View>
 
@@ -410,24 +392,9 @@ export function HomeScreen() {
                   style={[styles.groupRow, gi < home.groups.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
                   onPress={() => nav.navigate('Group', { id: g.id })}
                 >
-                  <View style={styles.groupAvatars}>
-                    {[...new Set(g.memberIds)].sort((a, b) => Number(b === 'me') - Number(a === 'me')).slice(0, 3).map((cid, i) => {
-                      const c = home.contactById(cid);
-                      return (
-                        <Avatar
-                          key={cid}
-                          name={c?.name ?? t('home.me')}
-                          letter={c?.initials}
-                          contactId={cid}
-                          color={c?.color ?? '#111110'}
-                          size={32}
-                          ring={colors.paper}
-                          ringWidth={2}
-                          style={i > 0 ? styles.groupStacked : undefined}
-                        />
-                      );
-                    })}
-                  </View>
+                  <PressableScale haptic onPress={() => setEmojiFor(g.id)}>
+                    <CrewIcon db={home.db} groupId={g.id} name={g.name} />
+                  </PressableScale>
                   <View style={styles.flex1}>
                     <Text style={[styles.groupName, { color: colors.ink }]} numberOfLines={1}>{g.name}</Text>
                     <Text style={[styles.groupSub, { color: colors.faint }]} numberOfLines={1}>
@@ -469,7 +436,7 @@ export function HomeScreen() {
                   style={[styles.splitRow, i < splitRows.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
                   onPress={() => nav.navigate('SplitLive', { id: s.id })}
                 >
-                  <SplitFaces split={s} size={40} />
+                  <VenueIcon name={home.db?.merchants.find((mm) => mm.id === s.merchantId)?.name ?? s.title} size={46} />
                   <View style={styles.flex1}>
                     <Text style={[styles.splitTitle, { color: colors.ink }]} numberOfLines={1}>
                       {venueGlyph(home.db?.merchants.find((mm) => mm.id === s.merchantId)?.name ?? s.title)}
@@ -495,6 +462,10 @@ export function HomeScreen() {
         </View>
       </Animated.ScrollView>
 
+      {emojiFor ? (
+        <CrewEmojiPicker db={home.db} groupId={emojiFor} onClose={() => setEmojiFor(null)} />
+      ) : null}
+
       {home.activeSplit ? (
         <ActiveSplitPill
           merchant={home.db?.merchants.find((m) => m.id === home.activeSplit?.merchantId)}
@@ -505,6 +476,18 @@ export function HomeScreen() {
       ) : null}
     </View>
   );
+}
+
+/** Знак компании отдельным компонентом: хук нельзя звать внутри map. */
+function CrewIcon({ db, groupId, name }: { db: Db | undefined; groupId: string; name: string }) {
+  const glyph = useCrewEmoji(db, groupId);
+  return <VenueIcon name={name} glyph={glyph} size={46} />;
+}
+
+/** Шит выбора: отдельный компонент, иначе хук звался бы условно. */
+function CrewEmojiPicker({ db, groupId, onClose }: { db: Db | undefined; groupId: string; onClose: () => void }) {
+  const current = useCrewEmoji(db, groupId);
+  return <CrewEmojiSheet open groupId={groupId} current={current} onClose={onClose} />;
 }
 
 const styles = StyleSheet.create({

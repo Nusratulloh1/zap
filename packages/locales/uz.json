@@ -420,7 +420,8 @@
     "deleted": "Guruh o‘chirildi",
     "shareText": "ZAP! dagi Zap group ga qo‘shil ⚡",
     "squad": "JAMOA",
-    "member": "a’zo"
+    "member": "a’zo",
+    "pickEmoji": "Kompaniya belgisi"
   },
   "debts": {
     "title": "Sizga qarzdor",
@@ -541,7 +542,8 @@
     "toNextRank": "«{{rank}}»gacha yana {{n}} ta zap",
     "maxRank": "Eng yuqori daraja ⚡",
     "achievementsOf": "{{total}} tadan {{done}} ta",
-    "recapKicker": "OYLIK YAKUN"
+    "recapKicker": "OYLIK YAKUN",
+    "level": "Daraja"
   },
   "install": {
     "title": "ZAP! ni o'rnating",

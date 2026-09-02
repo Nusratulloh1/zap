@@ -23,6 +23,9 @@ import { crewStats } from '@/lib/crewStats';
 import { MerchantLogos } from '@/components/MerchantLogos';
 import { STICKER } from '@/components/EmptyState';
 import { FunStatCards } from '@/components/FunStatCards';
+import { VenueIcon } from '@/components/VenueIcon';
+import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
+import { useCrewEmoji } from '@/lib/crewEmoji';
 import { SplitFaces } from '@/components/SplitFaces';
 import { funStats } from '@/lib/funStats';
 import { translate } from '@/i18n';
@@ -84,6 +87,8 @@ export function GroupScreen() {
   );
 
   const [menuSheet, setMenuSheet] = useState(false);
+  const [emojiSheet, setEmojiSheet] = useState(false);
+  const crewEmoji = useCrewEmoji(home.db, id);
   const [renameSheet, setRenameSheet] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -165,11 +170,10 @@ export function GroupScreen() {
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
         <View style={styles.headRow}>
-          <View style={styles.stack}>
-            {memberIds.slice(0, 3).map((cid, i) => (
-              <Avatar key={cid} name={nameOf(cid)} contactId={cid} color={colorOf(cid)} size={46} ring={colors.paper} style={i > 0 ? styles.stacked : undefined} />
-            ))}
-          </View>
+          {/* знак компании — тап меняет: «Select emoji for Crew» */}
+          <PressableScale haptic onPress={() => setEmojiSheet(true)}>
+            <VenueIcon name={group.name} glyph={crewEmoji} size={52} />
+          </PressableScale>
           <View style={styles.headBody}>
             <Text style={[styles.title, { color: colors.ink }]}>{group.name}</Text>
             <Text style={[styles.sub, { color: colors.faint }]}>
@@ -306,6 +310,8 @@ export function GroupScreen() {
       </ScrollView>
 
       {/* меню группы */}
+      <CrewEmojiSheet open={emojiSheet} groupId={id} current={crewEmoji} onClose={() => setEmojiSheet(false)} />
+
       <BottomSheet open={menuSheet} onClose={() => setMenuSheet(false)}>
         <PressableScale
           haptic={false}

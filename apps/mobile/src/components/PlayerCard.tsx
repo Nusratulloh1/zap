@@ -48,7 +48,16 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
       {/* фирменный стикер в углу карточки — вместо пустого поля */}
       <Image source={STICKER.heartZap} style={styles.corner} resizeMode="contain" pointerEvents="none" />
 
+      {/*
+        Аватар по центру, показатели по бокам — как в присланном образце
+        игрового профиля: слева уровень, справа число сплитов.
+      */}
       <View style={styles.top}>
+        <View style={styles.side}>
+          <Text style={[styles.sideLabel, { color: colors.faint2 }]}>{t('profile.level')}</Text>
+          <Text style={[styles.sideValue, { color: colors.ink }]}>✦ {level + 1}</Text>
+        </View>
+
         <PressableScale haptic={false} onPress={onAvatarPress}>
           <View style={[styles.avatarWrap, { borderColor: fixed.lime }]}>
             {avatar ? (
@@ -68,14 +77,19 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
           </View>
         </PressableScale>
 
-        <View style={styles.who}>
-          <Text style={[styles.name, { color: colors.ink }]} numberOfLines={1}>{name}</Text>
-          <Text style={[styles.handle, { color: colors.muted }]} numberOfLines={1}>
-            {handle} · {since}
-          </Text>
-          <View style={[styles.rankChip, { backgroundColor: fixed.lime }]}>
-            <Text style={styles.rankText} numberOfLines={1}>{t(`profile.rank${level}`)}</Text>
-          </View>
+        <View style={styles.side}>
+          <Text style={[styles.sideLabel, { color: colors.faint2 }]}>{t('profile.statSplitsUnit')}</Text>
+          <Text style={[styles.sideValue, { color: colors.ink }]}>{splits}</Text>
+        </View>
+      </View>
+
+      <View style={styles.who}>
+        <Text style={[styles.name, { color: colors.ink }]} numberOfLines={1}>{name}</Text>
+        <Text style={[styles.handle, { color: colors.muted }]} numberOfLines={1}>
+          {handle} · {since}
+        </Text>
+        <View style={[styles.rankChip, { backgroundColor: fixed.lime }]}>
+          <Text style={styles.rankText} numberOfLines={1}>{t(`profile.rank${level}`)}</Text>
         </View>
       </View>
 
@@ -113,8 +127,11 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
 const styles = StyleSheet.create({
   card: { borderRadius: 26, padding: 18, marginTop: 4, overflow: 'hidden' },
   corner: { position: 'absolute', right: -10, top: -8, width: 74, height: 62, opacity: 0.9, transform: [{ rotate: '12deg' }] },
-  top: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  avatarWrap: { width: 92, height: 92, borderRadius: 999, borderWidth: 3.5 },
+  top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  side: { width: 74, alignItems: 'center' },
+  sideLabel: { fontFamily: font.monoBold, fontSize: 8.5, letterSpacing: 1.1, textTransform: 'uppercase' },
+  sideValue: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.4, marginTop: 3 },
+  avatarWrap: { width: 104, height: 104, borderRadius: 999, borderWidth: 3.5 },
   avatar: { width: '100%', height: '100%', borderRadius: 999 },
   fallback: { alignItems: 'center', justifyContent: 'center' },
   fallbackText: { fontFamily: font.extrabold, fontSize: 34 },
@@ -143,10 +160,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   editGlyph: { fontSize: 12, color: '#111110' },
-  who: { flex: 1, minWidth: 0, gap: 3 },
+  who: { alignItems: 'center', gap: 3, marginTop: 12 },
   name: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.4 },
   handle: { fontFamily: font.semibold, fontSize: 13 },
-  rankChip: { alignSelf: 'flex-start', marginTop: 5, height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center' },
+  rankChip: { alignSelf: 'center', marginTop: 5, height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center' },
   rankText: { fontFamily: font.extrabold, fontSize: 12, color: '#111110', letterSpacing: 0.2 },
   xpBlock: { marginTop: 18 },
   xpLabels: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 },

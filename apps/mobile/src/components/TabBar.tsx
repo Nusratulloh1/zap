@@ -10,7 +10,7 @@
 // Тёмный пилл, который был здесь до этого, — моя ошибка: я ориентировался на
 // скриншоты в тёмной теме, а не на веб-исходник.
 import React, { useEffect } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
@@ -80,7 +80,9 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
               lime={fixed.lime}
               dark={dark}
               onPress={() => {
-                trigger(Platform.OS === 'ios' ? 'selection' : 'impactLight', { enableVibrateFallback: false, ignoreAndroidSystemSettings: false });
+                // заметная отдача на каждый тап по табу — «selection» почти не
+                // чувствовалась (замечание руководства)
+                trigger('impactMedium', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
                 const event = navigation.emit({ type: 'tabPress', target: route.key, canPreventDefault: true });
                 if (!focused && !event.defaultPrevented) navigation.navigate(route.name);
               }}

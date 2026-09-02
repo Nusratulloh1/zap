@@ -420,7 +420,8 @@
     "deleted": "Группа удалена",
     "shareText": "Заходи в Zap group в ZAP! ⚡",
     "squad": "ОТРЯД",
-    "member": "участник"
+    "member": "участник",
+    "pickEmoji": "Знак компании"
   },
   "debts": {
     "title": "Вам должны",
@@ -541,7 +542,8 @@
     "toNextRank": "ещё {{n}} zap до «{{rank}}»",
     "maxRank": "Максимальный ранг ⚡",
     "achievementsOf": "{{done}} из {{total}}",
-    "recapKicker": "ИТОГИ МЕСЯЦА"
+    "recapKicker": "ИТОГИ МЕСЯЦА",
+    "level": "Уровень"
   },
   "install": {
     "title": "Установите ZAP!",

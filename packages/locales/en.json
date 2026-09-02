@@ -420,7 +420,8 @@
     "deleted": "Group deleted",
     "shareText": "Join the Zap group on ZAP! ⚡",
     "squad": "SQUAD",
-    "member": "member"
+    "member": "member",
+    "pickEmoji": "Pick a crew icon"
   },
   "debts": {
     "title": "Owed to you",
@@ -541,7 +542,8 @@
     "toNextRank": "{{n}} more zaps to {{rank}}",
     "maxRank": "Top rank reached ⚡",
     "achievementsOf": "{{done}} of {{total}}",
-    "recapKicker": "MONTH RECAP"
+    "recapKicker": "MONTH RECAP",
+    "level": "Level"
   },
   "install": {
     "title": "Install ZAP!",
