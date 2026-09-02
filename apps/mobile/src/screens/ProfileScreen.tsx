@@ -317,9 +317,7 @@ export function ProfileScreen() {
                 style={[styles.recapCard, { backgroundColor: fixed.ink }]}
                 onPress={() => nav.navigate('Recap')}
               >
-                <View style={[styles.recapStamp, { borderColor: fixed.lime }]}>
-                  <Text style={[styles.recapStampGlyph, { color: fixed.lime }]}>⚡</Text>
-                </View>
+                <Image source={STICKER.selfie} style={styles.recapArt} resizeMode="contain" />
                 <View style={styles.recapBody}>
                   <Text style={[styles.recapKicker, { color: fixed.lime }]}>{t('profile.recapKicker')}</Text>
                   <Text style={styles.recapMonth} numberOfLines={1}>{recapMonth}</Text>
@@ -690,15 +688,7 @@ const styles = StyleSheet.create({
     padding: 14,
     marginTop: 22,
   },
-  recapStamp: {
-    width: 44,
-    height: 44,
-    borderRadius: 999,
-    borderWidth: 2,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  recapStampGlyph: { fontSize: 20 },
+  recapArt: { width: 52, height: 46 },
   recapBody: { flex: 1, minWidth: 0 },
   recapKicker: { fontFamily: font.monoBold, fontSize: 9.5, letterSpacing: 1.4 },
   recapMonth: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.3, color: '#F6F4EE', marginTop: 2 },

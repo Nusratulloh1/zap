@@ -8,7 +8,17 @@
 import type { Db, Split } from '@zap/shared/types';
 import { themeForMerchant, type ThemeKey } from '@/lib/merchantTheme';
 
-export type StatKind = 'fastest' | 'alwaysLast' | 'biggest' | 'buddy';
+export type StatKind =
+  | 'fastest'
+  | 'alwaysLast'
+  | 'biggest'
+  | 'buddy'
+  /** платит больше всех по сумме долей */
+  | 'bigWallet'
+  /** платит меньше всех */
+  | 'smallWallet'
+  /** чаще всех уходит в долг — «вечно без денег» */
+  | 'alwaysBroke';
 
 export interface FunStat {
   kind: StatKind;
@@ -108,6 +118,28 @@ export function funStats(db: Db | undefined, groupId?: string): FunStat[] {
 
   const buddy = [...together.entries()].filter(([, n]) => n >= MIN_SAMPLE).sort((a, b) => b[1] - a[1])[0];
   if (buddy) out.push({ kind: 'buddy', contactId: buddy[0], value: buddy[1] });
+
+  /*
+    Кто сколько заносит и кто вечно «потом переведу» (требование руководства:
+    в компании должны быть шутки про самого щедрого, самого экономного и того,
+    кто всегда без денег). Считаем по долям в закрытых счетах.
+  */
+  const paidSum = new Map<string, number>();
+  const debts = new Map<string, number>();
+  for (const s of splits) {
+    for (const m of s.members) {
+      if (m.status === 'paid') paidSum.set(m.contactId, (paidSum.get(m.contactId) ?? 0) + m.amount);
+      if (m.status === 'debt') debts.set(m.contactId, (debts.get(m.contactId) ?? 0) + 1);
+    }
+  }
+  const wallets = [...paidSum.entries()].sort((a, b) => b[1] - a[1]);
+  if (wallets.length > 1) {
+    out.push({ kind: 'bigWallet', contactId: wallets[0]![0], value: wallets[0]![1] });
+    const last = wallets[wallets.length - 1]!;
+    out.push({ kind: 'smallWallet', contactId: last[0], value: last[1] });
+  }
+  const broke = [...debts.entries()].sort((a, b) => b[1] - a[1])[0];
+  if (broke) out.push({ kind: 'alwaysBroke', contactId: broke[0], value: broke[1] });
 
   return out;
 }

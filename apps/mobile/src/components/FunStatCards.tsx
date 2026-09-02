@@ -18,6 +18,9 @@ const ART: Record<FunStat['kind'], keyof typeof STICKER> = {
   alwaysLast: 'receiptHero',
   biggest: 'themeFood',
   buddy: 'fistBump',
+  bigWallet: 'wallet',
+  smallWallet: 'oneBill',
+  alwaysBroke: 'billDone',
 };
 
 interface Props {
@@ -33,9 +36,7 @@ export function FunStatCards({ fun, nameOf }: Props) {
   /* значение плитки: у «быстрее всех» и «вечно последний» — человек, у
      «самого крупного» — сумма; так подпись читается без второй строки */
   const value = (s: FunStat): string => {
-    if (s.kind === 'fastest') return nameOf(s.contactId ?? '') || t('profile.seconds', { n: s.value });
     if (s.kind === 'biggest') return money(s.value);
-    if (s.kind === 'buddy') return nameOf(s.contactId ?? '') || '—';
     return nameOf(s.contactId ?? '') || '—';
   };
 

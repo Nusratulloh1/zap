@@ -106,7 +106,7 @@
     "debtorsCount": "{n} общий должник | {n} общих должника | {n} общих должников",
     "myGroups": "Zap Crews",
     "groupsEmpty": "Появятся из ваших сплитов",
-    "yourSplits": "Zaps",
+    "yourSplits": "Zapи",
     "splitsEmpty": "Ничего не нашлось",
     "seeAll": "Все ›",
     "closedBadge": "ЗАКРЫТ",
@@ -456,7 +456,8 @@
     "outOfRange": "Сумма должна быть в пределах баланса",
     "withdrawTitle": "Вывести на карту",
     "withdrawHint": "Вывод · {amount} UZS",
-    "availableWith": "UZS · ДОСТУПНО {amount}"
+    "availableWith": "UZS · ДОСТУПНО {amount}",
+    "allPlaces": "Во всех заведениях"
   },
   "history": {
     "title": "История",
@@ -787,15 +788,15 @@
   },
   "empty": {
     "splitsTitle": "Первый ZAP ещё впереди ⚡",
-    "splitsHint": "Отсканируй чек — и раздели его за пару секунд",
-    "groupsTitle": "Здесь пока тихо 👀",
+    "splitsHint": "Скинь чек — и делёж займёт меньше, чем спор «кто что брал»",
+    "groupsTitle": "Тут пока тихо, как в чате в понедельник 👀",
     "groupsHint": "Сохрани компанию после сплита — в следующий раз хватит одного тапа",
-    "cashbackTitle": "Кэшбек ещё не капал",
-    "cashbackHint": "Он начисляется после сплитов у партнёров",
+    "cashbackTitle": "Кэшбэк пока спит 😴",
+    "cashbackHint": "Разбудите его сплитом у партнёров — деньги любят компанию",
     "debtsTitle": "Все чисто ⚡",
-    "debtsHint": "Никто никому не должен. Красиво.",
-    "historyTitle": "История пустая",
-    "historyHint": "Здесь появятся все ваши сплиты"
+    "debtsHint": "Никто никому не должен. Такое надо скринить.",
+    "historyTitle": "История чиста, как совесть 🧾",
+    "historyHint": "Первый zap — и здесь начнётся летопись ваших ужинов"
   },
   "shareCard": {
     "kicker": "⚡ ZAP COMPLETE",
@@ -811,7 +812,14 @@
     "titleTaxi": "🚕 Поездка",
     "titleShopping": "🛒 Покупки",
     "titleTrip": "✈️ Поездка",
-    "titleGift": "🎁 Подарок"
+    "titleGift": "🎁 Подарок",
+    "titleBar": "🍻 Бар",
+    "titleSweets": "🍰 Десерт",
+    "titleCinema": "🎬 Кино",
+    "titleGrocery": "🛒 Продукты",
+    "titlePharmacy": "💊 Аптека",
+    "titleSport": "🏋️ Тренировка",
+    "titleFuel": "⛽ Заправка"
   },
   "activity": {
     "greeting": "👋 Сегодня кто платит?",
@@ -866,7 +874,10 @@
     "cardAlwaysLast": "Вечно последний",
     "cardBiggest": "Самый крупный счёт",
     "cardBuddy": "ZAP-бадди",
-    "cardTogether": "{{n}} вместе"
+    "cardTogether": "{{n}} вместе",
+    "cardBigWallet": "Заносит больше всех 💸",
+    "cardSmallWallet": "Считает каждую сумму 🪙",
+    "cardAlwaysBroke": "Вечно без денег 🫠"
   },
   "recap": {
     "title": "Твой {month} ⚡",

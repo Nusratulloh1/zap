@@ -9,7 +9,7 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
-import { CountUp } from '@/components/CountUp';
+import { MerchantCashbackSlider } from '@/components/MerchantCashbackSlider';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinSheet } from '@/components/PinSheet';
 import { toast } from '@/components/ToastHost';
@@ -18,6 +18,7 @@ import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { money, humanDateLc } from '@/lib/format';
 import { entryText } from '@/lib/entryText';
+import { themeForMerchant, venueGlyph } from '@/lib/merchantTheme';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -97,12 +98,10 @@ export function CashbackScreen() {
       <ScreenHeader />
 
       <Text style={[styles.title, { color: colors.ink }]}>{t('home.cashbackCard')}</Text>
-      <View style={styles.amountRow}>
-        <CountUp value={home.cashbackBalance} duration={800} style={[styles.amount, { color: colors.ink }]} />
-        <Text style={[styles.unit, { color: colors.faint2 }]}>
-          {t('common.currency')} · {t('cashback.available')}
-        </Text>
-      </View>
+
+      {/* свайп-карточки по заведениям: общая сумма + где именно накопилось */}
+      <MerchantCashbackSlider entries={home.db?.cashbackEntries ?? []} total={home.cashbackBalance} />
+
       <Text style={[styles.hint, { color: colors.muted }]}>{t('cashback.empty')}</Text>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersWrap} contentContainerStyle={styles.filters}>
@@ -133,12 +132,16 @@ export function CashbackScreen() {
               {LOGO_BY_TITLE[e.title] ? (
                 <Image source={LOGO_BY_TITLE[e.title]} style={styles.icon} />
               ) : (
-                <View style={[styles.icon, { backgroundColor: colors.ink }]}>
-                  <Text style={[styles.iconLetter, { color: colors.cream }]}>{e.title[0]?.toUpperCase()}</Text>
+                <View style={[styles.icon, { backgroundColor: colors.sand }]}>
+                  {/* знак заведения вместо безликой буквы */}
+                  <Text style={styles.iconLetter}>{themeForMerchant(e.title)?.glyph ?? '🧾'}</Text>
                 </View>
               )}
               <View style={styles.rowBody}>
-                <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>{entryText(e.title, e.titleKey)}</Text>
+                <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>
+                  {venueGlyph(e.title)}
+                  {entryText(e.title, e.titleKey)}
+                </Text>
                 <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>
                   {groupName(e.groupId) ? `${groupName(e.groupId)} · ` : ''}
                   {badgeOf(e.badge)} · {humanDateLc(e.createdAt)}

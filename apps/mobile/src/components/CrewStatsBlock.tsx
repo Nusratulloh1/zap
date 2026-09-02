@@ -30,6 +30,9 @@ const STAT_GLYPH: Record<FunStat['kind'], string> = {
   alwaysLast: '👀',
   biggest: '🍕',
   buddy: '🤝',
+  bigWallet: '💸',
+  smallWallet: '🪙',
+  alwaysBroke: '🫠',
 };
 
 interface Props {

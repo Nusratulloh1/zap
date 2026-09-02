@@ -40,6 +40,7 @@ import { setWidgetState } from '@/lib/liveActivity';
 import { useMyAvatar } from '@/lib/myAvatar';
 import { MerchantLogos } from '@/components/MerchantLogos';
 import { SplitFaces } from '@/components/SplitFaces';
+import { venueGlyph } from '@/lib/merchantTheme';
 import { storage, useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
 import type { Split } from '@zap/shared/types';
@@ -471,6 +472,7 @@ export function HomeScreen() {
                   <SplitFaces split={s} size={40} />
                   <View style={styles.flex1}>
                     <Text style={[styles.splitTitle, { color: colors.ink }]} numberOfLines={1}>
+                      {venueGlyph(home.db?.merchants.find((mm) => mm.id === s.merchantId)?.name ?? s.title)}
                       {home.db?.merchants.find((mm) => mm.id === s.merchantId)?.name ?? s.title}
                     </Text>
                     <Text style={[styles.splitSub, { color: colors.muted }]} numberOfLines={1}>{splitSub(s)}</Text>

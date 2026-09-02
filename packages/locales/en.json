@@ -456,7 +456,8 @@
     "outOfRange": "The amount must be within your balance",
     "withdrawTitle": "Withdraw to card",
     "withdrawHint": "Withdrawal · {amount} UZS",
-    "availableWith": "UZS · AVAILABLE {amount}"
+    "availableWith": "UZS · AVAILABLE {amount}",
+    "allPlaces": "Across all places"
   },
   "history": {
     "title": "History",
@@ -787,15 +788,15 @@
   },
   "empty": {
     "splitsTitle": "Your first ZAP is still ahead ⚡",
-    "splitsHint": "Scan a receipt — splitting takes seconds",
-    "groupsTitle": "Quiet in here 👀",
+    "splitsHint": "Drop the receipt — splitting takes less time than arguing who ordered what",
+    "groupsTitle": "Quiet here, like a group chat on Monday 👀",
     "groupsHint": "Save the crew after a split — next time it is one tap",
-    "cashbackTitle": "No cashback yet",
-    "cashbackHint": "It lands after you split at partner spots",
+    "cashbackTitle": "Cashback is still asleep 😴",
+    "cashbackHint": "Wake it up with a zap at our partners — money loves company",
     "debtsTitle": "All clear ⚡",
-    "debtsHint": "Nobody owes anybody. Beautiful.",
-    "historyTitle": "Nothing here yet",
-    "historyHint": "All your splits will show up here"
+    "debtsHint": "Nobody owes anybody. Screenshot this moment.",
+    "historyTitle": "History as clean as your conscience 🧾",
+    "historyHint": "One zap and the chronicle of your dinners begins"
   },
   "shareCard": {
     "kicker": "⚡ ZAP COMPLETE",
@@ -811,7 +812,14 @@
     "titleTaxi": "🚕 Ride",
     "titleShopping": "🛒 Shopping",
     "titleTrip": "✈️ Trip",
-    "titleGift": "🎁 Gift"
+    "titleGift": "🎁 Gift",
+    "titleBar": "🍻 Bar night",
+    "titleSweets": "🍰 Dessert",
+    "titleCinema": "🎬 Movie",
+    "titleGrocery": "🛒 Groceries",
+    "titlePharmacy": "💊 Pharmacy",
+    "titleSport": "🏋️ Workout",
+    "titleFuel": "⛽ Fuel"
   },
   "activity": {
     "greeting": "👋 Who is paying today?",
@@ -866,7 +874,10 @@
     "cardAlwaysLast": "Always last",
     "cardBiggest": "Biggest bill",
     "cardBuddy": "ZAP buddy",
-    "cardTogether": "{{n}} together"
+    "cardTogether": "{{n}} together",
+    "cardBigWallet": "Pays the most 💸",
+    "cardSmallWallet": "Saves every so‘m 🪙",
+    "cardAlwaysBroke": "Always broke 🫠"
   },
   "recap": {
     "title": "Your {month} ⚡",

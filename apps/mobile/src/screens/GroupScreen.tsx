@@ -26,6 +26,7 @@ import { FunStatCards } from '@/components/FunStatCards';
 import { SplitFaces } from '@/components/SplitFaces';
 import { funStats } from '@/lib/funStats';
 import { translate } from '@/i18n';
+import { venueGlyph } from '@/lib/merchantTheme';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -285,6 +286,7 @@ export function GroupScreen() {
                 <SplitFaces split={s} size={40} />
                 <View style={styles.memberBody}>
                   <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
+                    {venueGlyph(merchant?.name ?? s.title)}
                     {merchant?.name ?? s.title}
                     {s.bill ? ` · #${s.bill.orderNo}` : ''}
                   </Text>

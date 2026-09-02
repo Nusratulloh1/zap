@@ -106,7 +106,7 @@
     "debtorsCount": "{n} umumiy qarzdor",
     "myGroups": "Zap Crews",
     "groupsEmpty": "Bo'lishlaringizdan paydo bo'ladi",
-    "yourSplits": "Zaps",
+    "yourSplits": "Zaplar",
     "splitsEmpty": "Hech narsa topilmadi",
     "seeAll": "Hammasi ›",
     "closedBadge": "YOPILGAN",
@@ -456,7 +456,8 @@
     "outOfRange": "Summa balans doirasida bo‘lishi kerak",
     "withdrawTitle": "Kartaga chiqarish",
     "withdrawHint": "Chiqarish · {amount} UZS",
-    "availableWith": "UZS · MAVJUD {amount}"
+    "availableWith": "UZS · MAVJUD {amount}",
+    "allPlaces": "Barcha joylarda"
   },
   "history": {
     "title": "Tarix",
@@ -787,15 +788,15 @@
   },
   "empty": {
     "splitsTitle": "Birinchi ZAP hali oldinda ⚡",
-    "splitsHint": "Chekni skanerlang — bir necha soniyada bo‘linadi",
-    "groupsTitle": "Hozircha jimjitlik 👀",
+    "splitsHint": "Chekni tashlang — bo‘lish «kim nima olgandi» bahsidan tez tugaydi",
+    "groupsTitle": "Bu yer dushanbadagi chatdek jimjit 👀",
     "groupsHint": "Splitdan keyin guruhni saqlang — keyingi safar bitta bosish yetadi",
-    "cashbackTitle": "Keshbek hali tushmadi",
-    "cashbackHint": "U hamkorlarda split qilganda hisoblanadi",
+    "cashbackTitle": "Keshbek hozircha uxlayapti 😴",
+    "cashbackHint": "Hamkorlarda zap qiling — pul kompaniyani yaxshi ko‘radi",
     "debtsTitle": "Hammasi toza ⚡",
-    "debtsHint": "Hech kim hech kimga qarzdor emas. Zo‘r.",
-    "historyTitle": "Tarix bo‘sh",
-    "historyHint": "Bu yerda barcha splitlaringiz ko‘rinadi"
+    "debtsHint": "Hech kim hech kimga qarzdor emas. Buni skrinshot qilish kerak.",
+    "historyTitle": "Tarix vijdondek toza 🧾",
+    "historyHint": "Birinchi zap — va bu yerda kechki ovqatlar solnomasi boshlanadi"
   },
   "shareCard": {
     "kicker": "⚡ ZAP COMPLETE",
@@ -811,7 +812,14 @@
     "titleTaxi": "🚕 Safar",
     "titleShopping": "🛒 Xaridlar",
     "titleTrip": "✈️ Sayohat",
-    "titleGift": "🎁 Sovg‘a"
+    "titleGift": "🎁 Sovg‘a",
+    "titleBar": "🍻 Bar",
+    "titleSweets": "🍰 Shirinlik",
+    "titleCinema": "🎬 Kino",
+    "titleGrocery": "🛒 Oziq-ovqat",
+    "titlePharmacy": "💊 Dorixona",
+    "titleSport": "🏋️ Mashg‘ulot",
+    "titleFuel": "⛽ Yoqilg‘i"
   },
   "activity": {
     "greeting": "👋 Bugun kim to‘laydi?",
@@ -866,7 +874,10 @@
     "cardAlwaysLast": "Doim oxirgi",
     "cardBiggest": "Eng katta hisob",
     "cardBuddy": "ZAP-hamroh",
-    "cardTogether": "{{n}} marta birga"
+    "cardTogether": "{{n}} marta birga",
+    "cardBigWallet": "Eng ko‘p to‘laydi 💸",
+    "cardSmallWallet": "Har so‘mni sanaydi 🪙",
+    "cardAlwaysBroke": "Doim pulsiz 🫠"
   },
   "recap": {
     "title": "Sizning {month} oyingiz",

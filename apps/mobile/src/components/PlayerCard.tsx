@@ -11,6 +11,7 @@ import { Image, StyleSheet, Text, View, type ImageSourcePropType } from 'react-n
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { PressableScale } from '@/components/PressableScale';
+import { STICKER } from '@/components/EmptyState';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
@@ -44,6 +45,9 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
 
   return (
     <Animated.View entering={FadeIn.duration(260)} style={[styles.card, { backgroundColor: colors.shell }]}>
+      {/* фирменный стикер в углу карточки — вместо пустого поля */}
+      <Image source={STICKER.heartZap} style={styles.corner} resizeMode="contain" pointerEvents="none" />
+
       <View style={styles.top}>
         <PressableScale haptic={false} onPress={onAvatarPress}>
           <View style={[styles.avatarWrap, { borderColor: fixed.lime }]}>
@@ -107,7 +111,8 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: 26, padding: 18, marginTop: 4 },
+  card: { borderRadius: 26, padding: 18, marginTop: 4, overflow: 'hidden' },
+  corner: { position: 'absolute', right: -10, top: -8, width: 74, height: 62, opacity: 0.9, transform: [{ rotate: '12deg' }] },
   top: { flexDirection: 'row', alignItems: 'center', gap: 16 },
   avatarWrap: { width: 92, height: 92, borderRadius: 999, borderWidth: 3.5 },
   avatar: { width: '100%', height: '100%', borderRadius: 999 },
