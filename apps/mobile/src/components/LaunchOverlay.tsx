@@ -149,13 +149,16 @@ export function LaunchOverlay({ ready, onDone }: Props) {
               свечение, тело и тонкое белое ядро. Именно ядро и делает разряд
               похожим на разряд, а не на иконку.
             */}
+            {/*
+              Разряд БЕЛЫЙ с чернильным контуром — как буквы вордмарка. Лаймовый
+              разряд на лаймовом фоне был не виден вовсе: в записи экрана от него
+              оставалась одна тонкая белая жила, похожая на царапину.
+            */}
             <G strokeLinecap="round" strokeLinejoin="round" fill="none">
-              <Path d={BOLT} stroke={fixed.lime} strokeWidth={13} strokeOpacity={0.22} />
-              <Path d={FORKS} stroke={fixed.lime} strokeWidth={8} strokeOpacity={0.18} />
-              <Path d={FORKS} stroke={fixed.lime} strokeWidth={3.4} />
-              <Path d={BOLT} stroke={fixed.lime} strokeWidth={6} />
-              <Path d={FORKS} stroke="#FFFFFF" strokeWidth={1.3} strokeOpacity={0.9} />
-              <Path d={BOLT} stroke="#FFFFFF" strokeWidth={2.4} />
+              <Path d={FORKS} stroke="#111110" strokeWidth={10} />
+              <Path d={BOLT} stroke="#111110" strokeWidth={15} />
+              <Path d={FORKS} stroke="#FFFFFF" strokeWidth={4.5} />
+              <Path d={BOLT} stroke="#FFFFFF" strokeWidth={8} />
             </G>
           </Svg>
         </Animated.View>

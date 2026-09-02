@@ -22,11 +22,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     reactNativeFactory = factory
 
     window = UIWindow(frame: UIScreen.main.bounds)
+    /*
+      Лаймовая подложка окна и корневого вида RN.
+
+      Между исчезновением launch screen и первым кадром JS окно успевает
+      показать свой фон — по умолчанию белый. На записи экрана это видно как
+      вспышку «лайм → белый → лайм»: та самая склейка, ради устранения которой
+      логотип и перенесён в storyboard. Красим окно в тот же лайм (#DDFF33),
+      и зазор перестаёт быть заметным.
+    */
+    window?.backgroundColor = UIColor(red: 0.867, green: 1.0, blue: 0.2, alpha: 1)
 
     factory.startReactNative(
       withModuleName: "ZapMobile",
       in: window,
       launchOptions: launchOptions
+    )
+    window?.rootViewController?.view.backgroundColor = UIColor(
+      red: 0.867, green: 1.0, blue: 0.2, alpha: 1
     )
 
     return true
