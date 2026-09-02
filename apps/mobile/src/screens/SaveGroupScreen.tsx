@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeInDown, LinearTransition } from 'react-native-reanimated';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
@@ -23,6 +24,7 @@ import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
 
 export function SaveGroupScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { colors, fixed } = useTheme();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
@@ -94,7 +96,7 @@ export function SaveGroupScreen() {
     <Screen style={styles.root} background={colors.dune}>
       <ScreenHeader onBack={() => nav.popTo('SplitClosed', { id })} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}>
         {/* значок компании: сначала показываем, потом даём поменять */}
         <View style={styles.iconWrap}>
           <VenueIcon name={name} glyph={glyph} color={color} size={76} />

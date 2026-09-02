@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
@@ -24,6 +25,7 @@ import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function CashbackScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { colors, fixed } = useTheme();
   const qc = useQueryClient();
   const home = useHomeData();
@@ -113,7 +115,7 @@ export function CashbackScreen() {
         )}
       </ScrollView>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}>
         <View style={styles.list}>
           {rows.map((e, i) => (
             <Animated.View
@@ -211,7 +213,9 @@ const styles = StyleSheet.create({
   unit: { fontFamily: font.monoBold, fontSize: 11, flexShrink: 1 },
   // с запасом от точек слайдера: подпись прилипала к карточкам
   hint: { fontFamily: font.semibold, fontSize: 13, marginTop: 18 },
-  filtersWrap: { flexGrow: 0, marginTop: 20 , marginHorizontal: -24 },
+  // раньше было -24 при паддинге экрана 16: лента вылезала за край,
+  // первый чип срезался слева, последний — справа
+  filtersWrap: { flexGrow: 0, marginTop: 20, marginHorizontal: -SCREEN_PAD_X },
   filters: { gap: 8 , paddingHorizontal: SCREEN_PAD_X },
   filter: { height: 38, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   filterText: { fontFamily: font.bold, fontSize: 13 },

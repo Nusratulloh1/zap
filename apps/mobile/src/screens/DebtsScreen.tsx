@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
@@ -23,6 +24,7 @@ import { SCREEN_PAD_X, font } from '@/theme/tokens';
 export function DebtsScreen() {
   const nav = useNavigation<any>();
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { colors, fixed, name: themeName } = useTheme();
   const qc = useQueryClient();
   const home = useHomeData();
@@ -69,7 +71,7 @@ export function DebtsScreen() {
         списком. Раньше она была закреплена, и длинный список долгов ютился в
         остатке экрана — прокрутка шла в узком окне.
       */}
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}>
             <Text style={[styles.title, { color: colors.ink }]}>{t('debts.title')}</Text>
             <View style={styles.amountRow}>
               <View style={styles.amountBox}>

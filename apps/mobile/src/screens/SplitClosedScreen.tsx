@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
@@ -27,6 +28,7 @@ import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function SplitClosedScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { colors, fixed } = useTheme();
   const nav = useNavigation<any>();
   const qc = useQueryClient();
@@ -70,7 +72,7 @@ export function SplitClosedScreen() {
     <Screen background={fixed.lime} darkBar={false} style={styles.root}>
       <ScreenHeader tint="onLime" onBack={() => nav.popTo('Tabs')} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}>
         <View style={styles.head}>
           <ThemeGarnish theme={themeForMerchant(merchant?.name ?? split.title)} />
           {merchantLogo(merchant?.name ?? split.title) ? (

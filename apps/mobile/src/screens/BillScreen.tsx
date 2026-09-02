@@ -4,6 +4,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
@@ -27,6 +28,7 @@ import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function BillScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { colors, fixed } = useTheme();
   const nav = useNavigation<any>();
   const qc = useQueryClient();
@@ -127,7 +129,7 @@ export function BillScreen() {
     <Screen style={styles.root}>
       <ScreenHeader onBack={() => nav.popTo('Scan')} />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}>
         <View style={styles.head}>
           {/* знак заведения: логотип партнёра, иначе категория (🍕 ☕ 🍻) */}
           {merchantLogo(draft.fiscal?.merchant ?? merchant?.name) ? (

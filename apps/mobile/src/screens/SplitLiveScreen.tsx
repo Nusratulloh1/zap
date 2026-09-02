@@ -570,7 +570,7 @@ export function SplitLiveScreen() {
 
 const styles = StyleSheet.create({
   root: { paddingHorizontal: SCREEN_PAD_X },
-  scroll: { paddingBottom: 10, flexGrow: 1 },
+  scroll: { paddingBottom: 12, flexGrow: 1 },
   loading: { marginTop: 48, alignItems: 'center' },
   statusRow: { marginTop: 18, gap: 5 },
   statusHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },

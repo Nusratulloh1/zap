@@ -18,7 +18,13 @@ interface Props {
   style?: StyleProp<ViewStyle>;
 }
 
-export function Screen({ children, background, darkBar, edges = ['top', 'bottom'], noTopFade, style }: Props) {
+/*
+  Снизу безопасная зона НЕ резервируется: у экранов оставалась белая полоса под
+  контентом, тогда как главная шла до самого края. Отступ под индикатор
+  добавляют сами экраны — в contentContainerStyle прокрутки, иначе последний
+  элемент оказался бы под ним.
+*/
+export function Screen({ children, background, darkBar, edges = ['top'], noTopFade, style }: Props) {
   const { colors, name } = useTheme();
   const bg = background ?? colors.paper;
   const insets = useSafeAreaInsets();

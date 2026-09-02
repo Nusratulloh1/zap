@@ -680,7 +680,8 @@ const styles = StyleSheet.create({
   addHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 24 },
   addLabel: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
   allContacts: { fontFamily: font.bold, fontSize: 13 },
-  quickScroll: { marginHorizontal: -24 },
+  // паддинг экрана — SCREEN_PAD_X, при -24 лента срезалась по краям
+  quickScroll: { marginHorizontal: -SCREEN_PAD_X },
   quickRow: { gap: 12, paddingTop: 14, paddingHorizontal: 24 },
   quick: { alignItems: 'center', gap: 6, width: 56 },
   quickName: { fontFamily: font.bold, fontSize: 11.5, maxWidth: 64 },

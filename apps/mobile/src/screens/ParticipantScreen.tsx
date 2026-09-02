@@ -4,6 +4,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import { PressableScale } from '@/components/PressableScale';
@@ -39,6 +40,7 @@ function Tile({ value, label, active, onPress }: { value: number; label?: string
 
 export function ParticipantScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { colors, fixed } = useTheme();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
@@ -205,7 +207,7 @@ export function ParticipantScreen() {
     <Screen style={styles.root}>
       <Image source={require('../../assets/brand/zap-wordmark-large.png')} style={styles.wordmark} resizeMode="contain" />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}>
         {/* организатор просит долю */}
         <View style={styles.asksRow}>
           <View style={[styles.creatorDot, { backgroundColor: colors.ink }]}>
