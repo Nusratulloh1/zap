@@ -10,6 +10,7 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
+import { SplitFaces } from '@/components/SplitFaces';
 import { SearchIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { money, dayLabel } from '@/lib/format';
@@ -40,6 +41,7 @@ export function HistoryScreen() {
   const nav = useNavigation<any>();
   const home = useHomeData();
   const myAvatar = useMyAvatar();
+  const splitById = (id: string) => home.db?.splits.find((sp) => sp.id === id);
 
   const [tab, setTab] = useState<TabKey>('all');
   // Поиск. Кнопка-лупа существовала с первого дня, но не делала НИЧЕГО —
@@ -160,6 +162,9 @@ export function HistoryScreen() {
                       </View>
                     ) : e.kind === 'debt' && e.contactId ? (
                       <Avatar name={e.title} letter={e.letter} contactId={e.contactId} color={e.color} size={42} />
+                    ) : e.splitId && splitById(e.splitId) ? (
+                      /* сплит в истории — лица участников, а не буква мерчанта */
+                      <SplitFaces split={splitById(e.splitId)!} size={42} />
                     ) : e.letter === 'B' ? (
                       <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.icon} />
                     ) : (

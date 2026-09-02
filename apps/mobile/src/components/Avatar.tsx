@@ -1,10 +1,23 @@
-// Аватар — один в один с web/src/components/ZapAvatar.vue:
-// фото из дизайна по id контакта; без фото — светлый tint-фон цвета контакта
-// (color + 26 alpha) и буква ТЕМ ЖЕ цветом; чернильный — лаймовая буква.
-// Раньше был сплошной цвет + белая буква — с вебом не совпадало.
+// Аватар. У КАЖДОГО человека — наша персона, а не буква (требование
+// руководства): для «me» — выбранная в профиле, для остальных контактов —
+// стабильно закреплённая по id из каталога 24 персон. Так люди узнаются в
+// сплитах, группах и списках, а не читаются как инициалы.
+//
+// Буква остаётся только там, где человека нет вовсе (мерчант, пустой слот).
 import React from 'react';
 import { Image, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
+import { MY_AVATARS, useMyAvatar } from '@/lib/myAvatar';
 import { font } from '@/theme/tokens';
+
+/**
+ * Персона по id контакта: сумма кодов символов → индекс в каталоге.
+ * Детерминированно — у человека всегда одно и то же лицо на всех экранах.
+ */
+function personaFor(id: string): ImageSourcePropType {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return MY_AVATARS[h % MY_AVATARS.length]!.src;
+}
 
 // фото-аватары из дизайна, по id контакта — как web/src/lib/avatars.ts
 // «me» намеренно без фото: в реальном режиме веб показывает инициал
@@ -43,11 +56,17 @@ interface Props {
   /** сплошная заливка цветом контакта — для лаймовых брендовых экранов,
       где 15%-тинт сливается с фоном */
   solid?: boolean;
+  /** не подставлять персону (мерчант, а не человек) */
+  noPersona?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
-export function Avatar({ source, name, letter, color = '#8A887E', contactId, size = 40, ring, ringWidth, dim, solid, style }: Props) {
-  const photo = source ?? (contactId ? AVATAR_BY_CONTACT[contactId] : undefined);
+export function Avatar({ source, name, letter, color = '#8A887E', contactId, size = 40, ring, ringWidth, dim, solid, noPersona, style }: Props) {
+  const mine = useMyAvatar();
+  const photo =
+    source ??
+    (contactId === 'me' ? mine : undefined) ??
+    (contactId && !noPersona ? (AVATAR_BY_CONTACT[contactId] ?? personaFor(contactId)) : undefined);
   const ch = (letter ?? name?.trim()?.[0] ?? '?').toUpperCase();
   const isDark = color === '#111110';
   const ringW = ring ? (ringWidth ?? Math.max(2, size * 0.06)) : 0;

@@ -39,6 +39,7 @@ import { suggestCrew } from '@/lib/crewStats';
 import { setWidgetState } from '@/lib/liveActivity';
 import { useMyAvatar } from '@/lib/myAvatar';
 import { MerchantLogos } from '@/components/MerchantLogos';
+import { SplitFaces } from '@/components/SplitFaces';
 import { storage, useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
 import type { Split } from '@zap/shared/types';
@@ -409,7 +410,7 @@ export function HomeScreen() {
                   onPress={() => nav.navigate('Group', { id: g.id })}
                 >
                   <View style={styles.groupAvatars}>
-                    {g.memberIds.slice(0, 3).map((cid, i) => {
+                    {['me', ...g.memberIds].slice(0, 3).map((cid, i) => {
                       const c = home.contactById(cid);
                       return (
                         <Avatar
@@ -429,7 +430,7 @@ export function HomeScreen() {
                   <View style={styles.flex1}>
                     <Text style={[styles.groupName, { color: colors.ink }]} numberOfLines={1}>{g.name}</Text>
                     <Text style={[styles.groupSub, { color: colors.faint }]} numberOfLines={1}>
-                      {t('home.groupSub', { people: peopleCount(g.memberIds.length), amount: money(g.cashback) })}
+                      {t('home.groupSub', { people: peopleCount(g.memberIds.length + 1), amount: money(g.cashback) })}
                     </Text>
                   </View>
                   <PressableScale
@@ -467,11 +468,7 @@ export function HomeScreen() {
                   style={[styles.splitRow, i < splitRows.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
                   onPress={() => nav.navigate('SplitLive', { id: s.id })}
                 >
-                  <View style={[styles.splitIcon, { backgroundColor: colors.ink }]}>
-                    <Text style={[styles.splitIconText, { color: colors.paper }]}>
-                      {(home.db?.merchants.find((mm) => mm.id === s.merchantId)?.letter ?? s.title[0] ?? '?').toUpperCase()}
-                    </Text>
-                  </View>
+                  <SplitFaces split={s} size={40} />
                   <View style={styles.flex1}>
                     <Text style={[styles.splitTitle, { color: colors.ink }]} numberOfLines={1}>
                       {home.db?.merchants.find((mm) => mm.id === s.merchantId)?.name ?? s.title}

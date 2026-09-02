@@ -7,6 +7,8 @@ import Animated, { Easing, FadeInDown, FadeOutDown, useAnimatedStyle, useSharedV
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { PressableScale } from '@/components/PressableScale';
+import { STICKER } from '@/components/EmptyState';
+import { themeForMerchant } from '@/lib/merchantTheme';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 import { money } from '@/lib/format';
@@ -48,6 +50,9 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
   const barStyle = useAnimatedStyle(() => ({ width: `${p.value * 100}%` }));
 
   const isBellissimo = split.merchantId === 'm_bellissimo';
+  // стикер темы заведения — «наклейка» на плашке (замечание: карточка слишком
+  // обычная; стикеры делают её фирменной)
+  const theme = themeForMerchant(merchant?.name ?? split.title);
 
   return (
     <Animated.View
@@ -58,6 +63,12 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
       pointerEvents="box-none"
     >
       <PressableScale style={[styles.pill, { backgroundColor: fixed.ink }]} onPress={onPress}>
+        {/* наклейка темы, чуть вылезающая за верх — как стикер, шлёпнутый на плашку */}
+        {theme?.sticker ? (
+          <Image source={STICKER[theme.sticker]} style={styles.sticker} pointerEvents="none" />
+        ) : theme ? (
+          <Text style={styles.stickerGlyph} pointerEvents="none">{theme.glyph}</Text>
+        ) : null}
         {isBellissimo ? (
           <Image source={require('../../assets/brand/partners/bellissimo.png')} style={styles.logo} />
         ) : (
@@ -70,6 +81,7 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
         <View style={styles.body}>
           <View style={styles.titleRow}>
             <Text style={[styles.title, { color: fixed.paper }]} numberOfLines={1}>
+              <Text style={{ color: fixed.lime }}>⚡ </Text>
               {t('home.activeSplit')}
             </Text>
             <Text style={[styles.sub, { color: fixed.paper }]} numberOfLines={1}>
@@ -87,12 +99,14 @@ export function ActiveSplitPill({ split, merchant, nameOf, onPress }: Props) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { position: 'absolute', left: 14, right: 14, alignItems: 'center' },
+  // отступы как у карточек листа (16) — плашка стоит ровно по их оси
+  wrap: { position: 'absolute', left: 16, right: 16, alignItems: 'center' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    alignSelf: 'stretch',
+    alignSelf: 'center',
+    width: '100%',
     maxWidth: 374,
     paddingVertical: 13,
     paddingLeft: 11,
@@ -104,7 +118,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 14 },
     elevation: 10,
   },
-  logo: { width: 42, height: 42, borderRadius: 999 },
+  logo: { width: 42, height: 42, borderRadius: 999, borderWidth: 2, borderColor: '#DDFF33' },
   logoLetter: { fontFamily: font.extrabold, fontSize: 16 },
   body: { flex: 1, minWidth: 0, gap: 7 },
   titleRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 },
@@ -113,4 +127,14 @@ const styles = StyleSheet.create({
   track: { height: 6, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.18)', overflow: 'hidden' },
   bar: { height: '100%', borderRadius: 999 },
   chevron: { fontFamily: font.semibold, fontSize: 17, opacity: 0.5 },
+  sticker: {
+    position: 'absolute',
+    right: 44,
+    top: -18,
+    width: 52,
+    height: 44,
+    transform: [{ rotate: '-10deg' }],
+    zIndex: 1,
+  },
+  stickerGlyph: { position: 'absolute', right: 48, top: -14, fontSize: 26, transform: [{ rotate: '-10deg' }], zIndex: 1 },
 });

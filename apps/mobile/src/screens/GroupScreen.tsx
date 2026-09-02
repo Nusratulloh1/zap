@@ -22,6 +22,7 @@ import { money, peopleCount, dayMonth, humanDateLc } from '@/lib/format';
 import { crewStats } from '@/lib/crewStats';
 import { MerchantLogos } from '@/components/MerchantLogos';
 import { FunStatCards } from '@/components/FunStatCards';
+import { SplitFaces } from '@/components/SplitFaces';
 import { useMyAvatar } from '@/lib/myAvatar';
 import { funStats } from '@/lib/funStats';
 import { translate } from '@/i18n';
@@ -139,14 +140,14 @@ export function GroupScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 16 }}>
         <View style={styles.headRow}>
           <View style={styles.stack}>
-            {group.memberIds.slice(0, 3).map((cid, i) => (
+            {['me', ...group.memberIds].slice(0, 3).map((cid, i) => (
               <Avatar key={cid} name={nameOf(cid)} contactId={cid} color={colorOf(cid)} size={46} ring={colors.paper} style={i > 0 ? styles.stacked : undefined} />
             ))}
           </View>
           <View style={styles.headBody}>
             <Text style={[styles.title, { color: colors.ink }]}>{group.name}</Text>
             <Text style={[styles.sub, { color: colors.faint }]}>
-              {t('group.sinceWith', { people: peopleCount(group.memberIds.length), date: dayMonth(new Date(group.createdAt)) })}
+              {t('group.sinceWith', { people: peopleCount(group.memberIds.length + 1), date: dayMonth(new Date(group.createdAt)) })}
             </Text>
           </View>
         </View>
@@ -254,9 +255,7 @@ export function GroupScreen() {
             const merchant = home.db?.merchants.find((m) => m.id === s.merchantId);
             return (
               <PressableScale key={s.id} haptic={false} style={styles.splitRow} onPress={() => nav.navigate('SplitLive', { id: s.id })}>
-                <View style={[styles.splitIcon, { backgroundColor: colors.ink }]}>
-                  <Text style={[styles.splitLetter, { color: colors.cream }]}>{merchant?.letter ?? 'S'}</Text>
-                </View>
+                <SplitFaces split={s} size={40} />
                 <View style={styles.memberBody}>
                   <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
                     {merchant?.name ?? s.title}
