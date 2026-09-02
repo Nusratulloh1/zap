@@ -229,7 +229,7 @@ export function GroupScreen() {
               return (
                 <View key={cid} style={[styles.slot, { backgroundColor: colors.shell }]}>
                   <View style={[styles.slotFrame, { borderColor: owner ? fixed.lime : colors.sand2 }]}>
-                    <Avatar contactId={cid} name={nameOf(cid)} color={colorOf(cid)} size={54} />
+                    <Avatar contactId={cid} name={nameOf(cid)} color={colorOf(cid)} size={48} />
                   </View>
                   <View style={[styles.slotChevron, { backgroundColor: owner ? fixed.lime : colors.sand }]}>
                     <Text style={[styles.slotChevronText, { color: owner ? '#111110' : colors.muted }]} numberOfLines={1}>
@@ -389,17 +389,18 @@ const styles = StyleSheet.create({
   cashFoot: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
   cashMerchants: { fontFamily: font.bold, fontSize: 12, color: 'rgba(17,17,16,0.6)' },
   squadCount: { fontFamily: font.extrabold, fontSize: 12 },
-  slots: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 12 },
-  slot: { width: '31.5%', minWidth: 96, borderRadius: 20, paddingVertical: 14, paddingHorizontal: 8, alignItems: 'center' },
+  // ровно три в ряд: при 31.5% + gap строка не помещалась и ломалась на два
+  slots: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  slot: { width: '31%', borderRadius: 20, paddingVertical: 13, paddingHorizontal: 6, alignItems: 'center' },
   slotEmpty: { borderWidth: 2, borderStyle: 'dashed', justifyContent: 'center' },
   slotFrame: { padding: 3, borderRadius: 999, borderWidth: 2.5 },
-  slotPlusFrame: { width: 60, height: 60, alignItems: 'center', justifyContent: 'center', borderStyle: 'dashed' },
+  slotPlusFrame: { width: 54, height: 54, alignItems: 'center', justifyContent: 'center', borderStyle: 'dashed' },
   slotPlus: { fontFamily: font.extrabold, fontSize: 26, marginTop: -2 },
   slotChevron: { marginTop: -9, paddingHorizontal: 8, height: 18, borderRadius: 999, justifyContent: 'center' },
   slotChevronText: { fontFamily: font.monoBold, fontSize: 8.5, letterSpacing: 0.8, textTransform: 'uppercase' },
-  slotName: { fontFamily: font.extrabold, fontSize: 12.5, marginTop: 7 },
-  slotSub: { fontFamily: font.semibold, fontSize: 10, marginTop: 2, textAlign: 'center' },
-  slotRemind: { marginTop: 8, height: 26, paddingHorizontal: 10, borderRadius: 999, justifyContent: 'center' },
+  slotName: { fontFamily: font.extrabold, fontSize: 12, marginTop: 7 },
+  slotSub: { fontFamily: font.semibold, fontSize: 9.5, marginTop: 2, textAlign: 'center' },
+  slotRemind: { marginTop: 8, height: 25, paddingHorizontal: 8, borderRadius: 999, justifyContent: 'center' },
   slotRemindText: { fontFamily: font.extrabold, fontSize: 10.5 },
   headCta: { flex: 1, height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   headCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },
