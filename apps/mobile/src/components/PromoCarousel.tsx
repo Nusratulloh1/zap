@@ -114,11 +114,11 @@ export function PromoCarousel({ category }: Props) {
                 */}
                 <Image source={v.img} style={styles.venueImg} resizeMode="contain" fadeDuration={0} />
               </View>
-              <View style={styles.venueText}>
-                <Text style={styles.venueTitle} numberOfLines={1}>
+              <View style={styles.heroText}>
+                <Text style={styles.heroTitle}>
                   {translate('home.offerAt', { label, name: v.name })}
                 </Text>
-                <Text style={styles.venueTerms} numberOfLines={1}>
+                <Text style={styles.heroTerms}>
                   {hasKey(termsKey) ? translate(termsKey) : translate('home.promoText')}
                 </Text>
               </View>
@@ -159,12 +159,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   heroTerms: { fontFamily: font.semibold, fontSize: 14.5, color: 'rgba(255,255,255,0.65)', textAlign: 'center' },
-  venueImgWrap: { paddingHorizontal: 8, paddingTop: 4 },
+  // paddingTop выравнивает слайды заведений по первому: без него их рисунок
+  // начинался у самого верха и ряд выглядел разнокалиберным
+  venueImgWrap: { paddingHorizontal: 8, paddingTop: 22 },
   // Все пять баннеров приведены к одной пропорции 1.83:1 (feedup перерисован
   // в кадре остальных, поля добиты прозрачным) — при contain они рисуются
   // одной высотой и без обрезки. 204 ≈ (390−16)/1.83.
   venueImg: { height: 204, width: '100%' },
-  venueText: { alignItems: 'center', gap: 4, paddingHorizontal: 12, marginTop: 12 },
-  venueTitle: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.2, color: '#FFFFFF', textAlign: 'center' },
-  venueTerms: { fontFamily: font.semibold, fontSize: 13, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
 });
