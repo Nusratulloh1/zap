@@ -81,6 +81,14 @@ function lib() {
   return SoundLib;
 }
 
+/**
+ * Громкость по звуку. Запуск намеренно тише остальных: он звучит без спроса,
+ * сразу после нажатия на иконку, и в тишине не должен пугать. Остальные —
+ * ответ на действие пользователя, их слышно должно быть отчётливо.
+ */
+const VOLUME: Partial<Record<Cue, number>> = { launch: 0.45 };
+const DEFAULT_VOLUME = 0.7;
+
 function playSound(cue: Cue) {
   if (soundMuted()) return;
   const S = lib();
@@ -103,7 +111,7 @@ function playSound(cue: Cue) {
         console.warn('[sound] load failed:', FILES[cue], err);
         return;
       }
-      s.setVolume(0.7);
+      s.setVolume(VOLUME[cue] ?? DEFAULT_VOLUME);
       cache.set(cue, s);
       s.play();
     });

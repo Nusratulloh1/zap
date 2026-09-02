@@ -32,8 +32,8 @@
 		DBBC80D2589B99BFE968EA3E /* ZapActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9502E6946234A1DA5ECB7 /* ZapActivityAttributes.swift */; };
 		EC3F9361832A40BE8C4BDEEF /* Manrope-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 42595C6DF87F47F6808A7165 /* Manrope-SemiBold.ttf */; };
 		FBDA487F823B22F19ABF76D1 /* ZapActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D9C026BDE0F76852C785097 /* ZapActivityBundle.swift */; };
-		70B8E812B30343ABAED1BAD6 /* launch.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3EE8F3D39BC8448990D8D153 /* launch.mp3 */; };
-		2E3762BBB165478C95782C0F /* launch.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 3EE8F3D39BC8448990D8D153 /* launch.mp3 */; };
+		075BCCC0FE1844B7A6637E4D /* launch.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 942BB01D3617488D99DE1D78 /* launch.mp3 */; };
+		914A2808AD2B41C28892B897 /* launch.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 942BB01D3617488D99DE1D78 /* launch.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,7 +93,7 @@
 		CCF2E86B88DC4377B26DB638 /* split.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = split.mp3; path = ../assets/sounds/split.mp3; sourceTree = "<group>"; };
 		CFEBBF2C5BD24C9CA630C530 /* reminder.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = reminder.mp3; path = ../assets/sounds/reminder.mp3; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		3EE8F3D39BC8448990D8D153 /* launch.mp3 */ = {isa = PBXFileReference; name = "launch.mp3"; path = "../assets/sounds/launch.mp3"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		942BB01D3617488D99DE1D78 /* launch.mp3 */ = {isa = PBXFileReference; name = "launch.mp3"; path = "../assets/sounds/launch.mp3"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -218,7 +218,7 @@
 				3ABF7D8A31794B63ABFD04E2 /* split_done.mp3 */,
 				8E1FDCC89DD547B889A97CE3 /* paid.mp3 */,
 				CFEBBF2C5BD24C9CA630C530 /* reminder.mp3 */,
-				3EE8F3D39BC8448990D8D153 /* launch.mp3 */,
+				942BB01D3617488D99DE1D78 /* launch.mp3 */,
 			);
 			name = Resources;
 			path = "";
@@ -320,7 +320,7 @@
 				833D28DD0A5D4304B867B15C /* split_done.mp3 in Resources */,
 				78626FB348C44E69B94066DB /* paid.mp3 in Resources */,
 				A400A48381024F6BB12F7605 /* reminder.mp3 in Resources */,
-				70B8E812B30343ABAED1BAD6 /* launch.mp3 in Resources */,
+				075BCCC0FE1844B7A6637E4D /* launch.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -328,7 +328,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2E3762BBB165478C95782C0F /* launch.mp3 in Resources */,
+				914A2808AD2B41C28892B897 /* launch.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
