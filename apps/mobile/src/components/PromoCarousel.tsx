@@ -82,7 +82,10 @@ export function PromoCarousel({ category }: Props) {
           </View>
           <View style={styles.heroText}>
             <Text style={styles.heroTitle}>{translate('home.promoHeroTitle')}</Text>
-            <Text style={styles.heroTerms}>{translate('home.promoHeroTerms')}</Text>
+            {/* перечень брендов — строго в одну строку, кегль подстраивается */}
+            <Text style={styles.heroTerms} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+              {translate('home.promoHeroTerms')}
+            </Text>
           </View>
         </Pressable>
 
