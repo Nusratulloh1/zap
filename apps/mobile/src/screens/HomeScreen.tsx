@@ -200,6 +200,13 @@ export function HomeScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + (home.activeSplit ? 196 : 128) }}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.muted} />}
       >
+        {/*
+          Заглушка над героем: при оттягивании списка вниз (bounce) над тёмной
+          шапкой выглядывал кремовый фон экрана — тёмный блок «отрывался» от
+          верха. Кладём в скролл тёмную простыню, уходящую за верхнюю границу.
+        */}
+        <View style={styles.bounceCover} pointerEvents="none" />
+
         {/* ── тёмный герой ── */}
         <View style={[styles.hero, { paddingTop: insets.top + 84 }]}>
           {/* точечная сетка фона — radial-gradient 16px из веба */}
@@ -526,6 +533,7 @@ const styles = StyleSheet.create({
   circleBtn: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(255,255,255,0.1)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' },
 
   hero: { backgroundColor: '#0E0E0C', paddingBottom: 44 },
+  bounceCover: { position: 'absolute', top: -600, left: 0, right: 0, height: 600, backgroundColor: '#0E0E0C' },
   heroSkeleton: { paddingHorizontal: 24 },
   categories: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, paddingHorizontal: 20, marginTop: 26 },
   category: { alignItems: 'center', gap: 7, flex: 1 },
