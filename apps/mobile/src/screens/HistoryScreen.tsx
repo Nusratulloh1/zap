@@ -14,6 +14,7 @@ import { SearchIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { money, dayLabel } from '@/lib/format';
 import { entryText } from '@/lib/entryText';
+import { useMyAvatar } from '@/lib/myAvatar';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import type { HistoryEntry } from '@zap/shared/types';
@@ -38,6 +39,7 @@ export function HistoryScreen() {
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const home = useHomeData();
+  const myAvatar = useMyAvatar();
 
   const [tab, setTab] = useState<TabKey>('all');
   // Поиск. Кнопка-лупа существовала с первого дня, но не делала НИЧЕГО —
@@ -100,7 +102,7 @@ export function HistoryScreen() {
               <SearchIcon size={18} color="#5B594F" />
             </PressableScale>
             <PressableScale small accessibilityLabel={t('common.profileAria')} onPress={() => nav.navigate('Profile')}>
-              <Avatar name={home.db?.user?.name} letter={home.db?.user?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
+              <Avatar source={myAvatar ?? undefined} name={home.db?.user?.name} letter={home.db?.user?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
             </PressableScale>
           </View>
         </View>

@@ -37,6 +37,7 @@ import { qk } from '@/api/data';
 import { money, peopleCount, humanDateLc } from '@/lib/format';
 import { suggestCrew } from '@/lib/crewStats';
 import { setWidgetState } from '@/lib/liveActivity';
+import { useMyAvatar } from '@/lib/myAvatar';
 import { storage, useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font, radius } from '@/theme/tokens';
 import type { Split } from '@zap/shared/types';
@@ -64,6 +65,7 @@ export function HomeScreen() {
   const draft = useDraft();
 
   const home = useHomeData();
+  const myAvatar = useMyAvatar();
 
   // лента считается из уже загруженного /bootstrap — без лишних запросов
   // живой сплит уже показан пилюлей внизу — лента его не дублирует
@@ -187,7 +189,7 @@ export function HomeScreen() {
               accessibilityLabel={t('common.profileAria')}
               onPress={() => nav.navigate('Profile')}
             >
-              <Avatar name={me?.name} letter={me?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
+              <Avatar source={myAvatar ?? undefined} name={me?.name} letter={me?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
             </PressableScale>
           </View>
         </View>

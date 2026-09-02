@@ -3,7 +3,7 @@
 // (color + 26 alpha) и буква ТЕМ ЖЕ цветом; чернильный — лаймовая буква.
 // Раньше был сплошной цвет + белая буква — с вебом не совпадало.
 import React from 'react';
-import { Image, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Image, StyleSheet, Text, View, type ImageSourcePropType, type StyleProp, type ViewStyle } from 'react-native';
 import { font } from '@/theme/tokens';
 
 // фото-аватары из дизайна, по id контакта — как web/src/lib/avatars.ts
@@ -26,6 +26,8 @@ const AVATAR_BY_CONTACT: Record<string, number> = {
 };
 
 interface Props {
+  /** явная картинка (выбранный аватар пользователя) — приоритетнее contactId */
+  source?: ImageSourcePropType;
   name?: string;
   letter?: string;
   color?: string;
@@ -44,8 +46,8 @@ interface Props {
   style?: StyleProp<ViewStyle>;
 }
 
-export function Avatar({ name, letter, color = '#8A887E', contactId, size = 40, ring, ringWidth, dim, solid, style }: Props) {
-  const photo = contactId ? AVATAR_BY_CONTACT[contactId] : undefined;
+export function Avatar({ source, name, letter, color = '#8A887E', contactId, size = 40, ring, ringWidth, dim, solid, style }: Props) {
+  const photo = source ?? (contactId ? AVATAR_BY_CONTACT[contactId] : undefined);
   const ch = (letter ?? name?.trim()?.[0] ?? '?').toUpperCase();
   const isDark = color === '#111110';
   const ringW = ring ? (ringWidth ?? Math.max(2, size * 0.06)) : 0;

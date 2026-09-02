@@ -516,7 +516,8 @@
     "appIconFailed": "Couldn’t change the icon",
     "favouriteSplit": "Favourite split",
     "fastestPayment": "Fastest payment",
-    "seconds": "{{n}} sec"
+    "seconds": "{{n}} sec",
+    "achievements": "ACHIEVEMENTS"
   },
   "install": {
     "title": "Install ZAP!",

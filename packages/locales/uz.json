@@ -516,7 +516,8 @@
     "appIconFailed": "Ikonkani o'zgartirib bo'lmadi",
     "favouriteSplit": "Sevimli split",
     "fastestPayment": "Eng tez to‘lov",
-    "seconds": "{{n}} soniya"
+    "seconds": "{{n}} soniya",
+    "achievements": "YUTUQLAR"
   },
   "install": {
     "title": "ZAP! ni o'rnating",

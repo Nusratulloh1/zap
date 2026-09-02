@@ -516,7 +516,8 @@
     "appIconFailed": "Не удалось сменить иконку",
     "favouriteSplit": "Любимый сплит",
     "fastestPayment": "Самая быстрая оплата",
-    "seconds": "{{n}} сек"
+    "seconds": "{{n}} сек",
+    "achievements": "АЧИВКИ"
   },
   "install": {
     "title": "Установите ZAP!",

@@ -2,7 +2,7 @@
 // чип «ZAP! с мая 2026», стат-тайлы, КАРТЫ (добавление: форма → SMS → проверка),
 // НАСТРОЙКИ (смена PIN, уведомления, язык, тема, мои группы, выйти).
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, Platform, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import Animated, { interpolate, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -10,29 +10,41 @@ import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { PressableScale } from '@/components/PressableScale';
-import { Avatar } from '@/components/Avatar';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinDots } from '@/components/PinDots';
-import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
+import Svg, { Circle as SvgCircle, Defs, LinearGradient, Pattern, Stop, Rect as SvgRect } from 'react-native-svg';
 // SunIcon и MoonIcon нужны только скрытому переключателю темы, см. ниже
 import { BackIcon } from '@/components/icons';
 import { refocus, useKeyboardLock } from '@/lib/keyboard';
 import { Toggle } from '@/components/Toggle';
 import { toast } from '@/components/ToastHost';
-import { LanguagePickerSheet } from '@/components/LanguageSheet';
-import { AppIconSheet } from '@/components/AppIconSheet';
 import { addCard, setPrimaryCard, changePin, toggleDebtNotifications, fetchRecap } from '@/api/actions';
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { useSession } from '@/store/session';
 import { money, phone, monthYear } from '@/lib/format';
-import { titlesFor, personalBest, favouriteTheme } from '@/lib/funStats';
+import { titlesFor, personalBest, favouriteTheme, type TitleKey } from '@/lib/funStats';
+import { MY_AVATARS, myAvatarKey, setMyAvatar, useMyAvatar } from '@/lib/myAvatar';
+import { APP_ICONS, ICON_PREVIEW, currentAppIcon, setAppIcon, type AppIconKey } from '@/lib/appIcon';
+import { applyLocale, LOCALES, type Locale } from '@/i18n';
+import { http } from '@/api/client';
+import { trigger } from 'react-native-haptic-feedback';
 import { themeByKey } from '@/lib/merchantTheme';
-import { LOCALE_NAMES, currentLocale } from '@/i18n';
+import { currentLocale } from '@/i18n';
 import { ZapLoader } from '@/components/ZapLoader';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import type { Card } from '@zap/shared/types';
+
+/** Все титулы (§C12) в порядке показа: ключ + значок открытого состояния. */
+const ALL_TITLES: readonly [TitleKey, string][] = [
+  ['fastestFinger', '⚡'],
+  ['reliableOne', '🤝'],
+  ['bigSpender', '💸'],
+  ['pizzaCFO', '🍕'],
+  ['coffeeAddict', '☕'],
+  ['lastPayer', '👀'],
+];
 
 export function ProfileScreen() {
   const { t } = useTranslation();
@@ -178,8 +190,6 @@ export function ProfileScreen() {
 
   // ---- прочее ----
   const [groupsSheet, setGroupsSheet] = useState(false);
-  const [languageSheet, setLanguageSheet] = useState(false);
-  const [iconSheet, setIconSheet] = useState(false);
   const [logoutSheet, setLogoutSheet] = useState(false);
   const loggingOut = useRef(false);
 
@@ -223,6 +233,48 @@ export function ProfileScreen() {
     на вопрос «кто сегодня платит». Карточку показываем только когда есть что
     показать — пустой рекап выглядел бы как сломанный блок.
   */
+  // vision V2 §C1: профиль — игровая карточка, всё открыто сразу
+  const myAvatar = useMyAvatar();
+  const [avatarKey, setAvatarKey] = useState<string | null>(() => myAvatarKey());
+  const pickAvatar = (key: string) => {
+    trigger('impactMedium', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
+    setAvatarKey(key);
+    setMyAvatar(key);
+  };
+
+  const [appIcon, setAppIconState] = useState<AppIconKey>('receipts');
+  useEffect(() => {
+    void currentAppIcon().then(setAppIconState);
+  }, []);
+  const pickAppIcon = (key: AppIconKey) => {
+    trigger('impactLight', { enableVibrateFallback: false, ignoreAndroidSystemSettings: false });
+    if (key === appIcon) return;
+    const run = async () => {
+      try {
+        await setAppIcon(key);
+        setAppIconState(key);
+      } catch (e) {
+        toast(`${t('profile.appIconFailed')}: ${e instanceof Error ? e.message : ''}`.slice(0, 120));
+      }
+    };
+    // Android при смене алиаса закрывает приложение — предупреждаем заранее
+    if (Platform.OS === 'android') {
+      Alert.alert(t('profile.appIconTitle'), t('profile.appIconRestart'), [
+        { text: t('common.cancel'), style: 'cancel' },
+        { text: t('common.ok'), onPress: () => void run() },
+      ]);
+    } else void run();
+  };
+
+  const locale = currentLocale();
+  const pickLocale = (next: Locale) => {
+    trigger('impactLight', { enableVibrateFallback: false, ignoreAndroidSystemSettings: false });
+    if (next === locale) return;
+    void applyLocale(next).then(() => {
+      void http('/me', { method: 'PATCH', body: JSON.stringify({ locale: next }) }).catch(() => undefined);
+    });
+  };
+
   const recapQuery = useQuery({ queryKey: ['recap'], queryFn: () => fetchRecap(), staleTime: 60 * 60_000 });
   const recap = recapQuery.data && !recapQuery.data.empty ? recapQuery.data : null;
   const recapMonth = recap ? t(`recap.month.${Number(recap.month.split('-')[1])}`) : '';
@@ -234,20 +286,56 @@ export function ProfileScreen() {
 
   return (
     <Screen style={styles.root} edges={['bottom']}>
-      <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingTop: insets.top + 64, paddingBottom: insets.bottom + 16 }}>
+      <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
         {me ? (
           <>
-            <View style={styles.headRow}>
-              <Avatar name={me.name} letter={me.initials} color="#111110" size={76} ring={fixed.lime} ringWidth={3} />
-              <View style={styles.headBody}>
-                <Text style={[styles.name, { color: colors.ink }]}>{me.name}</Text>
-                <Text style={[styles.handle, { color: colors.muted }]}>
-                  {me.handle} · {phone(me.phone)}
-                </Text>
-                <View style={[styles.sinceChip, { backgroundColor: fixed.lime }]}>
-                  <Text style={styles.sinceText}>{t('profile.since', { date: sinceLabel })}</Text>
-                </View>
+            {/*
+              Игровая карточка игрока (vision V2 §C1): тёмная сцена с точечной
+              сеткой — та же, что у героя главной, — большой аватар по центру
+              и лента выбора аватара прямо здесь, без подменю.
+            */}
+            <View style={[styles.heroCard, { paddingTop: insets.top + 64 }]}>
+              <Svg style={StyleSheet.absoluteFill as object} pointerEvents="none">
+                <Defs>
+                  <Pattern id="profDots" width={16} height={16} patternUnits="userSpaceOnUse">
+                    <SvgCircle cx={2} cy={2} r={1.25} fill="rgba(255,255,255,0.07)" />
+                  </Pattern>
+                </Defs>
+                <SvgRect x={0} y={0} width="100%" height="100%" fill="url(#profDots)" />
+              </Svg>
+
+              <View style={[styles.heroAvatar, { borderColor: fixed.lime }]}>
+                {myAvatar ? (
+                  <Image source={myAvatar} style={styles.heroAvatarImg} resizeMode="cover" />
+                ) : (
+                  <Text style={[styles.heroAvatarLetter, { color: fixed.lime }]}>{me.initials}</Text>
+                )}
               </View>
+              <Text style={styles.heroName}>{me.name}</Text>
+              <Text style={styles.heroHandle}>
+                {me.handle} · {phone(me.phone)}
+              </Text>
+              <View style={[styles.sinceChip, { backgroundColor: fixed.lime }]}>
+                <Text style={styles.sinceText}>{t('profile.since', { date: sinceLabel })}</Text>
+              </View>
+
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.avatarStrip}
+                contentContainerStyle={styles.avatarStripBody}
+              >
+                {MY_AVATARS.map((a) => {
+                  const active = a.key === avatarKey;
+                  return (
+                    <PressableScale key={a.key} haptic={false} onPress={() => pickAvatar(a.key)}>
+                      <View style={[styles.avatarPick, active && { borderColor: fixed.lime }]}>
+                        <Image source={a.src} style={styles.avatarPickImg} resizeMode="cover" />
+                      </View>
+                    </PressableScale>
+                  );
+                })}
+              </ScrollView>
             </View>
 
             <View style={styles.stats}>
@@ -305,17 +393,39 @@ export function ProfileScreen() {
               </View>
             ) : null}
 
-            {/* заработанные титулы (§C12) — ироничные, не банковские badges */}
-            {titles.length ? (
-              <View style={styles.titles}>
-                {titles.map((tt) => (
-                  <View key={tt.key} style={[styles.titleChip, { backgroundColor: fixed.lime }]}>
-                    <Text style={styles.titleGlyph}>{tt.glyph}</Text>
-                    <Text style={styles.titleText}>{t(`titles.${tt.key}`)}</Text>
+            {/*
+              Ачивки как в игре (vision V2 §C1, слой Duolingo): видны ВСЕ
+              шесть, закрытые — серые с замком. Пустое место не мотивирует,
+              заблокированная ачивка — да.
+            */}
+            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.achievements')}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgeRow}>
+              {ALL_TITLES.map(([key, glyph]) => {
+                const unlocked = titles.some((tt) => tt.key === key);
+                return (
+                  <View key={key} style={styles.badge}>
+                    <View
+                      style={[
+                        styles.badgeCoin,
+                        unlocked
+                          ? { backgroundColor: fixed.lime, borderColor: colors.ink }
+                          : { backgroundColor: colors.sand, borderColor: colors.sand2 },
+                      ]}
+                    >
+                      <Text style={[styles.badgeGlyph, !unlocked && styles.badgeGlyphLocked]}>
+                        {unlocked ? glyph : '🔒'}
+                      </Text>
+                    </View>
+                    <Text
+                      style={[styles.badgeLabel, { color: unlocked ? colors.ink : colors.faint }]}
+                      numberOfLines={2}
+                    >
+                      {t(`titles.${key}`)}
+                    </Text>
                   </View>
-                ))}
-              </View>
-            ) : null}
+                );
+              })}
+            </ScrollView>
 
             <Text style={[styles.mono, { color: colors.faint2 }]}>{t('profile.cards')}</Text>
             {cards.map((card) => (
@@ -361,17 +471,37 @@ export function ProfileScreen() {
               <Toggle value={notifs} onChange={toggleNotifs} />
             </View>
 
-            <PressableScale haptic={false} style={[styles.settingRow, { borderBottomColor: colors.sand2 }]} onPress={() => setLanguageSheet(true)}>
+            {/* язык — инлайн, без шита: «всё открыто сразу» (vision V2 §C1) */}
+            <View style={[styles.settingRow, { borderBottomColor: colors.sand2 }]}>
               <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.language')}</Text>
-              <Text style={[styles.settingValue, { color: colors.muted }]}>{LOCALE_NAMES[currentLocale()]}</Text>
-              <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
-            </PressableScale>
+              <View style={styles.inlinePills}>
+                {LOCALES.map((l) => (
+                  <PressableScale
+                    key={l}
+                    haptic={false}
+                    style={[styles.langPill, { backgroundColor: l === locale ? fixed.lime : colors.sand }]}
+                    onPress={() => pickLocale(l)}
+                  >
+                    <Text style={[styles.langPillText, { color: '#111110' }]}>{l.toUpperCase()}</Text>
+                  </PressableScale>
+                ))}
+              </View>
+            </View>
 
-
-            <PressableScale haptic={false} style={[styles.settingRow, { borderBottomColor: colors.sand2 }]} onPress={() => setIconSheet(true)}>
+            {/* иконка приложения — три превью прямо здесь */}
+            <View style={[styles.settingRow, styles.settingRowTall, { borderBottomColor: colors.sand2 }]}>
               <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.appIcon')}</Text>
-              <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
-            </PressableScale>
+              <View style={styles.inlinePills}>
+                {APP_ICONS.map((k) => (
+                  <PressableScale key={k} haptic={false} onPress={() => pickAppIcon(k)}>
+                    <Image
+                      source={ICON_PREVIEW[k]}
+                      style={[styles.iconPreview, k === appIcon && { borderColor: fixed.lime }]}
+                    />
+                  </PressableScale>
+                ))}
+              </View>
+            </View>
 
             <PressableScale haptic={false} style={[styles.settingRow, { borderBottomColor: colors.sand2 }]} onPress={() => setGroupsSheet(true)}>
               <Text style={[styles.settingText, { color: colors.ink }]}>{t('profile.myGroups')}</Text>
@@ -582,8 +712,6 @@ export function ProfileScreen() {
         </View>
       </BottomSheet>
 
-      <LanguagePickerSheet open={languageSheet} onClose={() => setLanguageSheet(false)} />
-      <AppIconSheet open={iconSheet} onClose={() => setIconSheet(false)} />
     </Screen>
   );
 }
@@ -605,10 +733,6 @@ const styles = StyleSheet.create({
   topGlassFill: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 22 },
   topGlassFade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   root: { paddingHorizontal: SCREEN_PAD_X },
-  headRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
-  headBody: { flex: 1, gap: 3 },
-  name: { fontFamily: font.extrabold, fontSize: 23, letterSpacing: -0.2 },
-  handle: { fontFamily: font.semibold, fontSize: 13.5 },
   sinceChip: { alignSelf: 'flex-start', height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center', marginTop: 2 },
   sinceText: { fontFamily: font.extrabold, fontSize: 11, color: '#111110' },
   stats: { flexDirection: 'row', gap: 10, marginTop: 22 },
@@ -628,15 +752,65 @@ const styles = StyleSheet.create({
   recapTitle: { fontFamily: font.extrabold, fontSize: 15 },
   recapSub: { fontFamily: font.semibold, fontSize: 12.5, color: 'rgba(255,255,255,0.65)' },
   recapChevron: { fontFamily: font.extrabold, fontSize: 22 },
+  heroCard: {
+    marginHorizontal: -SCREEN_PAD_X,
+    marginBottom: 6,
+    paddingBottom: 18,
+    alignItems: 'center',
+    backgroundColor: '#0E0E0C',
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    overflow: 'hidden',
+  },
+  heroAvatar: {
+    width: 116,
+    height: 116,
+    borderRadius: 999,
+    borderWidth: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    backgroundColor: '#1C1C1A',
+  },
+  heroAvatarImg: { width: '100%', height: '100%' },
+  heroAvatarLetter: { fontFamily: font.extrabold, fontSize: 44 },
+  heroName: { fontFamily: font.extrabold, fontSize: 24, letterSpacing: -0.4, color: '#FFFFFF', marginTop: 12 },
+  heroHandle: { fontFamily: font.semibold, fontSize: 13.5, color: 'rgba(255,255,255,0.6)', marginTop: 3, marginBottom: 10 },
+  avatarStrip: { alignSelf: 'stretch', marginTop: 16 },
+  avatarStripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 10 },
+  avatarPick: {
+    width: 52,
+    height: 52,
+    borderRadius: 999,
+    borderWidth: 2.5,
+    borderColor: 'rgba(255,255,255,0.14)',
+    overflow: 'hidden',
+    backgroundColor: '#1C1C1A',
+  },
+  avatarPickImg: { width: '100%', height: '100%' },
+  badgeRow: { gap: 14, paddingVertical: 12 },
+  badge: { alignItems: 'center', width: 76 },
+  badgeCoin: {
+    width: 64,
+    height: 64,
+    borderRadius: 999,
+    borderWidth: 3,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeGlyph: { fontSize: 28 },
+  badgeGlyphLocked: { fontSize: 22, opacity: 0.55 },
+  badgeLabel: { fontFamily: font.bold, fontSize: 11, textAlign: 'center', marginTop: 6 },
+  inlinePills: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 'auto' },
+  langPill: { height: 34, paddingHorizontal: 13, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  langPillText: { fontFamily: font.extrabold, fontSize: 12.5 },
+  settingRowTall: { minHeight: 72 },
+  iconPreview: { width: 46, height: 46, borderRadius: 12, borderWidth: 2.5, borderColor: 'transparent' },
   identity: { borderRadius: 20, paddingHorizontal: 16, paddingVertical: 12, gap: 10, marginTop: 12 },
   identityRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   identityGlyph: { fontSize: 16, width: 22, textAlign: 'center' },
   identityLabel: { flex: 1, fontFamily: font.semibold, fontSize: 13.5 },
   identityValue: { fontFamily: font.extrabold, fontSize: 14 },
-  titles: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
-  titleChip: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 34, paddingHorizontal: 12, borderRadius: 999 },
-  titleGlyph: { fontSize: 14 },
-  titleText: { fontFamily: font.extrabold, fontSize: 12.5, color: '#111110' },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 26 },
   cardRow: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 62, borderBottomWidth: 1, borderBottomColor: 'transparent' },
   cardBadge: { width: 42, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
