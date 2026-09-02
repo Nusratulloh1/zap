@@ -40,7 +40,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
           <Defs>
             <LinearGradient id="tabGloss" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.16} />
+              <Stop offset="0" stopColor="#DDFF33" stopOpacity={0.22} />
               <Stop offset="0.58" stopColor="#FFFFFF" stopOpacity={0} />
             </LinearGradient>
           </Defs>
@@ -141,10 +141,16 @@ function Icon({ kind, focused, lime, dark }: { kind: IconKind; focused: boolean;
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center' },
-  // Собственный тинт снят полностью: любой белый слой поверх материала делает
-  // пилл плотнее, а материал iOS и так подсветляет фон. Осталась только рамка,
-  // чтобы пилл не растворялся на светлом контенте, и размытие.
-  pillSurface: { backgroundColor: 'transparent', borderColor: 'rgba(255,255,255,0.45)' },
+  /*
+    Лёгкий лаймовый тинт вместо белого.
+
+    Белый слой поверх системного материала только уплотнял пилл и ничего не
+    давал: материал iOS сам подсветляет фон. Лайм на той же малой альфе
+    работает иначе — он не столько закрывает фон, сколько красит его, поэтому
+    пилл читается как фирменное стекло, а не как белая плашка. Альфа держится
+    низкой намеренно: выше 0.2 сквозь пилл перестаёт быть видно контент.
+  */
+  pillSurface: { backgroundColor: 'rgba(221,255,51,0.15)', borderColor: 'rgba(221,255,51,0.5)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',

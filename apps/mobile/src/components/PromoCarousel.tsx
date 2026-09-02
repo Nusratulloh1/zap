@@ -17,7 +17,7 @@ import { font } from '@/theme/tokens';
 import { EASE_ZAP } from '@/lib/motion';
 import { translate, hasKey } from '@/i18n';
 
-const heroImg = require('../../assets/brand/promo-hero.png');
+const heroImg = require('../../assets/brand/promo-hero.webp');
 
 type OfferType = 'cashback' | 'promo' | 'discount';
 
@@ -145,7 +145,9 @@ const styles = StyleSheet.create({
   segments: { flexDirection: 'row', gap: 6, paddingHorizontal: 24, marginBottom: 16 },
   segment: { flex: 1, height: 3, borderRadius: 999 },
   heroImgWrap: { marginHorizontal: 24 },
-  heroImg: { height: 148, width: '100%', borderRadius: 20 },
+  // 192 под пропорцию баннера 1.79:1 при ширине экрана минус поля: при 148
+  // рисунок упирался в высоту и терял почти четверть размера
+  heroImg: { height: 192, width: '100%', borderRadius: 20 },
   heroText: { alignItems: 'center', gap: 6, paddingHorizontal: 16, marginTop: 16 },
   heroTitle: {
     fontFamily: font.extrabold,
