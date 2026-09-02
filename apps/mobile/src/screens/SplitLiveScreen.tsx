@@ -367,32 +367,42 @@ export function SplitLiveScreen() {
     .filter((m) => m.status !== 'paid' && m.status !== 'debt')
     .map((m) => nameOf(m.contactId));
 
+  const closed = split.status === 'closed';
+  // на лайме свои тона: чернила вместо ink-темы и полупрозрачные подписи
+  const headInk = closed ? fixed.ink : colors.ink;
+  const headMuted = closed ? 'rgba(17,17,16,0.6)' : colors.muted;
+
   return (
     <BillStageProvider value={stage}>
-      <Screen style={styles.root} background={colors.cream}>
-        <ScreenHeader onBack={() => nav.popTo('Tabs')} />
+      {/*
+        Закрытый счёт открывается в лаймовом виде — как экран закрытия: из
+        истории и списка это сразу читается как «всё оплачено», без чтения
+        подписей. Активный остаётся кремовым.
+      */}
+      <Screen style={styles.root} background={closed ? fixed.lime : colors.cream} darkBar={false}>
+        <ScreenHeader onBack={() => nav.popTo('Tabs')} tint={closed ? 'onLime' : 'sand'} />
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
           {/* «3 / 4 оплатили» — статус читается мгновенно (Who's left) */}
           <View style={styles.statusRow}>
             <View style={styles.statusHead}>
-              <Text style={[styles.status, { color: colors.ink }]}>
+              <Text style={[styles.status, { color: headInk }]}>
                 {t('live.paidOfCount', { paid: paidMembers.length, total: members.length })}
               </Text>
               {/* доля закрытого — крупной плашкой, а не мелким процентом у полосы */}
-              <View style={[styles.pct, { backgroundColor: allPaid ? fixed.lime : colors.sand }]}>
-                <Text style={[styles.pctText, { color: colors.ink }]}>
+              <View style={[styles.pct, { backgroundColor: closed ? fixed.ink : allPaid ? fixed.lime : colors.sand }]}>
+                <Text style={[styles.pctText, { color: closed ? fixed.lime : colors.ink }]}>
                   {Math.round((paidMembers.length / Math.max(1, members.length)) * 100)}%
                 </Text>
               </View>
             </View>
-            <Text style={[styles.statusSub, { color: colors.muted }]} numberOfLines={1}>
+            <Text style={[styles.statusSub, { color: headMuted }]} numberOfLines={1}>
               {allPaid ? t('live.allPaidHeadline') : t('live.waitingFor', { names: waitingNames.join(', ') })}
             </Text>
           </View>
 
-          <View style={[styles.track, { backgroundColor: colors.pebble }]}>
-            <Animated.View style={[styles.fill, { backgroundColor: fixed.lime }, barStyle]} />
+          <View style={[styles.track, { backgroundColor: closed ? 'rgba(17,17,16,0.16)' : colors.pebble }]}>
+            <Animated.View style={[styles.fill, { backgroundColor: closed ? fixed.ink : fixed.lime }, barStyle]} />
           </View>
 
           {/* центральный чек — узел для Split the Bill */}
