@@ -44,7 +44,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         Тинт над блюром опущен до 0.18: вместе с глянцем 0.30 white уже
         замывал сам блюр.
       */}
-      <Glass thin amount={12} fallback="rgba(255,255,255,0.55)" tint="rgba(255,255,255,0.18)" style={[styles.pill, styles.pillSurface]}>
+      <Glass thin amount={5} fallback="rgba(255,255,255,0.55)" tint="rgba(255,255,255,0.18)" style={[styles.pill, styles.pillSurface]}>
         {/* верхний глянец — блик на стекле, .zap-tabbar::before из веба */}
         <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
           <Defs>
