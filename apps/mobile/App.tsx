@@ -1,6 +1,6 @@
 // Корень приложения: жесты → тема → i18n → сеть → навигация.
 // Порядок важен: gesture-handler обязан быть самым внешним.
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { RootNavigator } from '@/navigation/RootNavigator';
 import { ToastHost } from '@/components/ToastHost';
+import { LaunchOverlay } from '@/components/LaunchOverlay';
 import { connectRealtime, disconnectRealtime } from '@/lib/realtime';
 import { qk } from '@/api/data';
 import { useSession } from '@/store/session';
@@ -20,6 +21,10 @@ const queryClient = new QueryClient({
 export default function App() {
   const lastBackground = useRef(0);
   const hydrate = useSession((s) => s.hydrate);
+  // Оверлей входа живёт ровно один холодный старт: при возврате из фона его
+  // быть не должно — это не событие, а запуск.
+  const [launched, setLaunched] = useState(false);
+  const hydrated = useSession((s) => s.hydrated);
 
   useEffect(() => {
     void hydrate();
@@ -57,6 +62,7 @@ export default function App() {
           <ThemeProvider>
             <RootNavigator />
             <ToastHost />
+            {launched ? null : <LaunchOverlay ready={hydrated} onDone={() => setLaunched(true)} />}
           </ThemeProvider>
         </QueryClientProvider>
       </SafeAreaProvider>

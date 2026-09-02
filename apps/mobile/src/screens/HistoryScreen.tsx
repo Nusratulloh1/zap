@@ -8,11 +8,6 @@ import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
-import { ActivityFeed } from '@/components/ActivityFeed';
-import { toast } from '@/components/ToastHost';
-import { remindDebt } from '@/api/actions';
-import { buildActivity, type ActivityItem } from '@/lib/activity';
-import { reminderLine } from '@/lib/reminders';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { SearchIcon } from '@/components/icons';
@@ -43,32 +38,6 @@ export function HistoryScreen() {
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const home = useHomeData();
-
-  /*
-    Лента активности переехала сюда с главной: там она дублировала список
-    счетов и раздувала первый экран. Здесь она на своём месте — это те же
-    события, только свёрнутые в одну строку.
-
-    «⚡ Напомнить» бьёт по долгам человека прямо отсюда, без захода в экран
-    долгов. «Оплатить» просто открывает счёт: платить в один тап без
-    подтверждения было бы неправильно.
-  */
-  const feedAction = async (it: ActivityItem) => {
-    if (it.kind === 'waitingForYou' && it.debtIds?.length) {
-      try {
-        for (const id of it.debtIds) await remindDebt(id);
-        toast.success(
-          reminderLine(it.contactId ?? it.id, 0, { name: it.title, amount: money(it.amount ?? 0) }),
-        );
-      } catch (e) {
-        toast(e instanceof Error && e.message ? e.message : t('errors.generic'));
-      }
-      return;
-    }
-    if (it.splitId) nav.navigate('SplitLive', { id: it.splitId });
-  };
-
-  const activity = useMemo(() => buildActivity(home.db, home.activeSplit?.id), [home.db, home.activeSplit?.id]);
 
   const [tab, setTab] = useState<TabKey>('all');
   // Поиск. Кнопка-лупа существовала с первого дня, но не делала НИЧЕГО —
@@ -168,21 +137,6 @@ export function HistoryScreen() {
             );
           })}
         </ScrollView>
-        {/* лента активности — над списком, только на вкладке «все» */}
-        {tab === 'all' && activity.length ? (
-          <ActivityFeed
-            items={activity}
-            nameOf={(cid) => home.contactById(cid)?.name ?? ''}
-            initialsOf={(cid) => home.contactById(cid)?.initials}
-            colorOf={(cid) => home.contactById(cid)?.color ?? '#8A887E'}
-            onPress={(it) => {
-              if (it.splitId) nav.navigate('SplitLive', { id: it.splitId });
-              else nav.navigate('Debts');
-            }}
-            onAction={(it) => void feedAction(it)}
-          />
-        ) : null}
-
         <Animated.View key={tab} entering={FadeIn.duration(200)}>
           {grouped.map((g) => (
             <View key={g.label}>
@@ -249,7 +203,7 @@ export function HistoryScreen() {
 const styles = StyleSheet.create({
   root: { paddingHorizontal: SCREEN_PAD_X },
   headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 16 },
-  headBtns: { flexDirection: 'row', alignItems: 'center', gap: 12, marginRight: -4 },
+  headBtns: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',

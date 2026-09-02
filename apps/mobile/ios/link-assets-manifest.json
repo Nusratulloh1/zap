@@ -30,6 +30,10 @@
       "sha1": "55e95319930d4b9c7c0b43131abe86fcac0d1f72"
     },
     {
+      "path": "assets/sounds/launch.mp3",
+      "sha1": "535520bd651d86e2c0b051eaf3538d879bbedb69"
+    },
+    {
       "path": "assets/sounds/paid.mp3",
       "sha1": "64cdc7189d933f66c8de4165979f4451d81e6e8a"
     },

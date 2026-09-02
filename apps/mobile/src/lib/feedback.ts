@@ -13,7 +13,7 @@ import { AccessibilityInfo, Platform } from 'react-native';
 import { trigger, HapticFeedbackTypes } from 'react-native-haptic-feedback';
 import { storage } from '@/theme/ThemeProvider';
 
-export type Cue = 'scan' | 'split' | 'splitDone' | 'paid' | 'everyonePaid' | 'reminder' | 'share';
+export type Cue = 'launch' | 'scan' | 'split' | 'splitDone' | 'paid' | 'everyonePaid' | 'reminder' | 'share';
 
 const MUTE_KEY = 'zap:sound-muted';
 
@@ -48,6 +48,7 @@ export function reduceMotion(): boolean {
 // подлежат замене, когда придут финальные звуки от дизайна.
 // ---------------------------------------------------------------------------
 const FILES: Record<Cue, string> = {
+  launch: 'launch.mp3',
   scan: 'scan.mp3',
   split: 'split.mp3',
   // «сплит готов» — не разрыв бумаги, а фирменный разряд с аккордом
@@ -112,6 +113,8 @@ function playSound(cue: Cue) {
 }
 
 const HAPTICS: Record<Cue, HapticFeedbackTypes> = {
+  // вход: один мягкий отклик вместе с искрой вордмарка
+  launch: HapticFeedbackTypes.impactLight,
   scan: HapticFeedbackTypes.impactLight,
   share: HapticFeedbackTypes.selection,
   split: HapticFeedbackTypes.impactMedium,

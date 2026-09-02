@@ -287,7 +287,6 @@ export function HomeScreen() {
             Цифры остаются ниже — они никуда не делись, просто перестали быть
             первым, что встречает.
           */}
-          <Text style={[styles.greeting, { color: colors.ink }]}>{t('activity.greeting')}</Text>
 
           {suggestion && !crewSkipped ? (
             <View style={[styles.crewCard, { backgroundColor: colors.ink }]}>

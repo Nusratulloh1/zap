@@ -14,7 +14,6 @@ import { trigger } from 'react-native-haptic-feedback';
 import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
 import { HomeIcon, ClockIcon } from '@/components/icons';
-import { Glass } from '@/components/Glass';
 
 const ICON = { Home: 'home', Amount: 'grid', History: 'clock' } as const;
 type IconKind = (typeof ICON)[keyof typeof ICON];
@@ -24,27 +23,23 @@ const ICON_SIZE = 24;
 
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const { fixed, name } = useTheme();
-  // экран пада в вебе — theme-fixed (всегда светлая палитра), пилл на нём
-  // тоже светлый, иначе тёмная плашка на лайме
-  const onFixedScreen = state.routes[state.index]?.name === 'Amount';
-  const dark = name === 'dark' && !onFixedScreen;
+  const { fixed } = useTheme();
+  /*
+    Пилл всегда тёмный и полупрозрачный.
+
+    От блюра отказались осознанно: UIVisualEffectView честно размывал фон, но
+    светлый материал поверх светлой темы визуально не отличался от сплошной
+    заливки — «стекла» не было видно ни на одном материале, вплоть до
+    ultraThin. Тёмный полупрозрачный слой на светлом контенте даёт тот эффект,
+    ради которого блюр и ставили: сквозь пилл видно, что под ним.
+
+    Иконки при этом всегда светлые — на тёмной подложке иначе не прочитать.
+  */
+  const dark = true;
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
-      {/*
-        Тонкий материал и полупрозрачный запасной цвет: с плотным пилл читался
-        как сплошная плашка, и «стекло» не было заметно вообще.
-      */}
-      <Glass
-        dark={dark}
-        thin
-        fallback={dark ? 'rgba(26,25,22,0.58)' : 'rgba(255,255,255,0.55)'}
-        style={[
-          styles.pill,
-          { borderColor: dark ? 'rgba(255,255,255,0.09)' : 'rgba(255,255,255,0.7)' },
-        ]}
-      >
+      <View style={[styles.pill, styles.pillSurface]}>
         {state.routes.map((route, i) => {
           const focused = state.index === i;
           const kind = ICON[route.name as keyof typeof ICON] ?? 'home';
@@ -63,7 +58,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
             />
           );
         })}
-      </Glass>
+      </View>
     </View>
   );
 }
@@ -140,6 +135,9 @@ function Icon({ kind, focused, lime, dark }: { kind: IconKind; focused: boolean;
 
 const styles = StyleSheet.create({
   wrap: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center' },
+  // непрозрачность подобрана так, чтобы контент под пиллом угадывался, но
+  // иконки на нём оставались читаемыми
+  pillSurface: { backgroundColor: 'rgba(17,17,16,0.72)', borderColor: 'rgba(255,255,255,0.12)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
