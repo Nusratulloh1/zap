@@ -5,11 +5,11 @@
 // и звёздочка в углу у открытых; закрытые — пунктирная «пустая ячейка» с
 // замком, как невыбитое достижение в игре.
 import React from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Defs, RadialGradient, Stop, Circle as SvgCircle } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font, SCREEN_PAD_X } from '@/theme/tokens';
+import { font } from '@/theme/tokens';
 
 const SIZE = 58;
 
@@ -39,12 +39,7 @@ export function AchievementStrip({ all, unlocked }: Props) {
         </Text>
       </View>
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.strip}
-        contentContainerStyle={styles.stripBody}
-      >
+      <View style={styles.grid}>
         {sorted.map(([key, glyph]) => {
           const open = unlocked.includes(key);
           return (
@@ -91,7 +86,7 @@ export function AchievementStrip({ all, unlocked }: Props) {
             </View>
           );
         })}
-      </ScrollView>
+      </View>
     </View>
   );
 }
@@ -100,9 +95,9 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 22 },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
   count: { fontFamily: font.extrabold, fontSize: 12 },
-  strip: { marginHorizontal: -SCREEN_PAD_X, marginTop: 10 },
-  stripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 12 },
-  item: { width: 68, alignItems: 'center' },
+  // сетка вместо ленты: коллекция целиком видна без прокрутки
+  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 14, marginTop: 12 },
+  item: { width: '33.33%', alignItems: 'center', paddingHorizontal: 2 },
   medal: { width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
   glyph: { position: 'absolute', fontSize: 24 },
   locked: {
