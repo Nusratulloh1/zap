@@ -457,7 +457,8 @@
     "withdrawTitle": "Withdraw to card",
     "withdrawHint": "Withdrawal · {amount} UZS",
     "availableWith": "UZS · AVAILABLE {amount}",
-    "allPlaces": "Across all places"
+    "allPlaces": "Across all places",
+    "fromSplits": "from {{n}} zaps"
   },
   "history": {
     "title": "History",

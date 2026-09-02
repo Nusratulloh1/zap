@@ -457,7 +457,8 @@
     "withdrawTitle": "Вывести на карту",
     "withdrawHint": "Вывод · {amount} UZS",
     "availableWith": "UZS · ДОСТУПНО {amount}",
-    "allPlaces": "Во всех заведениях"
+    "allPlaces": "Во всех заведениях",
+    "fromSplits": "с {{n}} сплитов"
   },
   "history": {
     "title": "История",

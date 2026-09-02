@@ -457,7 +457,8 @@
     "withdrawTitle": "Kartaga chiqarish",
     "withdrawHint": "Chiqarish · {amount} UZS",
     "availableWith": "UZS · MAVJUD {amount}",
-    "allPlaces": "Barcha joylarda"
+    "allPlaces": "Barcha joylarda",
+    "fromSplits": "{{n}} ta zapdan"
   },
   "history": {
     "title": "Tarix",
