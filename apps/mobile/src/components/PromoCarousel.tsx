@@ -160,8 +160,10 @@ const styles = StyleSheet.create({
   },
   heroTerms: { fontFamily: font.semibold, fontSize: 14.5, color: 'rgba(255,255,255,0.65)', textAlign: 'center' },
   venueImgWrap: { paddingHorizontal: 8, paddingTop: 4 },
-  // под самый высокий из баннеров (182 pt) плюс немного воздуха
-  venueImg: { height: 188, width: '100%' },
+  // Все пять баннеров приведены к одной пропорции 1.83:1 (feedup перерисован
+  // в кадре остальных, поля добиты прозрачным) — при contain они рисуются
+  // одной высотой и без обрезки. 204 ≈ (390−16)/1.83.
+  venueImg: { height: 204, width: '100%' },
   venueText: { alignItems: 'center', gap: 4, paddingHorizontal: 12, marginTop: 12 },
   venueTitle: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.2, color: '#FFFFFF', textAlign: 'center' },
   venueTerms: { fontFamily: font.semibold, fontSize: 13, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
