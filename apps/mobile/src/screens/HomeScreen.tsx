@@ -330,9 +330,9 @@ export function HomeScreen() {
               </Text>
               {home.cashbackCount ? (
                 <View style={styles.partnerRow}>
-                  <Image source={require('../../assets/brand/partners/safia.png')} style={styles.partnerLogo} />
-                  <Image source={require('../../assets/brand/partners/texnomart.png')} style={[styles.partnerLogoWide, styles.partnerOverlap]} resizeMode="cover" />
-                  <Image source={require('../../assets/brand/partners/idea.png')} style={[styles.partnerLogoWide, styles.partnerOverlap]} resizeMode="cover" />
+                  <Image source={require('../../assets/brand/partners/safia-sq.png')} style={styles.partnerLogo} />
+                  <Image source={require('../../assets/brand/partners/evos-logo.png')} style={[styles.partnerLogo, styles.partnerOverlap]} resizeMode="contain" />
+                  <Image source={require('../../assets/brand/partners/feedup-logo.png')} style={[styles.partnerLogo, styles.partnerOverlap]} resizeMode="contain" />
                 </View>
               ) : (
                 // низ карточки всё равно пустует — пусть там живёт стикер
@@ -553,7 +553,6 @@ const styles = StyleSheet.create({
   statSub: { fontFamily: font.semibold, fontSize: 13, marginTop: 5, lineHeight: 17 },
   partnerRow: { flexDirection: 'row', alignItems: 'center', marginTop: 'auto', minHeight: 60 },
   partnerLogo: { height: 29, width: 29, borderRadius: 9 },
-  partnerLogoWide: { height: 29, width: 58, borderRadius: 9 },
   partnerOverlap: { marginLeft: -10 },
   // Аватары в стопку, а не колонками с подписями.
   //

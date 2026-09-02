@@ -25,10 +25,11 @@ import { translate } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
+// те же знаки, что на слайде кэшбэка в онбординге
 const partnerLogos = [
-  require('../../assets/brand/partners/safia.png'),
-  require('../../assets/brand/partners/texnomart.png'),
-  require('../../assets/brand/partners/idea.png'),
+  require('../../assets/brand/partners/safia-sq.png'),
+  require('../../assets/brand/partners/evos-logo.png'),
+  require('../../assets/brand/partners/feedup-logo.png'),
 ];
 
 export function GroupScreen() {

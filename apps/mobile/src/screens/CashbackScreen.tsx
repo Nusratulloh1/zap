@@ -25,8 +25,8 @@ import { SCREEN_PAD_X, font } from '@/theme/tokens';
 const LOGO_BY_TITLE: Record<string, number> = {
   'Bellissimo Pizza': require('../../assets/brand/partners/bellissimo.png'),
   'Safia café': require('../../assets/brand/partners/safia-sq.png'),
-  Texnomart: require('../../assets/brand/partners/texnomart-sq.png'),
-  idea: require('../../assets/brand/partners/idea-sq.png'),
+  EVOS: require('../../assets/brand/partners/evos-logo.png'),
+  'Feed Up': require('../../assets/brand/partners/feedup-logo.png'),
 };
 
 export function CashbackScreen() {
