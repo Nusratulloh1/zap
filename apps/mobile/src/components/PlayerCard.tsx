@@ -54,8 +54,8 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
       */}
       <View style={styles.top}>
         <View style={styles.side}>
-          <Text style={[styles.sideLabel, { color: colors.faint2 }]}>{t('profile.level')}</Text>
-          <Text style={[styles.sideValue, { color: colors.ink }]}>✦ {level + 1}</Text>
+          <Stat label={t('profile.level')} value={`✦ ${level + 1}`} />
+          <Stat label={t('profile.statSplitsUnit')} value={String(splits)} />
         </View>
 
         <PressableScale haptic={false} onPress={onAvatarPress}>
@@ -78,8 +78,8 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
         </PressableScale>
 
         <View style={styles.side}>
-          <Text style={[styles.sideLabel, { color: colors.faint2 }]}>{t('profile.statSplitsUnit')}</Text>
-          <Text style={[styles.sideValue, { color: colors.ink }]}>{splits}</Text>
+          <Stat label={t('profile.statGroupsUnit')} value={String(groups)} />
+          <Stat label={t('profile.statCashbackUnit')} value={cashback} />
         </View>
       </View>
 
@@ -106,21 +106,20 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
         </View>
       </View>
 
-      <View style={styles.stats}>
-        {[
-          { v: String(splits), l: t('profile.statSplitsUnit') },
-          { v: cashback, l: t('profile.statCashbackUnit') },
-          { v: String(groups), l: t('profile.statGroupsUnit') },
-        ].map((s, i) => (
-          <View key={s.l} style={[styles.stat, i < 2 && { borderRightWidth: 1, borderRightColor: colors.sand2 }]}>
-            <Text style={[styles.statValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
-              {s.v}
-            </Text>
-            <Text style={[styles.statLabel, { color: colors.muted }]} numberOfLines={1}>{s.l}</Text>
-          </View>
-        ))}
-      </View>
     </Animated.View>
+  );
+}
+
+/** Показатель у края карточки: подпись мелким моно, значение жирным. */
+function Stat({ label, value }: { label: string; value: string }) {
+  const { colors } = useTheme();
+  return (
+    <View style={styles.stat}>
+      <Text style={[styles.sideLabel, { color: colors.faint2 }]} numberOfLines={1}>{label}</Text>
+      <Text style={[styles.sideValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
+        {value}
+      </Text>
+    </View>
   );
 }
 
@@ -128,9 +127,10 @@ const styles = StyleSheet.create({
   card: { borderRadius: 26, padding: 18, marginTop: 4, overflow: 'hidden' },
   corner: { position: 'absolute', right: -10, top: -8, width: 74, height: 62, opacity: 0.9, transform: [{ rotate: '12deg' }] },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  side: { width: 74, alignItems: 'center' },
+  side: { width: 82, alignItems: 'center', gap: 14 },
+  stat: { alignItems: 'center', alignSelf: 'stretch' },
   sideLabel: { fontFamily: font.monoBold, fontSize: 8.5, letterSpacing: 1.1, textTransform: 'uppercase' },
-  sideValue: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.4, marginTop: 3 },
+  sideValue: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.4, marginTop: 3 },
   avatarWrap: { width: 104, height: 104, borderRadius: 999, borderWidth: 3.5 },
   avatar: { width: '100%', height: '100%', borderRadius: 999 },
   fallback: { alignItems: 'center', justifyContent: 'center' },
@@ -171,8 +171,4 @@ const styles = StyleSheet.create({
   xpCount: { fontFamily: font.extrabold, fontSize: 12 },
   track: { height: 10, borderRadius: 999, overflow: 'hidden' },
   bar: { height: '100%', borderRadius: 999 },
-  stats: { flexDirection: 'row', marginTop: 18 },
-  stat: { flex: 1, alignItems: 'center', paddingHorizontal: 4 },
-  statValue: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.3 },
-  statLabel: { fontFamily: font.semibold, fontSize: 11, marginTop: 2 },
 });
