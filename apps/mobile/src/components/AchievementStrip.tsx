@@ -1,15 +1,15 @@
-// Ачивки лентой под полосой опыта (замечание руководства: поднять выше,
-// уменьшить, сделать интереснее).
+// Ачивки лентой под полосой опыта: горизонтальная прокрутка (руководство
+// вернуло ленту после сетки — так видно, что коллекция продолжается).
 //
 // Медаль — не плоский кружок: лаймовый градиент, чернильный кант, блик сверху
 // и звёздочка в углу у открытых; закрытые — пунктирная «пустая ячейка» с
 // замком, как невыбитое достижение в игре.
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Defs, RadialGradient, Stop, Circle as SvgCircle } from 'react-native-svg';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
+import { font, SCREEN_PAD_X } from '@/theme/tokens';
 
 const SIZE = 58;
 
@@ -39,7 +39,12 @@ export function AchievementStrip({ all, unlocked }: Props) {
         </Text>
       </View>
 
-      <View style={styles.grid}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.strip}
+        contentContainerStyle={styles.stripBody}
+      >
         {sorted.map(([key, glyph]) => {
           const open = unlocked.includes(key);
           return (
@@ -86,7 +91,7 @@ export function AchievementStrip({ all, unlocked }: Props) {
             </View>
           );
         })}
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -95,9 +100,9 @@ const styles = StyleSheet.create({
   head: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 22 },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
   count: { fontFamily: font.extrabold, fontSize: 12 },
-  // сетка вместо ленты: коллекция целиком видна без прокрутки
-  grid: { flexDirection: 'row', flexWrap: 'wrap', rowGap: 14, marginTop: 12 },
-  item: { width: '33.33%', alignItems: 'center', paddingHorizontal: 2 },
+  strip: { marginHorizontal: -SCREEN_PAD_X, marginTop: 12 },
+  stripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 12 },
+  item: { width: 68, alignItems: 'center' },
   medal: { width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
   glyph: { position: 'absolute', fontSize: 24 },
   locked: {
