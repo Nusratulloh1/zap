@@ -35,12 +35,21 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
-      <Glass thin fallback="rgba(255,255,255,0.92)" tint="rgba(255,255,255,0.30)" style={[styles.pill, styles.pillSurface]}>
+      {/*
+        fallback ПОЛУПРОЗРАЧНЫЙ. Он показывается, когда в iOS включено
+        «Уменьшение прозрачности»: система на своём уровне запрещает блюр —
+        библиотека сама снимает UIVisualEffectView (см. useReduceTransparencyFallback
+        в BlurView.mm). Раньше fallback был плотным 0.92 — и пилл выглядел
+        глухой белой плашкой, что читалось как «стекло не работает».
+        Тинт над блюром опущен до 0.18: вместе с глянцем 0.30 white уже
+        замывал сам блюр.
+      */}
+      <Glass thin fallback="rgba(255,255,255,0.55)" tint="rgba(255,255,255,0.18)" style={[styles.pill, styles.pillSurface]}>
         {/* верхний глянец — блик на стекле, .zap-tabbar::before из веба */}
         <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
           <Defs>
             <LinearGradient id="tabGloss" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.5} />
+              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.3} />
               <Stop offset="0.58" stopColor="#FFFFFF" stopOpacity={0} />
             </LinearGradient>
           </Defs>
