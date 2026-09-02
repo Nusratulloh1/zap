@@ -30,8 +30,22 @@ const ICON_SIZE = 24;
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { fixed } = useTheme();
-  // пилл светлый, как в вебе — значит иконки чернильные
-  const dark = false;
+  /*
+    Пилл ЗАТЕМНЯЮЩИЙ, и это не произвол.
+
+    В вебе он выглядит светлым, но там backdrop-filter именно затемняет
+    подложку — светлое стекло поверх светлой страницы там тоже не читалось бы.
+    На iOS системный материал, наоборот, подсветляет: сколько его ни меняй,
+    поверх светлого листа он совпадает с фоном и стекла не видно. Проверено на
+    ultraThin, thin и chrome.
+
+    Тёмный полупрозрачный слой на светлом контенте даёт ровно тот эффект,
+    ради которого стекло и нужно: сквозь пилл видно, что под ним. И он
+    выглядит так же, если система отключила блюр (Reduce Transparency).
+
+    Иконки при этом всегда светлые.
+  */
+  const dark = true;
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
@@ -40,7 +54,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
           <Defs>
             <LinearGradient id="tabGloss" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.16} />
+              <Stop offset="0" stopColor="#FFFFFF" stopOpacity={0.12} />
               <Stop offset="0.58" stopColor="#FFFFFF" stopOpacity={0} />
             </LinearGradient>
           </Defs>
@@ -149,7 +163,7 @@ const styles = StyleSheet.create({
     низкой альфы работает как затемняющее стекло: под ним видно контент, но
     пилл отделён от фона. Держим 0.14 — выше сквозь него перестаёт быть видно.
   */
-  pillSurface: { backgroundColor: 'rgba(88,88,84,0.14)', borderColor: 'rgba(255,255,255,0.55)' },
+  pillSurface: { backgroundColor: 'rgba(17,17,16,0.34)', borderColor: 'rgba(255,255,255,0.22)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',

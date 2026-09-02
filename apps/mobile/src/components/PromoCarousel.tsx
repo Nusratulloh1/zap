@@ -147,8 +147,8 @@ const styles = StyleSheet.create({
   heroImgWrap: { marginHorizontal: 24 },
   // Без borderRadius: он остался от прежнего героя-карточки, а нынешний
   // баннер — прозрачный коллаж, и скругление срезало монеты по углам.
-  // Высота под пропорцию 3:1 при ширине экрана минус поля.
-  heroImg: { height: 118, width: '100%' },
+  // Высота под пропорцию 1.62:1 при ширине экрана минус поля.
+  heroImg: { height: 212, width: '100%' },
   heroText: { alignItems: 'center', gap: 6, paddingHorizontal: 16, marginTop: 16 },
   heroTitle: {
     fontFamily: font.extrabold,
