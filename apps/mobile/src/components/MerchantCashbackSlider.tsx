@@ -143,7 +143,8 @@ export function MerchantCashbackSlider({ entries, total }: Props) {
 }
 
 const styles = StyleSheet.create({
-  strip: { marginHorizontal: -SCREEN_PAD_X },
+  // карточки не должны прилипать к заголовку страницы
+  strip: { marginHorizontal: -SCREEN_PAD_X, marginTop: 18 },
   stripBody: { paddingHorizontal: SCREEN_PAD_X, gap: GAP },
   card: { borderRadius: 24, padding: 18, minHeight: 148, justifyContent: 'space-between', overflow: 'hidden' },
   totalArt: { position: 'absolute', right: -8, top: 6, width: 96, height: 82, transform: [{ rotate: '10deg' }] },
