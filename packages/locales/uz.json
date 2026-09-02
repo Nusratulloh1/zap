@@ -313,7 +313,11 @@
     "shareMessage": "{title} — hisobni ZAP! da bo‘lyapmiz ⚡ Ulushingiz shu yerda: {url}",
     "shareFailed": "Ulashib bo‘lmadi",
     "allPaidDone": "Tayyor",
-    "joined": "{name} qo‘shildi ⚡"
+    "joined": "{name} qo‘shildi ⚡",
+    "roast1": "👀 {{name}} hisobni ko‘rmaganga olyapti",
+    "roast2": "💸 {{name}} «hozir tashlayman» deyapti 😴",
+    "roast3": "🍕 {{name}} yeb bo‘ldi — to‘lash esidan chiqdi 😂",
+    "roast4": "⚡ {{name}}ni kutyapmiz… hali ham kutyapmiz 🤔"
   },
   "closed": {
     "title": "Tayyor, bo'lish yopildi",

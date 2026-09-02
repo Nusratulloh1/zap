@@ -33,7 +33,8 @@ struct ZapSplitActivity: Widget {
           .foregroundColor(.white)
         ZapProgress(paid: context.state.paid, total: context.state.total)
         if !context.state.pending.isEmpty {
-          Text("⚡ \(context.state.pending) left")
+          // строка приходит из приложения уже локализованной и «с подколом»
+          Text(context.state.pending)
             .font(.system(size: 13, weight: .semibold))
             .foregroundColor(.white.opacity(0.65))
         }
@@ -60,7 +61,7 @@ struct ZapSplitActivity: Widget {
           VStack(spacing: 6) {
             ZapProgress(paid: context.state.paid, total: context.state.total)
             if !context.state.pending.isEmpty {
-              Text("⚡ \(context.state.pending) left")
+              Text(context.state.pending)
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundColor(.white.opacity(0.65))
             }

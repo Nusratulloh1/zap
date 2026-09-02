@@ -313,7 +313,11 @@
     "shareMessage": "{title} — делим счёт в ZAP! ⚡ Твоя доля здесь: {url}",
     "shareFailed": "Не удалось поделиться",
     "allPaidDone": "Готово",
-    "joined": "{name} joined ⚡"
+    "joined": "{name} joined ⚡",
+    "roast1": "👀 {{name}} делает вид, что не видит счёт",
+    "roast2": "💸 {{name}} всё ещё «сейчас переведёт» 😴",
+    "roast3": "🍕 {{name}} поел — платить забыл 😂",
+    "roast4": "⚡ ждём {{name}}… всё ещё ждём 🤔"
   },
   "closed": {
     "title": "Готово, сплит закрыт",

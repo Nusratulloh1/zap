@@ -313,7 +313,11 @@
     "shareMessage": "{title} — splitting the bill on ZAP! ⚡ Your share is here: {url}",
     "shareFailed": "Could not share",
     "allPaidDone": "Done",
-    "joined": "{name} joined ⚡"
+    "joined": "{name} joined ⚡",
+    "roast1": "👀 {{name}} is pretending not to see the bill",
+    "roast2": "💸 {{name}} is still “about to pay” 😴",
+    "roast3": "🍕 {{name}} ate — payment.exe not found 😂",
+    "roast4": "⚡ waiting for {{name}}… still waiting 🤔"
   },
   "closed": {
     "title": "Done, split closed",

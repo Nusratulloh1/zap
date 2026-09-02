@@ -184,9 +184,19 @@ export function SplitLiveScreen() {
     if (!split || split.status !== 'active') return;
     const paidNow = members.filter((m) => m.status === 'paid' || m.status === 'debt').length;
     const waiting = members.find((m) => m.status !== 'paid' && m.status !== 'debt');
-    const pending = waiting ? (waiting.isYou ? '' : (home.contactById(waiting.contactId)?.name ?? '')) : '';
+    const name = waiting && !waiting.isYou ? (home.contactById(waiting.contactId)?.name ?? '') : '';
+    /*
+      Строка «кто не заплатил» — с подколом (замечание руководства: сухое
+      «X left» скучно). Вариант выбирается стабильно из id сплита и имени,
+      чтобы плашка не меняла шутку при каждом обновлении.
+    */
+    let pending = '';
+    if (name) {
+      const seed = [...(split.id + name)].reduce((a, c) => a + c.charCodeAt(0), 0);
+      pending = t(`live.roast${(seed % 4) + 1}`, { name: name.split(' ')[0] });
+    }
     startLiveActivity(split.id, merchantName, money(split.total), paidNow, members.length, pending);
-  }, [split, members, merchantName, home]);
+  }, [split, members, merchantName, home, t]);
 
   useEffect(() => {
     if (split?.status === 'closed') endLiveActivity(split.id);
