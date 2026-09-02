@@ -11,6 +11,36 @@ import type { ImageSourcePropType } from 'react-native';
 import { storage } from '@/theme/ThemeProvider';
 
 const KEY = 'zap:my-avatar';
+const KEY_GENDER = 'zap:gender';
+
+export type Gender = 'male' | 'female';
+
+/*
+  Женские персоны в наборе. Список ручной: по картинке пол определить нечем, а
+  подставлять мужчину девушке — худшее первое впечатление, чем лишняя строка
+  кода. Хранится локально: на сервере поля пола нет, и заводить его ради
+  выбора аватара не нужно.
+*/
+const FEMALE_KEYS = ['p02', 'p05', 'p07', 'p14', 'p16', 'p17', 'p22', 'p24'];
+
+export function isFemaleAvatar(key: string): boolean {
+  return FEMALE_KEYS.includes(key);
+}
+
+export function gender(): Gender | null {
+  return (storage.getString(KEY_GENDER) as Gender | undefined) ?? null;
+}
+
+export function setGender(g: Gender) {
+  storage.set(KEY_GENDER, g);
+  // аватар по умолчанию подбираем под пол, если пользователь его ещё не менял
+  if (!storage.getString(KEY)) storage.set(KEY, g === 'female' ? 'p02' : 'p01');
+  listeners.forEach((l) => l());
+}
+
+export function useGender(): Gender | null {
+  return useSyncExternalStore(subscribe, gender, gender);
+}
 const KEY_PHOTO = 'zap:my-avatar-photo';
 
 /** Дефолт для всех новых пользователей — p01 (решение руководства). */
@@ -51,7 +81,7 @@ export const MY_AVATARS: readonly AvatarOption[] = [
 const listeners = new Set<() => void>();
 
 export function myAvatarKey(): string {
-  return storage.getString(KEY) ?? DEFAULT_KEY;
+  return storage.getString(KEY) ?? (gender() === 'female' ? 'p02' : DEFAULT_KEY);
 }
 
 /** Своё фото вместо персоны: data-URI хранится в MMKV (~100 КБ на 512px). */

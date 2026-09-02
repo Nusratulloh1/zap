@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { trigger } from 'react-native-haptic-feedback';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PressableScale } from '@/components/PressableScale';
-import { MY_AVATARS, myAvatarKey, setMyAvatar } from '@/lib/myAvatar';
+import { MY_AVATARS, isFemaleAvatar, myAvatarKey, setMyAvatar, useGender } from '@/lib/myAvatar';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
@@ -24,6 +24,15 @@ export function AvatarSheet({ open, onClose, onCamera }: Props) {
   const { colors, fixed } = useTheme();
   const { t } = useTranslation();
   const current = myAvatarKey();
+  const g = useGender();
+  // свои — первыми: искать себя в общей куче неудобно
+  const list = g
+    ? [...MY_AVATARS].sort(
+        (a, b) =>
+          Number(isFemaleAvatar(b.key) === (g === 'female')) -
+          Number(isFemaleAvatar(a.key) === (g === 'female')),
+      )
+    : MY_AVATARS;
 
   const pick = (key: string) => {
     trigger('impactMedium', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
@@ -42,7 +51,7 @@ export function AvatarSheet({ open, onClose, onCamera }: Props) {
             <Text style={styles.cameraGlyph}>📷</Text>
           </View>
         </PressableScale>
-        {MY_AVATARS.map((a) => {
+        {list.map((a) => {
           const active = a.key === current;
           return (
             <PressableScale key={a.key} haptic={false} onPress={() => pick(a.key)}>

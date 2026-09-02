@@ -973,5 +973,13 @@
     "groupCashback": "Guruh keshbegi",
     "withdrawToCard": "Kartaga yechish",
     "cashbackWithdrawal": "Keshbek yechildi"
+  },
+  "gender": {
+    "title": "Siz kimsiz?",
+    "subtitle": "Bitta savol — avatar tanlash uchun",
+    "male": "Yigit",
+    "female": "Qiz",
+    "skip": "O‘tkazib yuborish",
+    "hint": "Avatarni profilda istalgan vaqt almashtirsa bo‘ladi"
   }
 }

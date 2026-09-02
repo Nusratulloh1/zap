@@ -37,7 +37,8 @@ import { qk } from '@/api/data';
 import { money, peopleCount, humanDateLc } from '@/lib/format';
 import { suggestCrew } from '@/lib/crewStats';
 import { setWidgetState } from '@/lib/liveActivity';
-import { useMyAvatar } from '@/lib/myAvatar';
+import { gender as storedGender, useMyAvatar } from '@/lib/myAvatar';
+import { GenderSheet } from '@/components/GenderSheet';
 import { VenueIcon } from '@/components/VenueIcon';
 import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
 import { useCrewColor, useCrewEmoji } from '@/lib/crewEmoji';
@@ -72,6 +73,8 @@ export function HomeScreen() {
   const myAvatar = useMyAvatar();
   // какой компании сейчас выбирают знак (null — шит закрыт)
   const [emojiFor, setEmojiFor] = useState<string | null>(null);
+  // пол спрашиваем один раз, ради подбора аватара
+  const [genderSheet, setGenderSheet] = useState(() => storedGender() === null);
 
   // лента считается из уже загруженного /bootstrap — без лишних запросов
   // живой сплит уже показан пилюлей внизу — лента его не дублирует
@@ -459,6 +462,8 @@ export function HomeScreen() {
           </View>
         </View>
       </Animated.ScrollView>
+
+      <GenderSheet open={genderSheet} onClose={() => setGenderSheet(false)} />
 
       {emojiFor ? (
         <CrewEmojiPicker db={home.db} groupId={emojiFor} onClose={() => setEmojiFor(null)} />

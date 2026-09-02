@@ -973,5 +973,13 @@
     "groupCashback": "Group cashback",
     "withdrawToCard": "Withdrawal to card",
     "cashbackWithdrawal": "Cashback withdrawal"
+  },
+  "gender": {
+    "title": "Who are you?",
+    "subtitle": "One question — to pick your avatar",
+    "male": "Guy",
+    "female": "Girl",
+    "skip": "Skip",
+    "hint": "You can change the avatar any time in your profile"
   }
 }
