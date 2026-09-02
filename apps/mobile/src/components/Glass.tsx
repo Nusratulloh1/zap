@@ -4,8 +4,8 @@
 // как системные материалы, а не как плашка.
 // Android: RenderScript-блюра в RN 0.87 больше нет, поэтому оставляем
 // работающий плотный фон — ровно тот, что сейчас в проде.
-import React from 'react';
-import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { AccessibilityInfo, Platform, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
 // require под условием: на Android модуль не залинкован (react-native.config.js)
 const BlurView: React.ComponentType<Record<string, unknown>> | null =
   Platform.OS === 'ios'
@@ -31,7 +31,26 @@ interface Props {
 }
 
 export function Glass({ dark, thin, fallback, amount = 28, style, children }: Props) {
-  if (Platform.OS !== 'ios' || !BlurView) {
+  /*
+    «Уменьшение прозрачности» в настройках iOS полностью отключает
+    UIVisualEffectView: система подставляет вместо блюра сплошной
+    reducedTransparencyFallbackColor, и никакой материал этого не меняет.
+    Раньше это выглядело как «блюр не работает». Узнаём об этом явно, чтобы
+    в таком режиме дать осознанную плотную подложку, а не выцветшую белую.
+  */
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+    let alive = true;
+    void AccessibilityInfo.isReduceTransparencyEnabled().then((v) => alive && setReduced(v));
+    const sub = AccessibilityInfo.addEventListener('reduceTransparencyChanged', setReduced);
+    return () => {
+      alive = false;
+      sub.remove();
+    };
+  }, []);
+
+  if (Platform.OS !== 'ios' || !BlurView || reduced) {
     return <View style={[style, { backgroundColor: fallback }]}>{children}</View>;
   }
   // ВАЖНО: у контейнера не должно быть своего фона. UIVisualEffectView

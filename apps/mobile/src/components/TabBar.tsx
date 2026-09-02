@@ -35,7 +35,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
-      <Glass thin fallback="rgba(255,255,255,0.86)" style={[styles.pill, styles.pillSurface]}>
+      <Glass thin fallback="rgba(28,28,26,0.90)" style={[styles.pill, styles.pillSurface]}>
         {/* верхний глянец — блик на стекле, .zap-tabbar::before из веба */}
         <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
           <Defs>
@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
     низкой альфы работает как затемняющее стекло: под ним видно контент, но
     пилл отделён от фона. Держим 0.14 — выше сквозь него перестаёт быть видно.
   */
-  pillSurface: { backgroundColor: 'rgba(88,88,84,0.14)', borderColor: 'rgba(255,255,255,0.5)' },
+  pillSurface: { backgroundColor: 'rgba(88,88,84,0.14)', borderColor: 'rgba(255,255,255,0.55)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
