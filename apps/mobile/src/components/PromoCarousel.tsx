@@ -93,7 +93,15 @@ export function PromoCarousel({ category }: Props) {
           return (
             <Pressable key={v.id} style={{ width }} onPress={(e) => onTap(e.nativeEvent.locationX)}>
               <View style={styles.venueImgWrap}>
-                <Image source={v.img} style={styles.venueImg} resizeMode="contain" fadeDuration={0} />
+                {/*
+                  cover, а не contain. Баннеры пришли в разных пропорциях —
+                  от 1.6:1 до 2.43:1, — и при contain каждый упирался в свою
+                  сторону: широкий feedup рисовался высотой 156 pt против 218
+                  у остальных и выглядел заметно мельче. С cover все
+                  заполняют кадр одинаково, платой идут срезанные кончики
+                  молний по краям.
+                */}
+                <Image source={v.img} style={styles.venueImg} resizeMode="cover" fadeDuration={0} />
               </View>
               <View style={styles.venueText}>
                 <Text style={styles.venueTitle} numberOfLines={1}>
@@ -138,7 +146,7 @@ const styles = StyleSheet.create({
   },
   heroTerms: { fontFamily: font.semibold, fontSize: 14.5, color: 'rgba(255,255,255,0.65)', textAlign: 'center' },
   venueImgWrap: { paddingHorizontal: 8, paddingTop: 4 },
-  venueImg: { height: 218, width: '100%' },
+  venueImg: { height: 218, width: '100%', borderRadius: 18 },
   venueText: { alignItems: 'center', gap: 4, paddingHorizontal: 12, marginTop: 12 },
   venueTitle: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.2, color: '#FFFFFF', textAlign: 'center' },
   venueTerms: { fontFamily: font.semibold, fontSize: 13, color: 'rgba(255,255,255,0.6)', textAlign: 'center' },
