@@ -30,8 +30,13 @@ const ICON_SIZE = 24;
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const { fixed } = useTheme();
-  // пилл светлый, как в вебе — значит иконки чернильные
-  const dark = false;
+  /*
+    Экран пада — сплошной лайм. Светлое стекло на лайме сливается с фоном в
+    грязно-салатовую плашку, поэтому ТОЛЬКО там пилл чернильный: тёмное стекло
+    с светлыми иконками. На остальных экранах — светлое, как в вебе.
+  */
+  const onLime = state.routes[state.index]?.name === 'Amount';
+  const dark = onLime;
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
@@ -44,8 +49,16 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         Тинт над блюром опущен до 0.18: вместе с глянцем 0.30 white уже
         замывал сам блюр.
       */}
-      <Glass thin amount={5} fallback="rgba(255,255,255,0.55)" tint="rgba(255,255,255,0.18)" style={[styles.pill, styles.pillSurface]}>
-        {/* верхний глянец — блик на стекле, .zap-tabbar::before из веба */}
+      <Glass
+        thin
+        dark={onLime}
+        amount={5}
+        fallback={onLime ? 'rgba(24,24,22,0.60)' : 'rgba(255,255,255,0.55)'}
+        tint={onLime ? 'rgba(17,17,16,0.30)' : 'rgba(255,255,255,0.18)'}
+        style={[styles.pill, onLime ? styles.pillSurfaceInk : styles.pillSurface]}
+      >
+        {/* верхний глянец — блик на светлом стекле; на чернильном он лишний */}
+        {onLime ? null : (
         <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
           <Defs>
             <LinearGradient id="tabGloss" x1="0" y1="0" x2="0" y2="1">
@@ -55,6 +68,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
           </Defs>
           <SvgRect x={0} y={0} width="100%" height="100%" fill="url(#tabGloss)" />
         </Svg>
+        )}
         {state.routes.map((route, i) => {
           const focused = state.index === i;
           const kind = ICON[route.name as keyof typeof ICON] ?? 'home';
@@ -165,6 +179,7 @@ const styles = StyleSheet.create({
     лежит НАД блюром. Осталась только рамка.
   */
   pillSurface: { borderColor: 'rgba(255,255,255,0.7)' },
+  pillSurfaceInk: { borderColor: 'rgba(255,255,255,0.16)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
