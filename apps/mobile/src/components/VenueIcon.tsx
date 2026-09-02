@@ -4,10 +4,10 @@
 // живёт на фирменной плитке: вертикальный градиент цвета категории, тонкий
 // светлый кант сверху и мягкая тень — как иконка приложения, а не смайлик.
 import React from 'react';
-import { StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Image, StyleSheet, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
 import { colorForGlyph } from '@/lib/crewEmoji';
-import { merchantGlyph } from '@/lib/merchantLogo';
+import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 
 interface Props {
   /** название заведения или сплита — из него берётся знак по умолчанию */
@@ -36,6 +36,27 @@ function darken(hex: string, k: number): string {
 }
 
 export function VenueIcon({ name, size = 46, glyph, color, style }: Props) {
+  /*
+    У наших партнёров — их собственный знак (Bellissimo, EVOS, Feed Up, Safia,
+    Bon!), эмодзи остаётся для всех прочих заведений. Если знак компании выбран
+    вручную, он важнее логотипа.
+  */
+  const logo = glyph ? null : merchantLogo(name);
+  if (logo) {
+    return (
+      <View
+        style={[
+          styles.root,
+          styles.logoTile,
+          { width: size, height: size, borderRadius: size * 0.32 },
+          style,
+        ]}
+      >
+        <Image source={logo} style={styles.logo} resizeMode="contain" />
+      </View>
+    );
+  }
+
   const g = glyph ?? merchantGlyph(name);
   const base = color ?? colorForGlyph(g);
   const id = `vi-${base.replace('#', '')}`;
@@ -68,6 +89,8 @@ export function VenueIcon({ name, size = 46, glyph, color, style }: Props) {
 }
 
 const styles = StyleSheet.create({
+  logoTile: { backgroundColor: '#FFFFFF' },
+  logo: { width: '78%', height: '78%' },
   root: {
     alignItems: 'center',
     justifyContent: 'center',
