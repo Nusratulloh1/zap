@@ -124,7 +124,7 @@ export function BillScreen() {
 
   return (
     <Screen style={styles.root}>
-      <ScreenHeader onBack={() => nav.navigate('Scan')} />
+      <ScreenHeader onBack={() => nav.popTo('Scan')} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.head}>

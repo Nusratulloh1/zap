@@ -84,7 +84,7 @@ export function SaveGroupScreen() {
 
   return (
     <Screen style={styles.root} background={colors.dune}>
-      <ScreenHeader onBack={() => nav.navigate('SplitClosed', { id })} />
+      <ScreenHeader onBack={() => nav.popTo('SplitClosed', { id })} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 10, flexGrow: 1 }}>
         <View style={styles.stack}>
