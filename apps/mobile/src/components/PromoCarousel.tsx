@@ -115,7 +115,9 @@ export function PromoCarousel({ category }: Props) {
                 <Image source={v.img} style={styles.venueImg} resizeMode="contain" fadeDuration={0} />
               </View>
               <View style={styles.heroText}>
-                <Text style={styles.heroTitle}>
+                {/* заголовок всегда в одну строку: длинный (Bellissimo)
+                    ужимается кеглем, а не переносится */}
+                <Text style={styles.heroTitle} numberOfLines={1} adjustsFontSizeToFit>
                   {translate('home.offerAt', { label, name: v.name })}
                 </Text>
                 <Text style={styles.heroTerms}>
