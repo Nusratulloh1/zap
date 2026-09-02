@@ -1,6 +1,10 @@
 // Выбор аватара пользователя (vision V2, часть C1: «avatars повсюду»,
-// Airbuds-слой). Каталог собран из своих ассетов: шесть персонажей из
-// дизайна + шесть фирменных стикеров — итого 12, выбор мгновенный и офлайн.
+// Airbuds-слой). Каталог — ТОЛЬКО характерные ассеты: фирменные стикеры и
+// арты иконок приложения, итого 12.
+//
+// Файлы assets/brand/avatars/a*.png сюда НЕ входят: это не персонажи, а
+// плоские кружки с буквами (А, И, Т…) — заглушки контактов из дизайна.
+// В ленте выбора они выглядели как сломанные пустые аватары.
 //
 // Храним ключ в MMKV и раздаём через useSyncExternalStore: аватар виден в
 // шапке главной и в профиле одновременно, и смена в одном месте должна сразу
@@ -17,18 +21,18 @@ export interface AvatarOption {
 }
 
 export const MY_AVATARS: readonly AvatarOption[] = [
-  { key: 'a11', src: require('../../assets/brand/avatars/a11.png') },
-  { key: 'a12', src: require('../../assets/brand/avatars/a12.png') },
-  { key: 'a15', src: require('../../assets/brand/avatars/a15.png') },
-  { key: 'a33', src: require('../../assets/brand/avatars/a33.png') },
-  { key: 'a47', src: require('../../assets/brand/avatars/a47.png') },
-  { key: 'a68', src: require('../../assets/brand/avatars/a68.png') },
   { key: 'receipt', src: require('../../assets/stickers/receipt-hero.png') },
+  { key: 'pizza', src: require('../../assets/stickers/theme-food.png') },
+  { key: 'coffee', src: require('../../assets/stickers/theme-coffee.png') },
   { key: 'heart', src: require('../../assets/stickers/heart-zap.png') },
   { key: 'fist', src: require('../../assets/stickers/fist-bump.png') },
   { key: 'wallet', src: require('../../assets/stickers/wallet.png') },
   { key: 'selfie', src: require('../../assets/stickers/selfie.png') },
   { key: 'hands', src: require('../../assets/stickers/hands-heart.png') },
+  { key: 'paid', src: require('../../assets/stickers/paid-done.png') },
+  { key: 'iconReceipts', src: require('../../assets/app-icons/receipts.png') },
+  { key: 'iconMosaic', src: require('../../assets/app-icons/mosaic.png') },
+  { key: 'iconHands', src: require('../../assets/app-icons/hands.png') },
 ];
 
 const listeners = new Set<() => void>();

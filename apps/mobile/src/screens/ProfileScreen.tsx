@@ -306,7 +306,7 @@ export function ProfileScreen() {
 
               <View style={[styles.heroAvatar, { borderColor: fixed.lime }]}>
                 {myAvatar ? (
-                  <Image source={myAvatar} style={styles.heroAvatarImg} resizeMode="cover" />
+                  <Image source={myAvatar} style={styles.heroAvatarImg} resizeMode="contain" />
                 ) : (
                   <Text style={[styles.heroAvatarLetter, { color: fixed.lime }]}>{me.initials}</Text>
                 )}
@@ -329,8 +329,8 @@ export function ProfileScreen() {
                   const active = a.key === avatarKey;
                   return (
                     <PressableScale key={a.key} haptic={false} onPress={() => pickAvatar(a.key)}>
-                      <View style={[styles.avatarPick, active && { borderColor: fixed.lime }]}>
-                        <Image source={a.src} style={styles.avatarPickImg} resizeMode="cover" />
+                      <View style={[styles.avatarPick, active && { borderColor: fixed.lime, transform: [{ scale: 1.08 }] }]}>
+                        <Image source={a.src} style={styles.avatarPickImg} resizeMode="contain" />
                       </View>
                     </PressableScale>
                   );
@@ -403,13 +403,13 @@ export function ProfileScreen() {
               {ALL_TITLES.map(([key, glyph]) => {
                 const unlocked = titles.some((tt) => tt.key === key);
                 return (
-                  <View key={key} style={styles.badge}>
+                  <View key={key} style={[styles.badge, { transform: [{ rotate: `${ALL_TITLES.findIndex(([k]) => k === key) % 2 ? 2.5 : -2.5}deg` }] }]}>
                     <View
                       style={[
                         styles.badgeCoin,
                         unlocked
-                          ? { backgroundColor: fixed.lime, borderColor: colors.ink }
-                          : { backgroundColor: colors.sand, borderColor: colors.sand2 },
+                          ? [styles.badgeCoinUp, { backgroundColor: fixed.lime, borderColor: colors.ink }]
+                          : { backgroundColor: colors.sand, borderColor: colors.sand2, borderStyle: 'dashed' as const },
                       ]}
                     >
                       <Text style={[styles.badgeGlyph, !unlocked && styles.badgeGlyphLocked]}>
@@ -733,7 +733,7 @@ const styles = StyleSheet.create({
   topGlassFill: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 22 },
   topGlassFade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   root: { paddingHorizontal: SCREEN_PAD_X },
-  sinceChip: { alignSelf: 'flex-start', height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center', marginTop: 2 },
+  sinceChip: { alignSelf: 'center', height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center', marginTop: 2 },
   sinceText: { fontFamily: font.extrabold, fontSize: 11, color: '#111110' },
   stats: { flexDirection: 'row', gap: 10, marginTop: 22 },
   stat: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 14, gap: 3 },
@@ -772,33 +772,42 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     backgroundColor: '#1C1C1A',
   },
-  heroAvatarImg: { width: '100%', height: '100%' },
+  heroAvatarImg: { width: '76%', height: '76%' },
   heroAvatarLetter: { fontFamily: font.extrabold, fontSize: 44 },
   heroName: { fontFamily: font.extrabold, fontSize: 24, letterSpacing: -0.4, color: '#FFFFFF', marginTop: 12 },
   heroHandle: { fontFamily: font.semibold, fontSize: 13.5, color: 'rgba(255,255,255,0.6)', marginTop: 3, marginBottom: 10 },
   avatarStrip: { alignSelf: 'stretch', marginTop: 16 },
   avatarStripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 10 },
   avatarPick: {
-    width: 52,
-    height: 52,
+    width: 56,
+    height: 56,
+    alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 999,
     borderWidth: 2.5,
     borderColor: 'rgba(255,255,255,0.14)',
     overflow: 'hidden',
     backgroundColor: '#1C1C1A',
   },
-  avatarPickImg: { width: '100%', height: '100%' },
+  avatarPickImg: { width: '76%', height: '76%' },
   badgeRow: { gap: 14, paddingVertical: 12 },
   badge: { alignItems: 'center', width: 76 },
   badgeCoin: {
-    width: 64,
-    height: 64,
+    width: 68,
+    height: 68,
     borderRadius: 999,
-    borderWidth: 3,
+    borderWidth: 3.5,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeGlyph: { fontSize: 28 },
+  badgeCoinUp: {
+    shadowColor: '#1E1C10',
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 6,
+  },
+  badgeGlyph: { fontSize: 30 },
   badgeGlyphLocked: { fontSize: 22, opacity: 0.55 },
   badgeLabel: { fontFamily: font.bold, fontSize: 11, textAlign: 'center', marginTop: 6 },
   inlinePills: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 'auto' },
