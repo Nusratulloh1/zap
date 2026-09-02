@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { Screen } from '@/components/Screen';
 import { cue } from '@/lib/feedback';
@@ -32,6 +33,7 @@ const PAY_STICKERS = ['heartZap', 'paidDone'] as const;
 
 export function AmountScreen() {
   const { t } = useTranslation();
+  const insets = useSafeAreaInsets();
   const { fixed } = useTheme();
   const nav = useNavigation<any>();
   const home = useHomeData();
@@ -89,7 +91,12 @@ export function AmountScreen() {
 
       <PayPad onKey={onKey} onBackspace={() => setRaw((v) => v.slice(0, -1))} color={fixed.ink} />
 
-      <Animated.View style={[styles.actions, ctaStyle, { paddingBottom: 86 }]}>
+      {/*
+        86 хватало, пока Screen резервировал нижнюю безопасную зону. Теперь
+        экран идёт до края, и кнопки надо поднимать над плавающим таб-баром
+        самим: его высота 62 + отступ 14 + зона индикатора.
+      */}
+      <Animated.View style={[styles.actions, ctaStyle, { paddingBottom: insets.bottom + 88 }]}>
         <PressableScale
           disabled={!ready}
           style={[styles.btn, styles.btnPay]}
