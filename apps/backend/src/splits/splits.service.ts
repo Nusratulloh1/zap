@@ -107,6 +107,16 @@ export class SplitsService {
     const split = await this.prisma.$transaction(async (tx) => {
       // применяем зарезервированный «на следующий сплит» кэшбэк
       const settings = await tx.userSettings.findUnique({ where: { userId: creatorId } })
+    /*
+      Кто из участников уже зарегистрирован. Раньше userId проставлялся только
+      в момент оплаты по ссылке, и до этого сплит был не виден в приложении
+      второго участника — он существовал лишь как SMS со ссылкой.
+    */
+    const existing = await tx.user.findMany({
+      where: { phone: { in: others.map((m) => m.phone) } },
+      select: { id: true, phone: true },
+    })
+    const knownUsers = new Map(existing.map((u) => [u.phone, u.id]))
       const debtTotal = others.filter((m) => m.inDebt).reduce((s, m, i) => s + shares[i + 1]!, 0)
       const chargeBase = shares[0]! + debtTotal
       const discount = Math.min(settings?.pendingCashback ?? 0, chargeBase)
@@ -146,6 +156,9 @@ export class SplitsService {
               },
               ...others.map((m, i) => ({
                 phone: m.phone,
+                // если у человека уже есть аккаунт — привязываем сразу, иначе
+                // сплит не появится у него в приложении до первой оплаты
+                userId: knownUsers.get(m.phone) ?? null,
                 displayName: m.name,
                 shareAmount: shares[i + 1]!,
                 status: (m.inDebt ? 'debt' : 'pending') as MemberStatus,

@@ -166,7 +166,12 @@ export class UsersService {
         this.prisma.contact.findMany({ where: { ownerId: userId }, orderBy: { createdAt: 'asc' } }),
         this.prisma.card.findMany({ where: { userId }, orderBy: { createdAt: 'asc' } }),
         this.prisma.merchant.findMany(),
-        this.prisma.group.findMany({ where: { ownerId: userId }, include: { members: true, splits: { select: { merchantId: true } } } }),
+        this.prisma.group.findMany({
+          // компанию видит не только создатель: иначе добавленный участник о
+          // ней не знает, хотя его туда позвали
+          where: { OR: [{ ownerId: userId }, { members: { some: { userId } } }] },
+          include: { members: true, splits: { select: { merchantId: true } } },
+        }),
         this.prisma.split.findMany({
           where: { OR: [{ creatorId: userId }, { members: { some: { userId } } }], status: { not: 'cancelled' } },
           include: {
@@ -217,7 +222,9 @@ export class UsersService {
       groups: groups.map((g) => ({
         id: g.id,
         name: g.name,
-        ownerId: 'me',
+        // владелец отдаётся как contactId: чужая компания не должна выглядеть
+        // так, будто её создал я (кнопки удаления и переименования — у владельца)
+        ownerId: g.ownerId === userId ? 'me' : contactId(g.members.find((m) => m.userId === g.ownerId)?.phone ?? ''),
         memberIds: g.members.map((m) => contactId(m.phone)),
         createdAt: g.createdAt.getTime(),
         cashback: g.cashbackPool,

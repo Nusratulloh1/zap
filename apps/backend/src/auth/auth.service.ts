@@ -134,14 +134,30 @@ export class AuthService {
       create: { userId: user.id, visits: 1 },
       update: { visits: { increment: 1 } },
     })
+    await this.linkByPhone(user.id, phone)
     const tokens = await this.issueTokens(user.id, phone, deviceInfo)
     return { ...tokens, needsPin: !user.pinHash, userId: user.id }
+  }
+
+  /**
+   * Привязать к аккаунту всё, что до регистрации было записано на телефон.
+   *
+   * Сплиты и компании заводятся по номеру: пока человек не зарегистрирован,
+   * у строк участника userId пуст, и после установки приложения он не видел ни
+   * своих сплитов, ни компаний, куда его добавили. Догоняем связи при входе.
+   */
+  private async linkByPhone(userId: string, phone: string) {
+    await Promise.all([
+      this.prisma.splitMember.updateMany({ where: { phone, userId: null }, data: { userId } }),
+      this.prisma.groupMember.updateMany({ where: { phone, userId: null }, data: { userId } }),
+    ])
   }
 
   /** Участник подтвердил OTP при оплате доли → он становится полноценным
    *  пользователем с сессией (апсерт user + токены). needsPin — ставил ли он PIN. */
   async sessionForPhone(phone: string, deviceInfo?: string) {
     const user = await this.prisma.user.upsert({ where: { phone }, create: { phone }, update: {} })
+    await this.linkByPhone(user.id, phone)
     await this.prisma.userSettings.upsert({
       where: { userId: user.id },
       create: { userId: user.id, visits: 1 },
