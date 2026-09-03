@@ -6,24 +6,34 @@
 import React, { useMemo, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { Avatar } from '@/components/Avatar';
+import Svg, { Circle as SvgCircle } from 'react-native-svg';
+import { Podium } from '@/components/Podium';
 import { PressableScale } from '@/components/PressableScale';
-import { byCategory, byPerson, spendSummary, topPlace } from '@/lib/spending';
+import { byCategory, byPerson, daily, spendSummary, topPlace } from '@/lib/spending';
 import { money } from '@/lib/format';
 import { useHomeData } from '@/store/bootstrap';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
+
+/** Цвета сегментов бублика — из макета: чернила, лайм и три оттенка песка. */
+const SLICE_COLORS = ['#121212', '#DDFF33', '#8E8C86', '#C9C6BB', '#E1DED4'];
 
 export function SpendingBlock() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
   const home = useHomeData();
   const [period, setPeriod] = useState<'week' | 'month'>('month');
+  const monthLabel = useMemo(
+    () => new Date().toLocaleDateString(undefined, { month: 'long' }),
+    [],
+  );
 
   const sum = useMemo(() => spendSummary(home.db, period), [home.db, period]);
   const cats = useMemo(() => byCategory(home.db, period), [home.db, period]);
   const people = useMemo(() => byPerson(home.db, period), [home.db, period]);
   const place = useMemo(() => topPlace(home.db, period), [home.db, period]);
+  const days = useMemo(() => daily(home.db), [home.db]);
+  const maxDay = useMemo(() => Math.max(...days.map((d) => d.amount), 1), [days]);
 
   // пока нечего показывать — блок не занимает экран прочерками
   if (!sum.splits) return null;
@@ -61,6 +71,32 @@ export function SpendingBlock() {
           {t('history.spentSub', { splits: sum.splits, groups: sum.groups })}
         </Text>
 
+        {/* столбики за неделю: последний день лаймовый, как в макете */}
+        <View style={styles.chart}>
+          {days.map((d, i) => (
+            <View
+              key={i}
+              style={[
+                styles.bar2,
+                {
+                  height: Math.max(8, (d.amount / Math.max(1, maxDay)) * 96),
+                  backgroundColor: d.today ? fixed.lime : 'rgba(255,255,255,0.18)',
+                },
+              ]}
+            />
+          ))}
+        </View>
+        <View style={styles.chartLabels}>
+          {days.map((d, i) => (
+            <Text
+              key={i}
+              style={[styles.chartLabel, d.today && { color: fixed.lime, fontFamily: font.monoBold }]}
+            >
+              {d.label}
+            </Text>
+          ))}
+        </View>
+
         <View style={styles.metrics}>
           {[
             { l: t('history.mCashback'), v: `+${money(sum.cashback)}`, lime: true },
@@ -78,61 +114,123 @@ export function SpendingBlock() {
       </View>
 
       {cats.length ? (
-        <>
-          <Text style={[styles.section, { color: colors.ink }]}>{t('history.whereGoes')}</Text>
-          <View style={styles.bars}>
-            {cats.map((c) => (
-              <View key={c.key} style={styles.catRow}>
-                <Text style={styles.catGlyph}>{c.glyph}</Text>
-                <View style={styles.catBody}>
-                  <View style={styles.catLine}>
-                    <Text style={[styles.catName, { color: colors.ink }]}>{t(`category.${c.key}`)}</Text>
-                    <Text style={[styles.catAmount, { color: colors.ink }]}>{money(c.amount)}</Text>
-                  </View>
-                  <View style={[styles.catTrack, { backgroundColor: colors.sand }]}>
-                    <View style={[styles.catFill, { backgroundColor: fixed.lime, width: `${Math.max(3, c.share)}%` }]} />
-                  </View>
-                </View>
-                <Text style={[styles.catShare, { color: colors.faint }]}>{c.share}%</Text>
+        <View style={[styles.whiteCard, { backgroundColor: colors.paper }]}>
+          <View style={styles.cardHead}>
+            <Text style={[styles.cardTitle, { color: colors.ink }]}>{t('history.whereGoes')}</Text>
+            <Text style={[styles.cardSub, { color: colors.faint2 }]}>{monthLabel}</Text>
+          </View>
+
+          {/*
+            Бублик как в макете: сегменты — dasharray по долям, в центре доля
+            крупнейшей категории. Радиус 15.9155 даёт длину окружности 100,
+            поэтому проценты кладутся в dasharray без пересчёта.
+          */}
+          <View style={styles.donutWrap}>
+            <Svg width={180} height={180} viewBox="0 0 42 42" style={styles.donut}>
+              {cats.slice(0, 5).map((c, i) => {
+                const offset = -cats.slice(0, i).reduce((a, x) => a + x.share, 0) + 25;
+                return (
+                  <SvgCircle
+                    key={c.key}
+                    cx={21}
+                    cy={21}
+                    r={15.9155}
+                    fill="none"
+                    stroke={SLICE_COLORS[i]}
+                    strokeWidth={7}
+                    strokeDasharray={`${c.share} ${100 - c.share}`}
+                    strokeDashoffset={offset}
+                  />
+                );
+              })}
+            </Svg>
+            <View style={styles.donutCenter} pointerEvents="none">
+              <Text style={[styles.donutPct, { color: colors.ink }]}>{cats[0]?.share ?? 0}%</Text>
+              <Text style={[styles.donutName, { color: colors.faint2 }]}>
+                {cats[0] ? t(`category.${cats[0].key}`).toLowerCase() : ''}
+              </Text>
+            </View>
+          </View>
+
+          <View style={styles.legend}>
+            {cats.slice(0, 5).map((c, i) => (
+              <View key={c.key} style={styles.legendRow}>
+                <View style={[styles.legendDot, { backgroundColor: SLICE_COLORS[i] }]} />
+                <Text style={[styles.legendName, { color: colors.ink }]} numberOfLines={1}>
+                  {c.glyph} {t(`category.${c.key}`)}
+                </Text>
+                <Text style={[styles.legendAmount, { color: colors.ink }]} numberOfLines={1}>{money(c.amount)}</Text>
+                <Text style={[styles.legendShare, { color: colors.faint2 }]}>{c.share}%</Text>
               </View>
             ))}
           </View>
-        </>
+        </View>
       ) : null}
 
       {people.length ? (
-        <>
-          <Text style={[styles.section, { color: colors.ink }]}>{t('history.withWhom')}</Text>
-          <View style={[styles.peopleCard, { backgroundColor: colors.shell }]}>
-            {people.map((p) => {
-              const c = home.contactById(p.contactId);
-              return (
-                <View key={p.contactId} style={styles.personRow}>
-                  <Avatar contactId={p.contactId} name={c?.name} color={c?.color ?? '#8A887E'} size={38} />
-                  <View style={styles.personBody}>
-                    <Text style={[styles.personName, { color: colors.ink }]} numberOfLines={1}>{c?.name ?? '?'}</Text>
-                    <Text style={[styles.personSub, { color: colors.faint }]}>
-                      {t('debts.splitsCount', { n: p.splits })}
-                    </Text>
-                  </View>
-                  <Text style={[styles.personAmount, { color: colors.ink }]} numberOfLines={1}>{money(p.amount)}</Text>
-                </View>
-              );
-            })}
-            {place ? (
-              <Text style={[styles.place, { color: colors.muted }]} numberOfLines={1}>
-                {t('history.topPlace', { name: place.name, n: place.times })}
-              </Text>
-            ) : null}
+        <View style={[styles.whiteCard, { backgroundColor: colors.paper, borderRadius: 24 }]}>
+          <View style={styles.cardHead}>
+            <Text style={[styles.cardTitle2, { color: colors.ink }]}>{t('history.withWhom')}</Text>
+            <Text style={[styles.cardSub, { color: colors.faint2 }]}>{t('history.sharedSplits')}</Text>
           </View>
-        </>
+
+          <Podium
+            frame={colors.paper}
+            items={people.slice(0, 3).map((p) => {
+              const c = home.contactById(p.contactId);
+              return {
+                key: p.contactId,
+                contactId: p.contactId,
+                name: (c?.name ?? '?').split(' ')[0] ?? '?',
+                color: c?.color,
+                initials: c?.initials,
+                amount: p.amount,
+                sub: t('debts.splitsCount', { n: p.splits }),
+              };
+            })}
+          />
+
+          {place ? (
+            <View style={[styles.placeRow, { borderTopColor: colors.dune2 }]}>
+              <Text style={[styles.placeText, { color: colors.faint2 }]} numberOfLines={1}>
+                {t('history.topPlaceLead')}
+              </Text>
+              <Text style={[styles.placeValue, { color: colors.ink }]} numberOfLines={1}>
+                {place.name} ×{place.times}
+              </Text>
+            </View>
+          ) : null}
+        </View>
       ) : null}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: 24, padding: 18, marginTop: 16 },
+  card: { borderRadius: 28, paddingHorizontal: 18, paddingTop: 20, paddingBottom: 16, marginTop: 16 },
+  chart: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, height: 96, marginTop: 20 },
+  bar2: { flex: 1, borderRadius: 8 },
+  chartLabels: { flexDirection: 'row', marginTop: 8 },
+  chartLabel: { flex: 1, textAlign: 'center', fontFamily: font.mono, fontSize: 8, color: 'rgba(255,255,255,0.4)' },
+  whiteCard: { borderRadius: 28, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 16, marginTop: 10 },
+  cardHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  cardTitle: { fontFamily: font.extrabold, fontSize: 18, letterSpacing: -0.4 },
+  cardTitle2: { fontFamily: font.extrabold, fontSize: 16, letterSpacing: -0.3 },
+  cardSub: { fontFamily: font.semibold, fontSize: 10 },
+  donutWrap: { alignItems: 'center', justifyContent: 'center', marginTop: 16, height: 180 },
+  donut: { transform: [{ rotate: '-90deg' }] },
+  donutCenter: { position: 'absolute', alignItems: 'center' },
+  donutPct: { fontFamily: font.extrabold, fontSize: 30 },
+  donutName: { fontFamily: font.semibold, fontSize: 11, marginTop: 4 },
+  legend: { marginTop: 18, gap: 12 },
+  legendRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  legendDot: { width: 12, height: 12, borderRadius: 4 },
+  legendName: { flex: 1, fontFamily: font.bold, fontSize: 13 },
+  legendAmount: { fontFamily: font.monoBold, fontSize: 13 },
+  legendShare: { width: 40, textAlign: 'right', fontFamily: font.semibold, fontSize: 12 },
+  placeRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1 },
+  placeText: { fontFamily: font.semibold, fontSize: 10, flex: 1 },
+  placeValue: { fontFamily: font.bold, fontSize: 10 },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   kicker: { fontFamily: font.monoBold, fontSize: 8.5, letterSpacing: 2.4 },
   periods: { flexDirection: 'row', gap: 4 },

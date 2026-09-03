@@ -495,7 +495,9 @@
     "period": {
       "week": "Week",
       "month": "Month"
-    }
+    },
+    "sharedSplits": "shared splits",
+    "topPlaceLead": "Most often"
   },
   "profile": {
     "title": "Profile",

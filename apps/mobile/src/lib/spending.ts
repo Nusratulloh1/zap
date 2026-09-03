@@ -132,6 +132,26 @@ export function byPerson(db: Db | undefined, period: 'week' | 'month'): PersonSl
   return [...acc.values()].sort((a, b) => b.amount - a.amount).slice(0, 5);
 }
 
+/** Траты по дням недели за последние 7 дней — для столбиков в шапке. */
+export function daily(db: Db | undefined): { label: string; amount: number; today: boolean }[] {
+  const days = ['ВС', 'ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ', 'СБ'];
+  const out: { label: string; amount: number; today: boolean }[] = [];
+  const now = new Date();
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
+    const from = d.getTime();
+    const to = from + 86400_000;
+    const amount = (db?.splits ?? [])
+      .filter((s) => {
+        const t = s.closedAt ?? s.createdAt;
+        return s.status === 'closed' && t >= from && t < to;
+      })
+      .reduce((acc, s) => acc + myShare(s), 0);
+    out.push({ label: days[d.getDay()]!, amount, today: i === 0 });
+  }
+  return out;
+}
+
 /** Заведение, где были чаще всего: «Bellissimo ×5». */
 export function topPlace(db: Db | undefined, period: 'week' | 'month'): { name: string; times: number } | null {
   if (!db) return null;
