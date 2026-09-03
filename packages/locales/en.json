@@ -444,7 +444,8 @@
     "iOweZero": "You owe · 0",
     "top3": "TOP-3 DEBTORS",
     "others": "OTHERS",
-    "splitsCount": "{{n}} splits"
+    "splitsCount": "{{n}} splits",
+    "peopleCount": "{{n}} people"
   },
   "cashback": {
     "title": "Cashback",
@@ -470,7 +471,8 @@
     "perMonth": "THIS MONTH",
     "rate": "RATE",
     "rateUpTo": "up to {{rate}}",
-    "topMerchant": "TOP PLACE"
+    "topMerchant": "TOP PLACE",
+    "pooledTogether": "POOLED TOGETHER"
   },
   "history": {
     "title": "History",

@@ -1,0 +1,371 @@
+· min-height:848px;color:#121212;position:relative;"
+<div display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;
+  <span 
+    · 13:40
+  <div display:flex;align-items:center;gap:6px;font-size:15px;
+    <div display:flex;align-items:flex-end;gap:1.5px;
+      <span width:3px;height:5px;background:#121212;border-radius:1px;
+      <span width:3px;height:7px;background:#121212;border-radius:1px;
+      <span width:3px;height:9px;background:#121212;border-radius:1px;
+      <span width:3px;height:11px;background:#121212;border-radius:1px;
+    <span font-size:13px;
+      · 📶
+    <span background:#D9FF3A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;
+      · 69
+<div display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;
+  <div font-size:30px;font-weight:900;letter-spacing:-0.8px;
+    · История
+  <div display:flex;gap:8px;
+    <div width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;
+      · svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stro
+      · ke-width="2.2" stroke-linecap="round"
+      · circle cx="11" cy="11" r="7"
+      · /circle
+      · path d="m20 20-3.5-3.5"
+      · /path
+      · /svg
+    <img assets/av-aziz.png width:40px;height:40px;border-radius:50%;border:2px solid #121212;box-sizing:border-box;
+<div margin:22px 15px 0;background:#121212;color:#FFFFFF;border-radius:28px;padding:20px 18px 16px;position:relative;overflow:hidden;
+  <div display:flex;justify-content:space-between;align-items:center;
+    <div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#D9FF3A;
+      · РАСХОД
+    <div display:flex;gap:4px;
+      <span height:24px;border-radius:12px;background:#D9FF3A;color:#121212;display:flex;align-items:center;padding:0 10px;font-size:10px;font-weight:800;
+        · Неделя
+      <span height:24px;border-radius:12px;background:rgba(255,255,255,.1);display:flex;align-items:center;padding:0 10px;font-size:10px;font-weight:700;
+        · Месяц
+  <div display:flex;align-items:baseline;gap:8px;margin-top:14px;
+    <span font-size:40px;font-weight:900;line-height:1;letter-spacing:-1px;
+      · 1 482 046
+    <span font-size:12px;color:rgba(255,255,255,.5);
+      · UZS
+  <div display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:rgba(255,255,255,.55);
+    <span background:rgba(217,255,58,.15);color:#D9FF3A;border-radius:8px;padding:2px 7px;font-weight:800;
+      · −12%
+    <span 
+      · к августу · 9 сплитов · 3 crew
+  <div display:flex;align-items:flex-end;gap:8px;height:96px;margin-top:20px;
+    <div flex:1;height:36px;border-radius:8px;background:rgba(255,255,255,.18);
+    <div flex:1;height:58px;border-radius:8px;background:rgba(255,255,255,.18);
+    <div flex:1;height:25px;border-radius:8px;background:rgba(255,255,255,.18);
+    <div flex:1;height:79px;border-radius:8px;background:rgba(255,255,255,.18);
+    <div flex:1;height:46px;border-radius:8px;background:rgba(255,255,255,.18);
+    <div flex:1;height:67px;border-radius:8px;background:rgba(255,255,255,.18);
+    <div flex:1;height:96px;border-radius:8px;background:#D9FF3A;
+  <div display:flex;font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,.4);margin-top:8px;
+    <span flex:1;text-align:center;
+      · ПН
+    <span flex:1;text-align:center;
+      · ВТ
+    <span flex:1;text-align:center;
+      · СР
+    <span flex:1;text-align:center;
+      · ЧТ
+    <span flex:1;text-align:center;
+      · ПТ
+    <span flex:1;text-align:center;
+      · СБ
+    <span flex:1;text-align:center;color:#D9FF3A;font-weight:700;
+      · ВС
+  <div display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);
+    <div 
+      <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.4);
+        · КЭШБЭК
+      <div font-size:16px;font-weight:800;margin-top:4px;color:#D9FF3A;
+        · +41 000
+    <div 
+      <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.4);
+        · ВЕРНУЛИ ВАМ
+      <div font-size:16px;font-weight:800;margin-top:4px;
+        · +1.1M
+    <div 
+      <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.4);
+        · СР. ЧЕК
+      <div font-size:16px;font-weight:800;margin-top:4px;
+        · 164 700
+<div margin:10px 15px 0;background:#FFFFFF;border-radius:28px;padding:18px 18px 16px;
+  <div display:flex;justify-content:space-between;align-items:baseline;
+    <div font-size:18px;font-weight:900;letter-spacing:-0.4px;
+      · На что уходит
+    <span font-size:10px;color:#8E8C86;
+      · сентябрь
+  <div display:flex;justify-content:center;margin-top:16px;
+    <div position:relative;width:180px;height:180px;
+      · svg viewBox="0 0 42 42" width="180" height="180" style="transform:rotate(-90deg)
+      · ;"
+      · circle cx="21" cy="21" r="15.9155" fill="none" stroke="#121212" stroke-width="7"
+      · stroke-dasharray="54 46" stroke-dashoffset="25"/
+      · circle cx="21" cy="21" r="15.9155" fill="none" stroke="#D9FF3A" stroke-width="7"
+      · stroke-dasharray="20 80" stroke-dashoffset="-29"/
+      · circle cx="21" cy="21" r="15.9155" fill="none" stroke="#8E8C86" stroke-width="7"
+      · stroke-dasharray="14 86" stroke-dashoffset="-49"/
+      · circle cx="21" cy="21" r="15.9155" fill="none" stroke="#C9C6BB" stroke-width="7"
+      · stroke-dasharray="8 92" stroke-dashoffset="-63"/
+      · circle cx="21" cy="21" r="15.9155" fill="none" stroke="#E1DED4" stroke-width="7"
+      · stroke-dasharray="4 96" stroke-dashoffset="-71"/
+      · /svg
+      <div position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        <span font-size:30px;font-weight:900;line-height:1;
+          · 54%
+        <span font-size:11px;color:#8E8C86;margin-top:4px;
+          · еда
+      <span position:absolute;left:158px;top:90px;transform:translate(-50%,-50%);font-size:16px;
+        · 🍕
+      <span position:absolute;left:66px;top:152px;transform:translate(-50%,-50%);font-size:16px;
+        · 🏠
+      <span position:absolute;left:28px;top:104px;transform:translate(-50%,-50%);font-size:16px;
+        · 🚕
+      <span position:absolute;left:40px;top:58px;transform:translate(-50%,-50%);font-size:16px;
+        · ☕
+      <span position:absolute;left:72px;top:28px;transform:translate(-50%,-50%);font-size:16px;
+        · ✨
+  <div display:flex;flex-direction:column;gap:12px;margin-top:18px;
+    <div display:flex;align-items:center;gap:10px;
+      <span width:12px;height:12px;border-radius:4px;background:#121212;flex:none;
+      <span flex:1;font-size:13px;font-weight:700;white-space:nowrap;
+        · 🍕 Еда
+      <span font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;
+        · 800 000
+      <span width:40px;text-align:right;font-size:12px;color:#8E8C86;
+        · 54%
+    <div display:flex;align-items:center;gap:10px;
+      <span width:12px;height:12px;border-radius:4px;background:#D9FF3A;flex:none;
+      <span flex:1;font-size:13px;font-weight:700;white-space:nowrap;
+        · 🏠 Коммуналка
+      <span font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;
+        · 299 000
+      <span width:40px;text-align:right;font-size:12px;color:#8E8C86;
+        · 20%
+    <div display:flex;align-items:center;gap:10px;
+      <span width:12px;height:12px;border-radius:4px;background:#8E8C86;flex:none;
+      <span flex:1;font-size:13px;font-weight:700;white-space:nowrap;
+        · 🚕 Такси
+      <span font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;
+        · 207 000
+      <span width:40px;text-align:right;font-size:12px;color:#8E8C86;
+        · 14%
+    <div display:flex;align-items:center;gap:10px;
+      <span width:12px;height:12px;border-radius:4px;background:#C9C6BB;flex:none;
+      <span flex:1;font-size:13px;font-weight:700;white-space:nowrap;
+        · ☕ Кофе
+      <span font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;
+        · 118 000
+      <span width:40px;text-align:right;font-size:12px;color:#8E8C86;
+        · 8%
+    <div display:flex;align-items:center;gap:10px;
+      <span width:12px;height:12px;border-radius:4px;background:#E1DED4;flex:none;
+      <span flex:1;font-size:13px;font-weight:700;white-space:nowrap;
+        · Другое
+      <span font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;
+        · 58 046
+      <span width:40px;text-align:right;font-size:12px;color:#8E8C86;
+        · 4%
+<div margin:10px 15px 0;background:#FFFFFF;border-radius:24px;padding:16px 16px 14px;
+  <div display:flex;justify-content:space-between;align-items:baseline;
+    <div font-size:16px;font-weight:900;letter-spacing:-0.3px;
+      · С кем тратишь
+    <span font-size:10px;color:#8E8C86;
+      · общие сплиты
+  <div display:flex;justify-content:center;align-items:flex-end;gap:8px;margin-top:14px;
+    <div display:flex;flex-direction:column;align-items:center;text-align:center;width:96px;
+      <img assets/av-islam.png width:60px;height:60px;border-radius:50%;border:3px solid #F1EFE9;box-sizing:border-box;
+      <div font-size:12px;font-weight:700;margin-top:8px;
+        · Ислам
+      <div font-size:14px;font-weight:800;margin-top:2px;
+        · 1 099 000
+      <div font-size:9.5px;color:#8E8C86;margin-top:2px;
+        · 6 сплитов
+    <div display:flex;flex-direction:column;align-items:center;text-align:center;width:96px;
+      <img assets/av-shoshiy.png width:76px;height:76px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;
+      <div font-size:12px;font-weight:700;margin-top:8px;
+        · Shoshiy
+      <div font-size:14px;font-weight:800;margin-top:2px;
+        · 1 284 000
+      <div font-size:9.5px;color:#8E8C86;margin-top:2px;
+        · 7 сплитов
+    <div display:flex;flex-direction:column;align-items:center;text-align:center;width:96px;
+      <img assets/av-big.png width:60px;height:60px;border-radius:50%;border:3px solid #F1EFE9;box-sizing:border-box;
+      <div font-size:12px;font-weight:700;margin-top:8px;
+        · Даврон
+      <div font-size:14px;font-weight:800;margin-top:2px;
+        · 299 000
+      <div font-size:9.5px;color:#8E8C86;margin-top:2px;
+        · 2 сплита
+  <div display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid #F1EFE9;font-size:10px;color:#8E8C86;
+    <span 
+      · Чаще всего ·
+      <b color:#121212;
+        · Crew
+      · — 7 из 9 сплитов
+    <span font-weight:700;color:#121212;
+      · Bellissimo ×5
+<div display:flex;gap:8px;padding:22px 0 0 15px;overflow:hidden;
+  <div flex:none;height:36px;border-radius:18px;background:#D9FF3A;display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;
+    · Все
+  <div flex:none;height:36px;border-radius:18px;background:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;
+    · Сплиты
+  <div flex:none;height:36px;border-radius:18px;background:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;
+    · Кэшбэк
+  <div flex:none;height:36px;border-radius:18px;background:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;
+    · Долги
+<div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;padding:22px 15px 0;
+  · СЕГОДНЯ
+<div display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:12px;background:#D9FF3A;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;
+      <img assets/icon-pizza.png width:40px;height:40px;border-radius:12px;
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Ужин пятница 🍕 · сплит
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · вы + 1 человека
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+      · −83 283
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:12px;background:#D9FF3A;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;
+      · %
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Групповой кэшбэк
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · Bellissimo Pizza
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;
+      · +10 000
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <img assets/logo-bellissimo.png width:40px;height:40px;border-radius:12px;flex:none;
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Bellissimo Pizza
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · Покрыли остаток сплита
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+      · −800 000
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:50%;background:#D9FF3A;flex:none;overflow:hidden;
+      <img assets/av-shoshiy.png width:100%;height:100%;object-fit:cover;
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Shoshiy · в долг
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · Bellissimo Pizza
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;
+      · +400 000
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:50%;background:#C9A5F0;flex:none;overflow:hidden;
+      <img assets/av-islam.png width:100%;height:100%;object-fit:cover;
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Ислам Акрамов · в долг
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · Bellissimo Pizza
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;
+      · +400 000
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:12px;background:#121212;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;
+      · svg width="16" height="18" viewBox="0 0 12 14" fill="#D9FF3A"
+      · path d="M7 0 0 8h4l-1 6 8-9H7z"
+      · /path
+      · /svg
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Совместный счёт
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · Покрыли остаток сплита
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+      · −299 000
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:50%;background:#C9A5F0;flex:none;overflow:hidden;
+      <img assets/av-islam.png width:100%;height:100%;object-fit:cover;
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Ислам Акрамов · в долг
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · Совместный счёт
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;
+      · +299 000
+<div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;padding:22px 15px 0;
+  · ВЧЕРА
+<div display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:12px;background:#121212;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;
+      · svg width="16" height="18" viewBox="0 0 12 14" fill="#D9FF3A"
+      · path d="M7 0 0 8h4l-1 6 8-9H7z"
+      · /path
+      · /svg
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Совместный счёт · сплит
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · вы + 1 человека
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+      · −299 763
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:12px;background:#D9FF3A;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;
+      · %
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Групповой кэшбэк
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · Bellissimo Pizza
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;
+      · +10 000
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <img assets/logo-bellissimo.png width:40px;height:40px;border-radius:12px;flex:none;
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Bellissimo Pizza
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · Покрыли остаток сплита
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;
+      · −800 000
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:50%;background:#D9FF3A;flex:none;overflow:hidden;
+      <img assets/av-shoshiy.png width:100%;height:100%;object-fit:cover;
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+        · Shoshiy · в долг
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · Bellissimo Pizza
+    <div font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;
+      · +400 000
+<div flex:1;
+<div position:sticky;bottom:0;display:flex;justify-content:center;padding:18px 0 10px;background:linear-gradient(180deg,rgba(241,239,233,0),#F1EFE9 45%);
+  <div display:flex;align-items:center;gap:6px;background:#121212;border-radius:34px;padding:6px;
+    <div width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;
+      · svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      · stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+      · path d="M3 11 12 3l9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"
+      · /path
+      · /svg
+    <div width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;
+      · svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"
+      · circle cx="6" cy="6" r="2.2"
+      · /circle
+      · circle cx="12" cy="6" r="2.2"
+      · /circle
+      · circle cx="18" cy="6" r="2.2"
+      · /circle
+      · circle cx="6" cy="12" r="2.2"
+      · /circle
+      · circle cx="12" cy="12" r="2.2"
+      · /circle
+      · circle cx="18" cy="12" r="2.2"
+      · /circle
+      · circle cx="6" cy="18" r="2.2"
+      · /circle
+      · circle cx="12" cy="18" r="2.2"
+      · /circle
+      · circle cx="18" cy="18" r="2.2"
+      · /circle
+      · /svg
+    <div width:56px;height:56px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;
+      · svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      · stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+      · circle cx="12" cy="12" r="9"
+      · /circle
+      · path d="M12 7v5l3 2"
+      · /path
+      · /svg
+· !-- ═══ Screen 1c: Debts ═══ --
+· div data-screen-label="Вам должны" style="width:390px;background:#F1EFE9;border-
+· radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;

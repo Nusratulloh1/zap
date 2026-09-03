@@ -444,7 +444,8 @@
     "iOweZero": "Вы должны · 0",
     "top3": "ТОП-3 ДОЛЖНИКА",
     "others": "ОСТАЛЬНЫЕ",
-    "splitsCount": "{{n}} сплитов"
+    "splitsCount": "{{n}} сплитов",
+    "peopleCount": "{{n}} человека"
   },
   "cashback": {
     "title": "Кэшбэк",
@@ -470,7 +471,8 @@
     "perMonth": "ЗА МЕСЯЦ",
     "rate": "СТАВКА",
     "rateUpTo": "до {{rate}}",
-    "topMerchant": "ТОП МЕРЧАНТ"
+    "topMerchant": "ТОП МЕРЧАНТ",
+    "pooledTogether": "НАКОПИЛИ ВМЕСТЕ"
   },
   "history": {
     "title": "История",

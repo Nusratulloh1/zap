@@ -1,0 +1,535 @@
+· min-height:848px;position:relative;color:#121212;"
+<div display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;
+  <span display:flex;align-items:center;gap:4px;white-space:nowrap;
+    · 01:31
+    <span font-size:12px;opacity:.5;
+      · 🔕
+  <div display:flex;align-items:center;gap:6px;font-size:15px;
+    <div display:flex;align-items:flex-end;gap:1.5px;
+      <span width:3px;height:5px;background:#121212;border-radius:1px;
+      <span width:3px;height:7px;background:#121212;border-radius:1px;
+      <span width:3px;height:9px;background:#121212;border-radius:1px;
+      <span width:3px;height:11px;background:rgba(18,18,18,.3);border-radius:1px;
+    <span 
+      · 5G
+    <span background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;
+      · 16
+<div display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;
+  <img assets/zap-logo.png height:44px;width:auto;animation:zapPop .6s cubic-bezier(.2,.8,.2,1) both;
+  <div width:40px;height:40px;border-radius:50%;background:rgba(18,18,18,.08);display:flex;align-items:center;justify-content:center;font-size:18px;
+    · ✕
+<div display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:40px 24px 0 15px;
+  <div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;opacity:.6;
+    · ОПЛАТА ПРОШЛА
+  <div font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:700;letter-spacing:1px;margin-top:8px;line-height:1;
+    · 1 200 000
+  <div font-size:12px;opacity:.6;margin-top:6px;
+    · UZS · 3 / 3 участника · Ужин пятница 🍕
+  <div display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:#121212;color:#D9FF3A;border-radius:14px;padding:8px 12px;
+    <img assets/st-wallet-t.png width:22px;height:24px;
+    <span font-size:12px;font-weight:700;
+      · +12 000 кэшбэка группе
+<div margin:28px 15px 0;background:#FFFFFF;border-radius:22px;padding:16px;
+  <div display:flex;align-items:center;gap:14px;
+    <img assets/logo-bellissimo.png width:48px;height:48px;border-radius:12px;
+    <div flex:1;
+      <div font-size:16px;font-weight:700;
+        · Bellissimo Pizza
+      <div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:#8E8C86;margin-top:4px;
+        · ЗАКАЗ #481 · 3 СЕНТЯБРЯ, 01:31
+    <div background:#D9FF3A;border-radius:12px;padding:5px 10px;font-size:10px;font-weight:800;
+      · ОПЛАЧЕНО
+  <div border-top:1.5px dashed #DAD8D1;margin-top:14px;
+  <div display:flex;justify-content:space-between;font-size:11px;color:#8E8C86;padding-top:12px;
+    <span 
+      · Транзакция
+    <span font-family:'JetBrains Mono',monospace;color:#121212;
+      · ZAP-8F2K-481
+  <div display:flex;justify-content:space-between;font-size:11px;color:#8E8C86;padding-top:8px;
+    <span 
+      · Карта
+    <span font-family:'JetBrains Mono',monospace;color:#121212;
+      · UZCARD ·· 6556
+  <div display:flex;justify-content:space-between;font-size:11px;color:#8E8C86;padding-top:8px;
+    <span 
+      · Кэшбэк группе
+    <span font-family:'JetBrains Mono',monospace;color:#121212;
+      · +12 000
+<div margin:14px 15px 0;background:rgba(18,18,18,.06);border-radius:22px;padding:14px 16px;display:flex;align-items:center;gap:12px;
+  <div display:flex;
+    <img assets/av-aziz.png width:32px;height:32px;border-radius:50%;border:2px solid #D9FF3A;
+    <img assets/av-shoshiy.png width:32px;height:32px;border-radius:50%;border:2px solid #D9FF3A;margin-left:-10px;
+    <img assets/av-islam.png width:32px;height:32px;border-radius:50%;border:2px solid #D9FF3A;margin-left:-10px;
+  <div flex:1;font-size:11px;
+    <b 
+      · Aziz, Shoshiy, Ислам
+    · — по 400 000
+  <div width:64px;height:64px;background:#FFFFFF;border-radius:10px;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:6px;box-sizing:border-box;
+    <span background:#121212;border-radius:1px;
+    <span background:#121212;border-radius:1px;
+    <span 
+    <span background:#121212;border-radius:1px;
+    <span background:#121212;border-radius:1px;
+    <span background:#121212;border-radius:1px;
+    <span 
+    <span background:#121212;border-radius:1px;
+    <span 
+    <span background:#121212;border-radius:1px;
+    <span 
+    <span background:#121212;border-radius:1px;
+    <span background:#121212;border-radius:1px;
+    <span background:#121212;border-radius:1px;
+    <span 
+    <span background:#121212;border-radius:1px;
+    <span 
+    <span background:#121212;border-radius:1px;
+    <span 
+    <span background:#121212;border-radius:1px;
+    <span background:#121212;border-radius:1px;
+    <span background:#121212;border-radius:1px;
+    <span 
+    <span background:#121212;border-radius:1px;
+    <span background:#121212;border-radius:1px;
+<div text-align:left;font-size:10px;opacity:.55;margin-top:12px;padding:0 15px;
+  · Покажите этот экран мерчанту — QR подтверждает оплату
+<div flex:1;
+<div display:flex;flex-direction:column;gap:10px;padding:0 15px;
+  <div height:48px;border-radius:24px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;
+    · Закрыть
+  <div height:48px;border-radius:24px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;
+    · Вернуться к чеку
+<div display:flex;justify-content:center;padding:22px 0 10px;
+  <div width:134px;height:5px;border-radius:3px;background:#121212;
+· !-- ═══ Screen 3: Profile ═══ --
+<div width:390px;background:{{ pbg }};border-radius:40px;overflow:hidden;flex:none;color:{{ ptext }};
+  <div display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;
+    <span 
+      · 10:53
+    <div display:flex;align-items:center;gap:6px;font-size:15px;
+      <div display:flex;align-items:flex-end;gap:1.5px;
+        <span width:3px;height:5px;background:#121212;border-radius:1px;
+        <span width:3px;height:7px;background:#121212;border-radius:1px;
+        <span width:3px;height:9px;background:#121212;border-radius:1px;
+        <span width:3px;height:11px;background:#121212;border-radius:1px;
+      <span font-size:13px;
+        · 📶
+      <span background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;
+        · 11
+  <div display:flex;justify-content:space-between;padding:20px 15px 0;
+    <div width:40px;height:40px;border-radius:50%;background:{{ pcard }};display:flex;align-items:center;justify-content:center;font-size:20px;
+      · ←
+    <div width:40px;height:40px;border-radius:50%;background:{{ pcard }};display:flex;align-items:center;justify-content:center;font-size:18px;
+      · 🎨
+  <div margin:16px 15px 0;padding:8px 4px 0;
+    <div display:grid;grid-template-columns:1fr auto 1fr;align-items:start;
+      <div display:flex;flex-direction:column;gap:14px;
+        <div 
+          <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};
+            · УРОВЕНЬ
+          <div font-size:18px;font-weight:700;margin-top:4px;
+            · ✦ 3
+        <div 
+          <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};
+            · СПЛИТА
+          <div font-size:18px;font-weight:700;margin-top:4px;
+            · 25
+      <img assets/av-big.png width:98px;height:98px;
+      <div display:flex;flex-direction:column;gap:14px;align-items:flex-end;text-align:right;
+        <div 
+          <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};
+            · ГРУППЫ
+          <div font-size:18px;font-weight:700;margin-top:4px;
+            · 1
+        <div 
+          <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};
+            · КЭШБЭК
+          <div font-size:18px;font-weight:700;margin-top:4px;
+            · 41 000
+    <div text-align:center;margin-top:14px;
+      <div font-size:21px;font-weight:800;
+        · Aziz Karimov
+      <div font-size:12px;color:{{ pmuted }};margin-top:4px;
+        · @zapdemo · ZAP! с августа 2026
+      <div display:inline-block;margin-top:8px;background:#121212;color:#D9FF3A;border-radius:12px;padding:5px 12px;font-size:11px;font-weight:700;
+        · Завсегдатай
+    <div display:flex;justify-content:space-between;align-items:center;margin-top:20px;font-size:10px;
+      <span 
+        · ещё 5 zap до «Легенда»
+      <span font-weight:700;
+        · 25/30
+    <div margin-top:8px;height:8px;border-radius:4px;background:rgba(18,18,18,.12);overflow:hidden;
+      <div width:68%;height:100%;background:#121212;border-radius:4px;
+  <div display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;
+    <span font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:{{ pmuted }};
+      · АЧИВКИ
+    <span font-size:10px;font-weight:600;
+      · 3 из 6
+  <div display:flex;gap:18px;padding:12px 0 0 15px;overflow:hidden;
+    <div display:flex;flex-direction:column;align-items:center;flex:none;width:53px;
+      <img assets/ach-1.png width:53px;height:53px;
+      <div font-size:9.5px;font-weight:600;text-align:center;line-height:1.3;margin-top:4px;
+        · Самый
+        <b 
+          · быстрый
+      <div display:flex;flex-direction:column;align-items:center;flex:none;width:53px;
+        <img assets/ach-2.png width:53px;height:53px;
+        <div font-size:9.5px;font-weight:600;text-align:center;line-height:1.3;margin-top:4px;
+          · Надёжный
+      <div display:flex;flex-direction:column;align-items:center;flex:none;width:53px;
+        <img assets/ach-3.png width:53px;height:53px;
+        <div font-size:9.5px;font-weight:600;text-align:center;line-height:1.3;margin-top:4px;
+          · Широкая
+          <b 
+            · душа
+        <div display:flex;flex-direction:column;align-items:center;flex:none;width:53px;
+          <div width:53px;height:53px;border-radius:50%;background:{{ pcard }};display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.7;
+            · 🔒
+          <div font-size:9.5px;color:#B5B3AC;text-align:center;line-height:1.3;margin-top:4px;
+            · Пицца-
+            <b 
+              · финдир
+          <div display:flex;flex-direction:column;align-items:center;flex:none;width:53px;
+            <div width:53px;height:53px;border-radius:50%;background:{{ pcard }};display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.7;
+              · 🔒
+            <div font-size:9.5px;color:#B5B3AC;text-align:center;line-height:1.3;margin-top:4px;
+              · Кофеман
+          <div display:flex;flex-direction:column;align-items:center;flex:none;width:53px;
+            <div width:53px;height:53px;border-radius:50%;background:{{ pcard }};opacity:.7;
+        <div margin:22px 15px 0;background:#121212;border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:10px;color:#FFFFFF;
+          <img assets/st-itogi-t.png width:56px;height:46px;
+          <div flex:1;
+            <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2.5px;color:#D9FF3A;
+              · ИТОГИ МЕСЯЦА
+            <div font-size:16px;font-weight:700;margin-top:4px;
+              · август
+          <div background:#D9FF3A;color:#121212;border-radius:16px;padding:9px 12px;font-size:11px;font-weight:700;
+            · Смотреть итоги месяца
+        <div display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 15px 0;
+          <div background:{{ pcard }};border-radius:18px;padding:12px 14px 14px;height:118px;box-sizing:border-box;
+            <img assets/st-pizza-lg-t.png width:54px;height:50px;
+            <div font-size:17px;font-weight:700;margin-top:6px;
+              · Ужин
+            <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};margin-top:5px;
+              · ЛЮБИМЫЙ СПЛИТ
+          <div background:{{ pcard }};border-radius:18px;padding:12px 14px 14px;height:118px;box-sizing:border-box;
+            <img assets/st-qr-lg-t.png width:56px;height:50px;
+            <div font-size:17px;font-weight:700;margin-top:6px;
+              · 0 сек
+            <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};margin-top:5px;
+              · САМАЯ БЫСТРАЯ ОПЛАТА
+        <div padding:24px 15px 0;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:{{ pmuted }};
+          · КАРТЫ
+        <div margin:12px 15px 0;background:{{ pcard }};border-radius:18px;padding:0 14px;
+          <div display:flex;align-items:center;gap:14px;height:66px;border-bottom:1px solid rgba(18,18,18,.08);
+            <img assets/logo-uzc.png width:34px;height:30px;border-radius:7px;
+            <span flex:1;font-size:15px;font-weight:600;
+              · UZCARD ·· 6556
+            <span background:#121212;color:#D9FF3A;border-radius:12px;padding:5px 10px;font-size:11px;font-weight:700;
+              · основная
+          <div display:flex;align-items:center;gap:14px;height:60px;
+            <div width:34px;height:34px;border-radius:50%;background:rgba(18,18,18,.06);display:flex;align-items:center;justify-content:center;color:{{ pmuted }};font-size:14px;
+              · +
+            <span font-size:14px;color:{{ pmuted }};
+              · Добавить карту
+        <div height:24px;
+    · /x-dc
+    · script type="text/x-dc" data-dc-script data-props="{&quot;paidPreset&quot;:{&quo
+    · t;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;interactive&quot;,&quo
+    · t;options&quot;:[&quot;interactive&quot;,&quot;0&quot;,&quot;1&quot;,&quot;2&quo
+    · t;,&quot;3&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quo
+    · t;Экран 2 — оплатили&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quo
+    · t;,&quot;default&quot;:&quot;light&quot;,&quot;options&quot;:[&quot;light&quot;,
+    · &quot;dark&quot;],&quot;tsType&quot;:&quot;'light'|'dark'&quot;,&quot;section&qu
+    · ot;:&quot;Экран 1&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot
+    · ;,&quot;default&quot;:&quot;#D9FF3A&quot;,&quot;options&quot;:[&quot;#D9FF3A&quo
+    · t;,&quot;#FF6B3A&quot;,&quot;#3AB4FF&quot;,&quot;#B48CFF&quot;],&quot;tsType&quo
+    · t;:&quot;string&quot;,&quot;section&quot;:&quot;Экран 1&quot;},&quot;bg&quot;:{&
+    · quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#D9FF3A&quot;,&quo
+    · t;options&quot;:[&quot;#D9FF3A&quot;,&quot;#F1EFE9&quot;,&quot;#3AB4FF&quot;,&qu
+    · ot;#121212&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quo
+    · t;Экран 1&quot;},&quot;card&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;de
+    · fault&quot;:&quot;#FFFFFF&quot;,&quot;options&quot;:[&quot;#FFFFFF&quot;,&quot;#
+    · EAE8E1&quot;,&quot;#F5F5F2&quot;,&quot;#232320&quot;],&quot;tsType&quot;:&quot;s
+    · tring&quot;,&quot;section&quot;:&quot;Экран 1&quot;},&quot;wallpaper&quot;:{&quo
+    · t;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;none&quot;,&quot;optio
+    · ns&quot;:[&quot;none&quot;,&quot;custom&quot;,&quot;lime&quot;,&quot;dots&quot;]
+    · ,&quot;tsType&quot;:&quot;'none'|'custom'|'lime'|'dots'&quot;,&quot;section&quot
+    · ;:&quot;Обои&quot;},&quot;wallpaperFade&quot;:{&quot;editor&quot;:&quot;range&qu
+    · ot;,&quot;default&quot;:0.55,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot
+    · ;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Обои&quot
+    · ;},&quot;profileBg&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quo
+    · t;:&quot;#D9FF3A&quot;,&quot;options&quot;:[&quot;#D9FF3A&quot;,&quot;#8FD3FF&qu
+    · ot;,&quot;#FFB48A&quot;,&quot;#121212&quot;],&quot;tsType&quot;:&quot;string&quo
+    · t;,&quot;section&quot;:&quot;Профиль&quot;},&quot;profileCard&quot;:{&quot;edito
+    · r&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#FFFFFF&quot;,&quot;options&
+    · quot;:[&quot;#FFFFFF&quot;,&quot;#F1EFE9&quot;,&quot;#232320&quot;],&quot;tsType
+    · &quot;:&quot;string&quot;,&quot;section&quot;:&quot;Профиль&quot;}}"
+    · class Component extends DCLogic {
+  state = { paid: { aziz: true, shoshiy: true
+    · , islam: true }, reactions: { aziz: '❤️' }, pickerFor: null, burst: null };
+  pa
+    · rticles(emoji, count, loop) {
+    const W = 390, H = 848, items = [];
+    for (l
+    · et i = 0; i
+    · count; i++) {
+      const side = i % 4, r = Math.random;
+      let x, y;
+    · if (side === 0) { x = r() * W; y = -30; } else if (side === 1) { x = W + 30; y =
+    · r() * H; } else if (side === 2) { x = r() * W; y = H + 30; } else { x = -30; y
+    · = r() * H; }
+      const tx = W / 2 + (r() - .5) * 220, ty = H * 0.42 + (r() - .
+    · 5) * 260;
+      items.push(React.createElement('span', { key: i, style: { positi
+    · on: 'absolute', left: x, top: y, fontSize: 18 + r() * 22, lineHeight: 1, '--dx':
+    · (tx - x) + 'px', '--dy': (ty - y) + 'px', '--rot': (r() * 80 - 40) + 'deg', ani
+    · mation: `zapFly ${1.6 + r() * 1.2}s cubic-bezier(.2,.7,.3,1) ${r() * (loop ? 2.4
+    · : .6)}s ${loop ? 'infinite' : 'both'}` } }, emoji));
+    }
+    return React.cre
+    · ateElement('div', { style: { position: 'absolute', inset: 0, overflow: 'hidden',
+    · pointerEvents: 'none', zIndex: 5 } }, items);
+  }
+  renderVals() {
+    const p
+    · = this.props, dark = p.theme === 'dark';
+    const EM = ['❤️', '🔥', '👏', '😂', '⚡
+    · '];
+    const reactions = this.state.reactions, pickerFor = this.state.pickerFor
+    · ;
+    if (!this._hearts) this._hearts = this.particles('❤️', 44, true);
+    cons
+    · t emojis = EM.map(char =
+    · ({ char, bg: pickerFor && reactions[pickerFor] === char ? '#D9FF3A' : 'transpar
+    · ent',
+      pick: () =
+    · { this.setState(s =
+    · ({ reactions: { ...s.reactions, [pickerFor]: char }, pickerFor: null, burst: th
+    · is.particles(char, 40, false) })); clearTimeout(this._bt); this._bt = setTimeout
+    · (() =
+    · this.setState({ burst: null }), 3200); } }));
+    const reactionsLine = Object.
+    · entries(reactions).map(([k, v]) =
+    · v + ' ' + ({ aziz: 'Aziz', shoshiy: 'Shoshiy', islam: 'Ислам' }[k])).join('   '
+    · ) || 'Реакций пока нет';
+    const paid = this.props.paidPreset !== undefined ?
+    · this.presetPaid(this.props.paidPreset) : this.state.paid;
+    const base = [
+    · { id: 'aziz', img: 'assets/av-aziz.png', name: 'Aziz Karimov · вы', short: 'A
+    · ziz · вы', paidSub: 'Вы оплатили ⚡' },
+      { id: 'shoshiy', img: 'assets/av-sh
+    · oshiy.png', name: 'Shoshiy', short: 'Shoshiy', paidSub: 'в долг, вы покрыли' },
+    · { id: 'islam', img: 'assets/av-islam.png', name: 'Ислам Акрамов', short: '
+    · Ислам', paidSub: 'в долг, вы покрыли' },
+    ];
+    const people = base.map(b =
+    · {
+      const ok = !!paid[b.id];
+      return { ...b, paid: ok, sub: ok ? b.pai
+    · dSub : 'ещё не оплатил', ring: ok ? '#D9FF3A' : '#DAD8D1', opacity: ok ? 1 : 0.5
+    · 5,
+        badge: ok ? '✓' : '+', badgeBg: ok ? '#D9FF3A' : '#EAE8E1', badgeFg:
+    · ok ? '#121212' : '#8E8C86',
+        reactIcon: reactions[b.id] || '+', reactBg:
+    · reactions[b.id] ? '#FFFFFF' : '#EAE8E1', reactSize: reactions[b.id] ? '14px' : '
+    · 15px', reactAnim: reactions[b.id] ? 'zapPop .5s ease-out both' : 'none',
+    · openPicker: (e) =
+    · { e.stopPropagation(); this.setState(s =
+    · ({ pickerFor: s.pickerFor === b.id ? null : b.id })); },
+        toggle: () =
+    · this.setState(s =
+    · ({ paid: { ...s.paid, [b.id]: !s.paid[b.id] } })) };
+    });
+    const react =
+    · { emojis, reactionsLine, pickerOpen: !!pickerFor, burstOverlay: this.state.burst
+    · , heartsLoop: this._hearts };
+    const mark = arr =
+    · arr.map((x, i) =
+    · ({ ...x, hasNext: i
+    · arr.length - 1, isLastUnpaid: i === arr.length - 1 }));
+    const paidPeople =
+    · people.filter(x =
+    · x.paid), unpaidPeople = mark(people.filter(x =
+    · !x.paid));
+    const n = paidPeople.length;
+    const fmt = v =
+    · String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const s2 = { people, paidP
+    · eople, unpaidPeople, hasUnpaid: n
+    · 3, allPaid: n === 3, paidCount: n, percent: Math.round(n / 3 * 100), paidSum: f
+    · mt(n * 400000),
+      statusLine: n === 3 ? 'Все оплатили. Красиво. ⚡' : n === 0
+    · ? 'Пока никто не оплатил' : `Ждём ещё ${3 - n}` };
+    const tPaid = this.state
+    · .tPaid || { aziz: true, shoshiy: false, islam: false };
+    const merging = this
+    · .state.merging, justMerged = this.state.justMerged;
+    const merge = id =
+    · { if (this._mt) return; this.setState({ merging: id }); this._mt = setTimeout((
+    · ) =
+    · { this._mt = null; this.setState(s =
+    · ({ merging: null, justMerged: id, tPaid: { ...(s.tPaid || tPaid), [id]: true }
+    · })); setTimeout(() =
+    · this.setState({ justMerged: null }), 800); }, 900); };
+    const play = () =
+    · { this.setState({ tPaid: { aziz: true, shoshiy: false, islam: false }, merging:
+    · null, justMerged: null }); setTimeout(() =
+    · merge('shoshiy'), 500); setTimeout(() =
+    · merge('islam'), 2600); };
+    const tPeople = base.map((b, i) =
+    · { const ok = tPaid[b.id]; return { ...b, paid: ok, sub: ok ? b.paidSub : 'ещё н
+    · е оплатил', ring: ok ? '#D9FF3A' : '#DAD8D1', opacity: ok ? 1 : 0.55, badge: ok
+    · ? '✓' : '+', badgeBg: ok ? '#D9FF3A' : '#EAE8E1', badgeFg: ok ? '#121212' : '#8E
+    · 8C86',
+      rowAnim: justMerged === b.id ? 'zapRowIn .6s cubic-bezier(.2,.8,.2,
+    · 1) both' : 'none', stubAnim: merging === b.id ? 'zapMerge .9s cubic-bezier(.4,0,
+    · .2,1) both' : 'none',
+      lend: () =
+    · { if (!ok) merge(b.id); }, toggle: () =
+    · { if (!ok) merge(b.id); } }; });
+    // loop screen: phases 0 = only aziz, 1 =
+    · shoshiy merging, 2 = shoshiy in, 3 = islam merging, 4 = all paid, 5 = split apar
+    · t
+    const ph = this.state.loopPhase ?? 0;
+    const lPaid = { aziz: true, shos
+    · hiy: ph
+    · = 2 && ph
+    · 5, islam: ph
+    · = 4 && ph
+    · 5 };
+    const lPeople = base.map(b =
+    · { const ok = lPaid[b.id]; const mergingL = (ph === 1 && b.id === 'shoshiy') ||
+    · (ph === 3 && b.id === 'islam'); const inL = (ph === 2 && b.id === 'shoshiy') ||
+    · (ph === 4 && b.id === 'islam');
+      return { ...b, paid: ok, sub: ok ? b.paidS
+    · ub : 'ещё не оплатил', ring: ok ? '#D9FF3A' : '#DAD8D1', opacity: ok ? 1 : 0.55,
+    · badge: ok ? '✓' : '+', badgeBg: ok ? '#D9FF3A' : '#EAE8E1', badgeFg: ok ? '#121
+    · 212' : '#8E8C86',
+        rowAnim: inL ? 'zapRowIn .6s cubic-bezier(.2,.8,.2,1)
+    · both' : 'none', stubAnim: mergingL ? 'zapMerge .9s cubic-bezier(.4,0,.2,1) both'
+    · : (ph === 5 && !ok ? 'zapSplit .7s cubic-bezier(.2,.8,.2,1) both' : 'none'), le
+    · nd: () =
+    · {}, toggle: () =
+    · {} }; });
+    const lp = lPeople.filter(x =
+    · x.paid), lu = mark(lPeople.filter(x =
+    · !x.paid));
+    const celebrate = ph === 4;
+    if (celebrate && !this._confetti
+    · ) this._confetti = this.confetti();
+    if (!celebrate) this._confetti = null;
+    · const L = { l_celebrate: celebrate, l_confetti: celebrate ? this._confetti :
+    · null, l_people: lPeople, l_paidPeople: lp, l_unpaidPeople: lu, l_hasUnpaid: lu.l
+    · ength
+    · 0, l_allPaid: lu.length === 0, l_paidCount: lp.length, l_percent: Math.round(lp
+    · .length / 3 * 100), l_paidSum: fmt(lp.length * 400000), l_statusLine: lu.length
+    · ? `Ждём ещё ${lu.length}` : 'Все оплатили. Красиво. ⚡' };
+    const zPaid = { az
+    · iz: true, shoshiy: false, islam: false };
+    const zPeople = base.map(b =
+    · { const ok = zPaid[b.id], target = b.id === 'shoshiy';
+      return { ...b, pai
+    · d: ok, sub: ok ? b.paidSub : 'ещё не оплатил', ring: ok ? '#D9FF3A' : '#DAD8D1',
+    · opacity: ok ? 1 : 0.55, badge: ok ? '✓' : '+', badgeBg: ok ? '#D9FF3A' : '#EAE8
+    · E1', badgeFg: ok ? '#121212' : '#8E8C86', rowAnim: 'none', stubAnim: 'none',
+    · shake: target ? 'zapShake 2.6s ease-in-out infinite' : 'none', pulse: targe
+    · t ? 'zapPulse 2.6s ease-in-out infinite' : 'none', ring: target ? 'zapRing 2.6s
+    · ease-out infinite' : 'none', ring2: target ? 'zapRing2 2.6s ease-out infinite' :
+    · 'none', lend: () =
+    · {}, toggle: () =
+    · {} }; });
+    const zp = zPeople.filter(x =
+    · x.paid), zu = mark(zPeople.filter(x =
+    · !x.paid));
+    const Z = { z_people: zPeople, z_paidPeople: zp, z_unpaidPeople:
+    · zu, z_hasUnpaid: true, z_allPaid: false, z_paidCount: 1, z_percent: 33, z_paidS
+    · um: fmt(400000), z_statusLine: 'Ждём ещё 2' };
+    const tp = tPeople.filter(x =
+    · x.paid), tu = mark(tPeople.filter(x =
+    · !x.paid));
+    const t = { t_people: tPeople, t_paidPeople: tp, t_unpaidPeople:
+    · tu, t_hasUnpaid: tu.length
+    · 0, t_allPaid: tu.length === 0, t_paidCount: tp.length, t_percent: Math.round(tp
+    · .length / 3 * 100), t_paidSum: fmt(tp.length * 400000), t_statusLine: tu.length
+    · ? `Ждём ещё ${tu.length}` : 'Все оплатили. Красиво. ⚡',
+      t_play: play, t_re
+    · set: () =
+    · this.setState({ tPaid: { aziz: true, shoshiy: false, islam: false }, merging: n
+    · ull, justMerged: null }) };
+    const pbg = p.profileBg ?? '#D9FF3A', pdark = pb
+    · g === '#121212';
+    return { ...s2, ...t, ...L, ...Z, ...react,
+      pbg, pcar
+    · d: p.profileCard ?? (pdark ? '#232320' : '#FFFFFF'), ptext: pdark ? '#F5F4F0' :
+    · '#121212', pmuted: pdark ? '#8E8C86' : (pbg === '#D9FF3A' ? '#5A6A16' : '#6B6A64
+    · '),
+      accent: p.accent ?? '#D9FF3A',
+      bg: p.bg ?? (dark ? '#121212' : '
+    · #D9FF3A'),
+      card: p.card ?? (dark ? '#232320' : '#FFFFFF'),
+      text: dar
+    · k ? '#F5F4F0' : '#121212',
+      muted: dark ? '#8E8C86' : '#5A6A16',
+      hasW
+    · allpaper: p.wallpaper !== 'none',
+      wallpaperSrc: p.wallpaper === 'lime' ? '
+    · assets/wp-lime.png' : p.wallpaper === 'dots' ? 'assets/wp-dots.png' : undefined,
+    · wallpaperFade: p.wallpaperFade ?? 0.55,
+    };
+  }
+  confetti(loop) {
+    · const W = 390, r = Math.random, colors = loop ? ['#121212', '#FFFFFF', '#FF6B3A
+    · ', '#3AB4FF', '#121212'] : ['#D9FF3A', '#121212', '#FFFFFF', '#FF6B3A', '#3AB4FF
+    · '], items = [];
+    const inf = loop ? ' infinite' : ' both';
+    for (let i = 0
+    · ; i
+    · 70; i++) {
+      const x = r() * W, sz = 6 + r() * 8, round = r()
+    · .5;
+      items.push(React.createElement('span', { key: i, style: { position: '
+    · absolute', left: x, top: -20, width: sz, height: round ? sz : sz * 1.6, borderRa
+    · dius: round ? '50%' : 2, background: colors[i % colors.length], '--dx': ((r() -
+    · .5) * 160) + 'px', '--dy': (520 + r() * 420) + 'px', '--rot': (r() * 720 - 360)
+    · + 'deg', animation: `zapConfetti ${1.8 + r() * 1.2}s cubic-bezier(.2,.6,.4,1) ${
+    · r() * (loop ? 3 : .6)}s${inf}` } }));
+    }
+    for (let i = 0; i
+    · 10; i++) items.push(React.createElement('span', { key: 'e' + i, style: { positi
+    · on: 'absolute', left: r() * W, top: -30, fontSize: 20 + r() * 14, lineHeight: 1,
+    · '--dx': ((r() - .5) * 120) + 'px', '--dy': (500 + r() * 400) + 'px', '--rot': (
+    · r() * 200 - 100) + 'deg', animation: `zapConfetti ${2 + r()}s cubic-bezier(.2,.6
+    · ,.4,1) ${r() * (loop ? 3 : .5)}s${inf}` } }, ['🎉', '⚡', '🍕'][i % 3]));
+    retur
+    · n React.createElement('div', { style: { position: 'absolute', inset: 0, overflow
+    · : 'hidden', pointerEvents: 'none', zIndex: 5 } }, items);
+  }
+  componentDidMoun
+    · t() {
+    const durations = [1400, 900, 1400, 900, 3200, 800];
+    const step =
+    · () =
+    · { this.setState(s =
+    · ({ loopPhase: ((s.loopPhase ?? 0) + 1) % 6 }), () =
+    · { this._lt = setTimeout(step, durations[this.state.loopPhase]); }); };
+    this
+    · ._lt = setTimeout(step, durations[0]);
+  }
+  componentWillUnmount() { clearTimeo
+    · ut(this._lt); }
+  presetPaid(v) {
+    if (v === 'interactive' || v == null) retu
+    · rn this.state.paid;
+    const n = Number(v);
+    return { aziz: n
+    · = 1, shoshiy: n
+    · = 2, islam: n
+    · = 3 };
+  }
+  _unused() {
+    return {
+    };
+  }
+}
+    · /script
+  · /html

@@ -444,7 +444,8 @@
     "iOweZero": "Siz qarzdorsiz · 0",
     "top3": "TOP-3 QARZDOR",
     "others": "QOLGANLAR",
-    "splitsCount": "{{n}} ta zap"
+    "splitsCount": "{{n}} ta zap",
+    "peopleCount": "{{n}} kishi"
   },
   "cashback": {
     "title": "Keshbek",
@@ -470,7 +471,8 @@
     "perMonth": "BU OYDA",
     "rate": "STAVKA",
     "rateUpTo": "{{rate}} gacha",
-    "topMerchant": "TOP JOY"
+    "topMerchant": "TOP JOY",
+    "pooledTogether": "BIRGA YIG‘DIK"
   },
   "history": {
     "title": "Tarix",

@@ -11,6 +11,9 @@ import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { MerchantCashbackSlider } from '@/components/MerchantCashbackSlider';
+import { CashbackTier } from '@/components/CashbackTier';
+import { Podium } from '@/components/Podium';
+import { STICKER } from '@/components/EmptyState';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinSheet } from '@/components/PinSheet';
 import { toast } from '@/components/ToastHost';
@@ -64,6 +67,29 @@ export function CashbackScreen() {
     }
     return [...acc.values()].sort((a, b) => b.amount - a.amount)[0] ?? null;
   }, [home.db?.cashbackEntries]);
+
+  const activeGroup = useMemo(
+    () => (filter === 'all' ? null : (home.db?.groups ?? []).find((g) => g.id === filter) ?? null),
+    [filter, home.db?.groups],
+  );
+  const groupPool = activeGroup?.cashback ?? 0;
+
+  /* вклад участников: доли закрытых сплитов компании × её ставка */
+  const contributors = useMemo(() => {
+    if (!activeGroup) return [];
+    const rate = (activeGroup.rateBp ?? 200) / 10000;
+    const acc = new Map<string, { contactId: string; amount: number; splits: number }>();
+    for (const s of home.db?.splits ?? []) {
+      if (s.groupId !== activeGroup.id || s.status !== 'closed') continue;
+      for (const m of s.members) {
+        const cur = acc.get(m.contactId) ?? { contactId: m.contactId, amount: 0, splits: 0 };
+        cur.amount += Math.round(m.amount * rate);
+        cur.splits += 1;
+        acc.set(m.contactId, cur);
+      }
+    }
+    return [...acc.values()].sort((a, b) => b.amount - a.amount);
+  }, [activeGroup, home.db?.splits]);
 
   const groupName = (gid?: string) => (gid ? (groups.find((g) => g.id === gid)?.name ?? '') : '');
   const badgeOf = (badge: string) => badge.split(' · ')[0] ?? badge;
@@ -119,13 +145,58 @@ export function CashbackScreen() {
 
       <Text style={[styles.title, { color: colors.ink }]}>{t('home.cashbackCard')}</Text>
 
-      {/* свайп-карточки по заведениям: общая сумма + где именно накопилось */}
-      <MerchantCashbackSlider entries={home.db?.cashbackEntries ?? []} total={home.cashbackBalance} />
+      {filter === 'all' ? (
+        /* свайп-карточки по заведениям: общая сумма + где именно накопилось */
+        <MerchantCashbackSlider entries={home.db?.cashbackEntries ?? []} total={home.cashbackBalance} />
+      ) : (
+        /*
+          Экран компании по макету: «НАКОПИЛИ ВМЕСТЕ» с суммой 40 pt и
+          стикером‑кошельком, белая карточка ступени, подиум «кто принёс
+          больше» и список заведений.
+        */
+        <View>
+          <View style={styles.poolRow}>
+            <View style={styles.poolBody}>
+              <Text style={[styles.mono, { color: colors.faint2 }]}>{t('cashback.pooledTogether')}</Text>
+              <View style={styles.poolAmountRow}>
+                <Text style={[styles.poolAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
+                  {money(groupPool)}
+                </Text>
+                <Text style={[styles.poolUnit, { color: colors.faint2 }]}>{t('common.currency')}</Text>
+              </View>
+              <Text style={[styles.poolNote, { color: colors.faint2 }]}>{t('cashback.tierNote')}</Text>
+            </View>
+            <Image source={STICKER.wallet} style={styles.poolArt} resizeMode="contain" />
+          </View>
+
+          <View style={[styles.tierCard, { backgroundColor: colors.paper }]}>
+            <CashbackTier pool={groupPool} rateBp={activeGroup?.rateBp} nextTier={activeGroup?.nextTier} />
+          </View>
+
+          {contributors.length > 1 ? (
+            <>
+              <Text style={[styles.mono, { color: colors.faint2, marginTop: 24 }]}>{t('group.contributors')}</Text>
+              <Podium
+                frame={colors.dune2}
+                items={contributors.slice(0, 3).map((c) => ({
+                  key: c.contactId,
+                  contactId: c.contactId,
+                  name: c.contactId === 'me' ? t('members.youShort') : (home.contactById(c.contactId)?.name ?? '?'),
+                  color: home.contactById(c.contactId)?.color,
+                  initials: home.contactById(c.contactId)?.initials,
+                  amount: c.amount,
+                  sub: t('debts.splitsCount', { n: c.splits }),
+                }))}
+              />
+            </>
+          ) : null}
+        </View>
+      )}
 
       <Text style={[styles.hint, { color: colors.muted }]}>{t('cashback.empty')}</Text>
 
       {/* сводка месяца и ставки — по макету редизайна */}
-      <View style={styles.summary}>
+      <View style={[styles.summary, filter !== 'all' && styles.hidden]}>
         <View style={[styles.sumCard, { backgroundColor: colors.shell }]}>
           <Text style={[styles.sumLabel, { color: colors.faint2 }]}>{t('cashback.perMonth')}</Text>
           <Text style={[styles.sumValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
@@ -254,6 +325,18 @@ export function CashbackScreen() {
 }
 
 const styles = StyleSheet.create({
+  hidden: { display: 'none' },
+  // spec 09: сумма 40 pt, стикер 78×85 справа
+  poolRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 22 },
+  poolBody: { flex: 1, minWidth: 0 },
+  mono: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 2.5 },
+  poolAmountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 6 },
+  poolAmount: { fontFamily: font.extrabold, fontSize: 40, letterSpacing: -0.5 },
+  poolUnit: { fontFamily: font.semibold, fontSize: 12 },
+  poolNote: { fontFamily: font.semibold, fontSize: 11, marginTop: 6 },
+  poolArt: { width: 78, height: 85 },
+  tierCard: { borderRadius: 18, paddingHorizontal: 14, paddingBottom: 12, marginTop: 18 },
+
   summary: { flexDirection: 'row', gap: 8, marginTop: 14 },
   sumCard: { flex: 1, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 12 },
   sumLabel: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 1.6 },

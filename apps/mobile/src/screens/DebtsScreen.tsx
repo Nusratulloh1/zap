@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
+import { Podium } from '@/components/Podium';
 import { CountUp } from '@/components/CountUp';
 import { toast } from '@/components/ToastHost';
 import { remindDebt, remindAllDebts } from '@/api/actions';
@@ -76,7 +77,8 @@ export function DebtsScreen() {
     (home.db?.splits ?? []).filter((s) => s.members.some((m) => m.contactId === contactId)).length;
 
   return (
-    <Screen style={styles.root}>
+    // фон #F1EFE9 из макета: на нём белые карточки должников читаются
+    <Screen style={styles.root} background={colors.dune2}>
       <ScreenHeader />
 
       {/*
@@ -122,44 +124,35 @@ export function DebtsScreen() {
             {top3.length ? (
               <>
                 <Text style={[styles.mono, { color: colors.faint2 }]}>{t('debts.top3')}</Text>
-                <View style={styles.topRow}>
-                  {top3.map((d) => {
+                <Podium
+                  frame={colors.dune2}
+                  showPlace
+                  items={top3.map((d) => {
                     const c = home.contactById(d.contactId);
-                    return (
-                      <PressableScale
-                        key={d.id}
-                        haptic={false}
-                        disabled={!d.splitId}
-                        onPress={() => d.splitId && nav.navigate('SplitLive', { id: d.splitId })}
-                        style={[styles.topCard, { backgroundColor: colors.shell }]}
-                      >
-                        <Avatar
-                          name={c?.name}
-                          letter={c?.initials}
-                          contactId={d.contactId}
-                          color={c?.color ?? '#8A887E'}
-                          size={62}
-                          ring={fixed.lime}
-                          ringWidth={2.5}
-                        />
-                        <Text style={[styles.topName, { color: colors.ink }]} numberOfLines={1}>
-                          {(c?.name ?? '?').split(' ')[0]}
-                        </Text>
-                        <Text style={[styles.topAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
-                          {money(d.amount)}
-                        </Text>
-                        <Text style={[styles.topSub, { color: colors.faint }]} numberOfLines={1}>
-                          {t('debts.splitsCount', { n: splitsWith(d.contactId) })}
-                        </Text>
-                      </PressableScale>
-                    );
+                    return {
+                      key: d.id,
+                      contactId: d.contactId,
+                      name: (c?.name ?? '?').split(' ')[0] ?? '?',
+                      color: c?.color,
+                      initials: c?.initials,
+                      amount: d.amount,
+                      sub: t('debts.splitsCount', { n: splitsWith(d.contactId) }),
+                      onPress: d.splitId ? () => nav.navigate('SplitLive', { id: d.splitId! }) : undefined,
+                      onPing: () => void remind(d.id),
+                      pingDisabled: isCooling(d.id),
+                    };
                   })}
-                </View>
+                />
               </>
             ) : null}
 
             {rest.length ? (
-              <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('debts.others')}</Text>
+              <View style={styles.restHead}>
+                <Text style={[styles.mono, { color: colors.faint2 }]}>{t('debts.others')}</Text>
+                <Text style={[styles.restCount, { color: colors.ink }]}>
+                  {t('debts.peopleCount', { n: rest.length })}
+                </Text>
+              </View>
             ) : null}
             <View style={styles.list}>
               {rest.map((d, i) => {
@@ -173,7 +166,7 @@ export function DebtsScreen() {
                     haptic={false}
                     disabled={!d.splitId}
                     onPress={() => d.splitId && nav.navigate('SplitLive', { id: d.splitId })}
-                    style={[styles.row, i < rest.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
+                    style={[styles.row, { backgroundColor: colors.paper }]}
                   >
                     <Avatar name={c?.name} letter={c?.initials} contactId={d.contactId} color={c?.color ?? '#8A887E'} size={48} />
                     <View style={styles.rowBody}>
@@ -240,12 +233,9 @@ export function DebtsScreen() {
 }
 
 const styles = StyleSheet.create({
-  mono: { fontFamily: font.monoBold, fontSize: 8.5, letterSpacing: 2.4, marginTop: 24 },
-  topRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
-  topCard: { flex: 1, alignItems: 'center', borderRadius: 22, paddingVertical: 16, paddingHorizontal: 6 },
-  topName: { fontFamily: font.bold, fontSize: 12, marginTop: 8 },
-  topAmount: { fontFamily: font.extrabold, fontSize: 15, marginTop: 2 },
-  topSub: { fontFamily: font.semibold, fontSize: 9.5, marginTop: 2 },
+  mono: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 2.5, marginTop: 24 },
+  restHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  restCount: { fontFamily: font.bold, fontSize: 11, marginTop: 24 },
 
   root: { paddingHorizontal: SCREEN_PAD_X },
   flex: { flex: 1 },
@@ -257,8 +247,8 @@ const styles = StyleSheet.create({
   tabs: { flexDirection: 'row', gap: 8, marginTop: 20 },
   tab: { height: 38, paddingHorizontal: 16, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   tabText: { fontFamily: font.bold, fontSize: 13 },
-  list: { marginTop: 22 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 74 },
+  list: { marginTop: 12 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 8 },
   rowBody: { flex: 1, gap: 2 },
   rowName: { fontFamily: font.bold, fontSize: 16 },
   rowSub: { fontFamily: font.semibold, fontSize: 12.5 },

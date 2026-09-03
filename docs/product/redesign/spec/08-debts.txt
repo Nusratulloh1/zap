@@ -1,0 +1,130 @@
+· min-height:848px;color:#121212;"
+<div display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;
+  <span 
+    · 12:05
+  <div display:flex;align-items:center;gap:6px;font-size:15px;
+    <div display:flex;align-items:flex-end;gap:1.5px;
+      <span width:3px;height:5px;background:#121212;border-radius:1px;
+      <span width:3px;height:7px;background:#121212;border-radius:1px;
+      <span width:3px;height:9px;background:#121212;border-radius:1px;
+      <span width:3px;height:11px;background:rgba(18,18,18,.3);border-radius:1px;
+    <span font-size:13px;
+      · 📶
+    <span background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;
+      · 8
+<div display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;
+  <div width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;
+    · ←
+  <div text-align:center;
+    <div font-size:19px;font-weight:700;
+      · Долги
+  <div width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;
+    · 🎨
+<div display:flex;gap:8px;padding:22px 15px 0;
+  <div height:36px;border-radius:18px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;padding:0 16px;font-size:12px;font-weight:700;
+    · Вам должны
+  <div height:36px;border-radius:18px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;padding:0 16px;font-size:12px;font-weight:600;
+    · Вы должны · 0
+<div padding:22px 15px 0;
+  <div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;
+    · ВАМ ДОЛЖНЫ
+  <div display:flex;align-items:baseline;gap:8px;margin-top:6px;
+    <span font-size:40px;font-weight:800;line-height:1;letter-spacing:-0.5px;
+      · 5 326 000
+    <span font-size:12px;color:#8E8C86;
+      · UZS · 5 человек
+<div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;padding:24px 15px 0;
+  · ТОП‑3 ДОЛЖНИКА
+<div display:flex;justify-content:center;align-items:flex-end;gap:10px;padding:12px 15px 0;
+  <div display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;
+    <div position:relative;
+      <img assets/av-islam.png width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;
+      <span position:absolute;left:-4px;top:-4px;width:22px;height:22px;border-radius:50%;background:#121212;color:#D9FF3A;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;
+        · 2
+      <span position:absolute;right:-4px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:#121212;color:#D9FF3A;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;
+        · ⚡
+    <div font-size:12px;font-weight:700;margin-top:8px;
+      · Ислам
+    <div font-size:15px;font-weight:800;margin-top:2px;
+      · 2 635 000
+    <div font-size:9.5px;color:#8E8C86;margin-top:2px;
+      · 6 сплитов
+  <div display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;
+    <div position:relative;
+      <img assets/av-shoshiy.png width:80px;height:80px;border-radius:50%;border:3px solid #121212;box-sizing:border-box;
+      <span position:absolute;left:-4px;top:-4px;width:22px;height:22px;border-radius:50%;background:#121212;color:#D9FF3A;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;
+        · 1
+      <span position:absolute;right:-4px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:#121212;color:#D9FF3A;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;
+        · ⚡
+    <div font-size:12px;font-weight:700;margin-top:8px;
+      · Shoshiy
+    <div font-size:15px;font-weight:800;margin-top:2px;
+      · 2 691 000
+    <div font-size:9.5px;color:#8E8C86;margin-top:2px;
+      · 5 сплитов
+  <div display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;
+    <div position:relative;
+      <img assets/av-aziz.png width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;
+      <span position:absolute;left:-4px;top:-4px;width:22px;height:22px;border-radius:50%;background:#121212;color:#D9FF3A;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;
+        · 3
+      <span position:absolute;right:-4px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:#121212;color:#D9FF3A;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;
+        · ⚡
+    <div font-size:12px;font-weight:700;margin-top:8px;
+      · Тимур
+    <div font-size:15px;font-weight:800;margin-top:2px;
+      · —
+    <div font-size:9.5px;color:#8E8C86;margin-top:2px;
+      · пока чист
+<div display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;
+  <span font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;
+    · ОСТАЛЬНЫЕ
+  <span font-size:11px;font-weight:700;
+    · 3 человека
+<div display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:50%;background:#E1E1E6;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none;
+      · Д
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;
+        · Даврон
+    <div text-align:right;
+      <div font-size:16px;font-weight:800;line-height:1.1;
+        · 299 000
+      <div font-size:9px;color:#8E8C86;margin-top:2px;
+        · UZS
+    <div font-size:16px;color:#8E8C86;
+      · ›
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:50%;background:#F3E0D8;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none;
+      · М
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;
+        · Малика
+    <div text-align:right;
+      <div font-size:16px;font-weight:800;line-height:1.1;
+        · 84 000
+      <div font-size:9px;color:#8E8C86;margin-top:2px;
+        · UZS
+    <div font-size:16px;color:#8E8C86;
+      · ›
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:50%;background:#DDEFD8;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none;
+      · Б
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;
+        · Бекзод
+    <div text-align:right;
+      <div font-size:16px;font-weight:800;line-height:1.1;
+        · 12 000
+      <div font-size:9px;color:#8E8C86;margin-top:2px;
+        · UZS
+    <div font-size:16px;color:#8E8C86;
+      · ›
+<div flex:1;
+<div margin:22px 15px 0;height:48px;border-radius:24px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700;
+  · ⚡ Напомнить всем
+<div display:flex;justify-content:center;padding:22px 0 10px;
+  <div width:134px;height:5px;border-radius:3px;background:#121212;
+· !-- ═══ Screen 1d: Cashback ═══ --
+· div data-screen-label="Кэшбэк — Crew" style="width:390px;background:#F1EFE9;bord
+· er-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;

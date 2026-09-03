@@ -1,0 +1,119 @@
+· min-height:848px;"
+<div display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;
+  <span 
+    · 09:25
+  <div display:flex;align-items:center;gap:6px;font-size:15px;
+    <div display:flex;align-items:flex-end;gap:1.5px;
+      <span width:3px;height:5px;background:{{ text }};border-radius:1px;
+      <span width:3px;height:7px;background:{{ text }};border-radius:1px;
+      <span width:3px;height:9px;background:{{ text }};border-radius:1px;
+      <span width:3px;height:11px;background:#BDBBB5;border-radius:1px;
+    <span 
+      · 5G
+    <span background:#F0D24A;color:#121212;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;
+      · 13
+<div display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;
+  <div width:40px;height:40px;border-radius:50%;background:{{ card }};display:flex;align-items:center;justify-content:center;font-size:20px;
+    · ←
+  <div text-align:center;
+    <div display:flex;align-items:center;justify-content:center;gap:8px;font-size:19px;font-weight:700;
+      <img assets/icon-pizza.png width:26px;height:26px;border-radius:7px;
+      <span 
+        · Crew
+    <div font-size:11px;color:{{ muted }};margin-top:2px;
+      · Aziz · Ислам · Shoshiy
+  <div width:40px;height:40px;border-radius:50%;background:{{ card }};display:flex;align-items:center;justify-content:center;font-size:18px;
+    · 🎨
+<div display:flex;justify-content:center;padding:34px 15px 0;
+  <div position:relative;width:200px;height:200px;border-radius:50%;border:1.5px dashed rgba(18,18,18,.28);box-sizing:border-box;
+    <div position:absolute;left:50%;top:0;transform:translate(-50%,-30%);display:flex;flex-direction:column;align-items:center;
+      <div position:relative;
+        <img assets/av-aziz.png width:64px;height:64px;border-radius:50%;
+        <img assets/st-qr-t.png position:absolute;right:-22px;top:-6px;width:36px;height:36px;
+      <span margin-top:-8px;background:#121212;color:{{ accent }};border-radius:10px;padding:3px 7px;font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1.5px;font-weight:700;box-shadow:0 0 0 2px {{ bg }};
+        · ВЛАДЕЛЕЦ
+    <div position:absolute;left:0;bottom:12px;transform:translate(-30%,0);display:flex;flex-direction:column;align-items:center;
+      <div position:relative;
+        <img assets/av-shoshiy.png width:64px;height:64px;border-radius:50%;
+        <img assets/st-pizza-cool-t.png position:absolute;left:-24px;top:-8px;width:34px;height:34px;
+        <img assets/st-hand-t.png position:absolute;left:-28px;bottom:2px;width:34px;height:34px;
+        <img assets/st-phone-t.png position:absolute;right:-20px;top:-10px;width:32px;height:32px;
+        <div position:absolute;right:-6px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:#121212;color:{{ accent }};display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 0 2px {{ bg }};
+          · ⚡
+      <div font-size:11px;font-weight:700;margin-top:4px;
+        · Shoshiy
+    <div position:absolute;right:0;bottom:12px;transform:translate(30%,0);display:flex;flex-direction:column;align-items:center;
+      <div position:relative;
+        <img assets/av-islam.png width:64px;height:64px;border-radius:50%;
+        <img assets/st-money-pizza-t.png position:absolute;right:-24px;top:-8px;width:36px;height:36px;
+        <div position:absolute;left:-6px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:#121212;color:{{ accent }};display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 0 2px {{ bg }};
+          · ⚡
+      <div font-size:11px;font-weight:700;margin-top:4px;
+        · Ислам
+    <div position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:{{ card }};display:flex;align-items:center;justify-content:center;color:{{ muted }};font-size:20px;
+      · +
+<div display:flex;padding:26px 15px 0;
+  <div flex:1;height:44px;border-radius:22px;background:{{ card }};color:#121212;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;
+    · Новый Zap
+<div margin:18px 15px 0;background:{{ card }};color:#121212;border-radius:22px;padding:14px 16px;display:flex;align-items:center;gap:14px;
+  <img assets/st-wallet-t.png width:56px;height:60px;flex:none;
+  <div flex:1;
+    <div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;font-weight:500;color:#8E8C86;
+      · КЭШБЭК ГРУППЫ
+    <div display:flex;align-items:baseline;gap:6px;margin-top:4px;
+      <span font-size:28px;font-weight:800;line-height:1;
+        · 0
+      <span font-size:12px;color:#8E8C86;
+        · UZS
+  <div font-size:18px;color:#8E8C86;
+    · ›
+<div display:flex;justify-content:space-between;align-items:center;padding:22px 15px 0;
+  <span font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:{{ muted }};
+    · ДОЛГИ
+<div display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;
+  <div display:flex;align-items:center;gap:12px;background:{{ card }};border-radius:18px;padding:14px 14px;
+    <img assets/av-shoshiy.png width:44px;height:44px;border-radius:50%;
+    <div flex:1;
+      <div font-size:11px;color:#8E8C86;
+        · Shoshiy · должен вам
+      <div font-size:22px;font-weight:800;line-height:1.1;margin-top:3px;letter-spacing:-0.3px;
+        · 2 691 000
+        <span font-size:11px;font-weight:500;color:#8E8C86;
+          · UZS
+    <div background:#121212;color:{{ accent }};border-radius:14px;padding:9px 14px;font-size:11px;font-weight:700;
+      · Напомнить
+  <div display:flex;align-items:center;gap:12px;background:{{ card }};border-radius:18px;padding:14px 14px;
+    <img assets/av-islam.png width:44px;height:44px;border-radius:50%;
+    <div flex:1;
+      <div font-size:11px;color:#8E8C86;
+        · Ислам · должен вам
+      <div font-size:22px;font-weight:800;line-height:1.1;margin-top:3px;letter-spacing:-0.3px;
+        · 2 635 000
+        <span font-size:11px;font-weight:500;color:#8E8C86;
+          · UZS
+    <div background:#121212;color:{{ accent }};border-radius:14px;padding:9px 14px;font-size:11px;font-weight:700;
+      · Напомнить
+<div display:flex;justify-content:space-between;align-items:center;padding:22px 15px 0;
+  <span font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:{{ muted }};
+    · ПОСЛЕДНИЕ ZAP
+  <span font-size:11px;font-weight:600;
+    · все →
+<div display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;
+  <div display:flex;align-items:center;gap:12px;background:{{ card }};border-radius:18px;padding:12px 14px;
+    <img assets/logo-bellissimo.png width:38px;height:38px;border-radius:10px;
+    <div flex:1;
+      <div font-size:13px;font-weight:700;
+        · Ужин пятница 🍕
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · 3 / 3 оплатили · 1 сентября
+    <div text-align:right;
+      <div font-size:14px;font-weight:800;
+        · 1 200 000
+      <div font-size:9px;color:#8E8C86;margin-top:1px;
+        · закрыт
+<div flex:1;
+<div display:flex;justify-content:center;padding:28px 0 10px;
+  <div width:134px;height:5px;border-radius:3px;background:#121212;opacity:.9;
+· !-- ═══ Screen 1b: Group — другой фон ═══ --
+<div width:390px;background:#8FD3FF;border-radius:40px;overflow:hidden;flex:none;color:#121212;position:relative;
+  · div style="position:relative;z-index:1;display:flex;flex-direction:column;

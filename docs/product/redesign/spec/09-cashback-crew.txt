@@ -1,0 +1,131 @@
+· min-height:848px;color:#121212;"
+<div display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;
+  <span 
+    · 12:05
+  <div display:flex;align-items:center;gap:6px;font-size:15px;
+    <div display:flex;align-items:flex-end;gap:1.5px;
+      <span width:3px;height:5px;background:#121212;border-radius:1px;
+      <span width:3px;height:7px;background:#121212;border-radius:1px;
+      <span width:3px;height:9px;background:#121212;border-radius:1px;
+      <span width:3px;height:11px;background:rgba(18,18,18,.3);border-radius:1px;
+    <span font-size:13px;
+      · 📶
+    <span background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;
+      · 8
+<div display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;
+  <div width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;
+    · ←
+  <div text-align:center;
+    <div font-size:19px;font-weight:700;
+      · Кэшбэк
+    <div font-size:11px;color:#8E8C86;margin-top:2px;
+      · Crew · Aziz · Ислам · Shoshiy
+  <div width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;
+    · 🎨
+<div display:flex;align-items:center;justify-content:space-between;padding:26px 15px 0;
+  <div 
+    <div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;
+      · НАКОПИЛИ ВМЕСТЕ
+    <div display:flex;align-items:baseline;gap:8px;margin-top:6px;
+      <span font-size:40px;font-weight:800;line-height:1;letter-spacing:-0.5px;
+        · 41 000
+      <span font-size:12px;color:#8E8C86;
+        · UZS
+    <div font-size:11px;color:#8E8C86;margin-top:6px;
+      · начисляется только когда сплитите вместе
+  <img assets/st-wallet-t.png width:78px;height:85px;flex:none;
+<div margin:18px 15px 0;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+  <div display:flex;justify-content:space-between;align-items:center;font-size:10px;
+    <span 
+      · 2.5% сейчас · ещё 9 000 до
+      <b 
+        · 3%
+    <span font-weight:700;
+      · 41 / 50к
+  <div margin-top:8px;height:8px;border-radius:4px;background:rgba(18,18,18,.1);overflow:hidden;
+    <div width:82%;height:100%;background:#121212;border-radius:4px;
+<div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;padding:24px 15px 0;
+  · КТО ПРИНЁС БОЛЬШЕ
+<div display:flex;justify-content:center;align-items:flex-end;gap:10px;padding:12px 15px 0;
+  <div display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;
+    <img assets/av-shoshiy.png width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;
+    <div font-size:12px;font-weight:700;margin-top:8px;
+      · Shoshiy
+    <div font-size:15px;font-weight:800;margin-top:2px;
+      · 13 000
+    <div font-size:9.5px;color:#8E8C86;margin-top:2px;
+      · 5 сплитов
+  <div display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;
+    <img assets/av-aziz.png width:80px;height:80px;border-radius:50%;border:3px solid #121212;box-sizing:border-box;
+    <div font-size:12px;font-weight:700;margin-top:8px;
+      · Aziz · вы
+    <div font-size:15px;font-weight:800;margin-top:2px;
+      · 18 000
+    <div font-size:9.5px;color:#8E8C86;margin-top:2px;
+      · 8 сплитов
+  <div display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;
+    <img assets/av-islam.png width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;
+    <div font-size:12px;font-weight:700;margin-top:8px;
+      · Ислам
+    <div font-size:15px;font-weight:800;margin-top:2px;
+      · 10 000
+    <div font-size:9.5px;color:#8E8C86;margin-top:2px;
+      · 4 сплита
+<div display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;
+  <span font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;
+    · МЕРЧАНТЫ
+  <span font-size:11px;font-weight:700;
+    · 3
+<div display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <img assets/logo-bellissimo.png width:40px;height:40px;border-radius:10px;flex:none;
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;
+        · Bellissimo Pizza
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · 12 сплитов · последний сегодня
+    <div text-align:right;
+      <div font-size:16px;font-weight:800;line-height:1.1;
+        · 32 000
+      <div font-size:9px;color:#8E8C86;margin-top:2px;
+        · 2.5%
+    <div font-size:16px;color:#8E8C86;
+      · ›
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:10px;background:#3B2A1E;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;
+      · ☕
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;
+        · Кофейня
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · 4 сплита · вчера
+    <div text-align:right;
+      <div font-size:16px;font-weight:800;line-height:1.1;
+        · 8 000
+      <div font-size:9px;color:#8E8C86;margin-top:2px;
+        · 2%
+    <div font-size:16px;color:#8E8C86;
+      · ›
+  <div display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;
+    <div width:40px;height:40px;border-radius:10px;background:#F0D24A;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;
+      · 🚕
+    <div flex:1;min-width:0;
+      <div font-size:13px;font-weight:700;
+        · Такси
+      <div font-size:10px;color:#8E8C86;margin-top:2px;
+        · 1 сплит · вторник
+    <div text-align:right;
+      <div font-size:16px;font-weight:800;line-height:1.1;
+        · 1 000
+      <div font-size:9px;color:#8E8C86;margin-top:2px;
+        · 1%
+    <div font-size:16px;color:#8E8C86;
+      · ›
+<div flex:1;
+<div margin:22px 15px 0;height:48px;border-radius:24px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;
+  · Потратить на следующий сплит
+<div display:flex;justify-content:center;padding:22px 0 10px;
+  <div width:134px;height:5px;border-radius:3px;background:#121212;
+· !-- ═══ Screen 1e: Cashback overall ═══ --
+· div data-screen-label="Кэшбэк — общий" style="width:390px;background:#F1EFE9;bor
+· der-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;

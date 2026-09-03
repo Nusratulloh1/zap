@@ -1,0 +1,223 @@
+· min-height:848px;color:#FFFFFF;position:relative;"
+<div display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;
+  <span 
+    · 12:22
+  <div display:flex;align-items:center;gap:6px;font-size:15px;
+    <div display:flex;align-items:flex-end;gap:1.5px;
+      <span width:3px;height:5px;background:#FFFFFF;border-radius:1px;
+      <span width:3px;height:7px;background:#FFFFFF;border-radius:1px;
+      <span width:3px;height:9px;background:#FFFFFF;border-radius:1px;
+      <span width:3px;height:11px;background:rgba(255,255,255,.5);border-radius:1px;
+    <span font-size:13px;
+      · 📶
+    <span background:#F0D24A;color:#121212;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;
+      · 8
+<div display:flex;justify-content:space-between;align-items:center;padding:14px 15px 0;
+  <img assets/zap-logo.png height:34px;filter:drop-shadow(0 0 12px rgba(217,255,58,.35));
+  <div display:flex;gap:8px;
+    <div width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:16px;
+      · ⌗
+    <img assets/av-aziz.png width:40px;height:40px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;
+<div display:flex;gap:14px;padding:22px 0 0 15px;overflow:hidden;
+  <div display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;
+    <div width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:transparent;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;
+      <div width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;
+        · +
+    <span font-size:10px;font-weight:700;
+      · Новый
+  <div display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;
+    <div width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:#D9FF3A;border:none;display:flex;align-items:center;justify-content:center;
+      <img assets/icon-pizza.png width:100%;height:100%;border-radius:50%;border:2px solid #121212;box-sizing:border-box;
+    <span font-size:10px;font-weight:700;
+      · Crew
+  <div display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;
+    <div width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:#D9FF3A;border:none;display:flex;align-items:center;justify-content:center;
+      <div width:100%;height:100%;border-radius:50%;background:#8FD3FF;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid #121212;box-sizing:border-box;
+        · 🏠
+    <span font-size:10px;font-weight:700;
+      · Квартира
+  <div display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;
+    <div width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:transparent;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;
+      <div width:100%;height:100%;border-radius:50%;background:#FFB48A;display:flex;align-items:center;justify-content:center;font-size:24px;
+        · ⚽
+    <span font-size:10px;font-weight:700;
+      · Футбол
+  <div display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;
+    <div width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:transparent;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;
+      <div width:100%;height:100%;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;
+        · 🎂
+    <span font-size:10px;font-weight:700;
+      · ДР Малики
+<div padding:26px 15px 0;
+  <div font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:rgba(255,255,255,.5);
+    · ПРИВЕТ, AZIZ
+  <div font-size:44px;font-weight:900;line-height:.95;letter-spacing:-1.5px;margin-top:10px;
+    · Сплить.
+    <b 
+      <span color:#D9FF3A;font-style:italic;
+        · Zарабатывай.
+  <div margin:22px 15px 0;position:relative;height:190px;
+    <div position:absolute;inset:0;background:#D9FF3A;border-radius:26px;transform:rotate(-2deg);
+    <div position:absolute;inset:0;background:#FFFFFF;color:#121212;border-radius:26px;padding:18px;box-sizing:border-box;overflow:hidden;
+      <div display:inline-block;background:#121212;color:#D9FF3A;border-radius:8px;padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;
+        · ⚡ ГОРЯЧЕЕ
+      <div font-size:26px;font-weight:900;line-height:1;letter-spacing:-0.6px;margin-top:12px;width:190px;
+        · Кэшбэк ×2 в Bellissimo
+      <div font-size:11px;color:#8E8C86;margin-top:8px;width:180px;
+        · только для Crew · до воскресенья
+      <div display:inline-flex;margin-top:14px;height:34px;border-radius:17px;background:#121212;color:#D9FF3A;align-items:center;padding:0 14px;font-size:11px;font-weight:700;white-space:nowrap;
+        · Собрать Crew →
+      <img assets/st-pizza-zap-t.png position:absolute;right:-14px;bottom:-14px;width:160px;transform:rotate(8deg);
+  <div display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:22px 15px 0;
+    <div background:#D9FF3A;color:#121212;border-radius:24px;padding:14px;position:relative;min-height:124px;box-sizing:border-box;overflow:hidden;
+      <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#5A6A16;
+        · КЭШБЭК
+      <div font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;
+        · 67 500
+      <div font-size:10px;color:#5A6A16;margin-top:3px;
+        · 3 группы
+      <img assets/st-wallet-t.png position:absolute;right:2px;bottom:0;width:64px;
+    <div background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:14px;position:relative;min-height:124px;box-sizing:border-box;overflow:hidden;
+      <div font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.5);
+        · ДОЛЖНЫ МНЕ
+      <div font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;
+        · 5.3M
+      <div display:flex;align-items:center;margin-top:5px;
+        <img assets/av-shoshiy.png width:18px;height:18px;border-radius:50%;border:1.5px solid #2A2A2A;
+        <img assets/av-islam.png width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #2A2A2A;
+        <span font-size:10px;color:rgba(255,255,255,.5);margin-left:6px;
+          · 2 чел.
+      <img assets/st-itogi-t.png position:absolute;right:2px;bottom:0;width:64px;
+  <div display:flex;justify-content:space-between;align-items:center;padding:26px 15px 0;
+    <span font-size:20px;font-weight:900;letter-spacing:-0.5px;
+      · Твои Crews
+    <span font-size:12px;font-weight:800;color:#D9FF3A;
+      · все 3 →
+  <div display:flex;flex-direction:column;gap:8px;padding:14px 15px 0;
+    <div display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:12px 14px;
+      <img assets/icon-pizza.png width:44px;height:44px;border-radius:14px;flex:none;
+      <div flex:1;min-width:0;
+        <div font-size:14px;font-weight:800;
+          · Crew · Ужин пятница
+        <div display:flex;align-items:center;margin-top:5px;font-size:10px;color:rgba(255,255,255,.5);
+          <img assets/av-aziz.png width:18px;height:18px;border-radius:50%;border:1.5px solid #2A2A2A;
+          <img assets/av-shoshiy.png width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #2A2A2A;
+          <img assets/av-islam.png width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #2A2A2A;
+          <span margin-left:6px;
+            · ждём 2 оплаты · 1 200 000
+      <div width:44px;height:44px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;
+        · ⚡
+    <div display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:12px 14px;
+      <div width:44px;height:44px;border-radius:14px;background:#8FD3FF;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;
+        · 🏠
+      <div flex:1;min-width:0;
+        <div font-size:14px;font-weight:800;
+          · Квартира
+        <div display:flex;align-items:center;margin-top:5px;font-size:10px;color:rgba(255,255,255,.5);
+          <img assets/av-aziz.png width:18px;height:18px;border-radius:50%;border:1.5px solid #2A2A2A;
+          <span width:18px;height:18px;border-radius:50%;background:#E1E1E6;color:#121212;margin-left:-8px;border:1.5px solid #2A2A2A;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;
+            · Д
+          <span margin-left:6px;
+            · коммуналка · все оплатили
+      <div font-size:12px;font-weight:800;color:#D9FF3A;
+        · ✓
+  <div display:flex;justify-content:space-between;align-items:center;padding:26px 15px 0;
+    <span font-size:20px;font-weight:900;letter-spacing:-0.5px;
+      · Где Zарабатывать
+    <span font-size:12px;font-weight:800;color:#D9FF3A;
+      · 6 →
+  <div display:flex;gap:10px;padding:14px 0 6px 15px;overflow:hidden;
+    <div flex:none;width:118px;background:#FFFFFF;color:#121212;border-radius:22px;padding:12px;box-sizing:border-box;transform:rotate(-2deg);
+      <img assets/logo-bellissimo.png width:44px;height:44px;border-radius:14px;
+      <div font-size:13px;font-weight:900;margin-top:12px;
+        · Bellissimo
+      <div display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;
+        · 20% · 2+1
+    <div flex:none;width:118px;background:#D9FF3A;color:#121212;border-radius:22px;padding:12px;box-sizing:border-box;transform:rotate(2deg);
+      <div width:44px;height:44px;border-radius:14px;background:#2E9E3D;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;
+        · EVOS
+      <div font-size:13px;font-weight:900;margin-top:12px;
+        · EVOS
+      <div display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;
+        · ×2 кэшбэк
+    <div flex:none;width:118px;background:#FFFFFF;color:#121212;border-radius:22px;padding:12px;box-sizing:border-box;transform:rotate(-1deg);
+      <div width:44px;height:44px;border-radius:14px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;line-height:1.1;
+        · feed
+        <b 
+          · up
+        <div font-size:13px;font-weight:900;margin-top:12px;
+          · Feed Up
+        <div display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;
+          · 10%
+    <div display:flex;justify-content:space-between;align-items:center;padding:26px 15px 0;
+      <span font-size:20px;font-weight:900;letter-spacing:-0.5px;
+        · Лента
+      <div display:flex;gap:6px;
+        <span height:26px;border-radius:13px;background:#D9FF3A;color:#121212;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:800;
+          · Crew
+        <span height:26px;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:700;
+          · Все
+    <div display:flex;flex-direction:column;gap:10px;padding:14px 15px 0;
+      <div display:flex;align-items:flex-start;gap:12px;
+        <img assets/av-shoshiy.png width:36px;height:36px;border-radius:50%;flex:none;
+        <div flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:4px 20px 20px 20px;padding:12px 14px;
+          <div font-size:13px;line-height:1.35;
+            <b 
+              · Shoshiy
+            · закрыл 400 000 за пиццу 🍕
+            <span color:rgba(255,255,255,.5)
+              · · Crew
+          <div display:flex;justify-content:space-between;align-items:center;margin-top:8px;
+            <span font-size:10px;color:rgba(255,255,255,.5);
+              · 12:05 · Bellissimo
+            <div display:flex;gap:6px;
+              <span display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:#D9FF3A;color:#121212;
+                · 🔥 3
+              <span display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:rgba(255,255,255,.08);color:#FFFFFF;
+                · ⚡ 1
+      <div display:flex;align-items:flex-start;gap:12px;
+        <div width:36px;height:36px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none;
+          · ⚡
+        <div flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:4px 20px 20px 20px;padding:12px 14px;
+          <div font-size:13px;line-height:1.35;
+            · Crew словил
+            <b 
+              · +10 000
+            · кэшбэка — ставка выросла до
+            <b 
+              · 2.5%
+          <div display:flex;justify-content:space-between;align-items:center;margin-top:8px;
+            <span font-size:10px;color:rgba(255,255,255,.5);
+              · 12:05 · Bellissimo
+            <div display:flex;gap:6px;
+              <span display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:rgba(255,255,255,.08);color:#FFFFFF;
+                · 🤑 2
+              <span display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:rgba(255,255,255,.08);color:#FFFFFF;
+                · 👏 0
+      <div display:flex;align-items:flex-start;gap:12px;
+        <img assets/av-islam.png width:36px;height:36px;border-radius:50%;flex:none;filter:grayscale(1);
+        <div flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:4px 20px 20px 20px;padding:12px 14px;
+          <div font-size:13px;line-height:1.35;
+            <b 
+              · Ислам
+            · ещё не оплатил 400 000
+            <span color:rgba(255,255,255,.5)
+              · · 3 часа
+          <div display:flex;justify-content:space-between;align-items:center;margin-top:8px;
+            <span font-size:10px;color:rgba(255,255,255,.5);
+              · 11:40 · Crew
+            <div display:flex;gap:6px;
+              <span display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 10px;font-size:11px;font-weight:800;background:#121212;color:#D9FF3A;
+                · ⚡ Пингануть
+    <div flex:1;
+    <div position:sticky;bottom:0;display:flex;justify-content:center;padding:18px 0 10px;background:linear-gradient(180deg,rgba(18,18,18,0),#121212 40%);
+      <div display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px);border-radius:34px;padding:6px;
+        <div width:56px;height:56px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:20px;
+          · ⌂
+        <div width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;
+          · ⋯
+        <div width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;
+          · ◷
+  · !-- ═══ Screen 0c-grey: Home ═══ --
+  · div data-screen-label="Главная — серая" style="width:390px;background:#F1EFE9;bo
+  · rder-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;
