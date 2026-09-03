@@ -14,6 +14,7 @@ import { Screen } from '@/components/Screen';
 import { Avatar } from '@/components/Avatar';
 import { PressableScale } from '@/components/PressableScale';
 import { VenueIcon } from '@/components/VenueIcon';
+import QRCode from 'react-native-qrcode-svg';
 import { STICKER } from '@/components/EmptyState';
 import { CloseIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
@@ -116,17 +117,31 @@ export function PaidReceiptScreen() {
                 />
               ))}
             </View>
-            <Text style={[styles.membersText, { color: fixed.ink }]} numberOfLines={2}>
+            <Text style={[styles.membersText, { color: fixed.ink }]} numberOfLines={3}>
               <Text style={styles.membersNames}>
                 {members
                   .slice(0, 3)
-                  .map((m) => (m.isYou ? t('members.youShort') : (home.contactById(m.contactId)?.name ?? '?').split(' ')[0]))
+                  .map((m) => (m.isYou ? t('members.youShort') : home.nameOfContact(m.contactId).split(' ')[0]))
                   .join(', ')}
               </Text>
               {t('receipt.eachFor', { amount: money(share) })}
             </Text>
+
+            {/* QR подтверждает оплату у мерчанта — как в новом макете чека */}
+            <View style={[styles.qr, { backgroundColor: colors.paper }]}>
+              <QRCode
+                value={params.txId ?? split?.code ?? 'ZAP'}
+                size={52}
+                color="#121212"
+                backgroundColor="transparent"
+              />
+            </View>
           </View>
         ) : null}
+
+        <Text style={[styles.qrHint, { color: 'rgba(18,18,18,0.55)' }]} numberOfLines={2}>
+          {t('receipt.showToMerchant')}
+        </Text>
 
         <View style={styles.spacer} />
 
@@ -192,6 +207,8 @@ const styles = StyleSheet.create({
   faces: { flexDirection: 'row' },
   faceStacked: { marginLeft: -10 },
   membersText: { flex: 1, fontFamily: font.semibold, fontSize: 11 },
+  qr: { width: 64, height: 64, borderRadius: 10, alignItems: 'center', justifyContent: 'center' },
+  qrHint: { fontFamily: font.semibold, fontSize: 10.5, marginTop: 10 },
   membersNames: { fontFamily: font.extrabold },
   spacer: { flex: 1, minHeight: 18 },
   actions: { gap: 10 },

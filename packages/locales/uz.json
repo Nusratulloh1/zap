@@ -1045,7 +1045,8 @@
     "close": "Yopish",
     "backToBill": "Chekka qaytish",
     "cashbackChip": "kompaniyaga +{{amount}} keshbek",
-    "eachFor": " — {{amount}} dan"
+    "eachFor": " — {{amount}} dan",
+    "showToMerchant": "Bu ekranni sotuvchiga ko‘rsating — QR to‘lovni tasdiqlaydi"
   },
   "skin": {
     "title": "Ekran rangi",

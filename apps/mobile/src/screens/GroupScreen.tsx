@@ -19,10 +19,11 @@ import { renameGroup, deleteGroup, remindDebt, fetchFeaturedBill } from '@/api/a
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { useDraft } from '@/store/draft';
-import { money, humanDateLc } from '@/lib/format';
+import { money, humanDateLc, peopleCount, dayMonth } from '@/lib/format';
 import { crewStats } from '@/lib/crewStats';
 import { STICKER } from '@/components/EmptyState';
 import { useSkin } from '@/lib/screenSkin';
+import { SkinSheet } from '@/components/SkinSheet';
 import { FunStatCards } from '@/components/FunStatCards';
 import { VenueIcon } from '@/components/VenueIcon';
 import { SquadCircle } from '@/components/SquadCircle';
@@ -85,6 +86,7 @@ export function GroupScreen() {
   const crewEmoji = useCrewEmoji(home.db, id);
   const crewColor = useCrewColor(home.db, id);
   const skin = useSkin();
+  const [skinSheet, setSkinSheet] = useState(false);
   /** должники внутри компании — по открытым долгам её участников */
   /* должники внутри компании: считаем прямо из открытых долгов, чтобы не
      тянуть в зависимости функцию, объявленную ниже по файлу */
@@ -176,15 +178,21 @@ export function GroupScreen() {
           <Text style={[styles.roundGlyph, { color: colors.ink }]}>←</Text>
         </PressableScale>
         <View style={styles.headCenterRow}>
-          <PressableScale haptic onPress={() => setEmojiSheet(true)} style={styles.headTitleRow}>
-            <VenueIcon name={group.name} glyph={crewEmoji} color={crewColor} size={26} />
-            <Text style={[styles.title, { color: colors.ink }]} numberOfLines={1}>{group.name}</Text>
-          </PressableScale>
+          {/* знак меняется тапом по нему, название — открывает меню компании */}
+          <View style={styles.headTitleRow}>
+            <PressableScale haptic onPress={() => setEmojiSheet(true)}>
+              <VenueIcon name={group.name} glyph={crewEmoji} color={crewColor} size={26} />
+            </PressableScale>
+            <PressableScale haptic={false} onPress={() => setMenuSheet(true)} style={styles.titleTap}>
+              <Text style={[styles.title, { color: colors.ink }]} numberOfLines={1}>{group.name}</Text>
+              <Text style={[styles.titleChevron, { color: colors.muted }]}>⌄</Text>
+            </PressableScale>
+          </View>
           <Text style={[styles.headSub, { color: colors.muted }]} numberOfLines={1}>
             {memberIds.map((cid) => home.nameOfContact(cid).split(' ')[0]).join(' · ')}
           </Text>
         </View>
-        <PressableScale style={[styles.round, { backgroundColor: colors.paper }]} onPress={() => setMenuSheet(true)}>
+        <PressableScale style={[styles.round, { backgroundColor: colors.paper }]} onPress={() => setSkinSheet(true)}>
           <Text style={styles.roundGlyph}>🎨</Text>
         </PressableScale>
       </View>
@@ -320,6 +328,8 @@ export function GroupScreen() {
       </ScrollView>
 
       {/* меню группы */}
+      <SkinSheet open={skinSheet} onClose={() => setSkinSheet(false)} />
+
       <CrewEmojiSheet
         open={emojiSheet}
         groupId={id}
@@ -329,6 +339,23 @@ export function GroupScreen() {
       />
 
       <BottomSheet open={menuSheet} onClose={() => setMenuSheet(false)}>
+        {/* меню компании: открывается тапом по названию */}
+        <Text style={[styles.menuTitle, { color: colors.ink }]} numberOfLines={1}>{group.name}</Text>
+        <Text style={[styles.menuSub, { color: colors.muted }]} numberOfLines={1}>
+          {t('group.sinceWith', { people: peopleCount(memberIds.length), date: dayMonth(new Date(group.createdAt)) })}
+        </Text>
+
+        <PressableScale
+          haptic={false}
+          style={[styles.menuRow, { borderBottomColor: colors.sand2 }]}
+          onPress={() => {
+            setMenuSheet(false);
+            setTimeout(() => setEmojiSheet(true), 260);
+          }}
+        >
+          <View style={[styles.menuIcon, { backgroundColor: colors.sand }]}><Text style={styles.menuGlyph}>{crewEmoji}</Text></View>
+          <Text style={[styles.menuText, { color: colors.ink }]}>{t('group.pickEmoji')}</Text>
+        </PressableScale>
         <PressableScale
           haptic={false}
           style={[styles.menuRow, { borderBottomColor: colors.sand2 }]}
@@ -338,6 +365,7 @@ export function GroupScreen() {
             setTimeout(() => setRenameSheet(true), 260);
           }}
         >
+          <View style={[styles.menuIcon, { backgroundColor: colors.sand }]}><Text style={styles.menuGlyph}>✎</Text></View>
           <Text style={[styles.menuText, { color: colors.ink }]}>{t('group.renameTitle')}</Text>
         </PressableScale>
         <PressableScale
@@ -348,6 +376,7 @@ export function GroupScreen() {
             setTimeout(() => setConfirmDelete(true), 260);
           }}
         >
+          <View style={[styles.menuIcon, { backgroundColor: colors.sand }]}><Text style={styles.menuGlyph}>🗑</Text></View>
           <Text style={[styles.menuText, { color: colors.ember }]}>{t('group.delete')}</Text>
         </PressableScale>
       </BottomSheet>
@@ -440,7 +469,7 @@ const styles = StyleSheet.create({
   headCta: { flex: 1, height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   headCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#121212' },
   headCtaLight: { fontFamily: font.bold, fontSize: 15 },
-  section: { borderTopWidth: 1, paddingTop: 18, marginTop: 22 },
+  section: { marginTop: 22 },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   memberBody: { flex: 1, gap: 1 },
@@ -451,15 +480,21 @@ const styles = StyleSheet.create({
   remindChip: { height: 30, paddingHorizontal: 12, borderRadius: 999, justifyContent: 'center' },
   remindText: { fontFamily: font.bold, fontSize: 12 },
   disabled: { opacity: 0.5 },
-  splitsHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-  seeAll: { fontFamily: font.bold, fontSize: 13 },
+  splitsHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
+  seeAll: { fontFamily: font.semibold, fontSize: 11 },
   splitRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   splitIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   splitLetter: { fontFamily: font.extrabold, fontSize: 15 },
   splitAmount: { fontFamily: font.extrabold, fontSize: 15 },
   empty: { fontFamily: font.semibold, fontSize: 13, textAlign: 'center', paddingVertical: 20 },
   menuRowLast: { borderBottomWidth: 0 },
-  menuRow: { minHeight: 52, justifyContent: 'center', borderBottomWidth: 1 },
+  menuTitle: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.2 },
+  menuSub: { fontFamily: font.semibold, fontSize: 12.5, marginTop: 3, marginBottom: 10 },
+  menuIcon: { width: 34, height: 34, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  menuGlyph: { fontSize: 16 },
+  titleTap: { flexDirection: 'row', alignItems: 'center', gap: 4, minWidth: 0 },
+  titleChevron: { fontFamily: font.semibold, fontSize: 12, marginTop: -2 },
+  menuRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 56, borderBottomWidth: 1 },
   menuText: { fontFamily: font.bold, fontSize: 15 },
   sheetTitle: { fontFamily: font.extrabold, fontSize: 15, textAlign: 'center' },
   renameInput: { borderBottomWidth: 2, paddingBottom: 8, fontFamily: font.bold, fontSize: 18, marginTop: 16 },

@@ -12,9 +12,11 @@ import { font } from '@/theme/tokens';
 interface Props {
   open: boolean;
   onClose: () => void;
+  /** дополнительные действия под палитрой (у компании — знак, переименовать, удалить) */
+  extra?: { label: string; onPress: () => void; danger?: boolean }[];
 }
 
-export function SkinSheet({ open, onClose }: Props) {
+export function SkinSheet({ open, onClose, extra }: Props) {
   const { t } = useTranslation();
   const { colors } = useTheme();
   const current = useSkin();
@@ -40,6 +42,22 @@ export function SkinSheet({ open, onClose }: Props) {
           </PressableScale>
         ))}
       </View>
+
+      {extra?.length ? (
+        <View style={styles.extra}>
+          {extra.map((a) => (
+            <PressableScale
+              key={a.label}
+              style={[styles.action, { backgroundColor: colors.sand }]}
+              onPress={a.onPress}
+            >
+              <Text style={[styles.actionText, { color: a.danger ? colors.ember : colors.ink }]}>
+                {a.label}
+              </Text>
+            </PressableScale>
+          ))}
+        </View>
+      ) : null}
     </BottomSheet>
   );
 }
@@ -49,4 +67,7 @@ const styles = StyleSheet.create({
   sub: { fontFamily: font.semibold, fontSize: 13, marginTop: 4, marginBottom: 16 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, justifyContent: 'center', paddingBottom: 8 },
   cell: { width: 62, height: 62, borderRadius: 20, borderWidth: 3 },
+  extra: { gap: 8, marginTop: 16, paddingBottom: 4 },
+  action: { height: 48, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  actionText: { fontFamily: font.bold, fontSize: 15 },
 });

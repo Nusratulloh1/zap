@@ -1045,7 +1045,8 @@
     "close": "Закрыть",
     "backToBill": "Вернуться к чеку",
     "cashbackChip": "+{{amount}} кэшбэка группе",
-    "eachFor": " — по {{amount}}"
+    "eachFor": " — по {{amount}}",
+    "showToMerchant": "Покажите этот экран мерчанту — QR подтверждает оплату"
   },
   "skin": {
     "title": "Цвет экрана",

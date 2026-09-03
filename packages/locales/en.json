@@ -1045,7 +1045,8 @@
     "close": "Close",
     "backToBill": "Back to the bill",
     "cashbackChip": "+{{amount}} cashback to the crew",
-    "eachFor": " — {{amount}} each"
+    "eachFor": " — {{amount}} each",
+    "showToMerchant": "Show this screen to the merchant — the QR confirms the payment"
   },
   "skin": {
     "title": "Screen colour",
