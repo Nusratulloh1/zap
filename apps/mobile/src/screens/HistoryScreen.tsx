@@ -140,7 +140,7 @@ export function HistoryScreen() {
             return (
               <PressableScale
                 key={tb.key}
-                style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.sand }]}
+                style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.paper }]}
                 onPress={() => setTab(tb.key)}
               >
                 <Text style={[active ? styles.tabTextActive : styles.tabText, { color: active ? '#121212' : colors.slate }]}>{t(tb.label)}</Text>
@@ -157,7 +157,7 @@ export function HistoryScreen() {
                   <PressableScale
                     haptic={false}
                     disabled={!e.splitId}
-                    style={[styles.row, i < g.items.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
+                    style={[styles.row, { backgroundColor: colors.paper }]}
                     onPress={() => e.splitId && nav.navigate('SplitLive', { id: e.splitId })}
                   >
                     {e.kind === 'cashback' ? (
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
   tabText: { fontFamily: font.bold, fontSize: 13 },
   tabTextActive: { fontFamily: font.extrabold, fontSize: 13 },
   dayLabel: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 20, marginBottom: 4 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 8 },
   icon: { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   iconPct: { fontFamily: font.extrabold, fontSize: 15, color: '#121212' },
   iconLetter: { fontFamily: font.extrabold, fontSize: 15 },

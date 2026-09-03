@@ -22,7 +22,9 @@ export function SpendingBlock() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
   const home = useHomeData();
-  const [period, setPeriod] = useState<'week' | 'month'>('month');
+  const [period, setPeriod] = useState<'week' | 'month'>('week');
+  // выбранный столбик — показываем его сумму над графиком
+  const [picked, setPicked] = useState<number | null>(null);
   const monthLabel = useMemo(
     () => new Date().toLocaleDateString(undefined, { month: 'long' }),
     [],
@@ -48,10 +50,13 @@ export function SpendingBlock() {
               <PressableScale
                 key={p}
                 haptic={false}
-                style={[styles.period, period === p && { backgroundColor: 'rgba(255,255,255,0.12)' }]}
+                style={[
+                  styles.period,
+                  { backgroundColor: period === p ? fixed.lime : 'rgba(255,255,255,0.1)' },
+                ]}
                 onPress={() => setPeriod(p)}
               >
-                <Text style={[styles.periodText, { color: period === p ? '#FFFFFF' : 'rgba(255,255,255,0.5)' }]}>
+                <Text style={[styles.periodText, { color: period === p ? '#121212' : '#FFFFFF' }]}>
                   {t(`history.period.${p}`)}
                 </Text>
               </PressableScale>
@@ -61,29 +66,52 @@ export function SpendingBlock() {
 
         <View style={styles.amountRow}>
           <Text style={styles.amount} numberOfLines={1} adjustsFontSizeToFit>{money(sum.spent)}</Text>
-          {sum.deltaPct !== null ? (
-            <Text style={[styles.delta, { color: sum.deltaPct <= 0 ? fixed.lime : '#FF8A6B' }]}>
-              {sum.deltaPct > 0 ? '+' : ''}{sum.deltaPct}%
-            </Text>
-          ) : null}
+          <Text style={styles.amountUnit}>{t('common.currency')}</Text>
         </View>
-        <Text style={styles.sub}>
-          {t('history.spentSub', { splits: sum.splits, groups: sum.groups })}
-        </Text>
+        <View style={styles.deltaRow}>
+          {sum.deltaPct !== null ? (
+            <View style={[styles.deltaChip, { backgroundColor: 'rgba(217,255,58,0.15)' }]}>
+              <Text style={[styles.deltaText, { color: fixed.lime }]}>
+                {sum.deltaPct > 0 ? '+' : ''}{sum.deltaPct}%
+              </Text>
+            </View>
+          ) : null}
+          <Text style={styles.sub} numberOfLines={1}>
+            {t('history.spentSub', { splits: sum.splits, groups: sum.groups })}
+          </Text>
+        </View>
 
-        {/* столбики за неделю: последний день лаймовый, как в макете */}
+        {/*
+          Столбики за неделю. Тап по столбику показывает сумму этого дня —
+          иначе график только «настроение», а цифру за вторник не узнать.
+        */}
+        {picked !== null && days[picked] ? (
+          <View style={styles.tipRow}>
+            <View style={[styles.tip, { backgroundColor: 'rgba(255,255,255,0.12)' }]}>
+              <Text style={styles.tipText}>
+                {days[picked]!.label} · {money(days[picked]!.amount)}
+              </Text>
+            </View>
+          </View>
+        ) : null}
         <View style={styles.chart}>
           {days.map((d, i) => (
-            <View
+            <PressableScale
               key={i}
-              style={[
-                styles.bar2,
-                {
-                  height: Math.max(8, (d.amount / Math.max(1, maxDay)) * 96),
-                  backgroundColor: d.today ? fixed.lime : 'rgba(255,255,255,0.18)',
-                },
-              ]}
-            />
+              haptic={false}
+              style={styles.barTap}
+              onPress={() => setPicked(picked === i ? null : i)}
+            >
+              <View
+                style={[
+                  styles.bar2,
+                  {
+                    height: Math.max(8, (d.amount / Math.max(1, maxDay)) * 96),
+                    backgroundColor: d.today || picked === i ? fixed.lime : 'rgba(255,255,255,0.18)',
+                  },
+                ]}
+              />
+            </PressableScale>
           ))}
         </View>
         <View style={styles.chartLabels}>
@@ -144,6 +172,22 @@ export function SpendingBlock() {
                 );
               })}
             </Svg>
+            {/* эмодзи категорий по окружности — ориентир без легенды */}
+            {cats.slice(0, 5).map((c, i) => {
+              const before = cats.slice(0, i).reduce((a, x) => a + x.share, 0);
+              const angle = ((before + c.share / 2) / 100) * 2 * Math.PI - Math.PI / 2;
+              return (
+                <Text
+                  key={`g-${c.key}`}
+                  style={[
+                    styles.donutGlyph,
+                    { left: 90 + Math.cos(angle) * 66 - 10, top: 90 + Math.sin(angle) * 66 - 10 },
+                  ]}
+                >
+                  {c.glyph}
+                </Text>
+              );
+            })}
             <View style={styles.donutCenter} pointerEvents="none">
               <Text style={[styles.donutPct, { color: colors.ink }]}>{cats[0]?.share ?? 0}%</Text>
               <Text style={[styles.donutName, { color: colors.faint2 }]}>
@@ -209,7 +253,7 @@ export function SpendingBlock() {
 const styles = StyleSheet.create({
   card: { borderRadius: 28, paddingHorizontal: 18, paddingTop: 20, paddingBottom: 16, marginTop: 16 },
   chart: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, height: 96, marginTop: 20 },
-  bar2: { flex: 1, borderRadius: 8 },
+  bar2: { borderRadius: 8 },
   chartLabels: { flexDirection: 'row', marginTop: 8 },
   chartLabel: { flex: 1, textAlign: 'center', fontFamily: font.mono, fontSize: 8, color: 'rgba(255,255,255,0.4)' },
   whiteCard: { borderRadius: 28, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 16, marginTop: 10 },
@@ -237,9 +281,18 @@ const styles = StyleSheet.create({
   period: { height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center' },
   periodText: { fontFamily: font.bold, fontSize: 11.5 },
   amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 10, marginTop: 10 },
-  amount: { fontFamily: font.extrabold, fontSize: 34, letterSpacing: -1, color: '#FFFFFF' },
+  amount: { fontFamily: font.extrabold, fontSize: 40, letterSpacing: -1, color: '#FFFFFF' },
+  amountUnit: { fontFamily: font.semibold, fontSize: 12, color: 'rgba(255,255,255,0.5)' },
+  deltaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
+  deltaChip: { borderRadius: 8, paddingVertical: 2, paddingHorizontal: 7 },
+  deltaText: { fontFamily: font.extrabold, fontSize: 11 },
+  tipRow: { alignItems: 'center', marginTop: 12 },
+  tip: { borderRadius: 12, paddingVertical: 5, paddingHorizontal: 10 },
+  tipText: { fontFamily: font.bold, fontSize: 11, color: '#FFFFFF' },
+  barTap: { flex: 1, justifyContent: 'flex-end' },
+  donutGlyph: { position: 'absolute', fontSize: 16, width: 20, textAlign: 'center' },
   delta: { fontFamily: font.extrabold, fontSize: 14 },
-  sub: { fontFamily: font.semibold, fontSize: 11.5, color: 'rgba(255,255,255,0.45)', marginTop: 3 },
+  sub: { flex: 1, fontFamily: font.semibold, fontSize: 11, color: 'rgba(255,255,255,0.55)' },
   metrics: { flexDirection: 'row', gap: 8, marginTop: 16 },
   metric: { flex: 1 },
   metricLabel: { fontFamily: font.monoBold, fontSize: 7.5, letterSpacing: 1.8, color: 'rgba(255,255,255,0.45)' },
