@@ -10,7 +10,8 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
-import { MerchantCashbackSlider } from '@/components/MerchantCashbackSlider';
+import { CountUp } from '@/components/CountUp';
+import { VenueIcon } from '@/components/VenueIcon';
 import { CashbackTier } from '@/components/CashbackTier';
 import { Podium } from '@/components/Podium';
 import { STICKER } from '@/components/EmptyState';
@@ -58,15 +59,6 @@ export function CashbackScreen() {
     [home.db?.groups],
   );
 
-  const topMerchant = useMemo(() => {
-    const acc = new Map<string, { title: string; amount: number }>();
-    for (const e of home.db?.cashbackEntries ?? []) {
-      const cur = acc.get(e.title) ?? { title: e.title, amount: 0 };
-      cur.amount += e.amount;
-      acc.set(e.title, cur);
-    }
-    return [...acc.values()].sort((a, b) => b.amount - a.amount)[0] ?? null;
-  }, [home.db?.cashbackEntries]);
 
   const activeGroup = useMemo(
     () => (filter === 'all' ? null : (home.db?.groups ?? []).find((g) => g.id === filter) ?? null),
@@ -90,6 +82,17 @@ export function CashbackScreen() {
     }
     return [...acc.values()].sort((a, b) => b.amount - a.amount);
   }, [activeGroup, home.db?.splits]);
+
+  const merchantCount = useMemo(
+    () => new Set((home.db?.cashbackEntries ?? []).map((e) => e.title)).size,
+    [home.db?.cashbackEntries],
+  );
+  const spentAmount = useMemo(
+    () => (home.db?.cashbackEntries ?? []).filter((e) => e.amount < 0).reduce((a, e) => a - e.amount, 0),
+    [home.db?.cashbackEntries],
+  );
+  const splitsOfGroup = (gid: string) =>
+    (home.db?.splits ?? []).filter((s) => s.groupId === gid).length;
 
   const groupName = (gid?: string) => (gid ? (groups.find((g) => g.id === gid)?.name ?? '') : '');
   const badgeOf = (badge: string) => badge.split(' · ')[0] ?? badge;
@@ -146,8 +149,75 @@ export function CashbackScreen() {
       <Text style={[styles.title, { color: colors.ink }]}>{t('home.cashbackCard')}</Text>
 
       {filter === 'all' ? (
-        /* свайп-карточки по заведениям: общая сумма + где именно накопилось */
-        <MerchantCashbackSlider entries={home.db?.cashbackEntries ?? []} total={home.cashbackBalance} />
+        <View>
+          {/* spec 10: лаймовая карточка «ДОСТУПНО» со стикером и двумя кнопками */}
+          <View style={[styles.availCard, { backgroundColor: fixed.lime }]}>
+            <Text style={styles.availKicker}>{t('cashback.available')}</Text>
+            <View style={styles.availRow}>
+              <CountUp value={home.cashbackBalance} duration={800} style={styles.availAmount} />
+              <Text style={styles.availUnit}>{t('common.currency')}</Text>
+            </View>
+            <Text style={styles.availSub}>
+              {t('cashback.groupsAndMerchants', { groups: groups.length, merchants: merchantCount })}
+            </Text>
+            <View style={styles.availActions}>
+              <PressableScale style={[styles.availBtn, { backgroundColor: fixed.ink }]} onPress={() => void spend()}>
+                <Text style={[styles.availBtnText, { color: fixed.lime }]}>{t('cashback.spendShort')}</Text>
+              </PressableScale>
+              <PressableScale style={[styles.availBtn, styles.availBtnGhost]} onPress={openWithdraw}>
+                <Text style={[styles.availBtnText, { color: fixed.ink }]}>{t('cashback.withdraw')}</Text>
+              </PressableScale>
+            </View>
+            <Image source={STICKER.wallet} style={styles.availArt} resizeMode="contain" />
+          </View>
+
+          <View style={styles.tiles}>
+            {[
+              { l: t('cashback.perMonth'), v: `+${money(monthAmount)}` },
+              { l: t('cashback.spentLabel'), v: money(spentAmount) },
+              { l: t('cashback.rate'), v: t('cashback.rateUpTo', { rate: `${(bestRateBp / 100).toFixed(bestRateBp % 100 ? 1 : 0)}%` }) },
+            ].map((x) => (
+              <View key={x.l} style={[styles.tile, { backgroundColor: colors.paper }]}>
+                <Text style={[styles.tileLabel, { color: colors.faint2 }]}>{x.l}</Text>
+                <Text style={[styles.tileValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
+                  {x.v}
+                </Text>
+              </View>
+            ))}
+          </View>
+
+          {groups.length ? (
+            <>
+              <View style={styles.sectionHead}>
+                <Text style={[styles.mono, { color: colors.faint2 }]}>{t('cashback.byGroups')}</Text>
+                <Text style={[styles.sectionCount, { color: colors.ink }]}>{groups.length}</Text>
+              </View>
+              {groups.map((g) => (
+                <PressableScale
+                  key={g.id}
+                  haptic={false}
+                  style={[styles.groupRow, { backgroundColor: colors.paper }]}
+                  onPress={() => setFilter(g.id)}
+                >
+                  <VenueIcon name={g.name} size={40} />
+                  <View style={styles.groupBody}>
+                    <Text style={[styles.groupName, { color: colors.ink }]} numberOfLines={1}>{g.name}</Text>
+                    <Text style={[styles.groupSub, { color: colors.faint2 }]} numberOfLines={1}>
+                      {t('debts.splitsCount', { n: splitsOfGroup(g.id) })}
+                    </Text>
+                  </View>
+                  <View style={styles.groupRight}>
+                    <Text style={[styles.groupAmount, { color: colors.ink }]}>{money(g.cashback)}</Text>
+                    <Text style={[styles.groupRate, { color: colors.faint2 }]}>
+                      {((g.rateBp ?? 200) / 100).toFixed((g.rateBp ?? 200) % 100 ? 1 : 0)}%
+                    </Text>
+                  </View>
+                  <Text style={[styles.chevron, { color: colors.faint2 }]}>›</Text>
+                </PressableScale>
+              ))}
+            </>
+          ) : null}
+        </View>
       ) : (
         /*
           Экран компании по макету: «НАКОПИЛИ ВМЕСТЕ» с суммой 40 pt и
@@ -192,30 +262,6 @@ export function CashbackScreen() {
           ) : null}
         </View>
       )}
-
-      <Text style={[styles.hint, { color: colors.muted }]}>{t('cashback.empty')}</Text>
-
-      {/* сводка месяца и ставки — по макету редизайна */}
-      <View style={[styles.summary, filter !== 'all' && styles.hidden]}>
-        <View style={[styles.sumCard, { backgroundColor: colors.shell }]}>
-          <Text style={[styles.sumLabel, { color: colors.faint2 }]}>{t('cashback.perMonth')}</Text>
-          <Text style={[styles.sumValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
-            +{money(monthAmount)}
-          </Text>
-        </View>
-        <View style={[styles.sumCard, { backgroundColor: colors.shell }]}>
-          <Text style={[styles.sumLabel, { color: colors.faint2 }]}>{t('cashback.rate')}</Text>
-          <Text style={[styles.sumValue, { color: colors.ink }]} numberOfLines={1}>
-            {t('cashback.rateUpTo', { rate: `${(bestRateBp / 100).toFixed(bestRateBp % 100 ? 1 : 0)}%` })}
-          </Text>
-        </View>
-        <View style={[styles.sumCard, { backgroundColor: colors.shell }]}>
-          <Text style={[styles.sumLabel, { color: colors.faint2 }]}>{t('cashback.topMerchant')}</Text>
-          <Text style={[styles.sumValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
-            {topMerchant?.title ?? '—'}
-          </Text>
-        </View>
-      </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersWrap} contentContainerStyle={styles.filters}>
         {[{ value: 'all', label: t('cashback.allGroups') }, ...groups.map((g) => ({ value: g.id, label: g.name }))].map(
@@ -325,7 +371,33 @@ export function CashbackScreen() {
 }
 
 const styles = StyleSheet.create({
-  hidden: { display: 'none' },
+  // spec 10
+  availCard: { borderRadius: 22, paddingTop: 18, paddingHorizontal: 16, paddingBottom: 16, marginTop: 26, overflow: 'hidden' },
+  availKicker: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 2.5, color: '#5A6A16' },
+  availRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 6 },
+  availAmount: { fontFamily: font.extrabold, fontSize: 40, letterSpacing: -0.5, color: '#121212' },
+  availUnit: { fontFamily: font.semibold, fontSize: 12, color: '#5A6A16' },
+  availSub: { fontFamily: font.semibold, fontSize: 11, color: '#5A6A16', marginTop: 6 },
+  availActions: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  availBtn: { height: 34, borderRadius: 17, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
+  availBtnGhost: { backgroundColor: 'rgba(18,18,18,0.08)' },
+  availBtnText: { fontFamily: font.bold, fontSize: 11 },
+  availArt: { position: 'absolute', right: 14, top: 14, width: 78, height: 85 },
+  tiles: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  tile: { flex: 1, borderRadius: 16, padding: 12 },
+  tileLabel: { fontFamily: font.monoBold, fontSize: 7, letterSpacing: 2 },
+  tileValue: { fontFamily: font.extrabold, fontSize: 16, marginTop: 6 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 24, marginBottom: 12 },
+  sectionCount: { fontFamily: font.bold, fontSize: 11 },
+  groupRow: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 8 },
+  groupBody: { flex: 1, minWidth: 0 },
+  groupName: { fontFamily: font.bold, fontSize: 13 },
+  groupSub: { fontFamily: font.semibold, fontSize: 10, marginTop: 4 },
+  groupRight: { alignItems: 'flex-end' },
+  groupAmount: { fontFamily: font.extrabold, fontSize: 16 },
+  groupRate: { fontFamily: font.semibold, fontSize: 9, marginTop: 2 },
+  chevron: { fontFamily: font.semibold, fontSize: 16 },
+
   // spec 09: сумма 40 pt, стикер 78×85 справа
   poolRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 22 },
   poolBody: { flex: 1, minWidth: 0 },
@@ -337,10 +409,6 @@ const styles = StyleSheet.create({
   poolArt: { width: 78, height: 85 },
   tierCard: { borderRadius: 18, paddingHorizontal: 14, paddingBottom: 12, marginTop: 18 },
 
-  summary: { flexDirection: 'row', gap: 8, marginTop: 14 },
-  sumCard: { flex: 1, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 12 },
-  sumLabel: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 1.6 },
-  sumValue: { fontFamily: font.extrabold, fontSize: 16, marginTop: 5, letterSpacing: -0.2 },
 
   root: { paddingHorizontal: SCREEN_PAD_X },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3, marginTop: 24 },

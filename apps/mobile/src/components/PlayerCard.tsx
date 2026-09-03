@@ -43,7 +43,8 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
   const progress = next ? Math.min(1, (splits - from) / (next - from)) : 1;
 
   return (
-    <Animated.View entering={FadeIn.duration(260)} style={[styles.card, { backgroundColor: colors.shell }]}>
+    // spec/16 (Screen 3): без карточки-подложки, аватар 98 между колонками
+    <Animated.View entering={FadeIn.duration(260)} style={styles.card}>
       {/*
         Аватар по центру, показатели по бокам — как в присланном образце
         игрового профиля: слева уровень, справа число сплитов.
@@ -73,9 +74,9 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
           </View>
         </PressableScale>
 
-        <View style={styles.side}>
-          <Stat label={t('profile.statGroupsUnit')} value={String(groups)} />
-          <Stat label={t('profile.statCashbackUnit')} value={cashback} />
+        <View style={[styles.side, styles.sideRight]}>
+          <Stat label={t('profile.statGroupsUnit')} value={String(groups)} align="right" />
+          <Stat label={t('profile.statCashbackUnit')} value={cashback} align="right" />
         </View>
       </View>
 
@@ -97,8 +98,8 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
           </Text>
           <Text style={[styles.xpCount, { color: colors.ink }]}>{next ? `${splits}/${next}` : `${splits}`}</Text>
         </View>
-        <View style={[styles.track, { backgroundColor: colors.sand }]}>
-          <View style={[styles.bar, { backgroundColor: fixed.lime, width: `${Math.max(6, progress * 100)}%` }]} />
+        <View style={[styles.track, { backgroundColor: 'rgba(18,18,18,0.12)' }]}>
+          <View style={[styles.bar, { backgroundColor: colors.ink, width: `${Math.max(6, progress * 100)}%` }]} />
         </View>
       </View>
 
@@ -107,12 +108,13 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
 }
 
 /** Показатель у края карточки: подпись мелким моно, значение жирным. */
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({ label, value, align }: { label: string; value: string; align?: 'right' }) {
   const { colors } = useTheme();
+  const side = align === 'right' ? ({ textAlign: 'right' } as const) : undefined;
   return (
     <View style={styles.stat}>
-      <Text style={[styles.sideLabel, { color: colors.faint2 }]} numberOfLines={1}>{label}</Text>
-      <Text style={[styles.sideValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
+      <Text style={[styles.sideLabel, { color: colors.faint2 }, side]} numberOfLines={1}>{label}</Text>
+      <Text style={[styles.sideValue, { color: colors.ink }, side]} numberOfLines={1} adjustsFontSizeToFit>
         {value}
       </Text>
     </View>
@@ -120,13 +122,14 @@ function Stat({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  card: { borderRadius: 26, padding: 18, marginTop: 4, overflow: 'hidden' },
+  card: { paddingHorizontal: 4, paddingTop: 8, marginTop: 16 },
   top: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  side: { width: 82, alignItems: 'center', gap: 14 },
-  stat: { alignItems: 'center', alignSelf: 'stretch' },
-  sideLabel: { fontFamily: font.monoBold, fontSize: 8.5, letterSpacing: 1.1, textTransform: 'uppercase' },
-  sideValue: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.4, marginTop: 3 },
-  avatarWrap: { width: 104, height: 104, borderRadius: 999, borderWidth: 3.5 },
+  side: { flex: 1, gap: 14 },
+  sideRight: { alignItems: 'flex-end' },
+  stat: { alignSelf: 'stretch' },
+  sideLabel: { fontFamily: font.monoBold, fontSize: 7, letterSpacing: 2, textTransform: 'uppercase' },
+  sideValue: { fontFamily: font.bold, fontSize: 18, marginTop: 4 },
+  avatarWrap: { width: 98, height: 98, borderRadius: 999 },
   avatar: { width: '100%', height: '100%', borderRadius: 999 },
   fallback: { alignItems: 'center', justifyContent: 'center' },
   fallbackText: { fontFamily: font.extrabold, fontSize: 34 },
@@ -155,15 +158,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   editGlyph: { fontSize: 12, color: '#121212' },
-  who: { alignItems: 'center', gap: 3, marginTop: 12 },
-  name: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.4 },
-  handle: { fontFamily: font.semibold, fontSize: 13 },
-  rankChip: { alignSelf: 'center', marginTop: 5, height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center' },
-  rankText: { fontFamily: font.extrabold, fontSize: 12, color: '#121212', letterSpacing: 0.2 },
-  xpBlock: { marginTop: 18 },
+  who: { alignItems: 'center', marginTop: 14 },
+  name: { fontFamily: font.extrabold, fontSize: 21 },
+  handle: { fontFamily: font.semibold, fontSize: 12, marginTop: 4 },
+  rankChip: { alignSelf: 'center', marginTop: 8, borderRadius: 12, paddingVertical: 5, paddingHorizontal: 12 },
+  rankText: { fontFamily: font.bold, fontSize: 11 },
+  xpBlock: { marginTop: 20 },
   xpLabels: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 7 },
-  xpText: { fontFamily: font.semibold, fontSize: 12, flex: 1, marginRight: 8 },
-  xpCount: { fontFamily: font.extrabold, fontSize: 12 },
-  track: { height: 10, borderRadius: 999, overflow: 'hidden' },
-  bar: { height: '100%', borderRadius: 999 },
+  xpText: { fontFamily: font.semibold, fontSize: 10, flex: 1, marginRight: 8 },
+  xpCount: { fontFamily: font.bold, fontSize: 10 },
+  track: { height: 8, borderRadius: 4, overflow: 'hidden' },
+  bar: { height: '100%', borderRadius: 4 },
 });

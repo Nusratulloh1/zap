@@ -474,7 +474,11 @@
     "rate": "STAVKA",
     "rateUpTo": "{{rate}} gacha",
     "topMerchant": "TOP JOY",
-    "pooledTogether": "BIRGA YIG‘DIK"
+    "pooledTogether": "BIRGA YIG‘DIK",
+    "groupsAndMerchants": "{{groups}} ta crew · {{merchants}} ta joy",
+    "spendShort": "Sarflash",
+    "byGroups": "GURUHLAR BO‘YICHA",
+    "spentLabel": "SARFLANDI"
   },
   "history": {
     "title": "Tarix",

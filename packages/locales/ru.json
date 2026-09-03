@@ -474,7 +474,11 @@
     "rate": "СТАВКА",
     "rateUpTo": "до {{rate}}",
     "topMerchant": "ТОП МЕРЧАНТ",
-    "pooledTogether": "НАКОПИЛИ ВМЕСТЕ"
+    "pooledTogether": "НАКОПИЛИ ВМЕСТЕ",
+    "groupsAndMerchants": "{{groups}} группы · {{merchants}} мерчантов",
+    "spendShort": "Потратить",
+    "byGroups": "ПО ГРУППАМ",
+    "spentLabel": "ПОТРАЧЕНО"
   },
   "history": {
     "title": "История",

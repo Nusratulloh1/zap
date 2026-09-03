@@ -474,7 +474,11 @@
     "rate": "RATE",
     "rateUpTo": "up to {{rate}}",
     "topMerchant": "TOP PLACE",
-    "pooledTogether": "POOLED TOGETHER"
+    "pooledTogether": "POOLED TOGETHER",
+    "groupsAndMerchants": "{{groups}} crews · {{merchants}} places",
+    "spendShort": "Spend",
+    "byGroups": "BY CREWS",
+    "spentLabel": "SPENT"
   },
   "history": {
     "title": "History",

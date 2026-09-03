@@ -11,7 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font, SCREEN_PAD_X } from '@/theme/tokens';
 
-const SIZE = 58;
+const SIZE = 53;
 
 interface Props {
   /** все ачивки в фиксированном порядке: [ключ, эмодзи] */
@@ -97,12 +97,12 @@ export function AchievementStrip({ all, unlocked }: Props) {
 }
 
 const styles = StyleSheet.create({
-  head: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 22 },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 24 },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
-  count: { fontFamily: font.extrabold, fontSize: 12 },
+  count: { fontFamily: font.semibold, fontSize: 10 },
   strip: { marginHorizontal: -SCREEN_PAD_X, marginTop: 12 },
-  stripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 12 },
-  item: { width: 68, alignItems: 'center' },
+  stripBody: { paddingHorizontal: SCREEN_PAD_X, gap: 18 },
+  item: { width: 53, alignItems: 'center' },
   medal: { width: SIZE, height: SIZE, alignItems: 'center', justifyContent: 'center' },
   glyph: { position: 'absolute', fontSize: 24 },
   locked: {
@@ -126,5 +126,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   starGlyph: { fontSize: 10, color: '#D9FF3A' },
-  label: { fontFamily: font.bold, fontSize: 10.5, lineHeight: 13, textAlign: 'center', marginTop: 6 },
+  label: { fontFamily: font.semibold, fontSize: 9.5, lineHeight: 12.4, textAlign: 'center', marginTop: 4 },
 });
