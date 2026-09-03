@@ -4,7 +4,7 @@
 // Раньше состав был сеткой слотов; в макете это именно круг — компания
 // «стоит вокруг стола», и порядок сразу читается: сверху тот, кто собрал.
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View, type ImageSourcePropType } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '@/components/Avatar';
 import { PressableScale } from '@/components/PressableScale';
@@ -18,6 +18,8 @@ export interface SquadMember {
   initials?: string;
   /** должен вам — на аватаре появляется «⚡» */
   owes?: boolean;
+  /** ачивки человека — стикеры вокруг аватара, как в макете */
+  stickers?: ImageSourcePropType[];
   onPing?: () => void;
 }
 
@@ -36,9 +38,23 @@ export function SquadCircle({ owner, members, frame, onInvite }: Props) {
   const { colors, fixed } = useTheme();
   const sides = members.slice(0, 2);
 
+  /*
+    Позиции стикеров взяты из макета (spec/01): первый — справа сверху,
+    второй — слева сверху, третий — слева снизу. Больше трёх не рисуем:
+    аватар перестаёт читаться.
+  */
+  const STICKER_POS = [
+    { right: -22, top: -6, width: 36, height: 36 },
+    { left: -24, top: -8, width: 34, height: 34 },
+    { left: -26, bottom: 2, width: 34, height: 34 },
+  ] as const;
+
   const face = (m: SquadMember, extra?: 'left' | 'right') => (
     <View>
       <Avatar contactId={m.contactId} name={m.name} letter={m.initials} color={m.color ?? '#8A887E'} size={64} />
+      {(m.stickers ?? []).slice(0, 3).map((src, i) => (
+        <Image key={i} source={src} style={[styles.sticker, STICKER_POS[i]]} resizeMode="contain" />
+      ))}
       {m.owes ? (
         <PressableScale
           style={[
@@ -103,6 +119,7 @@ const styles = StyleSheet.create({
   },
   ownerText: { fontFamily: font.monoBold, fontSize: 7, letterSpacing: 1.5 },
   name: { fontFamily: font.bold, fontSize: 11, marginTop: 4 },
+  sticker: { position: 'absolute' },
   bolt: {
     position: 'absolute',
     bottom: -4,

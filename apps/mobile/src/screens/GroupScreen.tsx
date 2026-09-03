@@ -24,16 +24,25 @@ import { crewStats } from '@/lib/crewStats';
 import { STICKER } from '@/components/EmptyState';
 import { useSkin } from '@/lib/screenSkin';
 import { SkinSheet } from '@/components/SkinSheet';
-import { FunStatCards } from '@/components/FunStatCards';
 import { VenueIcon } from '@/components/VenueIcon';
 import { SquadCircle } from '@/components/SquadCircle';
 import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
 import { useCrewColor, useCrewEmoji } from '@/lib/crewEmoji';
-import { funStats } from '@/lib/funStats';
+import { titlesFor, type TitleKey } from '@/lib/funStats';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 // те же знаки, что на слайде кэшбэка в онбординге
+
+/** Какой стикер показывать за каждый титул (наборы совпадают по смыслу). */
+const TITLE_STICKER: Record<TitleKey, keyof typeof STICKER> = {
+  fastestFinger: 'paidDone',
+  lastPayer: 'receiptHero',
+  reliableOne: 'fistBump',
+  bigSpender: 'wallet',
+  pizzaCFO: 'themeFood',
+  coffeeAddict: 'themeCoffee',
+};
 
 export function GroupScreen() {
   const { t } = useTranslation();
@@ -48,7 +57,6 @@ export function GroupScreen() {
 
   const group = home.db?.groups.find((g) => g.id === id);
   const stats = useMemo(() => crewStats(home.db, id), [home.db, id]);
-  const fun = useMemo(() => funStats(home.db, id), [home.db, id]);
 
   /*
     memberIds приходит с бэкенда уже вместе со мной (contactId(m.phone) →
@@ -86,6 +94,15 @@ export function GroupScreen() {
   const crewEmoji = useCrewEmoji(home.db, id);
   const crewColor = useCrewColor(home.db, id);
   const skin = useSkin();
+
+  /*
+    Ачивки человека показываем стикерами вокруг аватара — как в макете, где у
+    каждого свои наклейки. Титулы считаются из тех же данных, что в профиле.
+  */
+  const achievementsOf = (cid: string) =>
+    titlesFor(home.db, cid, id)
+      .slice(0, 3)
+      .map((x) => STICKER[TITLE_STICKER[x.key]]);
   const [skinSheet, setSkinSheet] = useState(false);
   /** должники внутри компании — по открытым долгам её участников */
   /* должники внутри компании: считаем прямо из открытых долгов, чтобы не
@@ -208,6 +225,7 @@ export function GroupScreen() {
             name: nameOf(group.ownerId),
             color: colorOf(group.ownerId),
             initials: home.contactById(group.ownerId)?.initials,
+            stickers: achievementsOf(group.ownerId),
           }}
           members={memberIds
             .filter((cid) => cid !== group.ownerId)
@@ -217,6 +235,7 @@ export function GroupScreen() {
               color: colorOf(cid),
               initials: home.contactById(cid)?.initials,
               owes: debtOf(cid) > 0,
+              stickers: achievementsOf(cid),
               onPing: () => void remind(cid),
             }))}
         />
@@ -270,9 +289,6 @@ export function GroupScreen() {
             ))}
           </>
         ) : null}
-
-        {/* ачивки компании — сразу под кнопками, компактной лентой */}
-        <FunStatCards fun={fun} nameOf={nameOf} />
 
         {/* история компании: сколько ужинов и кофе вместе, кто должен, кто платил */}
         <CrewStatsBlock
@@ -482,10 +498,18 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.5 },
   splitsHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
   seeAll: { fontFamily: font.semibold, fontSize: 11 },
-  splitRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
+  splitRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+    marginBottom: 8,
+  },
   splitIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   splitLetter: { fontFamily: font.extrabold, fontSize: 15 },
-  splitAmount: { fontFamily: font.extrabold, fontSize: 15 },
+  splitAmount: { fontFamily: font.extrabold, fontSize: 14 },
   empty: { fontFamily: font.semibold, fontSize: 13, textAlign: 'center', paddingVertical: 20 },
   menuRowLast: { borderBottomWidth: 0 },
   menuTitle: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.2 },

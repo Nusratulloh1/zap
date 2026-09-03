@@ -145,18 +145,20 @@ export function funStats(db: Db | undefined, groupId?: string): FunStat[] {
 }
 
 /**
- * Титулы участника (§C12). Их немного и они ироничные — «Pizza CFO», а не
+ * Титулы участника (§C12). С `groupId` считаются только по счетам этой
+ * компании — на экране компании они висят стикерами у аватара, и «Pizza CFO»
+ * там должен означать пиццу именно с этими людьми. Их немного и они ироничные — «Pizza CFO», а не
  * «Уровень 4». Больше трёх не отдаём: коллекция из десяти обесценивает каждый.
  */
 const MAX_TITLES = 3;
 
-export function titlesFor(db: Db | undefined, contactId: string): Title[] {
+export function titlesFor(db: Db | undefined, contactId: string, groupId?: string): Title[] {
   if (!db) return [];
-  const splits = closedOf(db).filter((s) => s.members.some((m) => m.contactId === contactId));
-  if (splits.length < MIN_SAMPLE) return [];
+  const splits = closedOf(db, groupId).filter((s) => s.members.some((m) => m.contactId === contactId));
+  if (!splits.length) return [];
 
   const out: Title[] = [];
-  const stats = funStats(db);
+  const stats = funStats(db, groupId);
 
   if (stats.find((s) => s.kind === 'fastest' && s.contactId === contactId)) {
     out.push({ key: 'fastestFinger', glyph: '⚡' });
@@ -168,7 +170,7 @@ export function titlesFor(db: Db | undefined, contactId: string): Title[] {
   // надёжность: доля закрытых своих долей
   const mine = splits.map((s) => s.members.find((m) => m.contactId === contactId)!);
   const paidRatio = mine.filter((m) => m.status === 'paid' || m.status === 'debt').length / mine.length;
-  if (paidRatio === 1 && splits.length >= 3) out.push({ key: 'reliableOne', glyph: '🤝' });
+  if (paidRatio === 1 && splits.length >= MIN_SAMPLE) out.push({ key: 'reliableOne', glyph: '🤝' });
 
   // сколько всего человек через себя провёл
   const spent = mine.reduce((sum, m) => sum + m.amount, 0);
@@ -181,8 +183,8 @@ export function titlesFor(db: Db | undefined, contactId: string): Title[] {
       return themeForMerchant(name)?.key === key;
     }).length;
 
-  if (themeCount('food') >= 3) out.push({ key: 'pizzaCFO', glyph: '🍕' });
-  if (themeCount('coffee') >= 3) out.push({ key: 'coffeeAddict', glyph: '☕' });
+  if (themeCount('food') >= MIN_SAMPLE) out.push({ key: 'pizzaCFO', glyph: '🍕' });
+  if (themeCount('coffee') >= MIN_SAMPLE) out.push({ key: 'coffeeAddict', glyph: '☕' });
 
   return out.slice(0, MAX_TITLES);
 }

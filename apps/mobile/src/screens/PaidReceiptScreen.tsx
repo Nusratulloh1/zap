@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   merchantRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   merchantBody: { flex: 1, minWidth: 0 },
   merchantName: { fontFamily: font.bold, fontSize: 16 },
-  orderLine: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 2, marginTop: 4 },
+  orderLine: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 1.2, marginTop: 4 },
   paidChip: { borderRadius: 12, paddingVertical: 5, paddingHorizontal: 10 },
   paidChipText: { fontFamily: font.extrabold, fontSize: 10, color: '#121212' },
   dashed: { borderTopWidth: 1.5, borderStyle: 'dashed', marginTop: 14 },
