@@ -248,13 +248,16 @@ export function SpendingBlock() {
             frame={colors.paper}
             items={people.slice(0, 3).map((p) => {
               const c = home.contactById(p.contactId);
-              // если контакта нет в справочнике, показываем его @username или
-              // телефон — «?» на экране выглядел как ошибка
-              const full = c?.name ?? c?.handle ?? p.contactId;
+              /*
+                Имя контакта важнее всего: раньше на экран попадал номер из
+                истории. Если контакта нет — берём имя из участников сплита,
+                затем @username, и только потом номер.
+              */
+              const shown = c?.name || c?.handle || p.contactId;
               return {
                 key: p.contactId,
                 contactId: p.contactId,
-                name: full.split(' ')[0] ?? full,
+                name: shown.split(' ')[0] ?? shown,
                 color: c?.color,
                 initials: c?.initials,
                 amount: p.amount,

@@ -44,6 +44,13 @@ export function HistoryScreen() {
   const home = useHomeData();
   const myAvatar = useMyAvatar();
 
+  /** Заголовок записи: имя контакта важнее сохранённого в meta номера. */
+  const rowTitle = (e: { title: string; titleKey?: string; contactId?: string }) => {
+    const c = e.contactId ? home.contactById(e.contactId) : undefined;
+    if (c?.name) return c.name;
+    return entryText(e.title, e.titleKey);
+  };
+
   const [tab, setTab] = useState<TabKey>('all');
   // Поиск. Кнопка-лупа существовала с первого дня, но не делала НИЧЕГО —
   // без onPress и без логики. Теперь она раскрывает строку поиска.
@@ -175,7 +182,13 @@ export function HistoryScreen() {
                     )}
                     <View style={styles.rowBody}>
                       <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>
-                        {entryText(e.title, e.titleKey)}
+                        {/*
+                          У долговых записей meta.title писался в момент
+                          события: если контакт тогда не был сохранён, туда
+                          попадал номер. Имя берём из справочника контактов, а
+                          на номер откатываемся только если контакта нет.
+                        */}
+                        {rowTitle(e)}
                       </Text>
                       <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>{e.subtitle}</Text>
                     </View>
