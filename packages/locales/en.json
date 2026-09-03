@@ -424,7 +424,8 @@
     "member": "member",
     "pickEmoji": "Pick a crew icon",
     "contributors": "WHO BROUGHT MORE",
-    "owesYou": "{{name}} · owes you"
+    "owesYou": "{{name}} · owes you",
+    "lastZaps": "LAST ZAPS"
   },
   "debts": {
     "title": "Owed to you",

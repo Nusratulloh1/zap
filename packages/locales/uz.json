@@ -424,7 +424,8 @@
     "member": "a’zo",
     "pickEmoji": "Kompaniya belgisi",
     "contributors": "KIM KO‘P KELTIRDI",
-    "owesYou": "{{name}} · sizga qarzdor"
+    "owesYou": "{{name}} · sizga qarzdor",
+    "lastZaps": "OXIRGI ZAPLAR"
   },
   "debts": {
     "title": "Sizga qarzdor",

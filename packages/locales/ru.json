@@ -424,7 +424,8 @@
     "member": "участник",
     "pickEmoji": "Знак компании",
     "contributors": "КТО ПРИНЁС БОЛЬШЕ",
-    "owesYou": "{{name}} · должен вам"
+    "owesYou": "{{name}} · должен вам",
+    "lastZaps": "ПОСЛЕДНИЕ ZAP"
   },
   "debts": {
     "title": "Вам должны",

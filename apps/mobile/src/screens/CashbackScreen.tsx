@@ -10,6 +10,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { PressableScale } from '@/components/PressableScale';
 import { CountUp } from '@/components/CountUp';
 import { VenueIcon } from '@/components/VenueIcon';
+import { Avatar } from '@/components/Avatar';
 import { CashbackTier } from '@/components/CashbackTier';
 import { Podium } from '@/components/Podium';
 import { STICKER } from '@/components/EmptyState';
@@ -241,9 +242,31 @@ export function CashbackScreen() {
                     <VenueIcon name={g.name} size={40} />
                     <View style={styles.rowBody}>
                       <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>{g.name}</Text>
-                      <Text style={[styles.rowSub, { color: colors.muted }]} numberOfLines={1}>
-                        {t('debts.splitsCount', { n: splitsOfGroup(g.id) })}
-                      </Text>
+                      {/* лица участников рядом с числом сплитов (spec/10) */}
+                      <View style={styles.miniRow}>
+                        {[...new Set(g.memberIds)].slice(0, 3).map((cid, i) => (
+                          <Avatar
+                            key={cid}
+                            contactId={cid}
+                            name={home.nameOfContact(cid)}
+                            color={home.contactById(cid)?.color ?? '#8A887E'}
+                            size={18}
+                            ring={colors.paper}
+                            ringWidth={1.5}
+                            style={i > 0 ? styles.miniStacked : undefined}
+                          />
+                        ))}
+                        {g.memberIds.length > 3 ? (
+                          <View style={[styles.miniMore, { backgroundColor: colors.sand, borderColor: colors.paper }]}>
+                            <Text style={[styles.miniMoreText, { color: colors.muted }]}>
+                              +{g.memberIds.length - 3}
+                            </Text>
+                          </View>
+                        ) : null}
+                        <Text style={[styles.rowSub, styles.miniCount, { color: colors.muted }]} numberOfLines={1}>
+                          {t('debts.splitsCount', { n: splitsOfGroup(g.id) })}
+                        </Text>
+                      </View>
                     </View>
                     <View style={styles.rowRight}>
                       <Text style={[styles.rowAmount, { color: colors.ink }]}>{money(g.cashback)}</Text>
@@ -434,6 +457,19 @@ const styles = StyleSheet.create({
   rowRight: { alignItems: 'flex-end' },
   ctaText: { fontFamily: font.bold, fontSize: 15 },
   rowRate: { fontFamily: font.semibold, fontSize: 9, marginTop: 2 },
+  miniRow: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
+  miniStacked: { marginLeft: -8 },
+  miniMore: {
+    marginLeft: -8,
+    width: 18,
+    height: 18,
+    borderRadius: 999,
+    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  miniMoreText: { fontFamily: font.bold, fontSize: 8 },
+  miniCount: { marginLeft: 6, marginTop: 0 },
   spacer: { flex: 1, minHeight: 18 },
 
   // spec 10

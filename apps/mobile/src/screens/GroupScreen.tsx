@@ -22,13 +22,13 @@ import { useDraft } from '@/store/draft';
 import { money, humanDateLc } from '@/lib/format';
 import { crewStats } from '@/lib/crewStats';
 import { STICKER } from '@/components/EmptyState';
+import { useSkin } from '@/lib/screenSkin';
 import { FunStatCards } from '@/components/FunStatCards';
 import { VenueIcon } from '@/components/VenueIcon';
 import { SquadCircle } from '@/components/SquadCircle';
 import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
 import { useCrewColor, useCrewEmoji } from '@/lib/crewEmoji';
 import { funStats } from '@/lib/funStats';
-import { translate } from '@/i18n';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -84,6 +84,7 @@ export function GroupScreen() {
   const [emojiSheet, setEmojiSheet] = useState(false);
   const crewEmoji = useCrewEmoji(home.db, id);
   const crewColor = useCrewColor(home.db, id);
+  const skin = useSkin();
   /** должники внутри компании — по открытым долгам её участников */
   /* должники внутри компании: считаем прямо из открытых долгов, чтобы не
      тянуть в зависимости функцию, объявленную ниже по файлу */
@@ -108,12 +109,6 @@ export function GroupScreen() {
   const colorOf = (cid: string) => (cid === 'me' ? '#121212' : (home.contactById(cid)?.color ?? '#8A887E'));
   const debtOf = (cid: string) => openDebts.filter((d) => d.contactId === cid).reduce((s, d) => s + d.amount, 0);
 
-  const memberSub = (cid: string) => {
-    const debt = debtOf(cid);
-    if (debt > 0) return t('group.owes', { amount: money(debt) });
-    const n = groupSplits.filter((s) => s.members.some((m) => m.contactId === cid)).length;
-    return translate('group.allClosed', { n });
-  };
 
   const remind = async (cid: string) => {
     setReminded((s) => new Set([...s, cid]));
@@ -174,20 +169,27 @@ export function GroupScreen() {
   }
 
   return (
-    <Screen style={styles.root}>
-      <ScreenHeader right={{ glyph: '⋯', label: t('group.menuAria'), onPress: () => setMenuSheet(true) }} />
-
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
-        {/* шапка (spec 01): знак и название по центру, под ними состав */}
-        <View style={styles.headCenter}>
+    <Screen style={styles.root} background={skin ?? fixed.lime} darkBar={false}>
+      {/* шапка spec/01: назад — знак и название по центру — «🎨» */}
+      <View style={styles.head}>
+        <PressableScale style={[styles.round, { backgroundColor: colors.paper }]} onPress={() => nav.goBack()}>
+          <Text style={[styles.roundGlyph, { color: colors.ink }]}>←</Text>
+        </PressableScale>
+        <View style={styles.headCenterRow}>
           <PressableScale haptic onPress={() => setEmojiSheet(true)} style={styles.headTitleRow}>
             <VenueIcon name={group.name} glyph={crewEmoji} color={crewColor} size={26} />
             <Text style={[styles.title, { color: colors.ink }]} numberOfLines={1}>{group.name}</Text>
           </PressableScale>
-          <Text style={[styles.headSub, { color: colors.faint }]} numberOfLines={1}>
-            {memberIds.map((cid) => nameOf(cid).split(' ')[0]).join(' · ')}
+          <Text style={[styles.headSub, { color: colors.muted }]} numberOfLines={1}>
+            {memberIds.map((cid) => home.nameOfContact(cid).split(' ')[0]).join(' · ')}
           </Text>
         </View>
+        <PressableScale style={[styles.round, { backgroundColor: colors.paper }]} onPress={() => setMenuSheet(true)}>
+          <Text style={styles.roundGlyph}>🎨</Text>
+        </PressableScale>
+      </View>
+
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
 
         {/* круг отряда: владелец сверху, участники по углам, «+» в центре */}
         <SquadCircle
@@ -264,61 +266,6 @@ export function GroupScreen() {
         {/* ачивки компании — сразу под кнопками, компактной лентой */}
         <FunStatCards fun={fun} nameOf={nameOf} />
 
-        {/*
-          Отряд — слоты как в лобби игры: рамка вокруг аватара, шеврон с
-          ролью, снизу имя и строка состояния. Пустой слот с пунктиром зовёт
-          добавить человека — компания из одного больше не выглядит поломкой.
-        */}
-        <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
-          <View style={styles.splitsHead}>
-            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.squad')}</Text>
-            <Text style={[styles.squadCount, { color: colors.muted }]}>{memberIds.length}</Text>
-          </View>
-          <View style={styles.slots}>
-            {memberIds.map((cid) => {
-              const owner = cid === group.ownerId;
-              const debt = debtOf(cid);
-              return (
-                <View key={cid} style={[styles.slot, { backgroundColor: colors.shell }]}>
-                  <View style={[styles.slotFrame, { borderColor: owner ? fixed.lime : colors.sand2 }]}>
-                    <Avatar contactId={cid} name={nameOf(cid)} color={colorOf(cid)} size={48} />
-                  </View>
-                  <View style={[styles.slotChevron, { backgroundColor: owner ? fixed.lime : colors.sand }]}>
-                    <Text style={[styles.slotChevronText, { color: owner ? '#121212' : colors.muted }]} numberOfLines={1}>
-                      {owner ? t('group.owner') : t('group.member')}
-                    </Text>
-                  </View>
-                  <Text style={[styles.slotName, { color: colors.ink }]} numberOfLines={1}>
-                    {nameOf(cid).split(' ')[0]}
-                    {cid === 'me' ? t('group.youSuffix') : ''}
-                  </Text>
-                  <Text style={[styles.slotSub, { color: colors.faint }]} numberOfLines={1}>
-                    {cid === 'me' ? translate('group.allClosed', { n: groupSplits.length }) : memberSub(cid)}
-                  </Text>
-                  {!owner && debt > 0 ? (
-                    <PressableScale
-                      disabled={reminded.has(cid)}
-                      style={[styles.slotRemind, { backgroundColor: colors.ink }, reminded.has(cid) && styles.disabled]}
-                      onPress={() => void remind(cid)}
-                    >
-                      <Text style={[styles.slotRemindText, { color: fixed.lime }]} numberOfLines={1}>
-                        {reminded.has(cid) ? t('group.reminded') : t('group.remind')}
-                      </Text>
-                    </PressableScale>
-                  ) : null}
-                </View>
-              );
-            })}
-            {/* свободный слот — приглашение */}
-            <PressableScale style={[styles.slot, styles.slotEmpty, { borderColor: colors.sand2 }]} onPress={() => void invite()}>
-              <View style={[styles.slotFrame, styles.slotPlusFrame, { borderColor: colors.sand2 }]}>
-                <Text style={[styles.slotPlus, { color: colors.faint }]}>+</Text>
-              </View>
-              <Text style={[styles.slotName, { color: colors.muted }]} numberOfLines={1}>{t('group.invite')}</Text>
-            </PressableScale>
-          </View>
-        </View>
-
         {/* история компании: сколько ужинов и кофе вместе, кто должен, кто платил */}
         <CrewStatsBlock
           stats={stats}
@@ -327,9 +274,9 @@ export function GroupScreen() {
           colorOf={(cid) => home.contactById(cid)?.color ?? '#8A887E'}
         />
 
-        <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
+        <View style={styles.section}>
           <View style={styles.splitsHead}>
-            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.splits')}</Text>
+            <Text style={[styles.mono, { color: colors.muted }]}>{t('group.lastZaps')}</Text>
             <PressableScale onPress={() => nav.popTo('Tabs', { screen: 'History' })}>
               <Text style={[styles.seeAll, { color: colors.muted }]}>{t('home.seeAll')}</Text>
             </PressableScale>
@@ -337,19 +284,32 @@ export function GroupScreen() {
           {groupSplits.map((s) => {
             const merchant = home.db?.merchants.find((m) => m.id === s.merchantId);
             return (
-              <PressableScale key={s.id} haptic={false} style={styles.splitRow} onPress={() => nav.navigate('SplitLive', { id: s.id })}>
-                <VenueIcon name={merchant?.name ?? s.title} size={44} />
+              <PressableScale
+                key={s.id}
+                haptic={false}
+                style={[styles.splitRow, { backgroundColor: colors.paper }]}
+                onPress={() => nav.navigate('SplitLive', { id: s.id })}
+              >
+                <VenueIcon name={merchant?.name ?? s.title} size={38} />
                 <View style={styles.memberBody}>
-                  <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
+                  <Text style={[styles.splitTitle, { color: colors.ink }]} numberOfLines={1}>
                     {merchant?.name ?? s.title}
-                    {s.bill ? ` · #${s.bill.orderNo}` : ''}
                   </Text>
-                  <Text style={[styles.memberSub, { color: colors.faint }]} numberOfLines={1}>
+                  <Text style={[styles.splitSub, { color: colors.muted }]} numberOfLines={1}>
+                    {t('live.paidOfCount', {
+                      paid: s.members.filter((m) => m.status === 'paid' || m.status === 'debt').length,
+                      total: s.members.length,
+                    })}
+                    {' · '}
                     {humanDateLc(s.createdAt)}
-                    {s.cashback ? t('group.splitCashback', { amount: money(s.cashback) }) : ''}
                   </Text>
                 </View>
-                <Text style={[styles.splitAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>{money(s.total)}</Text>
+                <View style={styles.splitRight}>
+                  <Text style={[styles.splitAmount, { color: colors.ink }]} numberOfLines={1}>{money(s.total)}</Text>
+                  <Text style={[styles.splitState, { color: colors.muted }]}>
+                    {s.status === 'closed' ? t('home.closedBadge').toLowerCase() : t('home.activeBadge').toLowerCase()}
+                  </Text>
+                </View>
               </PressableScale>
             );
           })}
@@ -436,7 +396,14 @@ const styles = StyleSheet.create({
   contribRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 54 },
   contribBody: { flex: 1, minWidth: 0 },
   contribAmount: { fontFamily: font.extrabold, fontSize: 15 },
-  headCenter: { alignItems: 'center', marginTop: 6 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 20 },
+  round: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  roundGlyph: { fontSize: 18 },
+  headCenterRow: { flex: 1, minWidth: 0, alignItems: 'center' },
+  splitTitle: { fontFamily: font.bold, fontSize: 13 },
+  splitSub: { fontFamily: font.semibold, fontSize: 10, marginTop: 2 },
+  splitRight: { alignItems: 'flex-end' },
+  splitState: { fontFamily: font.semibold, fontSize: 9, marginTop: 1 },
   headTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   headSub: { fontFamily: font.semibold, fontSize: 11, marginTop: 2 },
   newZap: { height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginTop: 26 },
