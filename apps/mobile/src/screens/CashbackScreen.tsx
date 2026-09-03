@@ -2,13 +2,11 @@
 // чипы групп, записи, «Потратить» / «Вывести» (карта → сумма → PIN).
 import React, { useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
-import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
-import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { CountUp } from '@/components/CountUp';
 import { VenueIcon } from '@/components/VenueIcon';
@@ -21,9 +19,10 @@ import { toast } from '@/components/ToastHost';
 import { spendCashbackNext, withdrawCashback } from '@/api/actions';
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
+import { SkinSheet } from '@/components/SkinSheet';
+import { isDarkSkin, useSkin } from '@/lib/screenSkin';
+import { useNavigation } from '@react-navigation/native';
 import { money, humanDateLc } from '@/lib/format';
-import { entryText } from '@/lib/entryText';
-import { merchantGlyph, merchantLogo } from '@/lib/merchantLogo';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -33,6 +32,8 @@ export function CashbackScreen() {
   const { colors, fixed } = useTheme();
   const qc = useQueryClient();
   const home = useHomeData();
+  const nav = useNavigation<any>();
+  const pct = (bp: number) => `${(bp / 100).toFixed(bp % 100 ? 1 : 0)}%`;
 
   const [filter, setFilter] = useState('all');
   const groups = home.db?.groups ?? [];
@@ -83,10 +84,6 @@ export function CashbackScreen() {
     return [...acc.values()].sort((a, b) => b.amount - a.amount);
   }, [activeGroup, home.db?.splits]);
 
-  const merchantCount = useMemo(
-    () => new Set((home.db?.cashbackEntries ?? []).map((e) => e.title)).size,
-    [home.db?.cashbackEntries],
-  );
   const spentAmount = useMemo(
     () => (home.db?.cashbackEntries ?? []).filter((e) => e.amount < 0).reduce((a, e) => a - e.amount, 0),
     [home.db?.cashbackEntries],
@@ -94,7 +91,6 @@ export function CashbackScreen() {
   const splitsOfGroup = (gid: string) =>
     (home.db?.splits ?? []).filter((s) => s.groupId === gid).length;
 
-  const groupName = (gid?: string) => (gid ? (groups.find((g) => g.id === gid)?.name ?? '') : '');
   const badgeOf = (badge: string) => badge.split(' · ')[0] ?? badge;
 
   const spend = async () => {
@@ -142,188 +138,213 @@ export function CashbackScreen() {
     }
   };
 
+  const skin = useSkin();
+  const [skinSheet, setSkinSheet] = useState(false);
+  const bg = skin ?? colors.dune2;
+  const onDark = isDarkSkin(skin);
+  const ink = onDark ? '#FFFFFF' : colors.ink;
+  const muted = onDark ? 'rgba(255,255,255,0.6)' : colors.muted;
+
+  const merchantRows = useMemo(() => {
+    const src = filter === 'all' ? rows : rows.filter((e) => e.groupId === filter);
+    const acc = new Map<string, { title: string; amount: number; count: number; last: number; badge: string }>();
+    for (const e of src) {
+      const cur = acc.get(e.title) ?? { title: e.title, amount: 0, count: 0, last: 0, badge: e.badge };
+      cur.amount += e.amount;
+      cur.count += 1;
+      cur.last = Math.max(cur.last, e.createdAt);
+      acc.set(e.title, cur);
+    }
+    return [...acc.values()].sort((a, b) => b.amount - a.amount);
+  }, [rows, filter]);
+
   return (
-    <Screen style={styles.root}>
-      <ScreenHeader />
+    <Screen style={styles.root} background={bg} darkBar={onDark}>
+      {/* шапка spec/09,10: назад — заголовок с подзаголовком — «🎨» */}
+      <View style={styles.head}>
+        <PressableScale style={[styles.round, { backgroundColor: onDark ? 'rgba(255,255,255,0.12)' : colors.paper }]} onPress={() => nav.goBack()}>
+          <Text style={[styles.roundGlyph, { color: ink }]}>←</Text>
+        </PressableScale>
+        <View style={styles.headBody}>
+          <Text style={[styles.headTitle, { color: ink }]} numberOfLines={1}>{t('home.cashbackCard')}</Text>
+          <Text style={[styles.headSub, { color: muted }]} numberOfLines={1}>
+            {activeGroup ? `Crew · ${activeGroup.name}` : t('cashback.allYourGroups')}
+          </Text>
+        </View>
+        <PressableScale style={[styles.round, { backgroundColor: onDark ? 'rgba(255,255,255,0.12)' : colors.paper }]} onPress={() => setSkinSheet(true)}>
+          <Text style={styles.roundGlyph}>🎨</Text>
+        </PressableScale>
+      </View>
 
-      <Text style={[styles.title, { color: colors.ink }]}>{t('home.cashbackCard')}</Text>
-
-      {filter === 'all' ? (
-        <View>
-          {/* spec 10: лаймовая карточка «ДОСТУПНО» со стикером и двумя кнопками */}
-          <View style={[styles.availCard, { backgroundColor: fixed.lime }]}>
-            <Text style={styles.availKicker}>{t('cashback.available')}</Text>
-            <View style={styles.availRow}>
-              <CountUp value={home.cashbackBalance} duration={800} style={styles.availAmount} />
-              <Text style={styles.availUnit}>{t('common.currency')}</Text>
-            </View>
-            <Text style={styles.availSub}>
-              {t('cashback.groupsAndMerchants', { groups: groups.length, merchants: merchantCount })}
-            </Text>
-            <View style={styles.availActions}>
-              <PressableScale style={[styles.availBtn, { backgroundColor: fixed.ink }]} onPress={() => void spend()}>
-                <Text style={[styles.availBtnText, { color: fixed.lime }]}>{t('cashback.spendShort')}</Text>
-              </PressableScale>
-              <PressableScale style={[styles.availBtn, styles.availBtnGhost]} onPress={openWithdraw}>
-                <Text style={[styles.availBtnText, { color: fixed.ink }]}>{t('cashback.withdraw')}</Text>
-              </PressableScale>
-            </View>
-            <Image source={STICKER.wallet} style={styles.availArt} resizeMode="contain" />
-          </View>
-
-          <View style={styles.tiles}>
-            {[
-              { l: t('cashback.perMonth'), v: `+${money(monthAmount)}` },
-              { l: t('cashback.spentLabel'), v: money(spentAmount) },
-              { l: t('cashback.rate'), v: t('cashback.rateUpTo', { rate: `${(bestRateBp / 100).toFixed(bestRateBp % 100 ? 1 : 0)}%` }) },
-            ].map((x) => (
-              <View key={x.l} style={[styles.tile, { backgroundColor: colors.paper }]}>
-                <Text style={[styles.tileLabel, { color: colors.faint2 }]}>{x.l}</Text>
-                <Text style={[styles.tileValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
-                  {x.v}
-                </Text>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}
+      >
+        {filter === 'all' ? (
+          <>
+            {/* лаймовая карточка «ДОСТУПНО» (spec/10) */}
+            <View style={[styles.availCard, { backgroundColor: fixed.lime }]}>
+              <Text style={styles.availKicker}>{t('cashback.available')}</Text>
+              <View style={styles.availRow}>
+                <CountUp value={home.cashbackBalance} duration={800} style={styles.availAmount} />
+                <Text style={styles.availUnit}>{t('common.currency')}</Text>
               </View>
-            ))}
-          </View>
-
-          {groups.length ? (
-            <>
-              <View style={styles.sectionHead}>
-                <Text style={[styles.mono, { color: colors.faint2 }]}>{t('cashback.byGroups')}</Text>
-                <Text style={[styles.sectionCount, { color: colors.ink }]}>{groups.length}</Text>
-              </View>
-              {groups.map((g) => (
-                <PressableScale
-                  key={g.id}
-                  haptic={false}
-                  style={[styles.groupRow, { backgroundColor: colors.paper }]}
-                  onPress={() => setFilter(g.id)}
-                >
-                  <VenueIcon name={g.name} size={40} />
-                  <View style={styles.groupBody}>
-                    <Text style={[styles.groupName, { color: colors.ink }]} numberOfLines={1}>{g.name}</Text>
-                    <Text style={[styles.groupSub, { color: colors.faint2 }]} numberOfLines={1}>
-                      {t('debts.splitsCount', { n: splitsOfGroup(g.id) })}
-                    </Text>
-                  </View>
-                  <View style={styles.groupRight}>
-                    <Text style={[styles.groupAmount, { color: colors.ink }]}>{money(g.cashback)}</Text>
-                    <Text style={[styles.groupRate, { color: colors.faint2 }]}>
-                      {((g.rateBp ?? 200) / 100).toFixed((g.rateBp ?? 200) % 100 ? 1 : 0)}%
-                    </Text>
-                  </View>
-                  <Text style={[styles.chevron, { color: colors.faint2 }]}>›</Text>
+              <Text style={styles.availSub}>
+                {t('cashback.groupsAndMerchants', { groups: groups.length, merchants: merchantRows.length })}
+              </Text>
+              <View style={styles.availActions}>
+                <PressableScale style={[styles.availBtn, { backgroundColor: fixed.ink }]} onPress={() => void spend()}>
+                  <Text style={[styles.availBtnText, { color: fixed.lime }]}>{t('cashback.spendShort')}</Text>
                 </PressableScale>
-              ))}
-            </>
-          ) : null}
-        </View>
-      ) : (
-        /*
-          Экран компании по макету: «НАКОПИЛИ ВМЕСТЕ» с суммой 40 pt и
-          стикером‑кошельком, белая карточка ступени, подиум «кто принёс
-          больше» и список заведений.
-        */
-        <View>
-          <View style={styles.poolRow}>
-            <View style={styles.poolBody}>
-              <Text style={[styles.mono, { color: colors.faint2 }]}>{t('cashback.pooledTogether')}</Text>
-              <View style={styles.poolAmountRow}>
-                <Text style={[styles.poolAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
-                  {money(groupPool)}
-                </Text>
-                <Text style={[styles.poolUnit, { color: colors.faint2 }]}>{t('common.currency')}</Text>
+                <PressableScale style={[styles.availBtn, styles.availBtnGhost]} onPress={openWithdraw}>
+                  <Text style={[styles.availBtnText, { color: fixed.ink }]}>{t('cashback.withdraw')}</Text>
+                </PressableScale>
               </View>
-              <Text style={[styles.poolNote, { color: colors.faint2 }]}>{t('cashback.tierNote')}</Text>
+              <Image source={STICKER.wallet} style={styles.availArt} resizeMode="contain" />
             </View>
-            <Image source={STICKER.wallet} style={styles.poolArt} resizeMode="contain" />
-          </View>
 
-          <View style={[styles.tierCard, { backgroundColor: colors.paper }]}>
-            <CashbackTier pool={groupPool} rateBp={activeGroup?.rateBp} nextTier={activeGroup?.nextTier} />
-          </View>
+            <View style={styles.tiles}>
+              {[
+                { l: t('cashback.perMonth'), v: `+${money(monthAmount)}` },
+                { l: t('cashback.spentLabel'), v: money(spentAmount) },
+                { l: t('cashback.rate'), v: t('cashback.rateUpTo', { rate: pct(bestRateBp) }) },
+              ].map((x) => (
+                <View key={x.l} style={[styles.tile, { backgroundColor: colors.paper }]}>
+                  <Text style={[styles.tileLabel, { color: colors.muted }]}>{x.l}</Text>
+                  <Text style={[styles.tileValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
+                    {x.v}
+                  </Text>
+                </View>
+              ))}
+            </View>
 
-          {contributors.length > 1 ? (
-            <>
-              <Text style={[styles.mono, { color: colors.faint2, marginTop: 24 }]}>{t('group.contributors')}</Text>
-              <Podium
-                frame={colors.dune2}
-                items={contributors.slice(0, 3).map((c) => ({
-                  key: c.contactId,
-                  contactId: c.contactId,
-                  name: c.contactId === 'me' ? t('members.youShort') : (home.contactById(c.contactId)?.name ?? '?'),
-                  color: home.contactById(c.contactId)?.color,
-                  initials: home.contactById(c.contactId)?.initials,
-                  amount: c.amount,
-                  sub: t('debts.splitsCount', { n: c.splits }),
-                }))}
-              />
-            </>
-          ) : null}
-        </View>
-      )}
+            {groups.length ? (
+              <>
+                <View style={styles.sectionHead}>
+                  <Text style={[styles.mono, { color: muted }]}>{t('cashback.byGroups')}</Text>
+                  <Text style={[styles.sectionCount, { color: ink }]}>{groups.length}</Text>
+                </View>
+                {groups.map((g) => (
+                  <PressableScale
+                    key={g.id}
+                    haptic={false}
+                    style={[styles.row, { backgroundColor: colors.paper }]}
+                    onPress={() => setFilter(g.id)}
+                  >
+                    <VenueIcon name={g.name} size={40} />
+                    <View style={styles.rowBody}>
+                      <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>{g.name}</Text>
+                      <Text style={[styles.rowSub, { color: colors.muted }]} numberOfLines={1}>
+                        {t('debts.splitsCount', { n: splitsOfGroup(g.id) })}
+                      </Text>
+                    </View>
+                    <View style={styles.rowRight}>
+                      <Text style={[styles.rowAmount, { color: colors.ink }]}>{money(g.cashback)}</Text>
+                      <Text style={[styles.rowRate, { color: colors.muted }]}>{pct(g.rateBp ?? 200)}</Text>
+                    </View>
+                    <Text style={[styles.chevron, { color: colors.muted }]}>›</Text>
+                  </PressableScale>
+                ))}
+              </>
+            ) : null}
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersWrap} contentContainerStyle={styles.filters}>
-        {[{ value: 'all', label: t('cashback.allGroups') }, ...groups.map((g) => ({ value: g.id, label: g.name }))].map(
-          (f) => {
-            const active = filter === f.value;
-            return (
-              <PressableScale
-                key={f.value}
-                style={[styles.filter, { backgroundColor: active ? fixed.lime : colors.sand }]}
-                onPress={() => setFilter(f.value)}
-              >
-                <Text style={[active ? styles.filterTextActive : styles.filterText, { color: active ? '#121212' : colors.slate }]}>{f.label}</Text>
-              </PressableScale>
-            );
-          },
+            {merchantRows[0] ? (
+              <>
+                <Text style={[styles.mono, styles.sectionMono, { color: muted }]}>{t('cashback.topMerchant')}</Text>
+                <View style={[styles.row, { backgroundColor: colors.paper }]}>
+                  <VenueIcon name={merchantRows[0].title} size={40} />
+                  <View style={styles.rowBody}>
+                    <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>
+                      {merchantRows[0].title}
+                    </Text>
+                    <Text style={[styles.rowSub, { color: colors.muted }]} numberOfLines={1}>
+                      {t('debts.splitsCount', { n: merchantRows[0].count })}
+                    </Text>
+                  </View>
+                  <Text style={[styles.rowAmount, { color: colors.ink }]}>{money(merchantRows[0].amount)}</Text>
+                </View>
+              </>
+            ) : null}
+          </>
+        ) : (
+          <>
+            {/* «НАКОПИЛИ ВМЕСТЕ» + стикер (spec/09) */}
+            <View style={styles.poolRow}>
+              <View style={styles.poolBody}>
+                <Text style={[styles.mono, { color: muted }]}>{t('cashback.pooledTogether')}</Text>
+                <View style={styles.poolAmountRow}>
+                  <Text style={[styles.poolAmount, { color: ink }]} numberOfLines={1} adjustsFontSizeToFit>
+                    {money(groupPool)}
+                  </Text>
+                  <Text style={[styles.poolUnit, { color: muted }]}>{t('common.currency')}</Text>
+                </View>
+                <Text style={[styles.poolNote, { color: muted }]}>{t('cashback.tierNote')}</Text>
+              </View>
+              <Image source={STICKER.wallet} style={styles.poolArt} resizeMode="contain" />
+            </View>
+
+            <View style={[styles.tierCard, { backgroundColor: colors.paper }]}>
+              <CashbackTier pool={groupPool} rateBp={activeGroup?.rateBp} nextTier={activeGroup?.nextTier} />
+            </View>
+
+            {contributors.length > 1 ? (
+              <>
+                <Text style={[styles.mono, styles.sectionMono, { color: muted }]}>{t('group.contributors')}</Text>
+                <Podium
+                  frame={bg}
+                  items={contributors.slice(0, 3).map((c) => ({
+                    key: c.contactId,
+                    contactId: c.contactId,
+                    name: c.contactId === 'me' ? t('members.youShort') : (home.contactById(c.contactId)?.name ?? '?'),
+                    color: home.contactById(c.contactId)?.color,
+                    initials: home.contactById(c.contactId)?.initials,
+                    amount: c.amount,
+                    sub: t('debts.splitsCount', { n: c.splits }),
+                  }))}
+                />
+              </>
+            ) : null}
+
+            {merchantRows.length ? (
+              <>
+                <View style={styles.sectionHead}>
+                  <Text style={[styles.mono, { color: muted }]}>{t('cashback.merchants')}</Text>
+                  <Text style={[styles.sectionCount, { color: ink }]}>{merchantRows.length}</Text>
+                </View>
+                {merchantRows.map((m) => (
+                  <View key={m.title} style={[styles.row, { backgroundColor: colors.paper }]}>
+                    <VenueIcon name={m.title} size={40} />
+                    <View style={styles.rowBody}>
+                      <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>{m.title}</Text>
+                      <Text style={[styles.rowSub, { color: colors.muted }]} numberOfLines={1}>
+                        {t('debts.splitsCount', { n: m.count })} · {humanDateLc(m.last)}
+                      </Text>
+                    </View>
+                    <View style={styles.rowRight}>
+                      <Text style={[styles.rowAmount, { color: colors.ink }]}>{money(m.amount)}</Text>
+                      <Text style={[styles.rowRate, { color: colors.muted }]}>{badgeOf(m.badge)}</Text>
+                    </View>
+                    <Text style={[styles.chevron, { color: colors.muted }]}>›</Text>
+                  </View>
+                ))}
+              </>
+            ) : null}
+
+            {!merchantRows.length ? (
+              <EmptyState sticker="wallet" title={t('empty.cashbackTitle')} hint={t('empty.cashbackHint')} />
+            ) : null}
+
+            <View style={styles.spacer} />
+
+            {/* CTA в макете — чернильная с лаймовым текстом, 48/24 */}
+            <PressableScale style={[styles.cta, { backgroundColor: fixed.ink }]} onPress={() => void spend()}>
+              <Text style={[styles.ctaText, { color: fixed.lime }]}>{t('cashback.spend')}</Text>
+            </PressableScale>
+          </>
         )}
       </ScrollView>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}>
-        <View style={styles.list}>
-          {rows.map((e, i) => (
-            <Animated.View
-              key={e.id}
-              entering={FadeInDown.delay(Math.min(i, 8) * 40).duration(240)}
-              style={[styles.row, i < rows.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
-            >
-              {merchantLogo(e.title) ? (
-                <Image source={merchantLogo(e.title)!} style={styles.icon} />
-              ) : (
-                <View style={[styles.icon, { backgroundColor: colors.sand }]}>
-                  {/* знак заведения вместо безликой буквы */}
-                  <Text style={styles.iconLetter}>{merchantGlyph(e.title)}</Text>
-                </View>
-              )}
-              <View style={styles.rowBody}>
-                <Text style={[styles.rowTitle, { color: colors.ink }]} numberOfLines={1}>
-                  {entryText(e.title, e.titleKey)}
-                </Text>
-                <Text style={[styles.rowSub, { color: colors.faint }]} numberOfLines={1}>
-                  {groupName(e.groupId) ? `${groupName(e.groupId)} · ` : ''}
-                  {badgeOf(e.badge)} · {humanDateLc(e.createdAt)}
-                </Text>
-              </View>
-              <Text style={[styles.rowAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>{money(e.amount)}</Text>
-            </Animated.View>
-          ))}
-          {!rows.length ? (
-            <EmptyState sticker="wallet" title={t('empty.cashbackTitle')} hint={t('empty.cashbackHint')} />
-          ) : null}
-        </View>
-
-        <View style={styles.spacer} />
-
-        <View style={styles.ctas}>
-          <PressableScale style={[styles.cta, { backgroundColor: fixed.lime }]} onPress={() => void spend()}>
-            <Text style={styles.ctaDark}>{t('cashback.spend')}</Text>
-          </PressableScale>
-          <PressableScale style={[styles.cta, { backgroundColor: colors.sand }]} onPress={openWithdraw}>
-            <Text style={[styles.ctaLight, { color: colors.ink }]}>{t('cashback.withdraw')}</Text>
-          </PressableScale>
-        </View>
-      </ScrollView>
+      <SkinSheet open={skinSheet} onClose={() => setSkinSheet(false)} />
 
       <BottomSheet open={withdrawSheet} onClose={() => setWithdrawSheet(false)}>
         <View style={styles.sheetBody}>
@@ -371,6 +392,19 @@ export function CashbackScreen() {
 }
 
 const styles = StyleSheet.create({
+  // шапка spec/09,10
+  head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 20 },
+  round: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  roundGlyph: { fontSize: 18 },
+  headBody: { flex: 1, minWidth: 0, alignItems: 'center' },
+  headTitle: { fontFamily: font.bold, fontSize: 19 },
+  headSub: { fontFamily: font.semibold, fontSize: 11, marginTop: 2 },
+  sectionMono: { marginTop: 24, marginBottom: 12 },
+  rowRight: { alignItems: 'flex-end' },
+  ctaText: { fontFamily: font.bold, fontSize: 15 },
+  rowRate: { fontFamily: font.semibold, fontSize: 9, marginTop: 2 },
+  spacer: { flex: 1, minHeight: 18 },
+
   // spec 10
   availCard: { borderRadius: 22, paddingTop: 18, paddingHorizontal: 16, paddingBottom: 16, marginTop: 26, overflow: 'hidden' },
   availKicker: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 2.5, color: '#5A6A16' },
@@ -425,7 +459,7 @@ const styles = StyleSheet.create({
   filterText: { fontFamily: font.bold, fontSize: 13 },
   filterTextActive: { fontFamily: font.extrabold, fontSize: 13 },
   list: { marginTop: 20 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 72 },
+  row: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 14, marginBottom: 8 },
   icon: { width: 44, height: 44, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
   iconLetter: { fontFamily: font.extrabold, fontSize: 15 },
   rowBody: { flex: 1, gap: 2 },
@@ -433,9 +467,8 @@ const styles = StyleSheet.create({
   rowSub: { fontFamily: font.semibold, fontSize: 12 },
   rowAmount: { fontFamily: font.extrabold, fontSize: 16 },
   empty: { fontFamily: font.semibold, fontSize: 13, textAlign: 'center', paddingVertical: 32 },
-  spacer: { flexGrow: 1, minHeight: 20 },
   ctas: { gap: 10, marginTop: 20 },
-  cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  cta: { height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   ctaLight: { fontFamily: font.bold, fontSize: 16 },
   sheetBody: { paddingBottom: 10 },

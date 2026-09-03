@@ -478,7 +478,9 @@
     "groupsAndMerchants": "{{groups}} группы · {{merchants}} мерчантов",
     "spendShort": "Потратить",
     "byGroups": "ПО ГРУППАМ",
-    "spentLabel": "ПОТРАЧЕНО"
+    "spentLabel": "ПОТРАЧЕНО",
+    "allYourGroups": "все ваши группы",
+    "merchants": "МЕРЧАНТЫ"
   },
   "history": {
     "title": "История",
@@ -1037,5 +1039,9 @@
     "backToBill": "Вернуться к чеку",
     "cashbackChip": "+{{amount}} кэшбэка группе",
     "eachFor": " — по {{amount}}"
+  },
+  "skin": {
+    "title": "Цвет экрана",
+    "hint": "Выберите фон — остальное останется читаемым"
   }
 }

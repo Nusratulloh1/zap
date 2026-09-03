@@ -478,7 +478,9 @@
     "groupsAndMerchants": "{{groups}} crews · {{merchants}} places",
     "spendShort": "Spend",
     "byGroups": "BY CREWS",
-    "spentLabel": "SPENT"
+    "spentLabel": "SPENT",
+    "allYourGroups": "all your crews",
+    "merchants": "PLACES"
   },
   "history": {
     "title": "History",
@@ -1037,5 +1039,9 @@
     "backToBill": "Back to the bill",
     "cashbackChip": "+{{amount}} cashback to the crew",
     "eachFor": " — {{amount}} each"
+  },
+  "skin": {
+    "title": "Screen colour",
+    "hint": "Pick a background — the rest stays readable"
   }
 }

@@ -9,10 +9,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useNavigation } from '@react-navigation/native';
 import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
-import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { Podium } from '@/components/Podium';
+import { SkinSheet } from '@/components/SkinSheet';
+import { isDarkSkin, useSkin } from '@/lib/screenSkin';
 import { CountUp } from '@/components/CountUp';
 import { toast } from '@/components/ToastHost';
 import { remindDebt, remindAllDebts } from '@/api/actions';
@@ -27,6 +28,13 @@ export function DebtsScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { colors, fixed, name: themeName } = useTheme();
+  const skin = useSkin();
+  const [skinSheet, setSkinSheet] = useState(false);
+  const bg = skin ?? colors.dune2;
+  const onDark = isDarkSkin(skin);
+  const ink = onDark ? '#FFFFFF' : colors.ink;
+  const muted = onDark ? 'rgba(255,255,255,0.6)' : colors.muted;
+
   const qc = useQueryClient();
   const home = useHomeData();
 
@@ -77,9 +85,23 @@ export function DebtsScreen() {
     (home.db?.splits ?? []).filter((s) => s.members.some((m) => m.contactId === contactId)).length;
 
   return (
-    // фон #F1EFE9 из макета: на нём белые карточки должников читаются
-    <Screen style={styles.root} background={colors.dune2}>
-      <ScreenHeader />
+    // фон из макета или выбранный пользователем «🎨»
+    <Screen style={styles.root} background={bg} darkBar={onDark}>
+      <View style={styles.head}>
+        <PressableScale
+          style={[styles.round, { backgroundColor: onDark ? 'rgba(255,255,255,0.12)' : colors.paper }]}
+          onPress={() => nav.goBack()}
+        >
+          <Text style={[styles.roundGlyph, { color: ink }]}>←</Text>
+        </PressableScale>
+        <Text style={[styles.headTitle, { color: ink }]} numberOfLines={1}>{t('debts.title')}</Text>
+        <PressableScale
+          style={[styles.round, { backgroundColor: onDark ? 'rgba(255,255,255,0.12)' : colors.paper }]}
+          onPress={() => setSkinSheet(true)}
+        >
+          <Text style={styles.roundGlyph}>🎨</Text>
+        </PressableScale>
+      </View>
 
       {/*
         Один скролл на весь экран: шапка со суммой и вкладками едет вместе со
@@ -87,31 +109,32 @@ export function DebtsScreen() {
         остатке экрана — прокрутка шла в узком окне.
       */}
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}>
-            <Text style={[styles.title, { color: colors.ink }]}>{t('debts.title')}</Text>
-            <View style={styles.amountRow}>
-              <View style={styles.amountBox}>
-                <CountUp value={home.totalOwedToMe} duration={800} style={[styles.amount, { color: colors.ink }]} />
-              </View>
-              <Text style={[styles.unit, { color: colors.faint2 }]}>
-                UZS · {home.debtors.length} {t('debts.peopleUnit')}
-              </Text>
-            </View>
-
+            {/* spec/08: сначала чипы, активный — чернильный с лаймовым текстом */}
             <View style={styles.tabs}>
               {(['owedToMe', 'iOwe'] as const).map((k) => {
                 const active = tab === k;
                 return (
                   <PressableScale
                     key={k}
-                    style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.sand }]}
+                    style={[styles.tab, { backgroundColor: active ? colors.ink : colors.paper }]}
                     onPress={() => setTab(k)}
                   >
-                    <Text style={[styles.tabText, { color: active ? '#121212' : colors.slate }]}>
+                    <Text style={[styles.tabText, { color: active ? fixed.lime : colors.ink }]}>
                       {k === 'owedToMe' ? t('debts.tabOwedToMe') : t('debts.iOweZero')}
                     </Text>
                   </PressableScale>
                 );
               })}
+            </View>
+
+            <Text style={[styles.mono, { color: muted }]}>{t('debts.tabOwedToMe')}</Text>
+            <View style={styles.amountRow}>
+              <View style={styles.amountBox}>
+                <CountUp value={home.totalOwedToMe} duration={800} style={[styles.amount, { color: ink }]} />
+              </View>
+              <Text style={[styles.unit, { color: muted }]}>
+                {t('common.currency')} · {home.debtors.length} {t('debts.peopleUnit')}
+              </Text>
             </View>
 
         {tab === 'owedToMe' ? (
@@ -216,8 +239,8 @@ export function DebtsScreen() {
             <View style={styles.spacer} />
 
             {openDebts.length ? (
-              <PressableScale style={[styles.cta, { backgroundColor: fixed.lime }]} onPress={() => void remindAll()}>
-                <Text style={styles.ctaText}>{t('debts.remindAll')}</Text>
+              <PressableScale style={[styles.cta, { backgroundColor: colors.ink }]} onPress={() => void remindAll()}>
+                <Text style={[styles.ctaText, { color: fixed.lime }]}>⚡ {t('debts.remindAll')}</Text>
               </PressableScale>
             ) : null}
           </Animated.View>
@@ -228,12 +251,18 @@ export function DebtsScreen() {
           </Animated.View>
         )}
       </ScrollView>
+      <SkinSheet open={skinSheet} onClose={() => setSkinSheet(false)} />
+
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  mono: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 2.5, marginTop: 24 },
+  head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 20 },
+  round: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  roundGlyph: { fontSize: 18 },
+  headTitle: { flex: 1, textAlign: 'center', fontFamily: font.bold, fontSize: 19 },
+  mono: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 2.5, marginTop: 22 },
   restHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   restCount: { fontFamily: font.bold, fontSize: 11, marginTop: 24 },
 
@@ -260,7 +289,7 @@ const styles = StyleSheet.create({
   note: { borderTopWidth: 1, paddingTop: 16, marginTop: 20 },
   noteText: { fontFamily: font.semibold, fontSize: 12.5, lineHeight: 18 },
   spacer: { flexGrow: 1, minHeight: 20 },
-  cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 20 },
+  cta: { height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center', marginTop: 20 },
   ctaText: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
   emoji: { fontSize: 32 },

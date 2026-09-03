@@ -478,7 +478,9 @@
     "groupsAndMerchants": "{{groups}} ta crew · {{merchants}} ta joy",
     "spendShort": "Sarflash",
     "byGroups": "GURUHLAR BO‘YICHA",
-    "spentLabel": "SARFLANDI"
+    "spentLabel": "SARFLANDI",
+    "allYourGroups": "barcha guruhlaringiz",
+    "merchants": "JOYLAR"
   },
   "history": {
     "title": "Tarix",
@@ -1037,5 +1039,9 @@
     "backToBill": "Chekka qaytish",
     "cashbackChip": "kompaniyaga +{{amount}} keshbek",
     "eachFor": " — {{amount}} dan"
+  },
+  "skin": {
+    "title": "Ekran rangi",
+    "hint": "Fonni tanlang — qolgani o‘qiladigan bo‘lib qoladi"
   }
 }
