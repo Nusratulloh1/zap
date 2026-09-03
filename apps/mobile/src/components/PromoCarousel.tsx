@@ -16,26 +16,10 @@ import Animated, { interpolateColor, useAnimatedStyle, useSharedValue, withTimin
 import { font } from '@/theme/tokens';
 import { EASE_ZAP } from '@/lib/motion';
 import { translate, hasKey } from '@/i18n';
+import { VENUES, type OfferType } from '@/lib/venues';
 
 const heroImg = require('../../assets/brand/promo-hero.webp');
 
-type OfferType = 'cashback' | 'promo' | 'discount';
-
-/** Заведения с иллюстрацией зала — только они идут в баннеры (как в вебе). */
-const VENUES: {
-  id: string;
-  name: string;
-  img: number;
-  badgeKind: OfferType;
-  badgeValue: string;
-  type: OfferType;
-}[] = [
-  { id: 'b_evos', name: 'EVOS', img: require('../../assets/brand/venues/evos.webp'), badgeKind: 'promo', badgeValue: '1+1', type: 'promo' },
-  { id: 'b_bellissimo', name: 'Bellissimo Pizza', img: require('../../assets/brand/venues/bellissimo.webp'), badgeKind: 'discount', badgeValue: '10%', type: 'discount' },
-  { id: 'b_safia', name: 'Safia café', img: require('../../assets/brand/venues/safia.webp'), badgeKind: 'cashback', badgeValue: '×2', type: 'cashback' },
-  { id: 'b_feedup', name: 'Feed Up', img: require('../../assets/brand/venues/feedup.webp'), badgeKind: 'promo', badgeValue: '2+1', type: 'promo' },
-  { id: 'b_bon', name: 'Bon!', img: require('../../assets/brand/venues/bon.webp'), badgeKind: 'discount', badgeValue: '20%', type: 'discount' },
-];
 
 interface Props {
   /** активная категория-фильтр: слайды заведений фильтруются по типу */

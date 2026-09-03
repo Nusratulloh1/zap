@@ -41,6 +41,8 @@ import { remindMember } from '@/api/splits';
 import { homeFeed } from '@/lib/homeFeed';
 import { crewColorOf, crewEmojiOf, useCrewSignsVersion } from '@/lib/crewEmoji';
 import { merchantLogo } from '@/lib/merchantLogo';
+import { VENUES } from '@/lib/venues';
+import { hasKey, translate } from '@/i18n';
 import { money, peopleCount } from '@/lib/format';
 import { cue, reduceMotion } from '@/lib/feedback';
 import { useHomeSkin, setHomeSkin } from '@/lib/homeVariant';
@@ -93,7 +95,7 @@ export function HomeScreenV2() {
     [dark],
   );
 
-  const [feedFilter, setFeedFilter] = useState<'crew' | 'all'>('crew');
+  const [feedFilter, setFeedFilter] = useState<'crew' | 'all'>('all');
   const [pinged, setPinged] = useState<Set<string>>(new Set());
 
   const feed = useMemo(
@@ -102,10 +104,35 @@ export function HomeScreenV2() {
   );
   const shownFeed = feedFilter === 'crew' ? feed.filter((f) => f.crew) : feed;
 
-  const offers = useMemo(
-    () => (home.db?.merchants ?? []).filter((m) => m.offer),
-    [home.db?.merchants],
-  );
+  /*
+    «Где Zарабатывать»: сперва заведения из данных, у которых есть предложение,
+    затем партнёры из общего списка (они же в промо-карусели классической
+    главной). Без второго ряд почти всегда пустой — предложения приходят не по
+    всем мерчантам, а прототип показывает витрину.
+  */
+  const offers = useMemo(() => {
+    const own = (home.db?.merchants ?? [])
+      .filter((m) => m.offer)
+      .map((m) => ({
+        key: m.id,
+        name: m.name,
+        letter: m.letter,
+        color: m.color,
+        tag: m.offer?.label ?? '',
+        terms: m.offer?.terms ?? '',
+      }));
+    const taken = new Set(own.map((o) => o.name.toLowerCase()));
+    const partners = VENUES.filter((v) => !taken.has(v.name.toLowerCase())).map((v) => ({
+      key: v.id,
+      name: v.name,
+      letter: v.name[0] ?? '·',
+      color: '#EAE8E1',
+      tag: translate(`badge.${v.badgeKind}`, { v: v.badgeValue }),
+      terms: hasKey(`offers.${v.id}`) ? translate(`offers.${v.id}`) : '',
+    }));
+    return [...own, ...partners];
+  }, [home.db?.merchants]);
+
   const promo = offers[0];
 
   const firstName = (home.db?.user?.name ?? '').split(' ')[0] ?? '';
@@ -289,13 +316,18 @@ export function HomeScreenV2() {
             <View style={[styles.promoTilt, { backgroundColor: LIME }]} />
             <View style={styles.promoCard}>
               <Text style={styles.promoTitle} numberOfLines={3}>
-                {t('home.offerAt', { label: promo.offer?.label ?? '', name: promo.name })}
+                {t('home.offerAt', { label: promo.tag, name: promo.name })}
               </Text>
-              <Text style={styles.promoSub} numberOfLines={2}>{promo.offer?.terms ?? ''}</Text>
-              <View style={styles.promoCta}>
+              <Text style={styles.promoSub} numberOfLines={2}>{promo.terms}</Text>
+              {/*
+                «Собрать Crew» ведёт туда, где компания и собирается: пад суммы,
+                следом выбор людей. Экран участников сам по себе не открывается —
+                без суммы он отправляет обратно на сканер.
+              */}
+              <PressableScale style={styles.promoCta} onPress={() => nav.navigate('Amount')}>
                 <Text style={styles.promoCtaText}>{t('home2.promoCta')}</Text>
                 <Text style={styles.promoCtaArrow}>→</Text>
-              </View>
+              </PressableScale>
               <Animated.Image source={MASCOT} style={[styles.mascot, mascotStyle]} resizeMode="contain" />
             </View>
           </PressableScale>
@@ -435,7 +467,7 @@ export function HomeScreenV2() {
                 const logo = merchantLogo(m.name);
                 return (
                   <PressableScale
-                    key={m.id}
+                    key={m.key}
                     haptic={false}
                     style={[
                       styles.merchant,
@@ -452,7 +484,7 @@ export function HomeScreenV2() {
                     </View>
                     <Text style={styles.merchantName} numberOfLines={1}>{m.name}</Text>
                     <View style={styles.merchantTag}>
-                      <Text style={styles.merchantTagText} numberOfLines={1}>{m.offer?.label}</Text>
+                      <Text style={styles.merchantTagText} numberOfLines={1}>{m.tag}</Text>
                     </View>
                   </PressableScale>
                 );
