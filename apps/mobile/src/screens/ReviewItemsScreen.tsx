@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
   indicatorText: { fontFamily: font.bold, fontSize: 13, flexShrink: 1 },
   indicatorSum: { fontFamily: font.monoBold, fontSize: 14 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 12 },
-  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
+  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   disabled: { opacity: 0.4 },
   sheetTitle: { fontFamily: font.extrabold, fontSize: 15, textAlign: 'center' },
   editName: { borderBottomWidth: 2, paddingBottom: 10, fontFamily: font.bold, fontSize: 16, marginTop: 16 },

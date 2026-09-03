@@ -154,5 +154,5 @@ const styles = StyleSheet.create({
   action: { flex: 1, height: 54, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   actionGhost: { backgroundColor: 'rgba(255,255,255,0.16)' },
   actionGhostText: { fontFamily: font.extrabold, fontSize: 15, color: '#FFFFFF' },
-  actionText: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },
+  actionText: { fontFamily: font.extrabold, fontSize: 15, color: '#121212' },
 });

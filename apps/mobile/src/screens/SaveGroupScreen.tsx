@@ -43,7 +43,7 @@ export function SaveGroupScreen() {
 
   const nameOf = (cid: string) =>
     cid === 'me' ? (home.db?.user?.name ?? t('members.youShort')) : (home.contactById(cid)?.name ?? '?');
-  const colorOf = (cid: string) => (cid === 'me' ? '#111110' : (home.contactById(cid)?.color ?? '#8A887E'));
+  const colorOf = (cid: string) => (cid === 'me' ? '#121212' : (home.contactById(cid)?.color ?? '#8A887E'));
 
   const [name, setName] = useState('');
   const [accrue, setAccrue] = useState(true);
@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   spacer: { flexGrow: 1, minHeight: 24 },
   ctas: { gap: 10 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
+  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   ctaLight: { fontFamily: font.bold, fontSize: 16 },
   disabled: { opacity: 0.4 },
 });

@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 8,
   },
-  check: { width: 18, height: 18, borderRadius: 999, backgroundColor: '#DDFF33', alignItems: 'center', justifyContent: 'center' },
-  checkGlyph: { fontSize: 11, fontFamily: font.extrabold, color: '#111110' },
+  check: { width: 18, height: 18, borderRadius: 999, backgroundColor: '#D9FF3A', alignItems: 'center', justifyContent: 'center' },
+  checkGlyph: { fontSize: 11, fontFamily: font.extrabold, color: '#121212' },
   text: { fontFamily: font.bold, fontSize: 13.5, color: '#FFFFFF', flexShrink: 1 },
 });

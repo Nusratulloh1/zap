@@ -16,7 +16,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
 /** Цвета сегментов бублика — из макета: чернила, лайм и три оттенка песка. */
-const SLICE_COLORS = ['#121212', '#DDFF33', '#8E8C86', '#C9C6BB', '#E1DED4'];
+const SLICE_COLORS = ['#121212', '#D9FF3A', '#8E8C86', '#C9C6BB', '#E1DED4'];
 
 export function SpendingBlock() {
   const { t } = useTranslation();

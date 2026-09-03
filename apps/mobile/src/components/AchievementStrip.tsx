@@ -125,6 +125,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  starGlyph: { fontSize: 10, color: '#DDFF33' },
+  starGlyph: { fontSize: 10, color: '#D9FF3A' },
   label: { fontFamily: font.bold, fontSize: 10.5, lineHeight: 13, textAlign: 'center', marginTop: 6 },
 });

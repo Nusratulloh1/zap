@@ -82,7 +82,7 @@ export function MerchantCashbackSlider({ entries, total }: Props) {
           <Svg style={StyleSheet.absoluteFill} width="100%" height="100%">
             <Defs>
               <Pattern id="cbDots" width={14} height={14} patternUnits="userSpaceOnUse">
-                <SvgCircle cx={2} cy={2} r={1.4} fill="rgba(17,17,16,0.16)" />
+                <SvgCircle cx={2} cy={2} r={1.4} fill="rgba(18,18,18,0.16)" />
               </Pattern>
             </Defs>
             <SvgRect x={0} y={0} width="100%" height="100%" fill="url(#cbDots)" />
@@ -156,11 +156,11 @@ const styles = StyleSheet.create({
   logoLetter: { alignItems: 'center', justifyContent: 'center' },
   logoLetterText: { fontFamily: font.extrabold, fontSize: 17 },
   pct: { height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center' },
-  pctText: { fontFamily: font.extrabold, fontSize: 11.5, color: '#111110' },
-  kicker: { fontFamily: font.monoBold, fontSize: 9.5, letterSpacing: 1.5, color: 'rgba(17,17,16,0.55)' },
-  bigValue: { fontFamily: font.extrabold, fontSize: 38, letterSpacing: -1.2, color: '#111110', marginTop: 4 },
+  pctText: { fontFamily: font.extrabold, fontSize: 11.5, color: '#121212' },
+  kicker: { fontFamily: font.monoBold, fontSize: 9.5, letterSpacing: 1.5, color: 'rgba(18,18,18,0.55)' },
+  bigValue: { fontFamily: font.extrabold, fontSize: 38, letterSpacing: -1.2, color: '#121212', marginTop: 4 },
   value: { fontFamily: font.extrabold, fontSize: 30, letterSpacing: -0.9, marginTop: 12 },
-  cardFoot: { fontFamily: font.bold, fontSize: 12, color: 'rgba(17,17,16,0.55)', marginTop: 6 },
+  cardFoot: { fontFamily: font.bold, fontSize: 12, color: 'rgba(18,18,18,0.55)', marginTop: 6 },
   cardFootDim: { fontFamily: font.extrabold, fontSize: 13.5, letterSpacing: -0.2 },
   dots: { flexDirection: 'row', gap: 5, justifyContent: 'center', marginTop: 14, marginBottom: 4 },
   dot: { width: 6, height: 6, borderRadius: 999 },

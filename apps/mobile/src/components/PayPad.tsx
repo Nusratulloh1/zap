@@ -22,7 +22,7 @@ interface Props {
   color?: string;
 }
 
-export function PayPad({ onKey, onBackspace, color = '#111110' }: Props) {
+export function PayPad({ onKey, onBackspace, color = '#121212' }: Props) {
   return (
     <View style={styles.grid}>
       {ROWS.flat().map((k) => (
@@ -80,7 +80,7 @@ function Key({ label, color, onPress }: { label: string; color: string; onPress:
 const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: 12 },
   cell: { width: '33.333%', height: 56, alignItems: 'center', justifyContent: 'center' },
-  glow: { position: 'absolute', left: 8, right: 8, top: 0, bottom: 0, borderRadius: 16, backgroundColor: 'rgba(17,17,16,0.08)' },
+  glow: { position: 'absolute', left: 8, right: 8, top: 0, bottom: 0, borderRadius: 16, backgroundColor: 'rgba(18,18,18,0.08)' },
   label: { fontFamily: font.bold, fontSize: 26 },
   triple: { fontFamily: font.extrabold, fontSize: 23 },
   back: { fontSize: 30, lineHeight: 34 },

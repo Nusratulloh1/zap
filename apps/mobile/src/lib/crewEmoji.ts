@@ -13,7 +13,7 @@ const KEY_COLOR = (groupId: string) => `zap:crew-color:${groupId}`;
 
 /** Палитра для компаний и заведений — насыщенные, но не спорящие с лаймом. */
 export const CREW_COLORS = [
-  '#FF7A45', '#FFB020', '#DDFF33', '#4ED17F',
+  '#FF7A45', '#FFB020', '#D9FF3A', '#4ED17F',
   '#3EC5D9', '#5B8CFF', '#A46BFF', '#FF5C8A',
 ] as const;
 
@@ -24,7 +24,7 @@ const COLOR_BY_GLYPH: Record<string, string> = {
   '🍩': '#E0709A', '🧋': '#C08A5E', '🍻': '#FFB020', '🍹': '#FF6F91',
   '🎬': '#A46BFF', '🎮': '#7C6BFF', '🎉': '#FF5C8A', '🏋️': '#4A9CE0',
   '⚽': '#4ED17F', '🎧': '#5B8CFF', '🚕': '#FFC13C', '✈️': '#3EC5D9',
-  '🏔️': '#6FA8DC', '🛒': '#4ED17F', '🎁': '#FF7AA8', '⚡': '#DDFF33',
+  '🏔️': '#6FA8DC', '🛒': '#4ED17F', '🎁': '#FF7AA8', '⚡': '#D9FF3A',
   '💊': '#4ED17F', '🧾': '#8A887E',
 };
 

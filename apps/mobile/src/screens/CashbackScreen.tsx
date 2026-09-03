@@ -227,7 +227,7 @@ export function CashbackScreen() {
                 style={[styles.filter, { backgroundColor: active ? fixed.lime : colors.sand }]}
                 onPress={() => setFilter(f.value)}
               >
-                <Text style={[active ? styles.filterTextActive : styles.filterText, { color: active ? '#111110' : colors.slate }]}>{f.label}</Text>
+                <Text style={[active ? styles.filterTextActive : styles.filterText, { color: active ? '#121212' : colors.slate }]}>{f.label}</Text>
               </PressableScale>
             );
           },
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
   spacer: { flexGrow: 1, minHeight: 20 },
   ctas: { gap: 10, marginTop: 20 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
+  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   ctaLight: { fontFamily: font.bold, fontSize: 16 },
   sheetBody: { paddingBottom: 10 },
   sheetTitle: { fontFamily: font.extrabold, fontSize: 15, textAlign: 'center' },

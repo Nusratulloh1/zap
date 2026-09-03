@@ -231,7 +231,7 @@ export function SplitLiveScreen() {
     (cid: string) => (cid === 'me' ? (home.db?.user?.name ?? t('members.youShort')) : (home.contactById(cid)?.name ?? '?')),
     [home, t],
   );
-  const colorOf = (cid: string) => (cid === 'me' ? '#111110' : (home.contactById(cid)?.color ?? '#8A887E'));
+  const colorOf = (cid: string) => (cid === 'me' ? '#121212' : (home.contactById(cid)?.color ?? '#8A887E'));
   const merchant = home.db?.merchants.find((m) => m.id === split?.merchantId);
   const myUserId = home.db?.user?.id;
 
@@ -370,7 +370,7 @@ export function SplitLiveScreen() {
   const closed = split.status === 'closed';
   // на лайме свои тона: чернила вместо ink-темы и полупрозрачные подписи
   const headInk = closed ? fixed.ink : colors.ink;
-  const headMuted = closed ? 'rgba(17,17,16,0.6)' : colors.muted;
+  const headMuted = closed ? 'rgba(18,18,18,0.6)' : colors.muted;
 
   return (
     <BillStageProvider value={stage}>
@@ -401,7 +401,7 @@ export function SplitLiveScreen() {
             </Text>
           </View>
 
-          <View style={[styles.track, { backgroundColor: closed ? 'rgba(17,17,16,0.16)' : colors.pebble }]}>
+          <View style={[styles.track, { backgroundColor: closed ? 'rgba(18,18,18,0.16)' : colors.pebble }]}>
             <Animated.View style={[styles.fill, { backgroundColor: closed ? fixed.ink : fixed.lime }, barStyle]} />
           </View>
 
@@ -597,7 +597,7 @@ const styles = StyleSheet.create({
   spacer: { flexGrow: 1, minHeight: 18 },
   actions: { gap: 10, marginTop: 18 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  moment: { height: 190, borderRadius: 24, marginBottom: 10, backgroundColor: 'rgba(17,17,16,0.06)' },
+  moment: { height: 190, borderRadius: 24, marginBottom: 10, backgroundColor: 'rgba(18,18,18,0.06)' },
   addPhoto: {
     height: 56,
     borderRadius: 999,

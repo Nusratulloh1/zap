@@ -41,7 +41,7 @@ export function ScreenHeader({ onBack, right, tint = 'sand', floating, backgroun
   const { t } = useTranslation();
 
   const btnBg =
-    tint === 'onLime' ? 'rgba(17,17,16,0.08)' : tint === 'onDark' ? 'rgba(255,255,255,0.12)' : colors.sand;
+    tint === 'onLime' ? 'rgba(18,18,18,0.08)' : tint === 'onDark' ? 'rgba(255,255,255,0.12)' : colors.sand;
   const fg = tint === 'onDark' ? '#FFFFFF' : colors.ink;
 
   const back = () => {

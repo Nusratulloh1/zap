@@ -105,7 +105,7 @@ export function GroupScreen() {
 
   const nameOf = (cid: string) =>
     cid === 'me' ? (home.db?.user?.name ?? t('members.youShort')) : (home.contactById(cid)?.name ?? '?');
-  const colorOf = (cid: string) => (cid === 'me' ? '#111110' : (home.contactById(cid)?.color ?? '#8A887E'));
+  const colorOf = (cid: string) => (cid === 'me' ? '#121212' : (home.contactById(cid)?.color ?? '#8A887E'));
   const debtOf = (cid: string) => openDebts.filter((d) => d.contactId === cid).reduce((s, d) => s + d.amount, 0);
 
   const memberSub = (cid: string) => {
@@ -284,7 +284,7 @@ export function GroupScreen() {
                     <Avatar contactId={cid} name={nameOf(cid)} color={colorOf(cid)} size={48} />
                   </View>
                   <View style={[styles.slotChevron, { backgroundColor: owner ? fixed.lime : colors.sand }]}>
-                    <Text style={[styles.slotChevronText, { color: owner ? '#111110' : colors.muted }]} numberOfLines={1}>
+                    <Text style={[styles.slotChevronText, { color: owner ? '#121212' : colors.muted }]} numberOfLines={1}>
                       {owner ? t('group.owner') : t('group.member')}
                     </Text>
                   </View>
@@ -471,7 +471,7 @@ const styles = StyleSheet.create({
   slotRemind: { marginTop: 8, height: 25, paddingHorizontal: 8, borderRadius: 999, justifyContent: 'center' },
   slotRemindText: { fontFamily: font.extrabold, fontSize: 10.5 },
   headCta: { flex: 1, height: 50, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  headCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },
+  headCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#121212' },
   headCtaLight: { fontFamily: font.bold, fontSize: 15 },
   section: { borderTopWidth: 1, paddingTop: 18, marginTop: 22 },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },

@@ -141,7 +141,7 @@ function Segment({ active }: { active: boolean }) {
     v.value = withTiming(active ? 1 : 0, { duration: 300, easing: EASE_ZAP });
   }, [active, v]);
   const style = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(v.value, [0, 1], ['rgba(255,255,255,0.22)', '#DDFF33']),
+    backgroundColor: interpolateColor(v.value, [0, 1], ['rgba(255,255,255,0.22)', '#D9FF3A']),
   }));
   return <Animated.View style={[styles.segment, style]} />;
 }

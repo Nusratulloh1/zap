@@ -46,5 +46,5 @@ export function Toggle({ value, onChange, size = 'sm' }: Props) {
 }
 
 const styles = StyleSheet.create({
-  knob: { position: 'absolute', backgroundColor: '#111110' },
+  knob: { position: 'absolute', backgroundColor: '#121212' },
 });

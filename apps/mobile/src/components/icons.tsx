@@ -6,7 +6,7 @@ import Svg, { Path, Circle, Line, Rect } from 'react-native-svg';
 type P = { size?: number; color?: string; strokeWidth?: number };
 
 /** Стрелка «назад» ← (кружки шапок). */
-export function BackIcon({ size = 20, color = '#111110' }: P) {
+export function BackIcon({ size = 20, color = '#121212' }: P) {
   return (
     <Svg width={size} height={size} viewBox="0 0 20 20" fill="none">
       <Path d="M15.5 10H4.8M9.8 4.6 4.4 10l5.4 5.4" stroke={color} strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round" />
@@ -22,7 +22,7 @@ export function ScanIcon({ size = 24, color = '#FFFFFF', strokeWidth = 2.4, cent
       <Path d="M16 3H19C20.1 3 21 3.9 21 5V8" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
       <Path d="M21 16V19C21 20.1 20.1 21 19 21H16" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
       <Path d="M8 21H5C3.9 21 3 20.1 3 19V16" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" />
-      {center ? <Rect x={7.8} y={7.8} width={8.4} height={8.4} rx={1.8} fill="#DDFF33" /> : null}
+      {center ? <Rect x={7.8} y={7.8} width={8.4} height={8.4} rx={1.8} fill="#D9FF3A" /> : null}
     </Svg>
   );
 }
@@ -102,7 +102,7 @@ export function CloseIcon({ size = 17, color = '#FFFFFF' }: P) {
 }
 
 /** Галочка. */
-export function CheckIcon({ size = 14, color = '#111110', strokeWidth = 2.2 }: P) {
+export function CheckIcon({ size = 14, color = '#121212', strokeWidth = 2.2 }: P) {
   return (
     <Svg width={size} height={(size * 11) / 14} viewBox="0 0 14 11" fill="none">
       <Path d="M1.4 5.6 5 9.2 12.6 1.6" stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" />
@@ -111,7 +111,7 @@ export function CheckIcon({ size = 14, color = '#111110', strokeWidth = 2.2 }: P
 }
 
 /** Конверт — кнопка «Отправить SMS со ссылкой» (SharePage). */
-export function MailIcon({ size = 19, color = '#111110' }: P) {
+export function MailIcon({ size = 19, color = '#121212' }: P) {
   return (
     <Svg width={size} height={size} viewBox="0 0 20 20" fill="none">
       <Rect x={2} y={4} width={16} height={12} rx={3} stroke={color} strokeWidth={1.8} />

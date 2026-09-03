@@ -68,7 +68,7 @@ export function Avatar({ source, name, letter, color = '#8A887E', contactId, siz
     (contactId === 'me' ? mine : undefined) ??
     (contactId && !noPersona ? (AVATAR_BY_CONTACT[contactId] ?? personaFor(contactId)) : undefined);
   const ch = (letter ?? name?.trim()?.[0] ?? '?').toUpperCase();
-  const isDark = color === '#111110';
+  const isDark = color === '#121212';
   const ringW = ring ? (ringWidth ?? Math.max(2, size * 0.06)) : 0;
 
   const frame: ViewStyle = {
@@ -104,7 +104,7 @@ export function Avatar({ source, name, letter, color = '#8A887E', contactId, siz
           styles.letter,
           {
             fontSize: letterSize(size),
-            color: isDark ? '#DDFF33' : solid ? '#FFFFFF' : color,
+            color: isDark ? '#D9FF3A' : solid ? '#FFFFFF' : color,
             opacity: isDark || solid ? 1 : 0.9,
           },
         ]}

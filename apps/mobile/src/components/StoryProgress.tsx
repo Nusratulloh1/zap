@@ -19,9 +19,9 @@ interface Props {
 }
 
 export function StoryProgress({ count, index, progress, dark = false }: Props) {
-  const done = dark ? '#DDFF33' : '#111110';
-  const active = dark ? '#FFFFFF' : '#111110';
-  const track = dark ? 'rgba(255,255,255,0.25)' : 'rgba(17,17,16,0.2)';
+  const done = dark ? '#D9FF3A' : '#121212';
+  const active = dark ? '#FFFFFF' : '#121212';
+  const track = dark ? 'rgba(255,255,255,0.25)' : 'rgba(18,18,18,0.2)';
   return (
     <View style={styles.row}>
       {Array.from({ length: count }, (_, i) => (

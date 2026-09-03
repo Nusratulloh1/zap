@@ -105,7 +105,7 @@ export function HistoryScreen() {
               <SearchIcon size={18} color="#5B594F" />
             </PressableScale>
             <PressableScale small accessibilityLabel={t('common.profileAria')} onPress={() => nav.navigate('Profile')}>
-              <Avatar source={myAvatar ?? undefined} name={home.db?.user?.name} letter={home.db?.user?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
+              <Avatar source={myAvatar ?? undefined} name={home.db?.user?.name} letter={home.db?.user?.initials} color="#121212" size={44} ring={fixed.lime} ringWidth={2} />
             </PressableScale>
           </View>
         </View>
@@ -143,7 +143,7 @@ export function HistoryScreen() {
                 style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.sand }]}
                 onPress={() => setTab(tb.key)}
               >
-                <Text style={[active ? styles.tabTextActive : styles.tabText, { color: active ? '#111110' : colors.slate }]}>{t(tb.label)}</Text>
+                <Text style={[active ? styles.tabTextActive : styles.tabText, { color: active ? '#121212' : colors.slate }]}>{t(tb.label)}</Text>
               </PressableScale>
             );
           })}
@@ -246,7 +246,7 @@ const styles = StyleSheet.create({
   dayLabel: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 20, marginBottom: 4 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 68 },
   icon: { width: 42, height: 42, borderRadius: 13, alignItems: 'center', justifyContent: 'center' },
-  iconPct: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },
+  iconPct: { fontFamily: font.extrabold, fontSize: 15, color: '#121212' },
   iconLetter: { fontFamily: font.extrabold, fontSize: 15 },
   rowBody: { flex: 1, gap: 2 },
   rowTitle: { fontFamily: font.bold, fontSize: 15 },

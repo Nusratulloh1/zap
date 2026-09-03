@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
   totalWrap: { marginTop: 'auto', paddingBottom: 26 },
   total: { fontFamily: font.monoBold, fontSize: 54, lineHeight: 58, letterSpacing: -2.4, color: fixedPalette.ink },
   // приглушённые чернила по лайму: «UZS» не должен спорить с суммой
-  currency: { fontFamily: font.semibold, fontSize: 15, color: 'rgba(17,17,16,0.55)', marginTop: 4 },
+  currency: { fontFamily: font.semibold, fontSize: 15, color: 'rgba(18,18,18,0.55)', marginTop: 4 },
 
   dark: { flex: 1, paddingHorizontal: PAD, paddingTop: 34, paddingBottom: 26 },
   payoff: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.3, color: '#FFFFFF' },

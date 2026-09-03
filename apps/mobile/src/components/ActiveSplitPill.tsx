@@ -99,7 +99,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 14 },
     elevation: 10,
   },
-  logo: { width: 42, height: 42, borderRadius: 999, borderWidth: 2, borderColor: '#DDFF33' },
+  logo: { width: 42, height: 42, borderRadius: 999, borderWidth: 2, borderColor: '#D9FF3A' },
   logoLetter: { fontFamily: font.extrabold, fontSize: 16 },
   body: { flex: 1, minWidth: 0, gap: 3 },
   title: { fontFamily: font.extrabold, fontSize: 14.5 },

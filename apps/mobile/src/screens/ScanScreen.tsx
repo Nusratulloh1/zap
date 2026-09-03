@@ -309,7 +309,7 @@ export function ScanScreen() {
               style={[styles.modeBtn, mode === m && { backgroundColor: fixed.lime }]}
               onPress={() => setMode(m)}
             >
-              <Text style={[styles.modeText, { color: mode === m ? '#111110' : '#FFFFFF' }]}>
+              <Text style={[styles.modeText, { color: mode === m ? '#121212' : '#FFFFFF' }]}>
                 {m === 'scan' ? t('scan.tabScan') : t('scan.tabPhoto')}
               </Text>
             </PressableScale>
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
   deniedCta: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   deniedGhostBorder: { height: 46, borderWidth: 1, borderColor: 'rgba(255,255,255,0.14)' },
   deniedGhost: { backgroundColor: 'rgba(255,255,255,0.12)' },
-  deniedCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#111110' },
+  deniedCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#121212' },
   deniedCtaLight: { fontFamily: font.bold, fontSize: 15, color: '#FFFFFF' },
   bottomZone: { alignItems: 'center', gap: 14, zIndex: 2 },
   caption: {

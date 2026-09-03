@@ -39,7 +39,7 @@ export function MerchantLogos({ merchants, size = 36 }: Props) {
             <Image source={logo} style={styles.logoImg} resizeMode="contain" />
           </View>
         ) : (
-          <View key={m.id} style={[frame, { backgroundColor: m.color ?? '#111110' }]}>
+          <View key={m.id} style={[frame, { backgroundColor: m.color ?? '#121212' }]}>
             <Text style={[styles.letter, { fontSize: size * 0.42 }]}>{m.letter}</Text>
           </View>
         );

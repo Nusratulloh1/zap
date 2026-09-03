@@ -99,5 +99,5 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#FFFFFF',
   },
-  checkMark: { fontFamily: font.extrabold, fontSize: 12, color: '#111110' },
+  checkMark: { fontFamily: font.extrabold, fontSize: 12, color: '#121212' },
 });

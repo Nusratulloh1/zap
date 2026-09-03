@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
   meta: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 6 },
   spacer: { flexGrow: 1, minHeight: 24 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
+  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   ctaText: { fontFamily: font.extrabold, fontSize: 16 },
   laterBtn: { marginTop: 10 },
   laterText: { fontFamily: font.bold, fontSize: 16 },

@@ -29,7 +29,7 @@ export function CashbackTier({ pool, rateBp, nextTier }: Props) {
   return (
     <View style={styles.root}>
       <View style={styles.labels}>
-        <Text style={[styles.hint, { color: 'rgba(17,17,16,0.6)' }]} numberOfLines={1}>
+        <Text style={[styles.hint, { color: 'rgba(18,18,18,0.6)' }]} numberOfLines={1}>
           {nextTier
             ? t('cashback.tierHint', { rate: pct(rateBp), need: money(nextTier.need), next: pct(nextTier.bp) })
             : t('cashback.tierMax', { rate: pct(rateBp) })}
@@ -38,10 +38,10 @@ export function CashbackTier({ pool, rateBp, nextTier }: Props) {
           {nextTier ? `${Math.round(pool / 1000)} / ${Math.round(target / 1000)}к` : pct(rateBp)}
         </Text>
       </View>
-      <View style={[styles.track, { backgroundColor: 'rgba(17,17,16,0.16)' }]}>
+      <View style={[styles.track, { backgroundColor: 'rgba(18,18,18,0.16)' }]}>
         <View style={[styles.bar, { backgroundColor: colors.ink, width: `${Math.max(4, progress * 100)}%` }]} />
       </View>
-      <Text style={[styles.note, { color: 'rgba(17,17,16,0.55)' }]}>{t('cashback.tierNote')}</Text>
+      <Text style={[styles.note, { color: 'rgba(18,18,18,0.55)' }]}>{t('cashback.tierNote')}</Text>
     </View>
   );
 }
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   root: { marginTop: 14 },
   labels: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: 8, marginBottom: 7 },
   hint: { flex: 1, fontFamily: font.semibold, fontSize: 12 },
-  count: { fontFamily: font.extrabold, fontSize: 12, color: '#111110' },
+  count: { fontFamily: font.extrabold, fontSize: 12, color: '#121212' },
   track: { height: 8, borderRadius: 999, overflow: 'hidden' },
   bar: { height: '100%', borderRadius: 999 },
   note: { fontFamily: font.semibold, fontSize: 11, marginTop: 8 },

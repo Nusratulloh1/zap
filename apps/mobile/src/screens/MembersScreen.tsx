@@ -115,7 +115,7 @@ export function MembersScreen() {
         : '';
 
   const nameOf = (id: string) => (id === ME ? (home.db?.user?.name || t('members.youShort')) : (home.contactById(id)?.name ?? '?'));
-  const colorOf = (id: string) => (id === ME ? '#111110' : (home.contactById(id)?.color ?? '#8A887E'));
+  const colorOf = (id: string) => (id === ME ? '#121212' : (home.contactById(id)?.color ?? '#8A887E'));
   const subOf = (id: string, debt?: boolean) => {
     if (id === ME) return t('members.youPayNow');
     if (debt) return t('members.debtNote');

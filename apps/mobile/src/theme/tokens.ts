@@ -1,37 +1,43 @@
-// Дизайн-токены — один в один с вебом (src/styles/main.css, переменные --c-*).
-// Значения в hex: в RN нет CSS-переменных, поэтому темы переключаются
-// подменой объекта в ThemeProvider.
+// Дизайн-токены.
+//
+// ВАЖНО: значения светлой темы взяты из вёрстки редизайна
+// (docs/product/redesign/ZAP Screens.dc.html), а не из старого веба. Там своя
+// палитра: лайм #D9FF3A, чернила #121212, серый текст #8E8C86, фон #F1EFE9,
+// пунктиры и бордеры #DAD8D1. Раньше мы рисовали похожие, но другие цвета —
+// поэтому экраны «почти как в макете» вместо «как в макете».
+//
+// Значения в hex: в RN нет CSS-переменных, темы переключаются подменой объекта.
 
 export const palette = {
   light: {
-    lime: '#DDFF33',
+    lime: '#D9FF3A', // из макета
     limeSoft: '#EAFF7A',
-    ink: '#111110', // основной текст
-    cream: '#EFEDE6', // фон приложения
+    ink: '#121212', // основной текст (макет)
+    cream: '#EAE8E1',
     paper: '#FFFFFF', // карточки
-    sand: '#F5F3EE', // вложенные ряды
-    sand2: '#F0EEE8', // бордеры карточек
-    stone: '#E3E1D8',
-    muted: '#8A887E',
-    faint: '#B3B1A8',
-    faint2: '#A3A199',
-    deep: '#3E3C35',
-    shell: '#F7F5F0',
-    dune: '#F2F0EA', // фон главной
+    sand: '#EAE8E1', // вложенные ряды
+    sand2: '#DAD8D1', // бордеры и пунктиры карточек
+    stone: '#CFCDC6',
+    muted: '#8E8C86', // серый текст макета
+    faint: '#8E8C86',
+    faint2: '#8E8C86',
+    deep: '#5A6A16', // тёмно-оливковый акцент на лайме
+    shell: '#F1EFE9',
+    dune: '#F1EFE9', // фон экранов
     dune2: '#F1EFE9',
-    pebble: '#ECEAE2',
-    pebble2: '#EFEDE7',
-    hairline: '#E8E6DE',
+    pebble: '#EAE8E1',
+    pebble2: '#EAE8E1',
+    hairline: '#DAD8D1',
     slate: '#5B594F',
-    mist: '#C6C4BA',
-    danger: '#C2453E',
-    ember: '#B4451F',
-    onLime: '#111110', // текст на лайме — чернила в ОБЕИХ темах
-    overlay: 'rgba(17,17,16,0.40)',
+    mist: '#BDBBB5',
+    danger: '#C0553A',
+    ember: '#C0553A',
+    onLime: '#121212', // текст на лайме — чернила в ОБЕИХ темах
+    overlay: 'rgba(18,18,18,0.40)',
     elevated: '#FFFFFF',
   },
   dark: {
-    lime: '#DDFF33',
+    lime: '#D9FF3A',
     limeSoft: '#EAFF7A',
     ink: '#F5F3EE', // тёплый крем-белый
     cream: '#0E0E0C',
@@ -53,7 +59,7 @@ export const palette = {
     mist: '#75736B',
     danger: '#E0685C',
     ember: '#E58A5F',
-    onLime: '#111110',
+    onLime: '#121212',
     overlay: 'rgba(0,0,0,0.6)',
     elevated: '#2A2925',
   },
@@ -87,7 +93,8 @@ export const radius = {
  * Это ВНЕШНИЙ отступ до края экрана. Внутренние поля карточек живут своей
  * жизнью (radius.card + свой padding) и с ним не складываются.
  */
-export const SCREEN_PAD_X = 16;
+// в макете поля экрана 15 pt (padding:… 15px во всех экранах)
+export const SCREEN_PAD_X = 15;
 
 export const spacing = {
   xs: 4,

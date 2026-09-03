@@ -106,7 +106,7 @@ export function DebtsScreen() {
                     style={[styles.tab, { backgroundColor: active ? fixed.lime : colors.sand }]}
                     onPress={() => setTab(k)}
                   >
-                    <Text style={[styles.tabText, { color: active ? '#111110' : colors.slate }]}>
+                    <Text style={[styles.tabText, { color: active ? '#121212' : colors.slate }]}>
                       {k === 'owedToMe' ? t('debts.tabOwedToMe') : t('debts.iOweZero')}
                     </Text>
                   </PressableScale>
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   noteText: { fontFamily: font.semibold, fontSize: 12.5, lineHeight: 18 },
   spacer: { flexGrow: 1, minHeight: 20 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 20 },
-  ctaText: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
+  ctaText: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
   emoji: { fontSize: 32 },
   emptyBold: { fontFamily: font.bold, fontSize: 14 },

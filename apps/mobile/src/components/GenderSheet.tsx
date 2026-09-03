@@ -70,5 +70,5 @@ const styles = StyleSheet.create({
   skip: { alignSelf: 'center', paddingVertical: 14 },
   skipText: { fontFamily: font.bold, fontSize: 13.5 },
   hintRow: { borderRadius: 16, paddingVertical: 10, paddingHorizontal: 14, marginBottom: 6 },
-  hintText: { fontFamily: font.semibold, fontSize: 12, color: '#111110', textAlign: 'center' },
+  hintText: { fontFamily: font.semibold, fontSize: 12, color: '#121212', textAlign: 'center' },
 });

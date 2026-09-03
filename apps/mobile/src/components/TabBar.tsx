@@ -54,7 +54,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         dark={onLime}
         amount={5}
         fallback={onLime ? 'rgba(24,24,22,0.60)' : 'rgba(255,255,255,0.55)'}
-        tint={onLime ? 'rgba(17,17,16,0.30)' : 'rgba(255,255,255,0.18)'}
+        tint={onLime ? 'rgba(18,18,18,0.30)' : 'rgba(255,255,255,0.18)'}
         style={[styles.pill, onLime ? styles.pillSurfaceInk : styles.pillSurface]}
       >
         {/* верхний глянец — блик на светлом стекле; на чернильном он лишний */}
@@ -116,7 +116,7 @@ function TabButton({
 
   const bg = useAnimatedStyle(() => ({
     opacity: v.value,
-    backgroundColor: kind === 'grid' ? '#111110' : lime,
+    backgroundColor: kind === 'grid' ? '#121212' : lime,
   }));
   const iconStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.value }] }));
 
@@ -144,7 +144,7 @@ function TabButton({
 /** Иконки нарисованы View-примитивами: react-native-svg в проекте нет. */
 function Icon({ kind, focused, lime, dark }: { kind: IconKind; focused: boolean; lime: string; dark?: boolean }) {
   // неактивные приглушены; в тёмной теме — светлые (как .tab-btn в вебе)
-  const on = focused ? '#111110' : dark ? 'rgba(245,243,238,0.7)' : 'rgba(17,17,16,0.55)';
+  const on = focused ? '#121212' : dark ? 'rgba(245,243,238,0.7)' : 'rgba(18,18,18,0.55)';
 
   if (kind === 'grid') {
     // пад суммы: шесть точек; на активном чернильном круге они лаймовые
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     borderRadius: 999,
     // подложка по теме — как no-blur фолбэк .zap-tabbar в вебе
     borderWidth: 1,
-    shadowColor: '#111110',
+    shadowColor: '#121212',
     shadowOpacity: 0.34,
     shadowRadius: 18,
     shadowOffset: { width: 0, height: 12 },

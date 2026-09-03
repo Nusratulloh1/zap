@@ -378,7 +378,7 @@ export function ProfileScreen() {
                   style={[styles.gRow, ci < cards.length && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
                   onPress={() => !card.primary && void makePrimary(card.id, card.last4)}
                 >
-                  <View style={[styles.cardBadge, { backgroundColor: card.network === 'UZCARD' ? '#111110' : colors.sand }]}>
+                  <View style={[styles.cardBadge, { backgroundColor: card.network === 'UZCARD' ? '#121212' : colors.sand }]}>
                     <Text style={[styles.cardBadgeText, { color: card.network === 'UZCARD' ? fixed.lime : colors.muted }]}>
                       {card.network === 'UZCARD' ? 'UZC' : 'HUMO'}
                     </Text>
@@ -429,7 +429,7 @@ export function ProfileScreen() {
                       style={[styles.langPill, { backgroundColor: l === locale ? fixed.lime : colors.sand }]}
                       onPress={() => pickLocale(l)}
                     >
-                      <Text style={[styles.langPillText, { color: '#111110' }]}>{l.toUpperCase()}</Text>
+                      <Text style={[styles.langPillText, { color: '#121212' }]}>{l.toUpperCase()}</Text>
                     </PressableScale>
                   ))}
                 </View>
@@ -694,7 +694,7 @@ const styles = StyleSheet.create({
   recapKicker: { fontFamily: font.monoBold, fontSize: 9.5, letterSpacing: 1.4 },
   recapMonth: { fontFamily: font.extrabold, fontSize: 19, letterSpacing: -0.3, color: '#F6F4EE', marginTop: 2 },
   recapBtn: { height: 34, paddingHorizontal: 14, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  recapBtnText: { fontFamily: font.extrabold, fontSize: 12.5, color: '#111110' },
+  recapBtnText: { fontFamily: font.extrabold, fontSize: 12.5, color: '#121212' },
 
   // ── две плитки «про меня» ──
   identityRow2: { flexDirection: 'row', gap: 10, marginTop: 10 },
@@ -721,7 +721,7 @@ const styles = StyleSheet.create({
   topGlassFade: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   root: { paddingHorizontal: SCREEN_PAD_X },
   sinceChip: { alignSelf: 'center', height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center', marginTop: 2 },
-  sinceText: { fontFamily: font.extrabold, fontSize: 11, color: '#111110' },
+  sinceText: { fontFamily: font.extrabold, fontSize: 11, color: '#121212' },
   stats: { flexDirection: 'row', gap: 10, marginTop: 22 },
   stat: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 14, gap: 3 },
   statValue: { fontFamily: font.extrabold, fontSize: 20 },
@@ -749,7 +749,7 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     borderColor: '#FFFFFF',
   },
-  editBadgeText: { color: '#DDFF33', fontSize: 16 },
+  editBadgeText: { color: '#D9FF3A', fontSize: 16 },
   heroName: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.4, marginTop: 14 },
   heroHandle: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 3, marginBottom: 10 },
   inlinePills: { flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 'auto' },
@@ -761,7 +761,7 @@ const styles = StyleSheet.create({
   cardBadgeText: { fontFamily: font.monoBold, fontSize: 8 },
   plusGlyph: { fontSize: 16, fontFamily: font.semibold },
   primaryChip: { height: 26, paddingHorizontal: 11, borderRadius: 999, justifyContent: 'center' },
-  primaryText: { fontFamily: font.extrabold, fontSize: 11, color: '#111110' },
+  primaryText: { fontFamily: font.extrabold, fontSize: 11, color: '#121212' },
   makePrimary: { fontFamily: font.bold, fontSize: 12 },
   settingValue: { fontFamily: font.bold, fontSize: 13 },
   chevron: { fontFamily: font.semibold, fontSize: 15 },
@@ -778,7 +778,7 @@ const styles = StyleSheet.create({
   field: { borderBottomWidth: 2, paddingBottom: 8, fontFamily: font.monoBold, fontSize: 15, textAlign: 'center', marginTop: 6 },
   hiddenField: { position: 'absolute', opacity: 0, height: 1, width: 1 },
   sheetCta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 20 },
-  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
+  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   disabled: { opacity: 0.4 },
   smsHint: { fontFamily: font.semibold, fontSize: 14, textAlign: 'center', marginTop: 18 },
   smsRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 16 },

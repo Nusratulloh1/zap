@@ -81,7 +81,7 @@ export function AmountScreen() {
           <ScanIcon size={26} color={fixed.ink} />
         </PressableScale>
         <PressableScale small onPress={() => nav.navigate('Profile')}>
-          <Avatar name={home.db?.user?.name} letter={home.db?.user?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
+          <Avatar name={home.db?.user?.name} letter={home.db?.user?.initials} color="#121212" size={44} ring={fixed.lime} ringWidth={2} />
         </PressableScale>
       </View>
 

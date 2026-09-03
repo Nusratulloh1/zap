@@ -276,7 +276,7 @@ const styles = StyleSheet.create({
   spacer: { flexGrow: 1, minHeight: 24 },
   ctas: { gap: 10 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
+  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   ctaLight: { fontFamily: font.bold, fontSize: 16 },
   disabled: { opacity: 0.4 },
 });

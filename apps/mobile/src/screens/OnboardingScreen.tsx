@@ -145,7 +145,7 @@ export function OnboardingScreen() {
     darkSv.value = withTiming(isDark ? 1 : 0, { duration: 320 });
   }, [isDark, darkSv]);
   const bgStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(darkSv.value, [0, 1], ['#DDFF33', '#0E0E0C']),
+    backgroundColor: interpolateColor(darkSv.value, [0, 1], ['#D9FF3A', '#0E0E0C']),
   }));
   const dotsStyle = useAnimatedStyle(() => ({ opacity: darkSv.value }));
 
@@ -262,7 +262,7 @@ export function OnboardingScreen() {
           </Animated.View>
         ) : (
           <Animated.View key="hint" entering={footerIn} exiting={footerOut}>
-            <Text style={[styles.hint, { color: isDark ? 'rgba(255,255,255,0.45)' : 'rgba(17,17,16,0.5)' }]} onPress={() => goTo(index + 1)}>
+            <Text style={[styles.hint, { color: isDark ? 'rgba(255,255,255,0.45)' : 'rgba(18,18,18,0.5)' }]} onPress={() => goTo(index + 1)}>
               {t('onboarding.tapHint')}
             </Text>
           </Animated.View>
@@ -290,13 +290,13 @@ function SlideScan({ t, fixed }: SlideProps) {
         </View>
       </Animated.View>
       <Animated.View entering={stagger(1)}>
-        <Text style={[styles.stage, { color: 'rgba(17,17,16,0.55)' }]}>{t('onboarding.stage', { n: 1 })}</Text>
+        <Text style={[styles.stage, { color: 'rgba(18,18,18,0.55)' }]}>{t('onboarding.stage', { n: 1 })}</Text>
       </Animated.View>
       <Animated.View entering={stagger(2)}>
         <Text style={[styles.title, { color: fixed.ink }]}>{t('onboarding.s1Title')}</Text>
       </Animated.View>
       <Animated.View entering={stagger(3)}>
-        <Text style={[styles.text, { color: 'rgba(17,17,16,0.7)' }]}>{t('onboarding.s1Text')}</Text>
+        <Text style={[styles.text, { color: 'rgba(18,18,18,0.7)' }]}>{t('onboarding.s1Text')}</Text>
       </Animated.View>
     </>
   );
@@ -376,7 +376,7 @@ function SlideCashback({ t, fixed }: SlideProps) {
         </View>
       </Animated.View>
       <Animated.View entering={stagger(1)}>
-        <Text style={[styles.stage, { color: 'rgba(17,17,16,0.55)' }]}>{t('onboarding.stage', { n: 3 })}</Text>
+        <Text style={[styles.stage, { color: 'rgba(18,18,18,0.55)' }]}>{t('onboarding.stage', { n: 3 })}</Text>
       </Animated.View>
       <Animated.View entering={stagger(2)}>
         <Text style={[styles.title, { color: fixed.ink }]}>
@@ -386,7 +386,7 @@ function SlideCashback({ t, fixed }: SlideProps) {
         </Text>
       </Animated.View>
       <Animated.View entering={stagger(3)}>
-        <Text style={[styles.text, { color: 'rgba(17,17,16,0.7)' }]}>{t('onboarding.s3Text')}</Text>
+        <Text style={[styles.text, { color: 'rgba(18,18,18,0.7)' }]}>{t('onboarding.s3Text')}</Text>
       </Animated.View>
       <Animated.View entering={stagger(4)} style={[styles.counter, { backgroundColor: fixed.ink }]}>
         <CountUp value={60000} prefix="+" duration={1400} style={[styles.counterAmount, { color: fixed.lime }]} />
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     overflow: 'hidden',
     borderWidth: 1,
-    borderColor: 'rgba(17,17,16,0.06)',
+    borderColor: 'rgba(18,18,18,0.06)',
     shadowColor: '#1E1C10',
     shadowOpacity: 0.14,
     shadowRadius: 18,

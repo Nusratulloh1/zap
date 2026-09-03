@@ -62,7 +62,7 @@ export function CashbackAwardScreen() {
 
   const nameOf = (cid: string) =>
     cid === 'me' ? (home.db?.user?.name ?? t('members.youShort')) : (home.contactById(cid)?.name ?? '?');
-  const colorOf = (cid: string) => (cid === 'me' ? '#111110' : (home.contactById(cid)?.color ?? '#8A887E'));
+  const colorOf = (cid: string) => (cid === 'me' ? '#121212' : (home.contactById(cid)?.color ?? '#8A887E'));
 
   return (
     <Screen style={styles.root}>
@@ -155,7 +155,7 @@ const styles = StyleSheet.create({
   amount: { fontFamily: font.extrabold, fontSize: 48, letterSpacing: -1.5, lineHeight: 52 },
   currency: { fontFamily: font.monoBold, fontSize: 11 },
   reasonPill: { alignSelf: 'flex-start', height: 34, paddingHorizontal: 14, borderRadius: 999, justifyContent: 'center', marginTop: 14 },
-  reasonText: { fontFamily: font.extrabold, fontSize: 12.5, color: '#111110' },
+  reasonText: { fontFamily: font.extrabold, fontSize: 12.5, color: '#121212' },
   list: { marginTop: 26, borderTopWidth: 1, paddingTop: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   rowBody: { flex: 1, gap: 1 },
@@ -168,6 +168,6 @@ const styles = StyleSheet.create({
   spacer: { flexGrow: 1, minHeight: 24 },
   ctas: { gap: 10 },
   cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
+  ctaDark: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   ctaLight: { fontFamily: font.bold, fontSize: 16 },
 });

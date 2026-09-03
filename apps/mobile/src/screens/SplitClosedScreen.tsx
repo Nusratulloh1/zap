@@ -66,7 +66,7 @@ export function SplitClosedScreen() {
 
   const nameOf = (cid: string) =>
     cid === 'me' ? (home.db?.user?.name ?? t('members.youShort')) : (home.contactById(cid)?.name ?? '?');
-  const colorOf = (cid: string) => (cid === 'me' ? '#111110' : (home.contactById(cid)?.color ?? '#8A887E'));
+  const colorOf = (cid: string) => (cid === 'me' ? '#121212' : (home.contactById(cid)?.color ?? '#8A887E'));
 
   return (
     <Screen background={fixed.lime} darkBar={false} style={styles.root}>
@@ -113,7 +113,7 @@ export function SplitClosedScreen() {
             <Image source={{ uri: split.photoUrl }} style={styles.moment} resizeMode="cover" />
           ) : (
             <PressableScale
-              style={[styles.addPhoto, { borderColor: 'rgba(17,17,16,0.28)' }]}
+              style={[styles.addPhoto, { borderColor: 'rgba(18,18,18,0.28)' }]}
               onPress={() => nav.navigate('PhotoMoment', { id })}
             >
               <Text style={[styles.addPhotoText, { color: fixed.ink }]}>{t('photoMoment.add')}</Text>
@@ -227,13 +227,13 @@ const styles = StyleSheet.create({
   logo: { width: 76, height: 76, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   logoLetter: { fontFamily: font.extrabold, fontSize: 26 },
   title: { fontFamily: font.extrabold, fontSize: 25, letterSpacing: -0.3, marginTop: 10 },
-  sub: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 5, color: 'rgba(17,17,16,0.6)' },
+  sub: { fontFamily: font.semibold, fontSize: 13.5, marginTop: 5, color: 'rgba(18,18,18,0.6)' },
   amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 24 },
   amount: { fontFamily: font.extrabold, fontSize: 48, letterSpacing: -1.5, lineHeight: 52 },
-  currency: { fontFamily: font.monoBold, fontSize: 11, color: 'rgba(17,17,16,0.55)' },
+  currency: { fontFamily: font.monoBold, fontSize: 11, color: 'rgba(18,18,18,0.55)' },
   cashbackPill: { alignSelf: 'flex-start', height: 34, paddingHorizontal: 14, borderRadius: 999, justifyContent: 'center', marginTop: 14 },
   cashbackText: { fontFamily: font.extrabold, fontSize: 12.5 },
-  moment: { height: 190, borderRadius: 24, marginTop: 22, backgroundColor: 'rgba(17,17,16,0.08)' },
+  moment: { height: 190, borderRadius: 24, marginTop: 22, backgroundColor: 'rgba(18,18,18,0.08)' },
   addPhoto: {
     height: 56,
     borderRadius: 999,
@@ -244,15 +244,15 @@ const styles = StyleSheet.create({
     marginTop: 22,
   },
   addPhotoText: { fontFamily: font.extrabold, fontSize: 15 },
-  list: { marginTop: 26, borderTopWidth: 1, borderTopColor: 'rgba(17,17,16,0.14)', paddingTop: 6 },
+  list: { marginTop: 26, borderTopWidth: 1, borderTopColor: 'rgba(18,18,18,0.14)', paddingTop: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
-  rowBorder: { borderBottomWidth: 1, borderBottomColor: 'rgba(17,17,16,0.14)' },
+  rowBorder: { borderBottomWidth: 1, borderBottomColor: 'rgba(18,18,18,0.14)' },
   rowBody: { flex: 1, gap: 1 },
   rowName: { fontFamily: font.bold, fontSize: 15 },
-  rowSub: { fontFamily: font.semibold, fontSize: 12, color: 'rgba(17,17,16,0.55)' },
+  rowSub: { fontFamily: font.semibold, fontSize: 12, color: 'rgba(18,18,18,0.55)' },
   rowAmount: { fontFamily: font.extrabold, fontSize: 15 },
   groupRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 20 },
-  groupLabel: { fontFamily: font.bold, fontSize: 14.5, color: 'rgba(17,17,16,0.6)' },
+  groupLabel: { fontFamily: font.bold, fontSize: 14.5, color: 'rgba(18,18,18,0.6)' },
   groupAmount: { fontFamily: font.extrabold, fontSize: 19 },
   spacer: { flexGrow: 1, minHeight: 24 },
   ctas: { gap: 10 },

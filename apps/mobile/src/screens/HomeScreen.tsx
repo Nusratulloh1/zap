@@ -198,7 +198,7 @@ export function HomeScreen() {
               accessibilityLabel={t('common.profileAria')}
               onPress={() => nav.navigate('Profile')}
             >
-              <Avatar source={myAvatar ?? undefined} name={me?.name} letter={me?.initials} color="#111110" size={44} ring={fixed.lime} ringWidth={2} />
+              <Avatar source={myAvatar ?? undefined} name={me?.name} letter={me?.initials} color="#121212" size={44} ring={fixed.lime} ringWidth={2} />
             </PressableScale>
           </View>
         </View>
@@ -586,7 +586,7 @@ const styles = StyleSheet.create({
   groupName: { fontFamily: font.bold, fontSize: 15 },
   groupSub: { fontFamily: font.semibold, fontSize: 12, marginTop: 1 },
   groupSplitBtn: { height: 34, paddingHorizontal: 15, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  groupSplitText: { fontFamily: font.extrabold, fontSize: 13, color: '#111110' },
+  groupSplitText: { fontFamily: font.extrabold, fontSize: 13, color: '#121212' },
 
   splitRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 62 },
   splitIcon: { width: 40, height: 40, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },

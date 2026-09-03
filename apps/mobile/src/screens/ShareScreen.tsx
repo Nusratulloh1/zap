@@ -121,7 +121,7 @@ export function ShareScreen() {
       </Text>
 
       <Animated.View entering={FadeInDown.duration(320)} style={[styles.qrBox, { backgroundColor: fixedPalette.shell }]}>
-        <QRCode value={url} size={182} backgroundColor="#F7F5F0" color="#111110" />
+        <QRCode value={url} size={182} backgroundColor="#F7F5F0" color="#121212" />
       </Animated.View>
 
       <Text style={[styles.link, { color: colors.faint2 }]}>{url.replace(/^https?:\/\//, '')}</Text>
@@ -136,7 +136,7 @@ export function ShareScreen() {
                 name={c?.name ?? t('members.youShort')}
                 letter={c?.initials}
                 contactId={m.contactId}
-                color={m.contactId === 'me' ? '#111110' : (c?.color ?? '#111110')}
+                color={m.contactId === 'me' ? '#121212' : (c?.color ?? '#121212')}
                 size={34}
                 ring={colors.paper}
                 style={i > 0 ? styles.stackOverlap : undefined}
@@ -155,7 +155,7 @@ export function ShareScreen() {
           onPress={() => void onSms()}
           disabled={sending}
         >
-          <MailIcon size={19} color="#111110" />
+          <MailIcon size={19} color="#121212" />
           <Text style={styles.btnDark}>{t('share.sendSms')}</Text>
         </PressableScale>
         <PressableScale style={[styles.btn, { backgroundColor: colors.sand }]} onPress={onCopy}>
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
   statusText: { flex: 1, fontFamily: font.semibold, fontSize: 12.5 },
   actions: { marginTop: 'auto', gap: 10 },
   btn: { height: 56, borderRadius: 999, flexDirection: 'row', gap: 10, alignItems: 'center', justifyContent: 'center' },
-  btnDark: { fontFamily: font.extrabold, fontSize: 16, color: '#111110' },
+  btnDark: { fontFamily: font.extrabold, fontSize: 16, color: '#121212' },
   btnLight: { fontFamily: font.bold, fontSize: 16 },
   sendingDim: { opacity: 0.6 },
   toStatus: { fontFamily: font.bold, fontSize: 14, textAlign: 'center', paddingVertical: 8 },
