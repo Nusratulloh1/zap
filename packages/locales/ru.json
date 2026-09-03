@@ -480,7 +480,9 @@
     "byGroups": "ПО ГРУППАМ",
     "spentLabel": "ПОТРАЧЕНО",
     "allYourGroups": "все ваши группы",
-    "merchants": "МЕРЧАНТЫ"
+    "merchants": "МЕРЧАНТЫ",
+    "historyBtn": "История",
+    "historyTitle": "История кэшбэка"
   },
   "history": {
     "title": "История",

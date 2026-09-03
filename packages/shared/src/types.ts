@@ -71,6 +71,8 @@ export type SplitMemberStatus = 'paid' | 'opened' | 'waiting' | 'debt'
 
 export interface SplitMember {
   contactId: Id
+  /** имя, сохранённое в сплите — для тех, кого нет в контактах */
+  name?: string
   amount: number
   status: SplitMemberStatus
   isYou?: boolean

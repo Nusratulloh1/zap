@@ -140,6 +140,7 @@ export function CashbackScreen() {
 
   const skin = useSkin();
   const [skinSheet, setSkinSheet] = useState(false);
+  const [historySheet, setHistorySheet] = useState(false);
   const bg = skin ?? colors.dune2;
   const onDark = isDarkSkin(skin);
   const ink = onDark ? '#FFFFFF' : colors.ink;
@@ -198,6 +199,12 @@ export function CashbackScreen() {
                 </PressableScale>
                 <PressableScale style={[styles.availBtn, styles.availBtnGhost]} onPress={openWithdraw}>
                   <Text style={[styles.availBtnText, { color: fixed.ink }]}>{t('cashback.withdraw')}</Text>
+                </PressableScale>
+                <PressableScale
+                  style={[styles.availBtn, styles.availBtnGhost]}
+                  onPress={() => setHistorySheet(true)}
+                >
+                  <Text style={[styles.availBtnText, { color: fixed.ink }]}>{t('cashback.historyBtn')}</Text>
                 </PressableScale>
               </View>
               <Image source={STICKER.wallet} style={styles.availArt} resizeMode="contain" />
@@ -295,7 +302,7 @@ export function CashbackScreen() {
                   items={contributors.slice(0, 3).map((c) => ({
                     key: c.contactId,
                     contactId: c.contactId,
-                    name: c.contactId === 'me' ? t('members.youShort') : (home.contactById(c.contactId)?.name ?? '?'),
+                    name: c.contactId === 'me' ? t('members.youShort') : home.nameOfContact(c.contactId),
                     color: home.contactById(c.contactId)?.color,
                     initials: home.contactById(c.contactId)?.initials,
                     amount: c.amount,
@@ -343,6 +350,30 @@ export function CashbackScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* история начислений — списком в шите, чтобы не растягивать экран */}
+      <BottomSheet open={historySheet} onClose={() => setHistorySheet(false)}>
+        <Text style={[styles.sheetTitle, { color: colors.ink }]}>{t('cashback.historyTitle')}</Text>
+        <ScrollView style={styles.historyList} showsVerticalScrollIndicator={false}>
+          {rows.map((e) => (
+            <View key={e.id} style={styles.historyRow}>
+              <VenueIcon name={e.title} size={38} />
+              <View style={styles.historyBody}>
+                <Text style={[styles.historyTitle, { color: colors.ink }]} numberOfLines={1}>{e.title}</Text>
+                <Text style={[styles.historySub, { color: colors.muted }]} numberOfLines={1}>
+                  {badgeOf(e.badge)} · {humanDateLc(e.createdAt)}
+                </Text>
+              </View>
+              <Text style={[styles.historyAmount, { color: colors.ink }]} numberOfLines={1}>
+                {e.amount > 0 ? '+' : ''}{money(e.amount)}
+              </Text>
+            </View>
+          ))}
+          {!rows.length ? (
+            <Text style={[styles.historyEmpty, { color: colors.muted }]}>{t('empty.cashbackTitle')}</Text>
+          ) : null}
+        </ScrollView>
+      </BottomSheet>
 
       <SkinSheet open={skinSheet} onClose={() => setSkinSheet(false)} />
 
@@ -412,7 +443,14 @@ const styles = StyleSheet.create({
   availAmount: { fontFamily: font.extrabold, fontSize: 40, letterSpacing: -0.5, color: '#121212' },
   availUnit: { fontFamily: font.semibold, fontSize: 12, color: '#5A6A16' },
   availSub: { fontFamily: font.semibold, fontSize: 11, color: '#5A6A16', marginTop: 6 },
-  availActions: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  availActions: { flexDirection: 'row', gap: 8, marginTop: 14, flexWrap: 'wrap' },
+  historyList: { maxHeight: 420, marginTop: 12 },
+  historyRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 10 },
+  historyBody: { flex: 1, minWidth: 0 },
+  historyTitle: { fontFamily: font.bold, fontSize: 14 },
+  historySub: { fontFamily: font.semibold, fontSize: 11, marginTop: 2 },
+  historyAmount: { fontFamily: font.extrabold, fontSize: 15 },
+  historyEmpty: { fontFamily: font.semibold, fontSize: 13, textAlign: 'center', paddingVertical: 28 },
   availBtn: { height: 34, borderRadius: 17, paddingHorizontal: 14, alignItems: 'center', justifyContent: 'center' },
   availBtnGhost: { backgroundColor: 'rgba(18,18,18,0.08)' },
   availBtnText: { fontFamily: font.bold, fontSize: 11 },

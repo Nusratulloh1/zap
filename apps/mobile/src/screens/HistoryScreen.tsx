@@ -46,8 +46,10 @@ export function HistoryScreen() {
 
   /** Заголовок записи: имя контакта важнее сохранённого в meta номера. */
   const rowTitle = (e: { title: string; titleKey?: string; contactId?: string }) => {
-    const c = e.contactId ? home.contactById(e.contactId) : undefined;
-    if (c?.name) return c.name;
+    if (e.contactId) {
+      const name = home.nameOfContact(e.contactId);
+      if (name && name !== e.contactId) return name;
+    }
     return entryText(e.title, e.titleKey);
   };
 

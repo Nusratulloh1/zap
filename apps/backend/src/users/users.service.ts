@@ -332,6 +332,9 @@ export class UsersService {
       mode: s.mode,
       members: s.members.map((m) => ({
         contactId: contactId(m.phone),
+        // имя из сплита: у людей вне справочника контактов contactId — это
+        // телефон, и без этого поля на экранах вместо имени висел номер
+        name: m.displayName,
         memberId: m.id,
         amount: m.shareAmount,
         status: statusMap[m.status] ?? 'waiting',

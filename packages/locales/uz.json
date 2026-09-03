@@ -480,7 +480,9 @@
     "byGroups": "GURUHLAR BO‘YICHA",
     "spentLabel": "SARFLANDI",
     "allYourGroups": "barcha guruhlaringiz",
-    "merchants": "JOYLAR"
+    "merchants": "JOYLAR",
+    "historyBtn": "Tarix",
+    "historyTitle": "Keshbek tarixi"
   },
   "history": {
     "title": "Tarix",

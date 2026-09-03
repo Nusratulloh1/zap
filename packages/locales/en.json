@@ -480,7 +480,9 @@
     "byGroups": "BY CREWS",
     "spentLabel": "SPENT",
     "allYourGroups": "all your crews",
-    "merchants": "PLACES"
+    "merchants": "PLACES",
+    "historyBtn": "History",
+    "historyTitle": "Cashback history"
   },
   "history": {
     "title": "History",

@@ -41,10 +41,32 @@ export function DebtsScreen() {
   const [tab, setTab] = useState<'owedToMe' | 'iOwe'>('owedToMe');
   const [cooldowns, setCooldowns] = useState<Record<string, number>>({});
 
-  const openDebts = useMemo(
-    () => (home.db?.debts ?? []).filter((d) => d.direction === 'owedToMe' && d.status === 'open'),
-    [home.db?.debts],
-  );
+  /*
+    Долги схлопываем по человеку: у одного и того же должника их бывает
+    несколько, и списком это выглядело как дубли. Показываем общую сумму, а
+    напоминание шлём по самому свежему долгу — сервер напомнит обо всех.
+  */
+  const openDebts = useMemo(() => {
+    const raw = (home.db?.debts ?? []).filter((d) => d.direction === 'owedToMe' && d.status === 'open');
+    const byPerson = new Map<string, (typeof raw)[number] & { count: number }>();
+    for (const d of raw) {
+      const cur = byPerson.get(d.contactId);
+      if (!cur) {
+        byPerson.set(d.contactId, { ...d, count: 1 });
+        continue;
+      }
+      cur.amount += d.amount;
+      cur.count += 1;
+      // сохраняем самый свежий долг как «представителя» группы
+      if (d.createdAt > cur.createdAt) {
+        cur.id = d.id;
+        cur.createdAt = d.createdAt;
+        cur.reason = d.reason;
+        cur.splitId = d.splitId;
+      }
+    }
+    return [...byPerson.values()].sort((a, b) => b.amount - a.amount);
+  }, [home.db?.debts]);
   const isCooling = (id: string) => (cooldowns[id] ?? 0) > Date.now();
 
   const remind = async (debtId: string) => {

@@ -248,12 +248,8 @@ export function SpendingBlock() {
             frame={colors.paper}
             items={people.slice(0, 3).map((p) => {
               const c = home.contactById(p.contactId);
-              /*
-                Имя контакта важнее всего: раньше на экран попадал номер из
-                истории. Если контакта нет — берём имя из участников сплита,
-                затем @username, и только потом номер.
-              */
-              const shown = c?.name || c?.handle || p.contactId;
+              // имя ищется в контактах, затем в самих сплитах (см. bootstrap)
+              const shown = home.nameOfContact(p.contactId);
               return {
                 key: p.contactId,
                 contactId: p.contactId,
