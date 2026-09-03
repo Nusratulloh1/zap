@@ -338,14 +338,6 @@ export function HomeScreen() {
               onPress={() => nav.navigate('Cashback')}
             >
               <Text style={[styles.statTitle, { color: colors.ink }]}>{t('home.cashbackCard')}</Text>
-              <Text style={[styles.statSub, { color: colors.faint }]} numberOfLines={2}>
-                {home.cashbackCount
-                  ? t('home.cashbackWithCount', {
-                      amount: money(home.cashbackBalance),
-                      count: t('home.cashbackUnit', { n: home.cashbackCount }),
-                    })
-                  : t('home.cashbackEmpty')}
-              </Text>
               {/*
                 Только стикер: логотипы партнёров и аватары должников убраны по
                 замечанию руководства — плитки должны читаться как наклейки, а
@@ -361,14 +353,6 @@ export function HomeScreen() {
               onPress={() => nav.navigate('Debts')}
             >
               <Text style={[styles.statTitle, { color: colors.ink }]}>{t('home.debtorsCard')}</Text>
-              <Text style={[styles.statSub, { color: colors.faint }]} numberOfLines={2}>
-                {home.debtors.length
-                  ? t('home.cashbackWithCount', {
-                      amount: money(home.totalOwedToMe),
-                      count: peopleCount(home.debtors.length),
-                    })
-                  : t('home.debtorsEmpty')}
-              </Text>
               <View style={styles.statSticker}>
                 <Image source={STICKER.receiptHero} style={styles.statStickerImg} resizeMode="contain" />
               </View>

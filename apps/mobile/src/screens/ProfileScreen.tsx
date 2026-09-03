@@ -205,6 +205,7 @@ export function ProfileScreen() {
   const [avatarSheet, setAvatarSheet] = useState(false);
   const [skinSheet, setSkinSheet] = useState(false);
   const skin = useSkin();
+  const skinBg = skin ?? '#D9FF3A';
   const loggingOut = useRef(false);
 
 
@@ -295,7 +296,7 @@ export function ProfileScreen() {
   return (
     // без edges: отступ снизу задаёт сама прокрутка, иначе остаётся белая полоса
     // фон: выбранный кнопкой «🎨», по умолчанию — наш лайм
-    <Screen style={styles.root} edges={[]} background={skin ?? fixed.lime} darkBar={false}>
+    <Screen style={styles.root} edges={[]} background={skinBg} darkBar={false}>
       <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: insets.bottom + 16 }}>
         {me ? (
           <>
@@ -341,7 +342,7 @@ export function ProfileScreen() {
             {favTheme || best !== null ? (
               <View style={styles.identityRow2}>
                 {favTheme ? (
-                  <View style={[styles.identityTile, { backgroundColor: colors.shell }]}>
+                  <View style={[styles.identityTile, { backgroundColor: colors.paper }]}>
                     <Image
                       source={favTheme.sticker ? STICKER[favTheme.sticker] : STICKER.receiptHero}
                       style={styles.identitySticker}
@@ -356,7 +357,7 @@ export function ProfileScreen() {
                   </View>
                 ) : null}
                 {best !== null ? (
-                  <View style={[styles.identityTile, { backgroundColor: colors.shell }]}>
+                  <View style={[styles.identityTile, { backgroundColor: colors.paper }]}>
                     <Image source={STICKER.paidDone} style={styles.identitySticker} resizeMode="contain" />
                     <Text style={[styles.identityValue, { color: colors.ink }]} numberOfLines={1}>
                       {t('profile.seconds', { n: best })}
@@ -375,7 +376,7 @@ export function ProfileScreen() {
               внутри группы и с отступом под иконку.
             */}
             <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('profile.cards')}</Text>
-            <View style={[styles.group, { backgroundColor: colors.shell }]}>
+            <View style={[styles.group, { backgroundColor: colors.paper }]}>
               {cards.map((card, ci) => (
                 <PressableScale
                   key={card.id}
@@ -409,7 +410,7 @@ export function ProfileScreen() {
             </View>
 
             <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('profile.settings')}</Text>
-            <View style={[styles.group, { backgroundColor: colors.shell }]}>
+            <View style={[styles.group, { backgroundColor: colors.paper }]}>
               <PressableScale haptic={false} style={[styles.gRow, styles.gDiv, { borderBottomColor: colors.sand2 }]} onPress={openPinFlow}>
                 <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>🔐</Text></View>
                 <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.pinFaceId')}</Text>
@@ -441,12 +442,6 @@ export function ProfileScreen() {
               </View>
 
 
-              <PressableScale haptic={false} style={styles.gRow} onPress={() => setGroupsSheet(true)}>
-                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>👥</Text></View>
-                <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.myGroups')}</Text>
-                <Text style={[styles.settingValue, { color: colors.muted }]}>{groups.length}</Text>
-                <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
-              </PressableScale>
             </View>
 
             {/*
@@ -455,7 +450,7 @@ export function ProfileScreen() {
               строке настроек не давали понять, что это выбор.
             */}
             <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('profile.appIconSection')}</Text>
-            <View style={[styles.group, { backgroundColor: colors.shell }]}>
+            <View style={[styles.group, { backgroundColor: colors.paper }]}>
               <View style={styles.iconGrid}>
                 {APP_ICONS.map((k) => (
                   <PressableScale key={k} haptic={false} style={styles.iconCell} onPress={() => pickAppIcon(k)}>
@@ -484,12 +479,13 @@ export function ProfileScreen() {
       {/* шапка поверх скролла: кнопка «назад» и тема — на одной линии */}
       <View style={[styles.topRow, { paddingTop: insets.top + 6 }]} pointerEvents="box-none">
         <Animated.View style={[styles.topGlass, glassStyle]} pointerEvents="none">
-          <View style={[styles.topGlassFill, { backgroundColor: colors.paper }]} />
+          {/* фон шапки — цвет экрана, иначе при прокрутке сверху белая полоса */}
+          <View style={[styles.topGlassFill, { backgroundColor: skinBg }]} />
           <Svg style={styles.topGlassFade} width="100%" height={22}>
             <Defs>
               <LinearGradient id="hdrFade" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor={colors.paper} stopOpacity={1} />
-                <Stop offset="1" stopColor={colors.paper} stopOpacity={0} />
+                <Stop offset="0" stopColor={skinBg} stopOpacity={1} />
+                <Stop offset="1" stopColor={skinBg} stopOpacity={0} />
               </LinearGradient>
             </Defs>
             <SvgRect x={0} y={0} width="100%" height={22} fill="url(#hdrFade)" />
