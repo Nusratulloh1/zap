@@ -473,16 +473,18 @@ export function HomeScreenV2() {
               {offers.map((m, i) => {
                 const logo = merchantLogo(m.name);
                 return (
+                  /*
+                    Наклон живёт на обёртке: PressableScale держит собственный
+                    transform для нажатия и затирает наш — плитки вставали
+                    ровными вопреки прототипу.
+                  */
+                  <View key={m.key} style={{ transform: [{ rotate: i % 2 ? '2deg' : '-2deg' }] }}>
                   <PressableScale
-                    key={m.key}
                     haptic={false}
                     style={[
                       styles.merchant,
-                      {
-                        // чередование белая/лаймовая — ритм витрины из прототипа
-                        backgroundColor: i % 2 ? LIME : '#FFFFFF',
-                        transform: [{ rotate: i % 2 ? '2deg' : '-2deg' }],
-                      },
+                      // чередование белая/лаймовая — ритм витрины из прототипа
+                      { backgroundColor: i % 2 ? LIME : '#FFFFFF' },
                     ]}
                     onPress={() => nav.navigate('Cashback')}
                   >
@@ -500,6 +502,7 @@ export function HomeScreenV2() {
                       <Text style={styles.merchantTagText} numberOfLines={1}>{m.tag}</Text>
                     </View>
                   </PressableScale>
+                  </View>
                 );
               })}
             </ScrollView>
