@@ -37,11 +37,16 @@ export interface CashbackOffer {
   percent?: number
 }
 
+/** Категория заведения — приходит с сервера, а не угадывается по названию. */
+export type MerchantCategory =
+  | 'food' | 'coffee' | 'grocery' | 'utilities' | 'taxi' | 'shopping' | 'fun' | 'other'
+
 export interface Merchant {
   id: Id
   name: string
   letter: string
   color: string
+  category?: MerchantCategory
   offer?: CashbackOffer
 }
 
@@ -112,6 +117,10 @@ export interface Group {
   cashback: number
   accrueCashback: boolean
   merchantsCount: number
+  /** ставка компании в базисных пунктах: 250 = 2.5% */
+  rateBp?: number
+  /** сколько ещё накопить до следующей ступени и какая она будет */
+  nextTier?: { need: number; bp: number }
 }
 
 export interface Debt {

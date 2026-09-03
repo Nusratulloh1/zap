@@ -14,6 +14,7 @@ import { MemberStatus, Prisma, SplitMode } from '@prisma/client'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { PrismaService } from '../common/prisma.service'
+import { rateForPool } from '../cashback/tiers'
 import { SmsService } from '../sms/sms.service'
 import { RealtimeGateway } from '../realtime/realtime.gateway'
 import { PushService } from '../push/push.service'
@@ -692,7 +693,19 @@ export class SplitsService {
       const merchant = split.merchant
       const payingMembers = split.members.filter((m) => m.status === 'paid' || m.status === 'debt' || m.status === 'covered')
       const groupSplit = split.members.length >= 2
-      const rate = merchant ? merchant.cashbackRate : 0 // промилле·10 (25 → 2.5%)
+      /*
+        Ставка: у компании — своя, ступенчатая от накопленного пула; у сплита
+        без компании остаётся ставка мерчанта. Обе в промилле·10 (25 = 2.5%),
+        поэтому базисные пункты делим на 10.
+      */
+      const group = split.groupId
+        ? await tx.group.findUnique({ where: { id: split.groupId }, select: { cashbackPool: true } })
+        : null
+      const rate = group
+        ? Math.round(rateForPool(group.cashbackPool) / 10)
+        : merchant
+          ? merchant.cashbackRate
+          : 0
       const x2 = Boolean(merchant?.cashbackX2 && groupSplit && payingMembers.filter((m) => m.status === 'paid').length >= 2)
       let totalCashback = 0
 
@@ -769,6 +782,17 @@ export class SplitsService {
           where: { id: split.groupId, cashbackPoolEnabled: true },
           data: { cashbackPool: { increment: totalCashback } },
         })
+        // пул вырос — возможно, компания перешла на следующую ступень
+        const after = await tx.group.findUnique({
+          where: { id: split.groupId },
+          select: { cashbackPool: true, cashbackRateBp: true },
+        })
+        if (after) {
+          const bp = rateForPool(after.cashbackPool)
+          if (bp !== after.cashbackRateBp) {
+            await tx.group.update({ where: { id: split.groupId }, data: { cashbackRateBp: bp } })
+          }
+        }
       }
       return { id: split.id, title: split.title, code: updated.code, creatorId: split.creatorId, cashback: totalCashback, x2 }
     })

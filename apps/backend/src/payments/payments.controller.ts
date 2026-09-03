@@ -33,11 +33,15 @@ export class PaymentsController {
   @UseGuards(PaymentTokenGuard)
   @UseInterceptors(IdempotencyInterceptor)
   async pay(@CurrentUser() user: AuthUser, @Body() dto: PayDto) {
-    await this.payments.charge(user.id, dto.amount, `pay:${Date.now().toString(36)}`)
+    const res = await this.payments.charge(user.id, dto.amount, `pay:${Date.now().toString(36)}`)
     await this.history.record(null, user.id, 'payment', {
       amountSigned: -dto.amount,
       meta: { title: dto.title ?? 'Оплата', titleKey: dto.title ? undefined : 'entry.payment', subtitle: 'Оплата целиком', subtitleKey: 'entry.paidWhole', merchantId: dto.merchantId },
     })
-    return { ok: true }
+    /*
+      Возвращаем номер транзакции: экран чека после оплаты показывает его
+      («ZAP-8F2K-481») — без него чек пришлось бы выдумывать на клиенте.
+    */
+    return { ok: true, txId: res.txId ?? null }
   }
 }

@@ -112,9 +112,24 @@ model Contact {
   @@index([ownerId])
 }
 
+/// Категория заведения — для аналитики «на что уходит» и знака в списках.
+/// Раньше категорию угадывали по названию на клиенте: «Коммуналка» и «Такси»
+/// так не определялись вовсе.
+enum MerchantCategory {
+  food
+  coffee
+  grocery
+  utilities
+  taxi
+  shopping
+  fun
+  other
+}
+
 model Merchant {
   id                 String  @id @default(cuid())
   name               String
+  category           MerchantCategory @default(other)
   letter             String  @default("M")
   color              String  @default("#111110")
   logoUrl            String?
@@ -257,6 +272,10 @@ model Group {
   id                  String   @id @default(cuid())
   name                String
   ownerId             String
+  /// Ставка кэшбэка компании в базисных пунктах: 200 = 2%. Растёт ступенями
+  /// от накопленного пула (см. cashback/tiers.ts) — «чем больше сплитите
+  /// вместе, тем выше процент».
+  cashbackRateBp      Int      @default(200)
   owner               User     @relation(fields: [ownerId], references: [id])
   cashbackPoolEnabled Boolean  @default(true)
   cashbackPool        Int      @default(0)

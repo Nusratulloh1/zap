@@ -3,6 +3,7 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import type { Bill, BillItem, CardBrand, Contact, Merchant, Split, SplitMember, User } from '@prisma/client'
 import { PrismaService } from '../common/prisma.service'
+import { nextTier } from '../cashback/tiers'
 import { normalizePhone } from '../common/utils'
 import { photoUrlOf } from '../common/uploads'
 import { entryKey } from '../common/entry-i18n'
@@ -212,6 +213,7 @@ export class UsersService {
         name: m.name,
         letter: m.letter,
         color: m.color,
+        category: m.category,
         offer: m.cashbackX2
           ? { label: '×2 группе', terms: 'при сплите вдвоём и больше', multiplier: 2 }
           : m.cashbackRate > 0
@@ -229,6 +231,9 @@ export class UsersService {
         createdAt: g.createdAt.getTime(),
         cashback: g.cashbackPool,
         accrueCashback: g.cashbackPoolEnabled,
+        // ступень компании: текущая ставка и сколько до следующей
+        rateBp: g.cashbackRateBp,
+        nextTier: nextTier(g.cashbackPool),
         merchantsCount: new Set(g.splits.map((s) => s.merchantId).filter(Boolean)).size || 1,
       })),
       splits: splits.map((s) => this.mapSplit(s, contactId)),
