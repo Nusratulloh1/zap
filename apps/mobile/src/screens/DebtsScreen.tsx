@@ -11,6 +11,7 @@ import { Screen } from '@/components/Screen';
 import { EmptyState } from '@/components/EmptyState';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
+import { PingButton } from '@/components/PingButton';
 import { Podium } from '@/components/Podium';
 import { SectionLabel } from '@/components/SectionLabel';
 import { SkinSheet } from '@/components/SkinSheet';
@@ -28,7 +29,7 @@ export function DebtsScreen() {
   const nav = useNavigation<any>();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { colors, fixed, name: themeName } = useTheme();
+  const { colors, fixed } = useTheme();
   const skin = useSkin();
   const [skinSheet, setSkinSheet] = useState(false);
   const bg = skin ?? colors.dune2;
@@ -235,15 +236,7 @@ export function DebtsScreen() {
                           </Text>
                         </View>
                       ) : (
-                        <PressableScale
-                          disabled={isCooling(d.id)}
-                          style={[styles.chip, { backgroundColor: isCooling(d.id) ? colors.sand : themeName === 'dark' ? 'rgba(255,255,255,0.08)' : colors.ink }]}
-                          onPress={() => void remind(d.id)}
-                        >
-                          <Text style={[styles.chipText, { color: isCooling(d.id) ? colors.muted : fixed.lime }]}>
-                            {isCooling(d.id) ? t('debts.reminded') : t('debts.remind')}
-                          </Text>
-                        </PressableScale>
+                        <PingButton pinged={isCooling(d.id)} onPress={() => void remind(d.id)} />
                       )}
                     </View>
                   </PressableScale>

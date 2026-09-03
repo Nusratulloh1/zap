@@ -12,6 +12,7 @@ import { CrewStatsBlock } from '@/components/CrewStatsBlock';
 import { SectionLabel } from '@/components/SectionLabel';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
+import { PingButton } from '@/components/PingButton';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { BottomSheet } from '@/components/BottomSheet';
@@ -283,15 +284,7 @@ export function GroupScreen() {
                     <Text style={[styles.debtCur, { color: colors.faint2 }]}> {t('common.currency')}</Text>
                   </Text>
                 </View>
-                <PressableScale
-                  disabled={reminded.has(d.cid)}
-                  style={[styles.remindBtn, { backgroundColor: colors.ink }, reminded.has(d.cid) && styles.disabled]}
-                  onPress={() => void remind(d.cid)}
-                >
-                  <Text style={[styles.remindBtnText, { color: fixed.lime }]}>
-                    {reminded.has(d.cid) ? t('group.reminded') : t('group.remind')}
-                  </Text>
-                </PressableScale>
+                <PingButton pinged={reminded.has(d.cid)} onPress={() => void remind(d.cid)} />
               </View>
             ))}
           </>

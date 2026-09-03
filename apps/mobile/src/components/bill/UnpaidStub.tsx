@@ -4,22 +4,16 @@
 // Пинг анимирован ровно как в макете (zapPulse + zapRing/zapRing2): кнопка
 // проседает и разбухает, из неё расходятся два лаймовых кольца. Без этого тап
 // по ⚡ выглядел бы как «ничего не произошло»: молния улетает мгновенно.
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import Animated, {
-  Keyframe,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { Keyframe } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '@/components/Avatar';
+import { PingButton } from '@/components/PingButton';
 import { PressableScale } from '@/components/PressableScale';
 import { TornEdge } from '@/components/bill/TornEdge';
 import { money } from '@/lib/format';
 import { reduceMotion } from '@/lib/feedback';
-import { EASE_OUT_QUAD, EASE_POP } from '@/lib/motion';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
@@ -70,31 +64,6 @@ export function UnpaidStub({
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
 
-  // одна волна на тап: кольцо расходится и гаснет
-  const wave = useSharedValue(0);
-  const pulse = useSharedValue(0);
-
-  useEffect(() => {
-    if (!pinged || reduceMotion()) return;
-    wave.value = 0;
-    wave.value = withTiming(1, { duration: 900, easing: EASE_OUT_QUAD });
-    pulse.value = withSequence(
-      withTiming(-0.15, { duration: 90 }),
-      withTiming(0.18, { duration: 160, easing: EASE_POP }),
-      withTiming(0, { duration: 200 }),
-    );
-  }, [pinged, wave, pulse]);
-
-  const boltStyle = useAnimatedStyle(() => ({ transform: [{ scale: 1 + pulse.value }] }));
-  const ring1 = useAnimatedStyle(() => ({
-    opacity: 0.9 * (1 - wave.value),
-    transform: [{ scale: 1 + wave.value * 1.6 }],
-  }));
-  const ring2 = useAnimatedStyle(() => ({
-    opacity: 0.7 * Math.max(0, 1 - wave.value * 1.3),
-    transform: [{ scale: 1 + wave.value * 2.4 }],
-  }));
-
   return (
     <Animated.View
       style={styles.root}
@@ -130,22 +99,15 @@ export function UnpaidStub({
           </PressableScale>
 
           <View ref={boltRef} collapsable={false}>
-            <Animated.View style={boltStyle}>
-            <PressableScale
-              style={[styles.ping, { backgroundColor: fixed.ink }, pinged && styles.dimmed]}
-              disabled={pinged}
+            <PingButton
+              pinged={pinged}
               onPress={() => {
                 // молния должна вылететь ровно из этой кнопки
                 boltRef.current?.measureInWindow((x, y, w, h) =>
                   onPing({ x: x + w / 2, y: y + h / 2 }),
                 );
               }}
-            >
-              <Animated.View style={[styles.wave, { borderColor: fixed.lime }, ring1]} pointerEvents="none" />
-              <Animated.View style={[styles.wave, { borderColor: fixed.lime }, ring2]} pointerEvents="none" />
-              <Text style={[styles.pingGlyph, { color: fixed.lime }]}>⚡</Text>
-              </PressableScale>
-            </Animated.View>
+            />
           </View>
         </View>
       </View>
@@ -171,9 +133,5 @@ const styles = StyleSheet.create({
   actions: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 8, paddingBottom: 12 },
   lend: { flex: 1, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   lendText: { fontFamily: font.bold, fontSize: 12 },
-  ping: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  pingGlyph: { fontSize: 14 },
-  wave: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, borderRadius: 999, borderWidth: 2 },
-  dimmed: { opacity: 0.45 },
   foot: { height: 14, borderBottomLeftRadius: 18, borderBottomRightRadius: 18 },
 });
