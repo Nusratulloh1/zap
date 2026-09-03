@@ -24,8 +24,13 @@ function subscribe(f: () => void) {
   return () => subs.delete(f);
 }
 
+/*
+  По умолчанию — «Pulse»: новая главная показывается всем, кто ещё не делал
+  выбор. Классика остаётся на месте и включается в профиле, поэтому откат для
+  человека — один тап, а не обновление приложения.
+*/
 export function getHomeVariant(): HomeVariant {
-  return storage.getString(KEY) === 'pulse' ? 'pulse' : 'classic';
+  return storage.getString(KEY) === 'classic' ? 'classic' : 'pulse';
 }
 
 export function setHomeVariant(v: HomeVariant) {
