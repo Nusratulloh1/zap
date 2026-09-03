@@ -19,13 +19,12 @@ import { renameGroup, deleteGroup, remindDebt, fetchFeaturedBill } from '@/api/a
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { useDraft } from '@/store/draft';
-import { money, peopleCount, dayMonth, humanDateLc } from '@/lib/format';
+import { money, humanDateLc } from '@/lib/format';
 import { crewStats } from '@/lib/crewStats';
-import { MerchantLogos } from '@/components/MerchantLogos';
 import { STICKER } from '@/components/EmptyState';
 import { FunStatCards } from '@/components/FunStatCards';
-import { CashbackTier } from '@/components/CashbackTier';
 import { VenueIcon } from '@/components/VenueIcon';
+import { SquadCircle } from '@/components/SquadCircle';
 import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
 import { useCrewColor, useCrewEmoji } from '@/lib/crewEmoji';
 import { funStats } from '@/lib/funStats';
@@ -50,25 +49,6 @@ export function GroupScreen() {
   const stats = useMemo(() => crewStats(home.db, id), [home.db, id]);
   const fun = useMemo(() => funStats(home.db, id), [home.db, id]);
 
-  /*
-    Вклад в общий кэшбэк: суммируем доли закрытых сплитов компании. Считаем на
-    клиенте — данные уже есть в /bootstrap, отдельная ручка ради трёх строк
-    не нужна.
-  */
-  const contributors = useMemo(() => {
-    const acc = new Map<string, { cid: string; amount: number; splits: number }>();
-    for (const s of home.splits) {
-      if (s.groupId !== id || s.status !== 'closed') continue;
-      const rate = (group?.rateBp ?? 200) / 10000;
-      for (const m of s.members) {
-        const cur = acc.get(m.contactId) ?? { cid: m.contactId, amount: 0, splits: 0 };
-        cur.amount += Math.round(m.amount * rate);
-        cur.splits += 1;
-        acc.set(m.contactId, cur);
-      }
-    }
-    return [...acc.values()].sort((a, b) => b.amount - a.amount);
-  }, [home.splits, id, group?.rateBp]);
   /*
     memberIds приходит с бэкенда уже вместе со мной (contactId(m.phone) →
     'me' для своего телефона). Раньше я добавлял 'me' сверху — получались
@@ -95,13 +75,6 @@ export function GroupScreen() {
   }, [group?.memberIds, home.splits, id]);
 
   const groupSplits = useMemo(() => home.splits.filter((s) => s.groupId === id), [home.splits, id]);
-  // мерчанты, где компания реально была — по её же сплитам
-  const groupMerchants = useMemo(() => {
-    const ids = [...new Set(groupSplits.map((s) => s.merchantId).filter(Boolean))] as string[];
-    return ids
-      .map((mid) => home.db?.merchants.find((m) => m.id === mid))
-      .filter((m): m is NonNullable<typeof m> => !!m);
-  }, [groupSplits, home.db]);
   const openDebts = useMemo(
     () => (home.db?.debts ?? []).filter((d) => d.direction === 'owedToMe' && d.status === 'open'),
     [home.db?.debts],
@@ -111,6 +84,20 @@ export function GroupScreen() {
   const [emojiSheet, setEmojiSheet] = useState(false);
   const crewEmoji = useCrewEmoji(home.db, id);
   const crewColor = useCrewColor(home.db, id);
+  /** должники внутри компании — по открытым долгам её участников */
+  /* должники внутри компании: считаем прямо из открытых долгов, чтобы не
+     тянуть в зависимости функцию, объявленную ниже по файлу */
+  const debtors = useMemo(() => {
+    const acc = new Map<string, number>();
+    for (const d of openDebts) {
+      if (!memberIds.includes(d.contactId)) continue;
+      acc.set(d.contactId, (acc.get(d.contactId) ?? 0) + d.amount);
+    }
+    return [...acc.entries()]
+      .map(([cid, amount]) => ({ cid, amount }))
+      .sort((a, b) => b.amount - a.amount);
+  }, [memberIds, openDebts]);
+
   const [renameSheet, setRenameSheet] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -191,74 +178,91 @@ export function GroupScreen() {
       <ScreenHeader right={{ glyph: '⋯', label: t('group.menuAria'), onPress: () => setMenuSheet(true) }} />
 
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 16 }}>
-        <View style={styles.headRow}>
-          {/* знак компании — тап меняет: «Select emoji for Crew» */}
-          <PressableScale haptic onPress={() => setEmojiSheet(true)}>
-            <VenueIcon name={group.name} glyph={crewEmoji} color={crewColor} size={52} />
+        {/* шапка (spec 01): знак и название по центру, под ними состав */}
+        <View style={styles.headCenter}>
+          <PressableScale haptic onPress={() => setEmojiSheet(true)} style={styles.headTitleRow}>
+            <VenueIcon name={group.name} glyph={crewEmoji} color={crewColor} size={26} />
+            <Text style={[styles.title, { color: colors.ink }]} numberOfLines={1}>{group.name}</Text>
           </PressableScale>
-          <View style={styles.headBody}>
-            <Text style={[styles.title, { color: colors.ink }]}>{group.name}</Text>
-            <Text style={[styles.sub, { color: colors.faint }]}>
-              {t('group.sinceWith', { people: peopleCount(memberIds.length), date: dayMonth(new Date(group.createdAt)) })}
-            </Text>
-          </View>
+          <Text style={[styles.headSub, { color: colors.faint }]} numberOfLines={1}>
+            {memberIds.map((cid) => nameOf(cid).split(' ')[0]).join(' · ')}
+          </Text>
         </View>
 
-        <View style={styles.ctaRow}>
-          <PressableScale style={[styles.headCta, { backgroundColor: fixed.lime }]} onPress={newSplit}>
-            <Text style={styles.headCtaDark}>{t('group.newSplit')}</Text>
-          </PressableScale>
-          <PressableScale style={[styles.headCta, { backgroundColor: colors.sand }]} onPress={() => void invite()}>
-            <Text style={[styles.headCtaLight, { color: colors.ink }]}>{t('group.invite')}</Text>
-          </PressableScale>
-        </View>
+        {/* круг отряда: владелец сверху, участники по углам, «+» в центре */}
+        <SquadCircle
+          frame={colors.paper}
+          onInvite={() => void invite()}
+          owner={{
+            contactId: group.ownerId,
+            name: nameOf(group.ownerId),
+            color: colorOf(group.ownerId),
+            initials: home.contactById(group.ownerId)?.initials,
+          }}
+          members={memberIds
+            .filter((cid) => cid !== group.ownerId)
+            .map((cid) => ({
+              contactId: cid,
+              name: nameOf(cid),
+              color: colorOf(cid),
+              initials: home.contactById(cid)?.initials,
+              owes: debtOf(cid) > 0,
+              onPing: () => void remind(cid),
+            }))}
+        />
+
+        <PressableScale style={[styles.newZap, { backgroundColor: colors.paper }]} onPress={newSplit}>
+          <Text style={[styles.newZapText, { color: colors.ink }]}>{t('group.newSplit')}</Text>
+        </PressableScale>
+
+        {/* кэшбэк компании — строка-карточка, подробности на экране кэшбэка */}
+        <PressableScale
+          style={[styles.cashRow, { backgroundColor: colors.paper }]}
+          onPress={() => nav.navigate('Cashback')}
+        >
+          <Image source={STICKER.wallet} style={styles.cashArt} resizeMode="contain" />
+          <View style={styles.cashBody}>
+            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.cashback')}</Text>
+            <View style={styles.cashAmountRow}>
+              <Text style={[styles.cashValue, { color: colors.ink }]}>{money(group.cashback)}</Text>
+              <Text style={[styles.cashCur, { color: colors.faint2 }]}>{t('common.currency')}</Text>
+            </View>
+          </View>
+          <Text style={[styles.chevron, { color: colors.faint2 }]}>›</Text>
+        </PressableScale>
+
+        {/* долги внутри компании — карточками, как в макете */}
+        {debtors.length ? (
+          <>
+            <Text style={[styles.mono, styles.sectionMono, { color: colors.faint2 }]}>{t('debts.title')}</Text>
+            {debtors.map((d) => (
+              <View key={d.cid} style={[styles.debtCard, { backgroundColor: colors.paper }]}>
+                <Avatar contactId={d.cid} name={nameOf(d.cid)} color={colorOf(d.cid)} size={44} />
+                <View style={styles.debtBody}>
+                  <Text style={[styles.debtWho, { color: colors.faint2 }]} numberOfLines={1}>
+                    {t('group.owesYou', { name: nameOf(d.cid) })}
+                  </Text>
+                  <Text style={[styles.debtAmount, { color: colors.ink }]} numberOfLines={1}>
+                    {money(d.amount)}
+                    <Text style={[styles.debtCur, { color: colors.faint2 }]}> {t('common.currency')}</Text>
+                  </Text>
+                </View>
+                <PressableScale
+                  disabled={reminded.has(d.cid)}
+                  style={[styles.remindBtn, { backgroundColor: colors.ink }, reminded.has(d.cid) && styles.disabled]}
+                  onPress={() => void remind(d.cid)}
+                >
+                  <Text style={[styles.remindBtnText, { color: fixed.lime }]}>
+                    {reminded.has(d.cid) ? t('group.reminded') : t('group.remind')}
+                  </Text>
+                </PressableScale>
+              </View>
+            ))}
+          </>
+        ) : null}
 
         {/* ачивки компании — сразу под кнопками, компактной лентой */}
         <FunStatCards fun={fun} nameOf={nameOf} />
-
-        {/*
-          Кэшбэк компании — лаймовая карточка со стикером-кошельком: раньше
-          это была строка цифр на белом и читалась как техническая сводка.
-        */}
-        <View style={[styles.cashCard, { backgroundColor: fixed.lime }]}>
-          <Image source={STICKER.wallet} style={styles.cashArt} resizeMode="contain" />
-          <Text style={styles.cashKicker}>{t('group.cashback')}</Text>
-          <View style={styles.cashbackRow}>
-            <Text style={styles.cashValue} numberOfLines={1} adjustsFontSizeToFit>{money(group.cashback)}</Text>
-            <Text style={styles.cashCur}>UZS</Text>
-          </View>
-          {/* ступень: сколько до следующего процента (макет) */}
-          <CashbackTier pool={group.cashback} rateBp={group.rateBp} nextTier={group.nextTier} />
-
-          <View style={styles.cashFoot}>
-            <MerchantLogos merchants={groupMerchants} size={30} />
-            <Text style={styles.cashMerchants}>
-              {translate('group.merchantsCount', { n: groupMerchants.length || group.merchantsCount })}
-            </Text>
-          </View>
-        </View>
-
-        {/* кто принёс больше кэшбэка — вклад участников (макет) */}
-        {contributors.length > 1 ? (
-          <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
-            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.contributors')}</Text>
-            {contributors.map((c) => (
-              <View key={c.cid} style={styles.contribRow}>
-                <Avatar contactId={c.cid} name={nameOf(c.cid)} color={colorOf(c.cid)} size={38} />
-                <View style={styles.contribBody}>
-                  <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
-                    {nameOf(c.cid)}
-                    {c.cid === 'me' ? t('group.youSuffix') : ''}
-                  </Text>
-                  <Text style={[styles.memberSub, { color: colors.faint }]} numberOfLines={1}>
-                    {translate('debts.splitsCount', { n: c.splits })}
-                  </Text>
-                </View>
-                <Text style={[styles.contribAmount, { color: colors.ink }]}>{money(c.amount)}</Text>
-              </View>
-            ))}
-          </View>
-        ) : null}
 
         {/*
           Отряд — слоты как в лобби игры: рамка вокруг аватара, шеврон с
@@ -432,13 +436,26 @@ const styles = StyleSheet.create({
   contribRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 54 },
   contribBody: { flex: 1, minWidth: 0 },
   contribAmount: { fontFamily: font.extrabold, fontSize: 15 },
-  cashCard: { borderRadius: 24, padding: 18, marginTop: 22, overflow: 'hidden' },
-  cashArt: { position: 'absolute', right: 10, top: 8, width: 92, height: 78, transform: [{ rotate: '8deg' }] },
-  cashKicker: { fontFamily: font.monoBold, fontSize: 9.5, letterSpacing: 1.5, color: 'rgba(17,17,16,0.55)' },
-  cashValue: { fontFamily: font.extrabold, fontSize: 40, letterSpacing: -1.4, color: '#111110' },
-  cashCur: { fontFamily: font.bold, fontSize: 12, color: 'rgba(17,17,16,0.5)', marginBottom: 7 },
-  cashFoot: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
-  cashMerchants: { fontFamily: font.bold, fontSize: 12, color: 'rgba(17,17,16,0.6)' },
+  headCenter: { alignItems: 'center', marginTop: 6 },
+  headTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headSub: { fontFamily: font.semibold, fontSize: 11, marginTop: 2 },
+  newZap: { height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center', marginTop: 26 },
+  newZapText: { fontFamily: font.bold, fontSize: 15 },
+  cashRow: { flexDirection: 'row', alignItems: 'center', gap: 14, borderRadius: 22, paddingVertical: 14, paddingHorizontal: 16, marginTop: 18 },
+  cashArt: { width: 56, height: 60 },
+  cashBody: { flex: 1, minWidth: 0 },
+  cashAmountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 6, marginTop: 4 },
+  cashValue: { fontFamily: font.extrabold, fontSize: 28 },
+  cashCur: { fontFamily: font.semibold, fontSize: 12 },
+  chevron: { fontFamily: font.semibold, fontSize: 18 },
+  sectionMono: { marginTop: 22, marginBottom: 12 },
+  debtCard: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 18, padding: 14, marginBottom: 8 },
+  debtBody: { flex: 1, minWidth: 0 },
+  debtWho: { fontFamily: font.semibold, fontSize: 11 },
+  debtAmount: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.3, marginTop: 3 },
+  debtCur: { fontFamily: font.semibold, fontSize: 11 },
+  remindBtn: { borderRadius: 14, paddingVertical: 9, paddingHorizontal: 14 },
+  remindBtnText: { fontFamily: font.bold, fontSize: 11 },
   squadCount: { fontFamily: font.extrabold, fontSize: 12 },
   // ровно три в ряд: при 31.5% + gap строка не помещалась и ломалась на два
   slots: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
@@ -458,7 +475,6 @@ const styles = StyleSheet.create({
   headCtaLight: { fontFamily: font.bold, fontSize: 15 },
   section: { borderTopWidth: 1, paddingTop: 18, marginTop: 22 },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
-  cashbackRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 6 },
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   memberBody: { flex: 1, gap: 1 },
   memberName: { fontFamily: font.bold, fontSize: 15 },

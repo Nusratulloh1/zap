@@ -422,7 +422,8 @@
     "squad": "ОТРЯД",
     "member": "участник",
     "pickEmoji": "Знак компании",
-    "contributors": "КТО ПРИНЁС БОЛЬШЕ"
+    "contributors": "КТО ПРИНЁС БОЛЬШЕ",
+    "owesYou": "{{name}} · должен вам"
   },
   "debts": {
     "title": "Вам должны",

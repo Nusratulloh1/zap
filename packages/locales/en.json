@@ -422,7 +422,8 @@
     "squad": "SQUAD",
     "member": "member",
     "pickEmoji": "Pick a crew icon",
-    "contributors": "WHO BROUGHT MORE"
+    "contributors": "WHO BROUGHT MORE",
+    "owesYou": "{{name}} · owes you"
   },
   "debts": {
     "title": "Owed to you",

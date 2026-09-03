@@ -422,7 +422,8 @@
     "squad": "JAMOA",
     "member": "a’zo",
     "pickEmoji": "Kompaniya belgisi",
-    "contributors": "KIM KO‘P KELTIRDI"
+    "contributors": "KIM KO‘P KELTIRDI",
+    "owesYou": "{{name}} · sizga qarzdor"
   },
   "debts": {
     "title": "Sizga qarzdor",
