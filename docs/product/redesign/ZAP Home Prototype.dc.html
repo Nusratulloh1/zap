@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0A0A;font-family:'Onest',system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+a,a:hover{color:inherit;text-decoration:none;}
+*{box-sizing:border-box;}
+@keyframes zapPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes bolt{0%{transform:translateY(-40px) rotate(-15deg);opacity:0}30%{transform:translateY(0) rotate(0);opacity:1}70%{opacity:1}100%{transform:translateY(6px);opacity:0}}
+@keyframes toastIn{from{transform:translate(-50%,20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(8deg)}50%{transform:translateY(-6px) rotate(10deg)}}
+::-webkit-scrollbar{display:none}
+</style>
+</helmet>
+
+<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 16px;gap:28px;flex-wrap:wrap;">
+
+<div data-screen-label="Главная" style="width:390px;height:844px;border-radius:44px;overflow:hidden;position:relative;background:{{ bg }};color:{{ fg }};display:flex;flex-direction:column;transition:background .35s,color .35s;">
+  <div style="position:absolute;inset:0;background-image:radial-gradient({{ dotColor }} 1px,transparent 1px);background-size:14px 14px;pointer-events:none;"></div>
+
+  <div style="position:relative;display:flex;justify-content:space-between;align-items:center;padding:14px 28px 0 36px;height:50px;font-size:16px;font-weight:600;flex:none;">
+    <span>12:22</span>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="1" fill="currentColor"></rect><rect x="5" y="5" width="3" height="7" rx="1" fill="currentColor"></rect><rect x="10" y="2.5" width="3" height="9.5" rx="1" fill="currentColor"></rect><rect x="15" y="0" width="3" height="12" rx="1" fill="currentColor" opacity=".3"></rect></svg>
+      <svg width="16" height="12" viewBox="0 0 16 12" fill="none"><path d="M8 11.5 1 4.6A9.9 9.9 0 0 1 15 4.6L8 11.5Z" fill="currentColor" opacity=".3"></path><path d="M8 11.5 3.6 7.2a6.2 6.2 0 0 1 8.8 0L8 11.5Z" fill="currentColor"></path></svg>
+      <span style="background:#F0D24A;color:#121212;border-radius:5px;padding:0 5px;font-size:11px;font-weight:700;line-height:15px;">8</span>
+    </div>
+  </div>
+
+  <div onScroll="{{ onScroll }}" style="position:relative;flex:1;overflow-y:auto;padding-bottom:110px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0;">
+      <div onClick="{{ toggleLogoPicker }}" style="position:relative;cursor:pointer;display:flex;align-items:center;gap:6px;">
+        <img src="{{ logoSrc }}" alt="ZAP!" style="height:{{ logoH }};display:block;transition:transform .2s;" style-hover="transform:scale(1.04)">
+        
+      </div>
+      <div style="display:flex;gap:8px;">
+        <div onClick="{{ toggleTheme }}" title="Тема" style="width:40px;height:40px;border-radius:50%;background:{{ card }};border:1px solid {{ line }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"></path></svg>
+        </div>
+        <div title="Сканер" style="width:40px;height:40px;border-radius:50%;background:{{ card }};border:1px solid {{ line }};display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"></path><rect x="8" y="8" width="8" height="8" rx="1.5"></rect></svg>
+        </div>
+        <img src="assets/av-aziz.png" style="width:40px;height:40px;border-radius:50%;border:3px solid {{ accentRing }};">
+      </div>
+    </div>
+
+    <div style="display:flex;gap:14px;padding:20px 0 0 16px;overflow-x:auto;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;cursor:pointer;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;border:2px solid {{ accentRing }};box-sizing:border-box;"><div style="width:100%;height:100%;border-radius:50%;background:#121212;border:2px solid transparent;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;"><span style="font-size:28px;line-height:1;">💸</span><span style="position:absolute;right:4px;top:4px;width:9px;height:9px;border-radius:50%;background:#D9FF3A;border:2px solid #121212;"></span></div></div><span style="font-size:10px;font-weight:700;">Что нового</span></div>
+      <sc-for list="{{ crews }}" as="c" hint-placeholder-count="4">
+        <div onClick="{{ selectCrew }}" data-i="{{ $index }}" style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;cursor:pointer;">
+          <div style="width:64px;height:64px;border-radius:50%;padding:3px;background:{{ c.ring }};border:2px {{ c.ringStyle }} {{ c.ringBorder }};transition:background .2s;box-sizing:border-box;"><div style="width:100%;height:100%;border-radius:50%;background:{{ c.color }};display:flex;align-items:center;justify-content:center;border:{{ c.innerBorder }};overflow:hidden;"><sc-if value="{{ c.img }}" hint-placeholder-val="{{ false }}"><img src="{{ c.img }}" style="width:100%;height:100%;object-fit:cover;"></sc-if><sc-if value="{{ c.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-size:22px;font-weight:900;color:#121212;">{{ c.letter }}</span></sc-if></div></div>
+          <span style="font-size:10px;font-weight:700;">{{ c.name }}</span>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="padding:26px 16px 0;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:{{ mute }};">ПРИВЕТ, AZIZ</div>
+      <div style="font-size:44px;font-weight:900;line-height:.95;letter-spacing:-1.5px;margin-top:10px;">Сплить.<br><span style="color:{{ heroFg }};background:{{ heroBg }};font-style:italic;padding:{{ heroPad }};border-radius:8px;">Zарабатывай.</span></div>
+    </div>
+
+    <div style="margin:22px 16px 0;position:relative;height:196px;">
+      <div style="position:absolute;inset:0;background:#D9FF3A;border-radius:26px;transform:rotate(-2deg);"></div>
+      <div style="position:absolute;inset:0;background:#FFFFFF;color:#121212;border-radius:26px;padding:18px;overflow:hidden;">
+        
+        <div style="font-size:26px;font-weight:900;line-height:1;letter-spacing:-0.6px;margin-top:12px;width:190px;">Кэшбэк ×2 в Bellissimo</div>
+        <div style="font-size:11px;color:#8E8C86;margin-top:8px;width:180px;">только для Crew · до воскресенья</div>
+        <div style="display:inline-flex;align-items:center;gap:6px;margin-top:14px;height:36px;border-radius:18px;background:#121212;color:#D9FF3A;padding:0 16px;font-size:12px;font-weight:800;white-space:nowrap;cursor:pointer;" style-hover="transform:scale(1.03)">Собрать Crew <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></div>
+        <img src="assets/stk-mascot.png" style="position:absolute;right:-8px;bottom:-10px;width:150px;animation:float 4s ease-in-out infinite;">
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:22px 16px 0;">
+      <div style="background:#D9FF3A;color:#121212;border-radius:24px;padding:14px;position:relative;min-height:128px;overflow:hidden;cursor:pointer;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#5A6A16;">КЭШБЭК</div><div style="font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;">{{ cashbackText }}</div><div style="font-size:10px;color:#5A6A16;margin-top:3px;">3 группы</div><img src="assets/stk-receipt-qr.png" style="position:absolute;right:-6px;bottom:-8px;width:82px;"></div>
+      <div style="background:{{ card }};border:1px solid {{ line }};border-radius:24px;padding:14px;position:relative;min-height:128px;overflow:hidden;cursor:pointer;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ mute }};">ДОЛЖНЫ МНЕ</div><div style="font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;">{{ debtText }}</div><div style="display:flex;align-items:center;margin-top:5px;"><img src="assets/av-shoshiy.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid {{ avBorder }};"><img src="assets/av-islam.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid {{ avBorder }};"><span style="font-size:10px;color:{{ mute }};margin-left:6px;">{{ debtorsText }}</span></div><img src="assets/stk-check-avatars.png" style="position:absolute;right:-10px;bottom:-6px;width:86px;"></div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 16px 0;">
+      <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;">Твои Crews</span><span style="font-size:12px;font-weight:800;color:{{ linkColor }};cursor:pointer;">все 3 →</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;padding:14px 16px 0;">
+      <sc-for list="{{ crewRows }}" as="r" hint-placeholder-count="2">
+        <div style="display:flex;align-items:center;gap:12px;background:{{ card }};border:1px solid {{ line }};border-radius:20px;padding:12px 14px;">
+          <div style="width:44px;height:44px;border-radius:14px;background:{{ r.color }};display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden;"><sc-if value="{{ r.img }}" hint-placeholder-val="{{ false }}"><img src="{{ r.img }}" style="width:100%;height:100%;object-fit:cover;"></sc-if><sc-if value="{{ r.noImg }}" hint-placeholder-val="{{ true }}"><span style="font-size:18px;font-weight:900;color:#121212;">{{ r.letter }}</span></sc-if></div>
+          <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:800;">{{ r.title }}</div><div style="display:flex;align-items:center;margin-top:5px;font-size:10px;color:{{ mute }};"><sc-for list="{{ r.avs }}" as="a" hint-placeholder-count="3"><img src="{{ a.src }}" style="width:18px;height:18px;border-radius:50%;border:1.5px solid {{ avBorder }};margin-left:{{ a.ml }};filter:{{ a.filter }};"></sc-for><span style="margin-left:6px;">{{ r.sub }}</span></div></div>
+          <sc-if value="{{ r.open }}" hint-placeholder-val="{{ true }}"><div onClick="{{ pingCrew }}" style="width:44px;height:44px;border-radius:50%;background:#D9FF3A;color:#121212;border:2px solid {{ pingRing }};display:flex;align-items:center;justify-content:center;flex:none;cursor:pointer;animation:{{ r.anim }};" style-hover="transform:scale(1.08)"><svg width="18" height="20" viewBox="0 0 12 14" fill="#121212"><path d="M7 0 0 8h4l-1 6 8-9H7z"></path></svg></div></sc-if>
+          <sc-if value="{{ r.done }}" hint-placeholder-val="{{ false }}"><div style="width:44px;height:44px;border-radius:50%;background:{{ doneBg }};display:flex;align-items:center;justify-content:center;flex:none;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D9FF3A" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"></path></svg></div></sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 16px 0;">
+      <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;">Где Zарабатывать</span><span style="font-size:12px;font-weight:800;color:{{ linkColor }};cursor:pointer;">6 →</span>
+    </div>
+    <div style="display:flex;gap:10px;padding:14px 16px 6px;overflow-x:auto;">
+      <sc-for list="{{ merchants }}" as="m" hint-placeholder-count="3">
+        <div style="flex:none;width:118px;background:{{ m.bg }};color:#121212;border-radius:22px;padding:12px;transform:rotate({{ m.rot }});cursor:pointer;transition:transform .2s;box-shadow:{{ tileShadow }};" style-hover="transform:rotate(0deg) translateY(-4px)">
+          <div style="width:44px;height:44px;border-radius:14px;background:{{ m.logoBg }};color:{{ m.logoFg }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;line-height:1.1;text-align:center;overflow:hidden;"><sc-if value="{{ m.logo }}" hint-placeholder-val="{{ false }}"><img src="{{ m.logo }}" style="width:100%;height:100%;object-fit:cover;"></sc-if><sc-if value="{{ m.noLogo }}" hint-placeholder-val="{{ true }}">{{ m.abbr }}</sc-if></div>
+          <div style="font-size:13px;font-weight:900;margin-top:12px;">{{ m.name }}</div>
+          <div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;">{{ m.tag }}</div>
+        </div>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 16px 0;">
+      <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;">Лента</span>
+      <div style="display:flex;gap:6px;">
+        <div onClick="{{ setFeedCrew }}" style="height:26px;border-radius:13px;background:{{ feedCrewBg }};color:{{ feedCrewFg }};border:1px solid {{ line }};display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:800;cursor:pointer;">Crew</div>
+        <div onClick="{{ setFeedAll }}" style="height:26px;border-radius:13px;background:{{ feedAllBg }};color:{{ feedAllFg }};border:1px solid {{ line }};display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:800;cursor:pointer;">Все</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;padding:14px 16px 0;">
+      <sc-for list="{{ feed }}" as="f" hint-placeholder-count="3">
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+          <div style="width:36px;height:36px;border-radius:50%;flex:none;background:{{ f.avBg }};display:flex;align-items:center;justify-content:center;overflow:hidden;"><sc-if value="{{ f.av }}" hint-placeholder-val="{{ true }}"><img src="{{ f.av }}" style="width:100%;height:100%;object-fit:cover;filter:{{ f.filter }};"></sc-if><sc-if value="{{ f.noAv }}" hint-placeholder-val="{{ false }}"><svg width="16" height="18" viewBox="0 0 12 14" fill="{{ boltOnLime }}"><path d="M7 0 0 8h4l-1 6 8-9H7z"></path></svg></sc-if></div>
+          <div style="flex:1;background:{{ card }};border:1px solid {{ line }};border-radius:4px 20px 20px 20px;padding:12px 14px;">
+            <div style="font-size:13px;line-height:1.35;"><b>{{ f.who }}</b> {{ f.text }} <span style="color:{{ mute }};">{{ f.tail }}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+              <span style="font-size:10px;color:{{ mute }};">{{ f.time }}</span>
+              <div style="display:flex;gap:6px;">
+                <sc-for list="{{ f.reactions }}" as="rx" hint-placeholder-count="2"><div onClick="{{ toggleRx }}" data-i="{{ rx.id }}" style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:{{ rx.bg }};color:{{ rx.fg }};cursor:pointer;user-select:none;transition:transform .15s;" style-active="transform:scale(.9)">{{ rx.emoji }} {{ rx.n }}</div></sc-for>
+                <sc-if value="{{ f.pingable }}" hint-placeholder-val="{{ false }}"><div onClick="{{ pingFeed }}" data-i="{{ f.who }}" style="display:inline-flex;align-items:center;gap:5px;height:24px;border-radius:12px;padding:0 10px;font-size:11px;font-weight:800;background:#121212;color:#D9FF3A;cursor:pointer;"><svg width="9" height="11" viewBox="0 0 12 14" fill="#D9FF3A"><path d="M7 0 0 8h4l-1 6 8-9H7z"></path></svg>Пингануть</div></sc-if>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding:20px 0 8px;font-size:11px;color:{{ mute }};"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:spin 1s linear infinite;"><path d="M21 12a9 9 0 1 1-3-6.7"></path></svg>грузим ещё…</div>
+  </div>
+
+  <sc-if value="{{ logoPicker }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ toggleLogoPicker }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:5;"></div>
+    <div style="position:absolute;left:12px;right:12px;bottom:12px;z-index:6;background:{{ sheetBg }};color:{{ fg }};border-radius:32px;padding:18px 16px 16px;">
+      <div style="width:40px;height:4px;border-radius:2px;background:{{ lineStrong }};margin:0 auto 14px;"></div>
+      <div style="font-size:18px;font-weight:900;letter-spacing:-0.4px;">Стиль логотипа</div>
+      <div style="font-size:11px;color:{{ mute }};margin-top:3px;">Как ZAP! выглядит в шапке</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;">
+        <sc-for list="{{ logos }}" as="l" hint-placeholder-count="4">
+          <div onClick="{{ pickLogo }}" data-i="{{ $index }}" style="height:104px;border-radius:20px;background:{{ l.bg }};border:2px solid {{ l.border }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;transition:transform .15s,border-color .15s;" style-hover="transform:translateY(-3px)">
+            <img src="{{ l.src }}" style="height:54px;">
+            <span style="font-size:10px;font-weight:800;color:#121212;">{{ l.name }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:18px 0 14px;background:linear-gradient(180deg,{{ bgT }},{{ bg }} 45%);pointer-events:none;">
+    <div style="display:flex;align-items:center;gap:6px;background:{{ tabBg }};border:1px solid {{ line }};backdrop-filter:blur(12px);border-radius:34px;padding:6px;pointer-events:auto;">
+      <div onClick="{{ tabHome }}" style="width:56px;height:56px;border-radius:50%;background:{{ tabHomeBg }};color:{{ tabHomeFg }};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3l9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"></path></svg></div>
+      <div onClick="{{ tabGrid }}" style="width:56px;height:56px;border-radius:50%;background:{{ tabGridBg }};color:{{ tabGridFg }};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="2.2"></circle><circle cx="12" cy="6" r="2.2"></circle><circle cx="18" cy="6" r="2.2"></circle><circle cx="6" cy="12" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="18" cy="12" r="2.2"></circle><circle cx="6" cy="18" r="2.2"></circle><circle cx="12" cy="18" r="2.2"></circle><circle cx="18" cy="18" r="2.2"></circle></svg></div>
+      <div onClick="{{ tabHistory }}" style="width:56px;height:56px;border-radius:50%;background:{{ tabHistBg }};color:{{ tabHistFg }};display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .2s;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+    </div>
+  </div>
+
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:50%;bottom:108px;transform:translateX(-50%);background:#121212;color:#D9FF3A;border-radius:20px;padding:10px 16px;font-size:12px;font-weight:800;display:flex;align-items:center;gap:8px;box-shadow:0 10px 30px rgba(0,0,0,.35);animation:toastIn .25s ease-out;white-space:nowrap;"><svg width="12" height="14" viewBox="0 0 12 14" fill="#D9FF3A"><path d="M7 0 0 8h4l-1 6 8-9H7z"></path></svg>{{ toast }}</div>
+  </sc-if>
+
+  <sc-if value="{{ boltOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;pointer-events:none;display:flex;align-items:center;justify-content:center;"><svg width="120" height="150" viewBox="0 0 12 14" fill="{{ boltFill }}" style="animation:bolt .9s ease-out forwards;filter:drop-shadow(0 0 30px {{ boltGlow }});"><path d="M7 0 0 8h4l-1 6 8-9H7z"></path></svg></div>
+  </sc-if>
+</div>
+
+<div style="width:230px;color:#FFFFFF;font-size:12px;line-height:1.5;display:flex;flex-direction:column;gap:14px;">
+  <img src="assets/stk-heart.png" style="width:120px;">
+  <div style="font-size:16px;font-weight:900;">Прототип главной</div>
+  <div style="color:rgba(255,255,255,.55);">Кликабельно: тема (кружок в шапке), сторис crews, ⚡ у crew и в ленте, реакции, фильтр ленты, таббар. Всё в одном экране, без переключения между вариантами.</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;grey&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark'|'grey'&quot;}}">
+class Component extends DCLogic {
+  state = { dark: true, logo: 0, logoPicker: false, pages: 1, crew: 0, feedFilter: 'crew', tab: 'home', toast: null, boltOn: false, pulse: null,
+    reactions: { r0a: 3, r0b: 1, r1a: 2, r1b: 0 }, mine: {} };
+  componentDidMount(){ const t=this.props.theme; if(t) this.setState({dark:t==='dark'}); }
+  componentDidUpdate(p){ if(p.theme!==this.props.theme && this.props.theme) this.setState({dark:this.props.theme==='dark'}); }
+  ping(msg){
+    clearTimeout(this._t); clearTimeout(this._b);
+    this.setState({ toast: msg, boltOn: true, pulse: Date.now() });
+    this._b=setTimeout(()=>this.setState({boltOn:false}),900);
+    this._t=setTimeout(()=>this.setState({toast:null,pulse:null}),2200);
+  }
+  idx(e){ const el=e.currentTarget.closest('[data-i]'); return el?el.getAttribute('data-i'):null; }
+  renderVals(){
+    const d=this.state.dark, s=this.state;
+    const bg=d?'#121212':'#F1EFE9', fg=d?'#FFFFFF':'#121212';
+    const card=d?'rgba(255,255,255,.08)':'#FFFFFF', line=d?'rgba(255,255,255,.14)':'rgba(18,18,18,.06)';
+    const mute=d?'rgba(255,255,255,.5)':'#8E8C86';
+    const avBorder=d?'#2A2A2A':'#FFFFFF';
+    const crewsData=[
+      {name:'Crew',img:'assets/icon-pizza.png',color:'#D9FF3A',open:true},
+      {name:'Квартира',letter:'🏠',color:'#8FD3FF',open:true},
+      {name:'Футбол',letter:'⚽',color:'#FFB48A',open:false},
+      {name:'ДР Малики',letter:'🎂',color:'#F3E0D8',open:false}];
+    const seen=this.state.seen||{};
+    const crews=crewsData.map((c,i)=>{const fresh=c.open&&!seen[i];const acc=d?'#D9FF3A':'#121212';const dash=d?'rgba(255,255,255,.35)':'rgba(18,18,18,.35)';return {...c,noImg:!c.img,ring:'transparent',ringStyle:fresh?'solid':'dashed',ringBorder:fresh?acc:dash,innerBorder:'2px solid transparent'}});
+    const av=(src,i,grey)=>({src,ml:i?'-8px':'0',filter:grey?'grayscale(1)':'none'});
+    const pulse=s.pulse?'zapPulse .5s ease-in-out':'none';
+    const crewRows=[
+      {title:'Crew · Ужин пятница',img:'assets/icon-pizza.png',color:'#D9FF3A',avs:[av('assets/av-aziz.png',0),av('assets/av-shoshiy.png',1),av('assets/av-islam.png',1,true)],sub:'ждём 1 оплату · 1 200 000',open:true,done:false,anim:pulse,ping:()=>this.ping('Пингануты все в Crew')},
+      {title:'Квартира',letter:'🏠',color:'#8FD3FF',avs:[av('assets/av-aziz.png',0)],sub:'коммуналка · все оплатили',open:false,done:true,anim:'none'}
+    ].map(r=>({...r,noImg:!r.img}));
+    const merchants=[
+      {name:'Bellissimo',tag:'20% · 2+1',bg:'#FFFFFF',logo:'assets/logo-bellissimo.png',rot:'-2deg'},
+      {name:'EVOS',tag:'×2 кэшбэк',bg:'#D9FF3A',abbr:'EVOS',logoBg:'#2E9E3D',logoFg:'#FFFFFF',rot:'2deg'},
+      {name:'Feed Up',tag:'10%',bg:'#FFFFFF',abbr:'feed up',logoBg:'#121212',logoFg:'#D9FF3A',rot:'-1deg'},
+      {name:'Oqtepa',tag:'1+1',bg:'#FFFFFF',abbr:'Oqtepa',logoBg:'#E84A3F',logoFg:'#FFFFFF',rot:'2deg'}
+    ].map(m=>({...m,noLogo:!m.logo,logoBg:m.logoBg||'transparent',logoFg:m.logoFg||'#121212'}));
+    const rx=(id,emoji)=>{const on=!!s.mine[id];return {id,emoji,n:(s.reactions[id]||0)+(on?1:0),bg:on?'#D9FF3A':(d?'rgba(255,255,255,.08)':'#F1EFE9'),fg:on?'#121212':fg}};
+    const all=[
+      {who:'Shoshiy',text:'закрыл 400 000 за пиццу 🍕',tail:'· Crew',time:'12:05 · Bellissimo',av:'assets/av-shoshiy.png',reactions:[rx('r0a','🔥'),rx('r0b','⚡')],crew:true},
+      {who:'Crew',text:'словил +10 000 кэшбэка — ставка выросла до 2.5%',tail:'',time:'12:05 · Bellissimo',noAv:true,avBg:'#D9FF3A',reactions:[rx('r1a','🤑'),rx('r1b','👏')],crew:true},
+      {who:'Ислам',text:'ещё не оплатил 400 000',tail:'· 3 часа',time:'11:40 · Crew',av:'assets/av-islam.png',filter:'grayscale(1)',reactions:[],pingable:true,ping:()=>this.ping('Ислам пинганут ⚡'),crew:true},
+      {who:'Даврон',text:'оплатил коммуналку 299 000',tail:'· Квартира',time:'вчера',avBg:'#FFFFFF',av:'assets/av-big.png',reactions:[],crew:false}
+    ];
+    const more=[
+      {who:'Shoshiy',text:'кинул 84 000 за кофе ☕',tail:'· Crew',time:'вчера · Кофейня',av:'assets/av-shoshiy.png',crew:true},
+      {who:'Crew',text:'открыл новый сплит «Такси домой» — 60 000',tail:'',time:'вчера',noAv:true,avBg:'#D9FF3A',crew:true},
+      {who:'Ислам',text:'закрыл 400 000 за пиццу 🍕',tail:'· Crew',time:'вторник · Bellissimo',av:'assets/av-islam.png',crew:true},
+      {who:'Aziz',text:'получил +2 500 кэшбэка',tail:'· Crew',time:'вторник · EVOS',av:'assets/av-aziz.png',crew:true},
+      {who:'Малика',text:'оплатила 12 000 за такси',tail:'· Футбол',time:'понедельник',avBg:'#FFFFFF',av:'assets/av-big.png',crew:false},
+      {who:'Crew',text:'все оплатили «Ужин четверг» — 900 000 закрыто',tail:'',time:'понедельник',noAv:true,avBg:'#D9FF3A',crew:true}
+    ];
+    let extra=[];for(let p=1;p<s.pages;p++)extra=extra.concat(more.map((m,i)=>({...m,reactions:[rx('x'+p+'_'+i,'🔥')],key:p+'_'+i})));
+    const src=all.concat(extra);
+    const feed=(s.feedFilter==='crew'?src.filter(f=>f.crew):src).map(f=>({...f,filter:f.filter||'none',avBg:f.avBg||'transparent'}));
+    const logos=[{name:'Классика',src:'assets/stk-logo.png',bg:'#FFFFFF',h:'44px'},{name:'Моно',src:'assets/logo-zap-bw.png',bg:'#D9FF3A',h:'46px'},{name:'Сердце',src:'assets/stk-heart.png',bg:'#FFFFFF',h:'46px'},{name:'Телефон',src:'assets/stk-phone-check.png',bg:'#D9FF3A',h:'48px'},{name:'Чек',src:'assets/stk-receipt-qr.png',bg:'#FFFFFF',h:'46px'}].map((l,i)=>({...l,border:i===s.logo?'#121212':'transparent'}));
+    const tabOn=(t)=>s.tab===t;
+    return {
+      bg,fg,card,line,mute,avBorder,bgT:d?'rgba(18,18,18,0)':'rgba(241,239,233,0)',
+      dotColor:d?'rgba(255,255,255,.07)':'rgba(18,18,18,.06)',lineStrong:d?'rgba(255,255,255,.3)':'rgba(18,18,18,.25)',
+      tabBg:d?'rgba(255,255,255,.1)':'#121212',
+      toggleTheme:()=>this.setState({dark:!d}),
+      accentRing:d?'#D9FF3A':'#121212',linkColor:d?'#D9FF3A':'#121212',doneBg:'#121212',boltFill:d?'#D9FF3A':'#121212',boltGlow:d?'#D9FF3A':'rgba(18,18,18,.4)',boltOnLime:'#121212',pingRing:d?'transparent':'#121212',tileShadow:d?'none':'0 6px 18px rgba(18,18,18,.06)',
+      logos,logoSrc:logos[s.logo].src,logoH:logos[s.logo].h,logoPicker:s.logoPicker,sheetBg:d?'#1C1C1C':'#FFFFFF',
+      toggleLogoPicker:()=>this.setState({logoPicker:!s.logoPicker}),
+      pickLogo:(e)=>{const i=this.idx(e);if(i!=null)this.setState({logo:+i,logoPicker:false})},
+      onScroll:(e)=>{const el=e.currentTarget;if(el.scrollTop+el.clientHeight>el.scrollHeight-200&&!this._loading&&s.pages<40){this._loading=true;setTimeout(()=>{this._loading=false;this.setState(st=>({pages:st.pages+1}))},450)}},
+      heroFg:d?'#D9FF3A':'#121212',heroBg:d?'transparent':'#D9FF3A',heroPad:d?'0':'0 6px',
+      selectCrew:(e)=>{const i=this.idx(e);if(i!=null)this.setState(st=>({crew:+i,feedFilter:'crew',seen:{...(st.seen||{}),[i]:true}}))},
+      pingCrew:()=>this.ping('Пингануты все в Crew'),
+      pingFeed:(e)=>this.ping((this.idx(e)||'Участник')+' пинганут ⚡'),
+      toggleRx:(e)=>{const id=this.idx(e);if(id)this.setState(st=>({mine:{...st.mine,[id]:!st.mine[id]}}))},
+      crews,crewRows,merchants,feed,
+      cashbackText:'67 500',debtText:'5.3M',debtorsText:'2 чел.',
+      setFeedCrew:()=>this.setState({feedFilter:'crew'}),setFeedAll:()=>this.setState({feedFilter:'all'}),
+      feedCrewBg:s.feedFilter==='crew'?'#D9FF3A':card,feedCrewFg:s.feedFilter==='crew'?'#121212':fg,
+      feedAllBg:s.feedFilter==='all'?'#D9FF3A':card,feedAllFg:s.feedFilter==='all'?'#121212':fg,
+      tabHome:()=>this.setState({tab:'home'}),tabGrid:()=>this.setState({tab:'grid'}),tabHistory:()=>this.setState({tab:'hist'}),
+      tabHomeBg:tabOn('home')?'#D9FF3A':'transparent',tabHomeFg:tabOn('home')?'#121212':'#FFFFFF',
+      tabGridBg:tabOn('grid')?'#D9FF3A':'transparent',tabGridFg:tabOn('grid')?'#121212':'#FFFFFF',
+      tabHistBg:tabOn('hist')?'#D9FF3A':'transparent',tabHistFg:tabOn('hist')?'#121212':'#FFFFFF',
+      toast:s.toast,boltOn:s.boltOn
+    };
+  }
+}
+</script>
+</body>
+</html>

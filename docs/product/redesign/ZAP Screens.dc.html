@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;700&amp;display=swap" rel="stylesheet">
+<style>body{margin:0;background:#DAD8D1;} a{color:#121212;} a:hover{color:#121212;} @keyframes zapFly{0%{transform:translate(0,0) scale(.3) rotate(0deg);opacity:0}12%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(1.25) rotate(var(--rot));opacity:0}} @keyframes zapMerge{0%{transform:translateY(0) scale(1);opacity:1;max-height:160px}30%{transform:translateY(-6px) scale(1.02);opacity:1}100%{transform:translateY(-46px) scale(.96);opacity:0;max-height:0;margin-top:0}} @keyframes zapRowIn{0%{max-height:0;opacity:0;transform:translateY(18px);background:#D9FF3A}40%{opacity:1}100%{max-height:80px;opacity:1;transform:translateY(0);background:#FFFFFF}} @keyframes zapSplit{0%{transform:translateY(-46px) scale(.96);opacity:0;max-height:0;margin-top:0}100%{transform:translateY(0) scale(1);opacity:1;max-height:160px;margin-top:14px}} @keyframes zapConfetti{0%{transform:translate(0,0) rotate(0deg) scale(.6);opacity:0}8%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(1);opacity:0}} @keyframes zapPulse{0%,60%,100%{transform:scale(1)}8%{transform:scale(.85)}18%{transform:scale(1.18)}30%{transform:scale(1)}} @keyframes zapRing{0%,5%{transform:scale(1);opacity:.9}45%,100%{transform:scale(2.6);opacity:0}} @keyframes zapRing2{0%,15%{transform:scale(1);opacity:.7}55%,100%{transform:scale(3.4);opacity:0}} @keyframes zapShake{0%,38%,70%,100%{transform:rotate(0)}44%{transform:rotate(-8deg) scale(1.06)}50%{transform:rotate(8deg) scale(1.08)}56%{transform:rotate(-6deg) scale(1.06)}62%{transform:rotate(4deg)}} @keyframes zapBolt{0%,6%{transform:translate(323px,656px) scale(.4);opacity:0}10%{opacity:1;transform:translate(323px,656px) scale(1)}40%{transform:translate(177px,180px) scale(1);opacity:1}46%{transform:translate(177px,180px) scale(1.6);opacity:0}100%{transform:translate(177px,180px) scale(1.6);opacity:0}} @keyframes zapToast{0%,40%{transform:translateY(-70px);opacity:0}50%,88%{transform:translateY(0);opacity:1}96%,100%{transform:translateY(-70px);opacity:0}} @keyframes zapFlash{0%,38%{transform:scale(.3);opacity:0}42%{transform:scale(1.4);opacity:1}56%{transform:scale(1.9);opacity:0}100%{opacity:0}} @keyframes zapStrike{0%,34%{transform:translateY(-90px) scaleY(1.6);opacity:0}38%{opacity:1}42%{transform:translateY(40px) scaleY(1);opacity:1}48%{transform:translateY(46px) scale(.6);opacity:0}100%{opacity:0}} @keyframes zapPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}</style>
+<script src="./image-slot.js"></script>
+</helmet>
+<div style="display:flex;gap:48px;padding:48px;font-family:'Onest',sans-serif;color:#121212;align-items:flex-start;">
+
+<!-- ═══ Screen 1: Group ═══ -->
+<div data-screen-label="Группа" style="width:390px;background:{{ bg }};border-radius:40px;overflow:hidden;flex:none;color:{{ text }};position:relative;">
+  <sc-if value="{{ hasWallpaper }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:0;">
+      <image-slot id="crew-wallpaper" shape="rect" src="{{ wallpaperSrc }}" placeholder="Обои отряда — перетащите картинку"></image-slot>
+      <div style="position:absolute;inset:0;background:{{ bg }};opacity:{{ wallpaperFade }};pointer-events:none;"></div>
+    </div>
+  </sc-if>
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;min-height:848px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>09:25</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:{{ text }};border-radius:1px;"></span><span style="width:3px;height:7px;background:{{ text }};border-radius:1px;"></span><span style="width:3px;height:9px;background:{{ text }};border-radius:1px;"></span><span style="width:3px;height:11px;background:#BDBBB5;border-radius:1px;"></span></div>
+      <span>5G</span>
+      <span style="background:#F0D24A;color:#121212;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">13</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:{{ card }};display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:19px;font-weight:700;"><img src="assets/icon-pizza.png" style="width:26px;height:26px;border-radius:7px;"><span>Crew</span></div>
+      <div style="font-size:11px;color:{{ muted }};margin-top:2px;">Aziz · Ислам · Shoshiy</div>
+    </div>
+    <div title="Сменить фон" style="width:40px;height:40px;border-radius:50%;background:{{ card }};display:flex;align-items:center;justify-content:center;font-size:18px;">🎨</div>
+  </div>
+  <div style="display:flex;justify-content:center;padding:34px 15px 0;">
+    <div style="position:relative;width:200px;height:200px;border-radius:50%;border:1.5px dashed rgba(18,18,18,.28);box-sizing:border-box;">
+      <div style="position:absolute;left:50%;top:0;transform:translate(-50%,-30%);display:flex;flex-direction:column;align-items:center;"><div style="position:relative;"><img src="assets/av-aziz.png" style="width:64px;height:64px;border-radius:50%;"><img src="assets/st-qr-t.png" title="Быстрее всех платит" style="position:absolute;right:-22px;top:-6px;width:36px;height:36px;"></div><span style="margin-top:-8px;background:#121212;color:{{ accent }};border-radius:10px;padding:3px 7px;font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1.5px;font-weight:700;box-shadow:0 0 0 2px {{ bg }};">ВЛАДЕЛЕЦ</span></div>
+      <div style="position:absolute;left:0;bottom:12px;transform:translate(-30%,0);display:flex;flex-direction:column;align-items:center;"><div style="position:relative;"><img src="assets/av-shoshiy.png" style="width:64px;height:64px;border-radius:50%;"><img src="assets/st-pizza-cool-t.png" title="Вечно последний" style="position:absolute;left:-24px;top:-8px;width:34px;height:34px;"><img src="assets/st-hand-t.png" title="ZAP-бадди" style="position:absolute;left:-28px;bottom:2px;width:34px;height:34px;"><img src="assets/st-phone-t.png" title="Вечно без денег" style="position:absolute;right:-20px;top:-10px;width:32px;height:32px;"><div title="Пингануть" style="position:absolute;right:-6px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:#121212;color:{{ accent }};display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 0 2px {{ bg }};">⚡</div></div><div style="font-size:11px;font-weight:700;margin-top:4px;">Shoshiy</div></div>
+      <div style="position:absolute;right:0;bottom:12px;transform:translate(30%,0);display:flex;flex-direction:column;align-items:center;"><div style="position:relative;"><img src="assets/av-islam.png" style="width:64px;height:64px;border-radius:50%;"><img src="assets/st-money-pizza-t.png" title="Самый крупный счёт" style="position:absolute;right:-24px;top:-8px;width:36px;height:36px;"><div title="Пингануть" style="position:absolute;left:-6px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:#121212;color:{{ accent }};display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 0 2px {{ bg }};">⚡</div></div><div style="font-size:11px;font-weight:700;margin-top:4px;">Ислам</div></div>
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:{{ card }};display:flex;align-items:center;justify-content:center;color:{{ muted }};font-size:20px;">+</div>
+    </div>
+  </div>
+  <div style="display:flex;padding:26px 15px 0;">
+    <div style="flex:1;height:44px;border-radius:22px;background:{{ card }};color:#121212;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;">Новый Zap</div>
+  </div>
+  <div style="margin:18px 15px 0;background:{{ card }};color:#121212;border-radius:22px;padding:14px 16px;display:flex;align-items:center;gap:14px;">
+    <img src="assets/st-wallet-t.png" style="width:56px;height:60px;flex:none;">
+    <div style="flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;font-weight:500;color:#8E8C86;">КЭШБЭК ГРУППЫ</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;"><span style="font-size:28px;font-weight:800;line-height:1;">0</span><span style="font-size:12px;color:#8E8C86;">UZS</span></div>
+    </div>
+    <div style="font-size:18px;color:#8E8C86;">›</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:{{ muted }};">ДОЛГИ</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:{{ card }};border-radius:18px;padding:14px 14px;"><img src="assets/av-shoshiy.png" style="width:44px;height:44px;border-radius:50%;"><div style="flex:1;"><div style="font-size:11px;color:#8E8C86;">Shoshiy · должен вам</div><div style="font-size:22px;font-weight:800;line-height:1.1;margin-top:3px;letter-spacing:-0.3px;">2 691 000 <span style="font-size:11px;font-weight:500;color:#8E8C86;">UZS</span></div></div><div style="background:#121212;color:{{ accent }};border-radius:14px;padding:9px 14px;font-size:11px;font-weight:700;">Напомнить</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:{{ card }};border-radius:18px;padding:14px 14px;"><img src="assets/av-islam.png" style="width:44px;height:44px;border-radius:50%;"><div style="flex:1;"><div style="font-size:11px;color:#8E8C86;">Ислам · должен вам</div><div style="font-size:22px;font-weight:800;line-height:1.1;margin-top:3px;letter-spacing:-0.3px;">2 635 000 <span style="font-size:11px;font-weight:500;color:#8E8C86;">UZS</span></div></div><div style="background:#121212;color:{{ accent }};border-radius:14px;padding:9px 14px;font-size:11px;font-weight:700;">Напомнить</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:{{ muted }};">ПОСЛЕДНИЕ ZAP</span><span style="font-size:11px;font-weight:600;">все →</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:{{ card }};border-radius:18px;padding:12px 14px;"><img src="assets/logo-bellissimo.png" style="width:38px;height:38px;border-radius:10px;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Ужин пятница 🍕</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">3 / 3 оплатили · 1 сентября</div></div><div style="text-align:right;"><div style="font-size:14px;font-weight:800;">1 200 000</div><div style="font-size:9px;color:#8E8C86;margin-top:1px;">закрыт</div></div></div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="display:flex;justify-content:center;padding:28px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;opacity:.9;"></div></div>
+  </div>
+</div>
+
+<!-- ═══ Screen 1b: Group — другой фон ═══ -->
+<div data-screen-label="Группа — другой фон" style="width:390px;background:#8FD3FF;border-radius:40px;overflow:hidden;flex:none;color:#121212;position:relative;">
+  
+  <div style="position:relative;z-index:1;display:flex;flex-direction:column;min-height:848px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>09:25</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:#BDBBB5;border-radius:1px;"></span></div>
+      <span>5G</span>
+      <span style="background:#F0D24A;color:#121212;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">13</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;">
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:19px;font-weight:700;"><img src="assets/icon-pizza.png" style="width:26px;height:26px;border-radius:7px;"><span>Crew</span></div>
+      <div style="font-size:11px;color:#3A6E8C;margin-top:2px;">Aziz · Ислам · Shoshiy</div>
+    </div>
+    <div title="Сменить фон" style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;">🎨</div>
+  </div>
+  <div style="display:flex;justify-content:center;padding:34px 15px 0;">
+    <div style="position:relative;width:200px;height:200px;border-radius:50%;border:1.5px dashed rgba(18,18,18,.28);box-sizing:border-box;">
+      <div style="position:absolute;left:50%;top:0;transform:translate(-50%,-30%);display:flex;flex-direction:column;align-items:center;"><div style="position:relative;"><img src="assets/av-aziz.png" style="width:64px;height:64px;border-radius:50%;"><img src="assets/st-qr-t.png" title="Быстрее всех платит" style="position:absolute;right:-22px;top:-6px;width:36px;height:36px;"></div><span style="margin-top:-8px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 7px;font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:1.5px;font-weight:700;box-shadow:0 0 0 2px #8FD3FF;">ВЛАДЕЛЕЦ</span></div>
+      <div style="position:absolute;left:0;bottom:12px;transform:translate(-30%,0);display:flex;flex-direction:column;align-items:center;"><div style="position:relative;"><img src="assets/av-shoshiy.png" style="width:64px;height:64px;border-radius:50%;"><img src="assets/st-pizza-cool-t.png" title="Вечно последний" style="position:absolute;left:-24px;top:-8px;width:34px;height:34px;"><img src="assets/st-hand-t.png" title="ZAP-бадди" style="position:absolute;left:-28px;bottom:2px;width:34px;height:34px;"><img src="assets/st-phone-t.png" title="Вечно без денег" style="position:absolute;right:-20px;top:-10px;width:32px;height:32px;"><div title="Пингануть" style="position:absolute;right:-6px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 0 2px #8FD3FF;">⚡</div></div><div style="font-size:11px;font-weight:700;margin-top:4px;">Shoshiy</div></div>
+      <div style="position:absolute;right:0;bottom:12px;transform:translate(30%,0);display:flex;flex-direction:column;align-items:center;"><div style="position:relative;"><img src="assets/av-islam.png" style="width:64px;height:64px;border-radius:50%;"><img src="assets/st-money-pizza-t.png" title="Самый крупный счёт" style="position:absolute;right:-24px;top:-8px;width:36px;height:36px;"><div title="Пингануть" style="position:absolute;left:-6px;bottom:-4px;width:24px;height:24px;border-radius:50%;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:12px;box-shadow:0 0 0 2px #8FD3FF;">⚡</div></div><div style="font-size:11px;font-weight:700;margin-top:4px;">Ислам</div></div>
+      <div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;color:#3A6E8C;font-size:20px;">+</div>
+    </div>
+  </div>
+  <div style="display:flex;padding:26px 15px 0;">
+    <div style="flex:1;height:44px;border-radius:22px;background:#FFFFFF;color:#121212;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;">Новый Zap</div>
+  </div>
+  <div style="margin:18px 15px 0;background:#FFFFFF;color:#121212;border-radius:22px;padding:14px 16px;display:flex;align-items:center;gap:14px;">
+    <img src="assets/st-wallet-t.png" style="width:56px;height:60px;flex:none;">
+    <div style="flex:1;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;font-weight:500;color:#8E8C86;">КЭШБЭК ГРУППЫ</div>
+      <div style="display:flex;align-items:baseline;gap:6px;margin-top:4px;"><span style="font-size:28px;font-weight:800;line-height:1;">0</span><span style="font-size:12px;color:#8E8C86;">UZS</span></div>
+    </div>
+    <div style="font-size:18px;color:#8E8C86;">›</div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#3A6E8C;">ДОЛГИ</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:14px 14px;"><img src="assets/av-shoshiy.png" style="width:44px;height:44px;border-radius:50%;"><div style="flex:1;"><div style="font-size:11px;color:#8E8C86;">Shoshiy · должен вам</div><div style="font-size:22px;font-weight:800;line-height:1.1;margin-top:3px;letter-spacing:-0.3px;">2 691 000 <span style="font-size:11px;font-weight:500;color:#8E8C86;">UZS</span></div></div><div style="background:#121212;color:#D9FF3A;border-radius:14px;padding:9px 14px;font-size:11px;font-weight:700;">Напомнить</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:14px 14px;"><img src="assets/av-islam.png" style="width:44px;height:44px;border-radius:50%;"><div style="flex:1;"><div style="font-size:11px;color:#8E8C86;">Ислам · должен вам</div><div style="font-size:22px;font-weight:800;line-height:1.1;margin-top:3px;letter-spacing:-0.3px;">2 635 000 <span style="font-size:11px;font-weight:500;color:#8E8C86;">UZS</span></div></div><div style="background:#121212;color:#D9FF3A;border-radius:14px;padding:9px 14px;font-size:11px;font-weight:700;">Напомнить</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#3A6E8C;">ПОСЛЕДНИЕ ZAP</span><span style="font-size:11px;font-weight:600;">все →</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><img src="assets/logo-bellissimo.png" style="width:38px;height:38px;border-radius:10px;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Ужин пятница 🍕</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">3 / 3 оплатили · 1 сентября</div></div><div style="text-align:right;"><div style="font-size:14px;font-weight:800;">1 200 000</div><div style="font-size:9px;color:#8E8C86;margin-top:1px;">закрыт</div></div></div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="display:flex;justify-content:center;padding:28px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;opacity:.9;"></div></div>
+  </div>
+</div>
+
+<!-- ═══ Screen 0: Home ═══ -->
+<div data-screen-label="Главная" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;color:#121212;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>12:22</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:rgba(18,18,18,.3);border-radius:1px;"></span></div>
+      <span style="font-size:13px;">📶</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">8</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 15px 0;">
+    <img src="assets/zap-logo.png" style="height:34px;">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:16px;">⌗</div>
+      <img src="assets/av-aziz.png" style="width:40px;height:40px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;">
+    </div>
+  </div>
+  <div style="margin:22px 15px 0;background:#D9FF3A;border-radius:26px;padding:20px 18px 18px;position:relative;overflow:hidden;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#5A6A16;">СЕГОДНЯ</div>
+    <div style="font-size:28px;font-weight:800;line-height:1.05;letter-spacing:-0.5px;margin-top:8px;width:200px;">Кэшбэк, скидки, акции ⚡</div>
+    <div style="font-size:11px;color:#5A6A16;margin-top:8px;width:190px;line-height:1.4;">В EVOS, Feed Up, Bellissimo, Safia, Bon! и Oqtepa Lavash</div>
+    <div style="display:inline-flex;margin-top:14px;height:34px;border-radius:17px;background:#121212;color:#D9FF3A;align-items:center;padding:0 14px;font-size:11px;font-weight:700;">Смотреть все</div>
+    <img src="assets/st-money-pizza-t.png" style="position:absolute;right:-6px;bottom:-4px;width:150px;">
+  </div>
+  <div style="display:flex;justify-content:space-between;padding:22px 30px 0;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;"><div style="width:54px;height:54px;border-radius:50%;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:20px;">⊞</div><span style="font-size:11px;font-weight:700;">Все</span></div>    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;"><div style="width:54px;height:54px;border-radius:50%;background:#FFFFFF;color:#121212;display:flex;align-items:center;justify-content:center;font-size:20px;">▭</div><span style="font-size:11px;font-weight:500;">Кэшбэк</span></div>    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;"><div style="width:54px;height:54px;border-radius:50%;background:#FFFFFF;color:#121212;display:flex;align-items:center;justify-content:center;font-size:20px;">⌧</div><span style="font-size:11px;font-weight:500;">Акции</span></div>    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;"><div style="width:54px;height:54px;border-radius:50%;background:#FFFFFF;color:#121212;display:flex;align-items:center;justify-content:center;font-size:20px;">%</div><span style="font-size:11px;font-weight:500;">Скидки</span></div>
+  </div>
+  <div style="display:flex;align-items:center;margin:22px 15px 0;height:52px;border-radius:26px;background:#FFFFFF;padding:0 6px 0 16px;gap:8px;">
+    <span style="font-size:16px;color:#8E8C86;">⌕</span><span style="flex:1;font-size:13px;color:#8E8C86;">@username или номер</span>
+    <div style="height:40px;border-radius:20px;background:#D9FF3A;display:flex;align-items:center;padding:0 16px;font-size:13px;font-weight:700;">Zарни</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:22px 15px 0;">
+    <div style="background:#FFFFFF;border-radius:22px;padding:14px 14px 10px;position:relative;min-height:150px;box-sizing:border-box;"><div style="font-size:14px;font-weight:700;line-height:1.2;">Накопленные<br>кэшбэки</div><div style="font-size:11px;color:#8E8C86;margin-top:4px;">41 000 · 5 кэшбэков</div><img src="assets/st-wallet-t.png" style="position:absolute;left:10px;bottom:8px;width:64px;"></div>
+    <div style="background:#FFFFFF;border-radius:22px;padding:14px 14px 10px;position:relative;min-height:150px;box-sizing:border-box;"><div style="font-size:14px;font-weight:700;line-height:1.2;">Мои<br>должники</div><div style="font-size:11px;color:#8E8C86;margin-top:4px;">5 326 000 · 2 человека</div><div style="position:absolute;right:12px;top:12px;width:22px;height:22px;border-radius:50%;background:#121212;color:#D9FF3A;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;">2</div><img src="assets/st-itogi-t.png" style="position:absolute;left:10px;bottom:8px;width:64px;"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;">ZAP CREWS</span><span style="font-size:11px;font-weight:700;">3 ›</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><img src="assets/icon-pizza.png" style="width:40px;height:40px;border-radius:12px;flex:none;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Crew</div><div style="display:flex;align-items:center;margin-top:4px;"><img src="assets/av-aziz.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #FFFFFF;"><img src="assets/av-shoshiy.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #FFFFFF;"><img src="assets/av-islam.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #FFFFFF;"><span style="font-size:10px;color:#8E8C86;margin-left:6px;">Ужин пятница · открыт</span></div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;">1 200 000</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">1 / 3 оплатил</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;">МЕРЧАНТЫ</span><span style="font-size:11px;font-weight:700;">6 ›</span>
+  </div>
+  <div style="display:flex;gap:8px;padding:12px 0 0 15px;overflow:hidden;">
+    <div style="flex:none;width:118px;background:#FFFFFF;border-radius:20px;padding:12px;box-sizing:border-box;"><img src="assets/logo-bellissimo.png" style="width:40px;height:40px;border-radius:12px;"><div style="font-size:12px;font-weight:700;margin-top:10px;">Bellissimo</div><div style="display:inline-block;margin-top:6px;background:#D9FF3A;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700;">20% · 2+1</div></div>
+    <div style="flex:none;width:118px;background:#FFFFFF;border-radius:20px;padding:12px;box-sizing:border-box;"><div style="width:40px;height:40px;border-radius:12px;background:#2E9E3D;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">EVOS</div><div style="font-size:12px;font-weight:700;margin-top:10px;">EVOS</div><div style="display:inline-block;margin-top:6px;background:#D9FF3A;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700;">×2 кэшбэк</div></div>
+    <div style="flex:none;width:118px;background:#FFFFFF;border-radius:20px;padding:12px;box-sizing:border-box;"><div style="width:40px;height:40px;border-radius:12px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;">feed<br>up</div><div style="font-size:12px;font-weight:700;margin-top:10px;">Feed Up</div><div style="display:inline-block;margin-top:6px;background:#D9FF3A;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700;">10%</div></div>
+    <div style="flex:none;width:118px;background:#FFFFFF;border-radius:20px;padding:12px;box-sizing:border-box;"><div style="width:40px;height:40px;border-radius:12px;background:#E84A3F;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;">Oqtepa</div><div style="font-size:12px;font-weight:700;margin-top:10px;">Oqtepa</div><div style="display:inline-block;margin-top:6px;background:#D9FF3A;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700;">1+1</div></div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="position:sticky;bottom:0;display:flex;justify-content:center;padding:18px 0 10px;background:linear-gradient(180deg,rgba(241,239,233,0),#F1EFE9 40%);">
+    <div style="display:flex;align-items:center;gap:6px;background:#FFFFFF;border-radius:34px;padding:6px;box-shadow:0 8px 24px rgba(18,18,18,.08);">
+      <div style="width:56px;height:56px;border-radius:50%;background:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:20px;">⌂</div>
+      <div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;">⋯</div>
+      <div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;">◷</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Screen 0b: Home — youth ═══ -->
+<div data-screen-label="Главная — вариант B" style="width:390px;background:#121212;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:14px 14px;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;color:#FFFFFF;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;color:#FFFFFF;">
+    <span>12:22</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#FFFFFF;border-radius:1px;"></span><span style="width:3px;height:7px;background:#FFFFFF;border-radius:1px;"></span><span style="width:3px;height:9px;background:#FFFFFF;border-radius:1px;"></span><span style="width:3px;height:11px;background:rgba(255,255,255,.3);border-radius:1px;"></span></div>
+      <span style="font-size:13px;">📶</span>
+      <span style="background:#F0D24A;color:#121212;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">8</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 15px 0;">
+    <img src="assets/zap-logo.png" style="height:34px;filter:drop-shadow(0 0 12px rgba(217,255,58,.35));">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:16px;">⌗</div>
+      <img src="assets/av-aziz.png" style="width:40px;height:40px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;">
+    </div>
+  </div>
+  <div style="padding:26px 15px 0;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:rgba(255,255,255,.5);">ПРИВЕТ, AZIZ</div>
+    <div style="font-size:44px;font-weight:900;line-height:.95;letter-spacing:-1.5px;margin-top:10px;">Сплить.<br><span style="color:#D9FF3A;font-style:italic;">Zарабатывай.</span></div>
+  </div>
+  <div style="margin:22px 15px 0;position:relative;height:190px;">
+    <div style="position:absolute;inset:0;background:#D9FF3A;color:#121212;border-radius:26px;transform:rotate(-2deg);"></div>
+    <div style="position:absolute;inset:0;background:#FFFFFF;color:#121212;border-radius:26px;padding:18px;box-sizing:border-box;overflow:hidden;">
+      <div style="display:inline-block;background:#121212;color:#D9FF3A;border-radius:8px;padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;">⚡ ГОРЯЧЕЕ</div>
+      <div style="font-size:26px;font-weight:900;line-height:1;letter-spacing:-0.6px;margin-top:12px;width:190px;">Кэшбэк ×2 в Bellissimo</div>
+      <div style="font-size:11px;color:#8E8C86;margin-top:8px;width:180px;">только для Crew · до воскресенья</div>
+      <div style="display:inline-flex;margin-top:14px;height:34px;border-radius:17px;background:#121212;color:#D9FF3A;align-items:center;padding:0 14px;font-size:11px;font-weight:700;">Собрать Crew →</div>
+      <img src="assets/st-money-pizza-t.png" style="position:absolute;right:-14px;bottom:-14px;width:160px;transform:rotate(8deg);">
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;padding:22px 0 0 15px;overflow:hidden;">
+<div style="flex:none;height:36px;border-radius:18px;background:#D9FF3A;color:#121212;display:flex;align-items:center;padding:0 16px;font-size:13px;font-weight:700;">🔥 Все</div><div style="flex:none;height:36px;border-radius:18px;background:rgba(255,255,255,.08);color:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,.14);">Кэшбэк</div><div style="flex:none;height:36px;border-radius:18px;background:rgba(255,255,255,.08);color:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,.14);">Акции</div><div style="flex:none;height:36px;border-radius:18px;background:rgba(255,255,255,.08);color:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,.14);">% Скидки</div><div style="flex:none;height:36px;border-radius:18px;background:rgba(255,255,255,.08);color:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:13px;font-weight:700;border:1px solid rgba(255,255,255,.14);">Новое</div>
+  </div>
+  <div style="display:flex;align-items:center;margin:18px 15px 0;height:52px;border-radius:26px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:0 6px 0 16px;gap:8px;">
+    <span style="font-size:16px;color:rgba(255,255,255,.5);">⌕</span><span style="flex:1;font-size:13px;color:rgba(255,255,255,.5);">@username или номер</span>
+    <div style="height:40px;border-radius:20px;background:#D9FF3A;color:#121212;display:flex;align-items:center;padding:0 16px;font-size:13px;font-weight:800;">Zарни ⚡</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:22px 15px 0;">
+    <div style="background:#D9FF3A;color:#121212;border-radius:22px;padding:14px;position:relative;min-height:140px;box-sizing:border-box;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#5A6A16;">КЭШБЭК</div><div style="font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;">41 000</div><div style="font-size:10px;color:#5A6A16;margin-top:3px;">5 начислений</div><img src="assets/st-wallet-t.png" style="position:absolute;right:6px;bottom:4px;width:66px;"></div>
+    <div style="background:#FFFFFF;color:#121212;border-radius:22px;padding:14px;position:relative;min-height:140px;box-sizing:border-box;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#8E8C86;">ДОЛЖНЫ МНЕ</div><div style="font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;">5.3M</div><div style="display:flex;align-items:center;margin-top:5px;"><img src="assets/av-shoshiy.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #FFFFFF;"><img src="assets/av-islam.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #FFFFFF;"><span style="font-size:10px;color:#8E8C86;margin-left:6px;">2 чел.</span></div><img src="assets/st-itogi-t.png" style="position:absolute;right:6px;bottom:4px;width:66px;"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;">
+    <span style="font-size:18px;font-weight:900;letter-spacing:-0.4px;">Твои Crews</span><span style="font-size:11px;font-weight:700;color:#D9FF3A;">все 3 →</span>
+  </div>
+  <div style="margin:12px 15px 0;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:12px 14px;"><img src="assets/icon-pizza.png" style="width:44px;height:44px;border-radius:14px;flex:none;"><div style="flex:1;"><div style="font-size:14px;font-weight:800;">Crew · Ужин пятница</div><div style="display:flex;align-items:center;margin-top:5px;"><img src="assets/av-aziz.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #121212;"><img src="assets/av-shoshiy.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #121212;"><img src="assets/av-islam.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #121212;"><span style="font-size:10px;color:rgba(255,255,255,.5);margin-left:6px;">ждём 2 оплаты</span></div></div><div style="width:44px;height:44px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:18px;">⚡</div></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;">
+    <span style="font-size:18px;font-weight:900;letter-spacing:-0.4px;">Где Zарабатывать</span><span style="font-size:11px;font-weight:700;color:#D9FF3A;">6 →</span>
+  </div>
+  <div style="display:flex;gap:10px;padding:14px 0 6px 15px;overflow:hidden;">
+    <div style="flex:none;width:118px;background:#FFFFFF;color:#121212;border-radius:20px;padding:12px;box-sizing:border-box;transform:rotate(-2deg);"><img src="assets/logo-bellissimo.png" style="width:40px;height:40px;border-radius:12px;"><div style="font-size:12px;font-weight:800;margin-top:10px;">Bellissimo</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700;">20% · 2+1</div></div>
+    <div style="flex:none;width:118px;background:#D9FF3A;color:#121212;border-radius:20px;padding:12px;box-sizing:border-box;transform:rotate(2deg);"><div style="width:40px;height:40px;border-radius:12px;background:#2E9E3D;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;">EVOS</div><div style="font-size:12px;font-weight:800;margin-top:10px;">EVOS</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700;">×2 кэшбэк</div></div>
+    <div style="flex:none;width:118px;background:#FFFFFF;color:#121212;border-radius:20px;padding:12px;box-sizing:border-box;transform:rotate(-1deg);"><div style="width:40px;height:40px;border-radius:12px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;">feed<br>up</div><div style="font-size:12px;font-weight:800;margin-top:10px;">Feed Up</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700;">10%</div></div>
+    <div style="flex:none;width:118px;background:#FFFFFF;color:#121212;border-radius:20px;padding:12px;box-sizing:border-box;transform:rotate(2deg);"><div style="width:40px;height:40px;border-radius:12px;background:#E84A3F;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;">Oqtepa</div><div style="font-size:12px;font-weight:800;margin-top:10px;">Oqtepa</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:8px;padding:2px 7px;font-size:10px;font-weight:700;">1+1</div></div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="position:sticky;bottom:0;display:flex;justify-content:center;padding:18px 0 10px;background:linear-gradient(180deg,rgba(18,18,18,0),#121212 40%);">
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px);border-radius:34px;padding:6px;">
+      <div style="width:56px;height:56px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:20px;">⌂</div>
+      <div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;">⋯</div>
+      <div style="width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;">◷</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Screen 0c-dark: Home ═══ -->
+<div data-screen-label="Главная — чёрная" style="width:390px;background:#121212;background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:14px 14px;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;color:#FFFFFF;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>12:22</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#FFFFFF;border-radius:1px;"></span><span style="width:3px;height:7px;background:#FFFFFF;border-radius:1px;"></span><span style="width:3px;height:9px;background:#FFFFFF;border-radius:1px;"></span><span style="width:3px;height:11px;background:rgba(255,255,255,.5);border-radius:1px;"></span></div>
+      <span style="font-size:13px;">📶</span>
+      <span style="background:#F0D24A;color:#121212;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">8</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 15px 0;">
+    <img src="assets/zap-logo.png" style="height:34px;filter:drop-shadow(0 0 12px rgba(217,255,58,.35));">
+    <div style="display:flex;gap:8px;"><div style="width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:16px;">⌗</div><img src="assets/av-aziz.png" style="width:40px;height:40px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"></div>
+  </div>
+  <div style="display:flex;gap:14px;padding:22px 0 0 15px;overflow:hidden;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:transparent;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;"><div style="width:100%;height:100%;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;">+</div></div><span style="font-size:10px;font-weight:700;">Новый</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:#D9FF3A;border:none;display:flex;align-items:center;justify-content:center;"><img src="assets/icon-pizza.png" style="width:100%;height:100%;border-radius:50%;border:2px solid #121212;box-sizing:border-box;"></div><span style="font-size:10px;font-weight:700;">Crew</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:#D9FF3A;border:none;display:flex;align-items:center;justify-content:center;"><div style="width:100%;height:100%;border-radius:50%;background:#8FD3FF;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid #121212;box-sizing:border-box;">🏠</div></div><span style="font-size:10px;font-weight:700;">Квартира</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:transparent;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;"><div style="width:100%;height:100%;border-radius:50%;background:#FFB48A;display:flex;align-items:center;justify-content:center;font-size:24px;">⚽</div></div><span style="font-size:10px;font-weight:700;">Футбол</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:transparent;border:2px dashed rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center;"><div style="width:100%;height:100%;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;">🎂</div></div><span style="font-size:10px;font-weight:700;">ДР Малики</span></div>
+  </div>
+  <div style="padding:26px 15px 0;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:rgba(255,255,255,.5);">ПРИВЕТ, AZIZ</div>
+    <div style="font-size:44px;font-weight:900;line-height:.95;letter-spacing:-1.5px;margin-top:10px;">Сплить.<br><span style="color:#D9FF3A;font-style:italic;">Zарабатывай.</span></div>
+  </div>
+  <div style="margin:22px 15px 0;position:relative;height:190px;">
+    <div style="position:absolute;inset:0;background:#D9FF3A;border-radius:26px;transform:rotate(-2deg);"></div>
+    <div style="position:absolute;inset:0;background:#FFFFFF;color:#121212;border-radius:26px;padding:18px;box-sizing:border-box;overflow:hidden;">
+      <div style="display:inline-block;background:#121212;color:#D9FF3A;border-radius:8px;padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;">⚡ ГОРЯЧЕЕ</div>
+      <div style="font-size:26px;font-weight:900;line-height:1;letter-spacing:-0.6px;margin-top:12px;width:190px;">Кэшбэк ×2 в Bellissimo</div>
+      <div style="font-size:11px;color:#8E8C86;margin-top:8px;width:180px;">только для Crew · до воскресенья</div>
+      <div style="display:inline-flex;margin-top:14px;height:34px;border-radius:17px;background:#121212;color:#D9FF3A;align-items:center;padding:0 14px;font-size:11px;font-weight:700;white-space:nowrap;">Собрать Crew →</div>
+      <img src="assets/st-pizza-zap-t.png" style="position:absolute;right:-14px;bottom:-14px;width:160px;transform:rotate(8deg);">
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:22px 15px 0;">
+    <div style="background:#D9FF3A;color:#121212;border-radius:24px;padding:14px;position:relative;min-height:124px;box-sizing:border-box;overflow:hidden;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#5A6A16;">КЭШБЭК</div><div style="font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;">67 500</div><div style="font-size:10px;color:#5A6A16;margin-top:3px;">3 группы</div><img src="assets/st-wallet-t.png" style="position:absolute;right:2px;bottom:0;width:64px;"></div>
+    <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:24px;padding:14px;position:relative;min-height:124px;box-sizing:border-box;overflow:hidden;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.5);">ДОЛЖНЫ МНЕ</div><div style="font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;">5.3M</div><div style="display:flex;align-items:center;margin-top:5px;"><img src="assets/av-shoshiy.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #2A2A2A;"><img src="assets/av-islam.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #2A2A2A;"><span style="font-size:10px;color:rgba(255,255,255,.5);margin-left:6px;">2 чел.</span></div><img src="assets/st-itogi-t.png" style="position:absolute;right:2px;bottom:0;width:64px;"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 15px 0;">
+    <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;">Твои Crews</span><span style="font-size:12px;font-weight:800;color:#D9FF3A;">все 3 →</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:14px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:12px 14px;"><img src="assets/icon-pizza.png" style="width:44px;height:44px;border-radius:14px;flex:none;"><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:800;">Crew · Ужин пятница</div><div style="display:flex;align-items:center;margin-top:5px;font-size:10px;color:rgba(255,255,255,.5);"><img src="assets/av-aziz.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #2A2A2A;"><img src="assets/av-shoshiy.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #2A2A2A;"><img src="assets/av-islam.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #2A2A2A;"><span style="margin-left:6px;">ждём 2 оплаты · 1 200 000</span></div></div><div style="width:44px;height:44px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;">⚡</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:12px 14px;"><div style="width:44px;height:44px;border-radius:14px;background:#8FD3FF;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;">🏠</div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:800;">Квартира</div><div style="display:flex;align-items:center;margin-top:5px;font-size:10px;color:rgba(255,255,255,.5);"><img src="assets/av-aziz.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #2A2A2A;"><span style="width:18px;height:18px;border-radius:50%;background:#E1E1E6;color:#121212;margin-left:-8px;border:1.5px solid #2A2A2A;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;">Д</span><span style="margin-left:6px;">коммуналка · все оплатили</span></div></div><div style="font-size:12px;font-weight:800;color:#D9FF3A;">✓</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 15px 0;">
+    <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;">Где Zарабатывать</span><span style="font-size:12px;font-weight:800;color:#D9FF3A;">6 →</span>
+  </div>
+  <div style="display:flex;gap:10px;padding:14px 0 6px 15px;overflow:hidden;">
+    <div style="flex:none;width:118px;background:#FFFFFF;color:#121212;border-radius:22px;padding:12px;box-sizing:border-box;transform:rotate(-2deg);"><img src="assets/logo-bellissimo.png" style="width:44px;height:44px;border-radius:14px;"><div style="font-size:13px;font-weight:900;margin-top:12px;">Bellissimo</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;">20% · 2+1</div></div>
+    <div style="flex:none;width:118px;background:#D9FF3A;color:#121212;border-radius:22px;padding:12px;box-sizing:border-box;transform:rotate(2deg);"><div style="width:44px;height:44px;border-radius:14px;background:#2E9E3D;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;">EVOS</div><div style="font-size:13px;font-weight:900;margin-top:12px;">EVOS</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;">×2 кэшбэк</div></div>
+    <div style="flex:none;width:118px;background:#FFFFFF;color:#121212;border-radius:22px;padding:12px;box-sizing:border-box;transform:rotate(-1deg);"><div style="width:44px;height:44px;border-radius:14px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;line-height:1.1;">feed<br>up</div><div style="font-size:13px;font-weight:900;margin-top:12px;">Feed Up</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;">10%</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 15px 0;">
+    <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;">Лента</span><div style="display:flex;gap:6px;"><span style="height:26px;border-radius:13px;background:#D9FF3A;color:#121212;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:800;">Crew</span><span style="height:26px;border-radius:13px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:700;">Все</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;padding:14px 15px 0;">
+    <div style="display:flex;align-items:flex-start;gap:12px;"><img src="assets/av-shoshiy.png" style="width:36px;height:36px;border-radius:50%;flex:none;"><div style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:4px 20px 20px 20px;padding:12px 14px;"><div style="font-size:13px;line-height:1.35;"><b>Shoshiy</b> закрыл 400 000 за пиццу 🍕 <span style="color:rgba(255,255,255,.5)">· Crew</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;"><span style="font-size:10px;color:rgba(255,255,255,.5);">12:05 · Bellissimo</span><div style="display:flex;gap:6px;"><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:#D9FF3A;color:#121212;">🔥 3</span><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:rgba(255,255,255,.08);color:#FFFFFF;">⚡ 1</span></div></div></div></div>
+    <div style="display:flex;align-items:flex-start;gap:12px;"><div style="width:36px;height:36px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none;">⚡</div><div style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:4px 20px 20px 20px;padding:12px 14px;"><div style="font-size:13px;line-height:1.35;">Crew словил <b>+10 000</b> кэшбэка — ставка выросла до <b>2.5%</b></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;"><span style="font-size:10px;color:rgba(255,255,255,.5);">12:05 · Bellissimo</span><div style="display:flex;gap:6px;"><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:rgba(255,255,255,.08);color:#FFFFFF;">🤑 2</span><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:rgba(255,255,255,.08);color:#FFFFFF;">👏 0</span></div></div></div></div>
+    <div style="display:flex;align-items:flex-start;gap:12px;"><img src="assets/av-islam.png" style="width:36px;height:36px;border-radius:50%;flex:none;filter:grayscale(1);"><div style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:4px 20px 20px 20px;padding:12px 14px;"><div style="font-size:13px;line-height:1.35;"><b>Ислам</b> ещё не оплатил 400 000 <span style="color:rgba(255,255,255,.5)">· 3 часа</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;"><span style="font-size:10px;color:rgba(255,255,255,.5);">11:40 · Crew</span><div style="display:flex;gap:6px;"><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 10px;font-size:11px;font-weight:800;background:#121212;color:#D9FF3A;">⚡ Пингануть</span></div></div></div></div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="position:sticky;bottom:0;display:flex;justify-content:center;padding:18px 0 10px;background:linear-gradient(180deg,rgba(18,18,18,0),#121212 40%);">
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(12px);border-radius:34px;padding:6px;">
+      <div style="width:56px;height:56px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:20px;">⌂</div>
+      <div style="width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;">⋯</div>
+      <div style="width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;">◷</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Screen 0c-grey: Home ═══ -->
+<div data-screen-label="Главная — серая" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;color:#121212;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>12:22</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:#8E8C86;border-radius:1px;"></span></div>
+      <span style="font-size:13px;">📶</span>
+      <span style="background:#F0D24A;color:#121212;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">8</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 15px 0;">
+    <img src="assets/zap-logo.png" style="height:34px;">
+    <div style="display:flex;gap:8px;"><div style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:16px;">⌗</div><img src="assets/av-aziz.png" style="width:40px;height:40px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"></div>
+  </div>
+  <div style="display:flex;gap:14px;padding:22px 0 0 15px;overflow:hidden;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:transparent;border:2px dashed rgba(18,18,18,.25);display:flex;align-items:center;justify-content:center;"><div style="width:100%;height:100%;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;">+</div></div><span style="font-size:10px;font-weight:700;">Новый</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:#D9FF3A;border:none;display:flex;align-items:center;justify-content:center;"><img src="assets/icon-pizza.png" style="width:100%;height:100%;border-radius:50%;border:2px solid #F1EFE9;box-sizing:border-box;"></div><span style="font-size:10px;font-weight:700;">Crew</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:#D9FF3A;border:none;display:flex;align-items:center;justify-content:center;"><div style="width:100%;height:100%;border-radius:50%;background:#8FD3FF;display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid #F1EFE9;box-sizing:border-box;">🏠</div></div><span style="font-size:10px;font-weight:700;">Квартира</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:transparent;border:2px dashed rgba(18,18,18,.25);display:flex;align-items:center;justify-content:center;"><div style="width:100%;height:100%;border-radius:50%;background:#FFB48A;display:flex;align-items:center;justify-content:center;font-size:24px;">⚽</div></div><span style="font-size:10px;font-weight:700;">Футбол</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;flex:none;"><div style="width:64px;height:64px;border-radius:50%;padding:3px;box-sizing:border-box;background:transparent;border:2px dashed rgba(18,18,18,.25);display:flex;align-items:center;justify-content:center;"><div style="width:100%;height:100%;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:24px;">🎂</div></div><span style="font-size:10px;font-weight:700;">ДР Малики</span></div>
+  </div>
+  <div style="padding:26px 15px 0;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;">ПРИВЕТ, AZIZ</div>
+    <div style="font-size:44px;font-weight:900;line-height:.95;letter-spacing:-1.5px;margin-top:10px;">Сплить.<br><span style="color:#121212;font-style:italic;background:#D9FF3A;padding:0 6px;border-radius:8px;">Zарабатывай.</span></div>
+  </div>
+  <div style="margin:22px 15px 0;position:relative;height:190px;">
+    <div style="position:absolute;inset:0;background:#D9FF3A;border-radius:26px;transform:rotate(-2deg);"></div>
+    <div style="position:absolute;inset:0;background:#FFFFFF;color:#121212;border-radius:26px;padding:18px;box-sizing:border-box;overflow:hidden;">
+      <div style="display:inline-block;background:#121212;color:#D9FF3A;border-radius:8px;padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;">⚡ ГОРЯЧЕЕ</div>
+      <div style="font-size:26px;font-weight:900;line-height:1;letter-spacing:-0.6px;margin-top:12px;width:190px;">Кэшбэк ×2 в Bellissimo</div>
+      <div style="font-size:11px;color:#8E8C86;margin-top:8px;width:180px;">только для Crew · до воскресенья</div>
+      <div style="display:inline-flex;margin-top:14px;height:34px;border-radius:17px;background:#121212;color:#D9FF3A;align-items:center;padding:0 14px;font-size:11px;font-weight:700;white-space:nowrap;">Собрать Crew →</div>
+      <img src="assets/st-pizza-zap-t.png" style="position:absolute;right:-14px;bottom:-14px;width:160px;transform:rotate(8deg);">
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:22px 15px 0;">
+    <div style="background:#D9FF3A;color:#121212;border-radius:24px;padding:14px;position:relative;min-height:124px;box-sizing:border-box;overflow:hidden;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#5A6A16;">КЭШБЭК</div><div style="font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;">67 500</div><div style="font-size:10px;color:#5A6A16;margin-top:3px;">3 группы</div><img src="assets/st-wallet-t.png" style="position:absolute;right:2px;bottom:0;width:64px;"></div>
+    <div style="background:#FFFFFF;border-radius:24px;padding:14px;position:relative;min-height:124px;box-sizing:border-box;overflow:hidden;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#8E8C86;">ДОЛЖНЫ МНЕ</div><div style="font-size:26px;font-weight:900;line-height:1;margin-top:8px;letter-spacing:-0.5px;">5.3M</div><div style="display:flex;align-items:center;margin-top:5px;"><img src="assets/av-shoshiy.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #FFFFFF;"><img src="assets/av-islam.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #FFFFFF;"><span style="font-size:10px;color:#8E8C86;margin-left:6px;">2 чел.</span></div><img src="assets/st-itogi-t.png" style="position:absolute;right:2px;bottom:0;width:64px;"></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 15px 0;">
+    <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;">Твои Crews</span><span style="font-size:12px;font-weight:800;color:#5A6A16;">все 3 →</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:14px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:20px;padding:12px 14px;"><img src="assets/icon-pizza.png" style="width:44px;height:44px;border-radius:14px;flex:none;"><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:800;">Crew · Ужин пятница</div><div style="display:flex;align-items:center;margin-top:5px;font-size:10px;color:#8E8C86;"><img src="assets/av-aziz.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #FFFFFF;"><img src="assets/av-shoshiy.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #FFFFFF;"><img src="assets/av-islam.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #FFFFFF;"><span style="margin-left:6px;">ждём 2 оплаты · 1 200 000</span></div></div><div style="width:44px;height:44px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;">⚡</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:20px;padding:12px 14px;"><div style="width:44px;height:44px;border-radius:14px;background:#8FD3FF;display:flex;align-items:center;justify-content:center;font-size:20px;flex:none;">🏠</div><div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:800;">Квартира</div><div style="display:flex;align-items:center;margin-top:5px;font-size:10px;color:#8E8C86;"><img src="assets/av-aziz.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #FFFFFF;"><span style="width:18px;height:18px;border-radius:50%;background:#E1E1E6;color:#121212;margin-left:-8px;border:1.5px solid #FFFFFF;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;">Д</span><span style="margin-left:6px;">коммуналка · все оплатили</span></div></div><div style="font-size:12px;font-weight:800;color:#5A6A16;">✓</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 15px 0;">
+    <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;">Где Zарабатывать</span><span style="font-size:12px;font-weight:800;color:#5A6A16;">6 →</span>
+  </div>
+  <div style="display:flex;gap:10px;padding:14px 0 6px 15px;overflow:hidden;">
+    <div style="flex:none;width:118px;background:#FFFFFF;color:#121212;border-radius:22px;padding:12px;box-sizing:border-box;transform:rotate(-2deg);"><img src="assets/logo-bellissimo.png" style="width:44px;height:44px;border-radius:14px;"><div style="font-size:13px;font-weight:900;margin-top:12px;">Bellissimo</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;">20% · 2+1</div></div>
+    <div style="flex:none;width:118px;background:#D9FF3A;color:#121212;border-radius:22px;padding:12px;box-sizing:border-box;transform:rotate(2deg);"><div style="width:44px;height:44px;border-radius:14px;background:#2E9E3D;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;">EVOS</div><div style="font-size:13px;font-weight:900;margin-top:12px;">EVOS</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;">×2 кэшбэк</div></div>
+    <div style="flex:none;width:118px;background:#FFFFFF;color:#121212;border-radius:22px;padding:12px;box-sizing:border-box;transform:rotate(-1deg);"><div style="width:44px;height:44px;border-radius:14px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:900;line-height:1.1;">feed<br>up</div><div style="font-size:13px;font-weight:900;margin-top:12px;">Feed Up</div><div style="display:inline-block;margin-top:6px;background:#121212;color:#D9FF3A;border-radius:10px;padding:3px 8px;font-size:10px;font-weight:800;">10%</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:26px 15px 0;">
+    <span style="font-size:20px;font-weight:900;letter-spacing:-0.5px;">Лента</span><div style="display:flex;gap:6px;"><span style="height:26px;border-radius:13px;background:#D9FF3A;color:#121212;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:800;">Crew</span><span style="height:26px;border-radius:13px;background:#FFFFFF;display:flex;align-items:center;padding:0 10px;font-size:11px;font-weight:700;">Все</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px;padding:14px 15px 0;">
+    <div style="display:flex;align-items:flex-start;gap:12px;"><img src="assets/av-shoshiy.png" style="width:36px;height:36px;border-radius:50%;flex:none;"><div style="flex:1;background:#FFFFFF;border-radius:4px 20px 20px 20px;padding:12px 14px;"><div style="font-size:13px;line-height:1.35;"><b>Shoshiy</b> закрыл 400 000 за пиццу 🍕 <span style="color:#8E8C86">· Crew</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;"><span style="font-size:10px;color:#8E8C86;">12:05 · Bellissimo</span><div style="display:flex;gap:6px;"><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:#D9FF3A;color:#121212;">🔥 3</span><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:#F1EFE9;color:#121212;">⚡ 1</span></div></div></div></div>
+    <div style="display:flex;align-items:flex-start;gap:12px;"><div style="width:36px;height:36px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:16px;flex:none;">⚡</div><div style="flex:1;background:#FFFFFF;border-radius:4px 20px 20px 20px;padding:12px 14px;"><div style="font-size:13px;line-height:1.35;">Crew словил <b>+10 000</b> кэшбэка — ставка выросла до <b>2.5%</b></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;"><span style="font-size:10px;color:#8E8C86;">12:05 · Bellissimo</span><div style="display:flex;gap:6px;"><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:#F1EFE9;color:#121212;">🤑 2</span><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 8px;font-size:11px;font-weight:700;background:#F1EFE9;color:#121212;">👏 0</span></div></div></div></div>
+    <div style="display:flex;align-items:flex-start;gap:12px;"><img src="assets/av-islam.png" style="width:36px;height:36px;border-radius:50%;flex:none;filter:grayscale(1);"><div style="flex:1;background:#FFFFFF;border-radius:4px 20px 20px 20px;padding:12px 14px;"><div style="font-size:13px;line-height:1.35;"><b>Ислам</b> ещё не оплатил 400 000 <span style="color:#8E8C86">· 3 часа</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;"><span style="font-size:10px;color:#8E8C86;">11:40 · Crew</span><div style="display:flex;gap:6px;"><span style="display:inline-flex;align-items:center;gap:4px;height:24px;border-radius:12px;padding:0 10px;font-size:11px;font-weight:800;background:#121212;color:#D9FF3A;">⚡ Пингануть</span></div></div></div></div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="position:sticky;bottom:0;display:flex;justify-content:center;padding:18px 0 10px;background:linear-gradient(180deg,rgba(241,239,233,0),#F1EFE9 40%);">
+    <div style="display:flex;align-items:center;gap:6px;background:#121212;border-radius:34px;padding:6px;">
+      <div style="width:56px;height:56px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:20px;">⌂</div>
+      <div style="width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;">⋯</div>
+      <div style="width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;">◷</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Screen 1f: History ═══ -->
+<div data-screen-label="История" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;color:#121212;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>13:40</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:#121212;border-radius:1px;"></span></div>
+      <span style="font-size:13px;">📶</span>
+      <span style="background:#D9FF3A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">69</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="font-size:30px;font-weight:900;letter-spacing:-0.8px;">История</div>
+    <div style="display:flex;gap:8px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#121212" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></div>
+      <img src="assets/av-aziz.png" style="width:40px;height:40px;border-radius:50%;border:2px solid #121212;box-sizing:border-box;">
+    </div>
+  </div>
+
+  <div style="margin:22px 15px 0;background:#121212;color:#FFFFFF;border-radius:28px;padding:20px 18px 16px;position:relative;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#D9FF3A;">РАСХОД</div><div style="display:flex;gap:4px;"><span style="height:24px;border-radius:12px;background:#D9FF3A;color:#121212;display:flex;align-items:center;padding:0 10px;font-size:10px;font-weight:800;">Неделя</span><span style="height:24px;border-radius:12px;background:rgba(255,255,255,.1);display:flex;align-items:center;padding:0 10px;font-size:10px;font-weight:700;">Месяц</span></div></div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin-top:14px;"><span style="font-size:40px;font-weight:900;line-height:1;letter-spacing:-1px;">1 482 046</span><span style="font-size:12px;color:rgba(255,255,255,.5);">UZS</span></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:11px;color:rgba(255,255,255,.55);"><span style="background:rgba(217,255,58,.15);color:#D9FF3A;border-radius:8px;padding:2px 7px;font-weight:800;">−12%</span><span>к августу · 9 сплитов · 3 crew</span></div>
+    <div style="display:flex;align-items:flex-end;gap:8px;height:96px;margin-top:20px;">
+<div style="flex:1;height:36px;border-radius:8px;background:rgba(255,255,255,.18);"></div><div style="flex:1;height:58px;border-radius:8px;background:rgba(255,255,255,.18);"></div><div style="flex:1;height:25px;border-radius:8px;background:rgba(255,255,255,.18);"></div><div style="flex:1;height:79px;border-radius:8px;background:rgba(255,255,255,.18);"></div><div style="flex:1;height:46px;border-radius:8px;background:rgba(255,255,255,.18);"></div><div style="flex:1;height:67px;border-radius:8px;background:rgba(255,255,255,.18);"></div><div style="flex:1;height:96px;border-radius:8px;background:#D9FF3A;"></div>
+    </div>
+    <div style="display:flex;font-family:'JetBrains Mono',monospace;font-size:8px;color:rgba(255,255,255,.4);margin-top:8px;"><span style="flex:1;text-align:center;">ПН</span><span style="flex:1;text-align:center;">ВТ</span><span style="flex:1;text-align:center;">СР</span><span style="flex:1;text-align:center;">ЧТ</span><span style="flex:1;text-align:center;">ПТ</span><span style="flex:1;text-align:center;">СБ</span><span style="flex:1;text-align:center;color:#D9FF3A;font-weight:700;">ВС</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);"><div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.4);">КЭШБЭК</div><div style="font-size:16px;font-weight:800;margin-top:4px;color:#D9FF3A;">+41 000</div></div><div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.4);">ВЕРНУЛИ ВАМ</div><div style="font-size:16px;font-weight:800;margin-top:4px;">+1.1M</div></div><div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:rgba(255,255,255,.4);">СР. ЧЕК</div><div style="font-size:16px;font-weight:800;margin-top:4px;">164 700</div></div></div>
+  </div>
+
+  <div style="margin:10px 15px 0;background:#FFFFFF;border-radius:28px;padding:18px 18px 16px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;"><div style="font-size:18px;font-weight:900;letter-spacing:-0.4px;">На что уходит</div><span style="font-size:10px;color:#8E8C86;">сентябрь</span></div>
+    <div style="display:flex;justify-content:center;margin-top:16px;">
+      <div style="position:relative;width:180px;height:180px;">
+        <svg viewBox="0 0 42 42" width="180" height="180" style="transform:rotate(-90deg);">
+          <circle cx="21" cy="21" r="15.9155" fill="none" stroke="#121212" stroke-width="7" stroke-dasharray="54 46" stroke-dashoffset="25"/><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#D9FF3A" stroke-width="7" stroke-dasharray="20 80" stroke-dashoffset="-29"/><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#8E8C86" stroke-width="7" stroke-dasharray="14 86" stroke-dashoffset="-49"/><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#C9C6BB" stroke-width="7" stroke-dasharray="8 92" stroke-dashoffset="-63"/><circle cx="21" cy="21" r="15.9155" fill="none" stroke="#E1DED4" stroke-width="7" stroke-dasharray="4 96" stroke-dashoffset="-71"/>
+        </svg>
+        <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;"><span style="font-size:30px;font-weight:900;line-height:1;">54%</span><span style="font-size:11px;color:#8E8C86;margin-top:4px;">еда</span></div><span style="position:absolute;left:158px;top:90px;transform:translate(-50%,-50%);font-size:16px;">🍕</span><span style="position:absolute;left:66px;top:152px;transform:translate(-50%,-50%);font-size:16px;">🏠</span><span style="position:absolute;left:28px;top:104px;transform:translate(-50%,-50%);font-size:16px;">🚕</span><span style="position:absolute;left:40px;top:58px;transform:translate(-50%,-50%);font-size:16px;">☕</span><span style="position:absolute;left:72px;top:28px;transform:translate(-50%,-50%);font-size:16px;">✨</span>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;margin-top:18px;">
+      <div style="display:flex;align-items:center;gap:10px;"><span style="width:12px;height:12px;border-radius:4px;background:#121212;flex:none;"></span><span style="flex:1;font-size:13px;font-weight:700;white-space:nowrap;">🍕 Еда</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;">800 000</span><span style="width:40px;text-align:right;font-size:12px;color:#8E8C86;">54%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;"><span style="width:12px;height:12px;border-radius:4px;background:#D9FF3A;flex:none;"></span><span style="flex:1;font-size:13px;font-weight:700;white-space:nowrap;">🏠 Коммуналка</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;">299 000</span><span style="width:40px;text-align:right;font-size:12px;color:#8E8C86;">20%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;"><span style="width:12px;height:12px;border-radius:4px;background:#8E8C86;flex:none;"></span><span style="flex:1;font-size:13px;font-weight:700;white-space:nowrap;">🚕 Такси</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;">207 000</span><span style="width:40px;text-align:right;font-size:12px;color:#8E8C86;">14%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;"><span style="width:12px;height:12px;border-radius:4px;background:#C9C6BB;flex:none;"></span><span style="flex:1;font-size:13px;font-weight:700;white-space:nowrap;">☕ Кофе</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;">118 000</span><span style="width:40px;text-align:right;font-size:12px;color:#8E8C86;">8%</span></div>
+      <div style="display:flex;align-items:center;gap:10px;"><span style="width:12px;height:12px;border-radius:4px;background:#E1DED4;flex:none;"></span><span style="flex:1;font-size:13px;font-weight:700;white-space:nowrap;">Другое</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;white-space:nowrap;">58 046</span><span style="width:40px;text-align:right;font-size:12px;color:#8E8C86;">4%</span></div>
+    </div>
+  </div>
+
+  <div style="margin:10px 15px 0;background:#FFFFFF;border-radius:24px;padding:16px 16px 14px;">
+    <div style="display:flex;justify-content:space-between;align-items:baseline;"><div style="font-size:16px;font-weight:900;letter-spacing:-0.3px;">С кем тратишь</div><span style="font-size:10px;color:#8E8C86;">общие сплиты</span></div>
+    <div style="display:flex;justify-content:center;align-items:flex-end;gap:8px;margin-top:14px;">
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:96px;"><img src="assets/av-islam.png" style="width:60px;height:60px;border-radius:50%;border:3px solid #F1EFE9;box-sizing:border-box;"><div style="font-size:12px;font-weight:700;margin-top:8px;">Ислам</div><div style="font-size:14px;font-weight:800;margin-top:2px;">1 099 000</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">6 сплитов</div></div>
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:96px;"><img src="assets/av-shoshiy.png" style="width:76px;height:76px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"><div style="font-size:12px;font-weight:700;margin-top:8px;">Shoshiy</div><div style="font-size:14px;font-weight:800;margin-top:2px;">1 284 000</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">7 сплитов</div></div>
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:96px;"><img src="assets/av-big.png" style="width:60px;height:60px;border-radius:50%;border:3px solid #F1EFE9;box-sizing:border-box;"><div style="font-size:12px;font-weight:700;margin-top:8px;">Даврон</div><div style="font-size:14px;font-weight:800;margin-top:2px;">299 000</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">2 сплита</div></div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid #F1EFE9;font-size:10px;color:#8E8C86;"><span>Чаще всего · <b style="color:#121212;">Crew</b> — 7 из 9 сплитов</span><span style="font-weight:700;color:#121212;">Bellissimo ×5</span></div>
+  </div>
+
+
+  <div style="display:flex;gap:8px;padding:22px 0 0 15px;overflow:hidden;">
+<div style="flex:none;height:36px;border-radius:18px;background:#D9FF3A;display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;">Все</div><div style="flex:none;height:36px;border-radius:18px;background:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;">Сплиты</div><div style="flex:none;height:36px;border-radius:18px;background:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;">Кэшбэк</div><div style="flex:none;height:36px;border-radius:18px;background:#FFFFFF;display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:700;">Долги</div>
+  </div>
+
+  <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;padding:22px 15px 0;">СЕГОДНЯ</div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:12px;background:#D9FF3A;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;"><img src="assets/icon-pizza.png" style="width:40px;height:40px;border-radius:12px;"></div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Ужин пятница 🍕 · сплит</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">вы + 1 человека</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;">−83 283</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:12px;background:#D9FF3A;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;">%</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Групповой кэшбэк</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">Bellissimo Pizza</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;">+10 000</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><img src="assets/logo-bellissimo.png" style="width:40px;height:40px;border-radius:12px;flex:none;"><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Bellissimo Pizza</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">Покрыли остаток сплита</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;">−800 000</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:50%;background:#D9FF3A;flex:none;overflow:hidden;"><img src="assets/av-shoshiy.png" style="width:100%;height:100%;object-fit:cover;"></div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Shoshiy · в долг</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">Bellissimo Pizza</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;">+400 000</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:50%;background:#C9A5F0;flex:none;overflow:hidden;"><img src="assets/av-islam.png" style="width:100%;height:100%;object-fit:cover;"></div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Ислам Акрамов · в долг</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">Bellissimo Pizza</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;">+400 000</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:12px;background:#121212;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;"><svg width="16" height="18" viewBox="0 0 12 14" fill="#D9FF3A"><path d="M7 0 0 8h4l-1 6 8-9H7z"></path></svg></div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Совместный счёт</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">Покрыли остаток сплита</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;">−299 000</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:50%;background:#C9A5F0;flex:none;overflow:hidden;"><img src="assets/av-islam.png" style="width:100%;height:100%;object-fit:cover;"></div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Ислам Акрамов · в долг</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">Совместный счёт</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;">+299 000</div></div>
+  </div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;padding:22px 15px 0;">ВЧЕРА</div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:12px;background:#121212;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;"><svg width="16" height="18" viewBox="0 0 12 14" fill="#D9FF3A"><path d="M7 0 0 8h4l-1 6 8-9H7z"></path></svg></div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Совместный счёт · сплит</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">вы + 1 человека</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;">−299 763</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:12px;background:#D9FF3A;display:flex;align-items:center;justify-content:center;flex:none;font-size:18px;font-weight:900;">%</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Групповой кэшбэк</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">Bellissimo Pizza</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;">+10 000</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><img src="assets/logo-bellissimo.png" style="width:40px;height:40px;border-radius:12px;flex:none;"><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Bellissimo Pizza</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">Покрыли остаток сплита</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;">−800 000</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:50%;background:#D9FF3A;flex:none;overflow:hidden;"><img src="assets/av-shoshiy.png" style="width:100%;height:100%;object-fit:cover;"></div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Shoshiy · в долг</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">Bellissimo Pizza</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#5A6A16;">+400 000</div></div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="position:sticky;bottom:0;display:flex;justify-content:center;padding:18px 0 10px;background:linear-gradient(180deg,rgba(241,239,233,0),#F1EFE9 45%);">
+    <div style="display:flex;align-items:center;gap:6px;background:#121212;border-radius:34px;padding:6px;">
+      <div style="width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11 12 3l9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1z"></path></svg></div>
+      <div style="width:56px;height:56px;border-radius:50%;color:#FFFFFF;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="6" cy="6" r="2.2"></circle><circle cx="12" cy="6" r="2.2"></circle><circle cx="18" cy="6" r="2.2"></circle><circle cx="6" cy="12" r="2.2"></circle><circle cx="12" cy="12" r="2.2"></circle><circle cx="18" cy="12" r="2.2"></circle><circle cx="6" cy="18" r="2.2"></circle><circle cx="12" cy="18" r="2.2"></circle><circle cx="18" cy="18" r="2.2"></circle></svg></div>
+      <div style="width:56px;height:56px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Screen 1c: Debts ═══ -->
+<div data-screen-label="Вам должны" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;color:#121212;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>12:05</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:rgba(18,18,18,.3);border-radius:1px;"></span></div>
+      <span style="font-size:13px;">📶</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">8</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;"><div style="font-size:19px;font-weight:700;">Долги</div></div>
+    <div title="Сменить фон" style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;">🎨</div>
+  </div>
+  <div style="display:flex;gap:8px;padding:22px 15px 0;">
+    <div style="height:36px;border-radius:18px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;padding:0 16px;font-size:12px;font-weight:700;">Вам должны</div>
+    <div style="height:36px;border-radius:18px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;padding:0 16px;font-size:12px;font-weight:600;">Вы должны · 0</div>
+  </div>
+  <div style="padding:22px 15px 0;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;">ВАМ ДОЛЖНЫ</div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;"><span style="font-size:40px;font-weight:800;line-height:1;letter-spacing:-0.5px;">5 326 000</span><span style="font-size:12px;color:#8E8C86;">UZS · 5 человек</span></div>
+  </div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;padding:24px 15px 0;">ТОП‑3 ДОЛЖНИКА</div>
+  <div style="display:flex;justify-content:center;align-items:flex-end;gap:10px;padding:12px 15px 0;">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;"><div style="position:relative;"><img src="assets/av-islam.png" style="width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"><span style="position:absolute;left:-4px;top:-4px;width:22px;height:22px;border-radius:50%;background:#121212;color:#D9FF3A;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">2</span><span style="position:absolute;right:-4px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:#121212;color:#D9FF3A;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">⚡</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">Ислам</div><div style="font-size:15px;font-weight:800;margin-top:2px;">2 635 000</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">6 сплитов</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;"><div style="position:relative;"><img src="assets/av-shoshiy.png" style="width:80px;height:80px;border-radius:50%;border:3px solid #121212;box-sizing:border-box;"><span style="position:absolute;left:-4px;top:-4px;width:22px;height:22px;border-radius:50%;background:#121212;color:#D9FF3A;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">1</span><span style="position:absolute;right:-4px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:#121212;color:#D9FF3A;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">⚡</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">Shoshiy</div><div style="font-size:15px;font-weight:800;margin-top:2px;">2 691 000</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">5 сплитов</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;"><div style="position:relative;"><img src="assets/av-aziz.png" style="width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"><span style="position:absolute;left:-4px;top:-4px;width:22px;height:22px;border-radius:50%;background:#121212;color:#D9FF3A;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">3</span><span style="position:absolute;right:-4px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:#121212;color:#D9FF3A;font-size:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">⚡</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">Тимур</div><div style="font-size:15px;font-weight:800;margin-top:2px;">—</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">пока чист</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;">ОСТАЛЬНЫЕ</span><span style="font-size:11px;font-weight:700;">3 человека</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:50%;background:#E1E1E6;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none;">Д</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Даврон</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;line-height:1.1;">299 000</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">UZS</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:50%;background:#F3E0D8;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none;">М</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Малика</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;line-height:1.1;">84 000</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">UZS</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:50%;background:#DDEFD8;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex:none;">Б</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Бекзод</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;line-height:1.1;">12 000</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">UZS</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="margin:22px 15px 0;height:48px;border-radius:24px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700;">⚡ Напомнить всем</div>
+  <div style="display:flex;justify-content:center;padding:22px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;"></div></div>
+</div>
+
+<!-- ═══ Screen 1d: Cashback ═══ -->
+<div data-screen-label="Кэшбэк — Crew" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;color:#121212;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>12:05</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:rgba(18,18,18,.3);border-radius:1px;"></span></div>
+      <span style="font-size:13px;">📶</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">8</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;"><div style="font-size:19px;font-weight:700;">Кэшбэк</div><div style="font-size:11px;color:#8E8C86;margin-top:2px;">Crew · Aziz · Ислам · Shoshiy</div></div>
+    <div title="Сменить фон" style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;">🎨</div>
+  </div>
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:26px 15px 0;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;">НАКОПИЛИ ВМЕСТЕ</div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;"><span style="font-size:40px;font-weight:800;line-height:1;letter-spacing:-0.5px;">41 000</span><span style="font-size:12px;color:#8E8C86;">UZS</span></div>
+      <div style="font-size:11px;color:#8E8C86;margin-top:6px;">начисляется только когда сплитите вместе</div>
+    </div>
+    <img src="assets/st-wallet-t.png" style="width:78px;height:85px;flex:none;">
+  </div>
+  <div style="margin:18px 15px 0;background:#FFFFFF;border-radius:18px;padding:12px 14px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;"><span>2.5% сейчас · ещё 9 000 до <b>3%</b></span><span style="font-weight:700;">41 / 50к</span></div>
+    <div style="margin-top:8px;height:8px;border-radius:4px;background:rgba(18,18,18,.1);overflow:hidden;"><div style="width:82%;height:100%;background:#121212;border-radius:4px;"></div></div>
+  </div>
+  <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;padding:24px 15px 0;">КТО ПРИНЁС БОЛЬШЕ</div>
+  <div style="display:flex;justify-content:center;align-items:flex-end;gap:10px;padding:12px 15px 0;">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;"><img src="assets/av-shoshiy.png" style="width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"><div style="font-size:12px;font-weight:700;margin-top:8px;">Shoshiy</div><div style="font-size:15px;font-weight:800;margin-top:2px;">13 000</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">5 сплитов</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;"><img src="assets/av-aziz.png" style="width:80px;height:80px;border-radius:50%;border:3px solid #121212;box-sizing:border-box;"><div style="font-size:12px;font-weight:700;margin-top:8px;">Aziz · вы</div><div style="font-size:15px;font-weight:800;margin-top:2px;">18 000</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">8 сплитов</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:104px;"><img src="assets/av-islam.png" style="width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"><div style="font-size:12px;font-weight:700;margin-top:8px;">Ислам</div><div style="font-size:15px;font-weight:800;margin-top:2px;">10 000</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">4 сплита</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;">МЕРЧАНТЫ</span><span style="font-size:11px;font-weight:700;">3</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><img src="assets/logo-bellissimo.png" style="width:40px;height:40px;border-radius:10px;flex:none;"><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Bellissimo Pizza</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">12 сплитов · последний сегодня</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;line-height:1.1;">32 000</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">2.5%</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:10px;background:#3B2A1E;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;">☕</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Кофейня</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">4 сплита · вчера</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;line-height:1.1;">8 000</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">2%</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:10px;background:#F0D24A;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;">🚕</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Такси</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">1 сплит · вторник</div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;line-height:1.1;">1 000</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">1%</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+  </div>
+  <div style="flex:1;"></div>
+  <div style="margin:22px 15px 0;height:48px;border-radius:24px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;">Потратить на следующий сплит</div>
+  <div style="display:flex;justify-content:center;padding:22px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;"></div></div>
+</div>
+
+<!-- ═══ Screen 1e: Cashback overall ═══ -->
+<div data-screen-label="Кэшбэк — общий" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;color:#121212;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>12:05</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:rgba(18,18,18,.3);border-radius:1px;"></span></div>
+      <span style="font-size:13px;">📶</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">8</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;"><div style="font-size:19px;font-weight:700;">Кэшбэк</div><div style="font-size:11px;color:#8E8C86;margin-top:2px;">все ваши группы</div></div>
+    <div style="width:40px;height:40px;border-radius:50%;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:16px;">?</div>
+  </div>
+  <div style="margin:26px 15px 0;background:#D9FF3A;border-radius:22px;padding:18px 16px 16px;position:relative;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#5A6A16;">ДОСТУПНО</div>
+    <div style="display:flex;align-items:baseline;gap:8px;margin-top:6px;"><span style="font-size:40px;font-weight:800;line-height:1;letter-spacing:-0.5px;">67 500</span><span style="font-size:12px;color:#5A6A16;">UZS</span></div>
+    <div style="font-size:11px;color:#5A6A16;margin-top:6px;">3 группы · 5 мерчантов</div>
+    <div style="display:flex;gap:8px;margin-top:14px;"><div style="height:34px;border-radius:17px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;padding:0 14px;font-size:11px;font-weight:700;">Потратить</div><div style="height:34px;border-radius:17px;background:rgba(18,18,18,.08);display:flex;align-items:center;justify-content:center;padding:0 14px;font-size:11px;font-weight:600;">История</div></div>
+    <img src="assets/st-wallet-t.png" style="position:absolute;right:14px;top:14px;width:78px;height:85px;">
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px 15px 0;">
+    <div style="background:#FFFFFF;border-radius:16px;padding:12px;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#8E8C86;">ЗА МЕСЯЦ</div><div style="font-size:16px;font-weight:800;margin-top:6px;">+24 500</div></div>
+    <div style="background:#FFFFFF;border-radius:16px;padding:12px;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#8E8C86;">ПОТРАЧЕНО</div><div style="font-size:16px;font-weight:800;margin-top:6px;">12 000</div></div>
+    <div style="background:#FFFFFF;border-radius:16px;padding:12px;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:#8E8C86;">СТАВКА</div><div style="font-size:16px;font-weight:800;margin-top:6px;">до 3%</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;">ПО ГРУППАМ</span><span style="font-size:11px;font-weight:700;">3</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;padding:12px 15px 0;">
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><img src="assets/icon-pizza.png" style="width:40px;height:40px;border-radius:12px;flex:none;"><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Crew</div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;"><img src="assets/av-aziz.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #FFFFFF;"><img src="assets/av-shoshiy.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #FFFFFF;"><img src="assets/av-islam.png" style="width:18px;height:18px;border-radius:50%;margin-left:-8px;border:1.5px solid #FFFFFF;"><span style="font-size:10px;color:#8E8C86;margin-left:2px;">17 сплитов</span></div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;line-height:1.1;">41 000</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">2.5%</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:12px;background:#8FD3FF;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;">🏠</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Квартира</div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;"><img src="assets/av-aziz.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #FFFFFF;"><span style="width:18px;height:18px;border-radius:50%;background:#E1E1E6;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;margin-left:-8px;border:1.5px solid #FFFFFF;box-sizing:border-box;">Д</span><span style="font-size:10px;color:#8E8C86;margin-left:2px;">6 сплитов</span></div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;line-height:1.1;">18 500</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">2%</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+    <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;"><div style="width:40px;height:40px;border-radius:12px;background:#FFB48A;display:flex;align-items:center;justify-content:center;font-size:18px;flex:none;">⚽</div><div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:700;">Футбол</div><div style="display:flex;align-items:center;gap:6px;margin-top:4px;"><img src="assets/av-aziz.png" style="width:18px;height:18px;border-radius:50%;border:1.5px solid #FFFFFF;"><span style="width:18px;height:18px;border-radius:50%;background:#F3E0D8;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;margin-left:-8px;border:1.5px solid #FFFFFF;box-sizing:border-box;">М</span><span style="width:18px;height:18px;border-radius:50%;background:#DDEFD8;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;margin-left:-8px;border:1.5px solid #FFFFFF;box-sizing:border-box;">Б</span><span style="width:18px;height:18px;border-radius:50%;background:#EAE8E1;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;margin-left:-8px;border:1.5px solid #FFFFFF;box-sizing:border-box;">+4</span><span style="font-size:10px;color:#8E8C86;margin-left:2px;">3 сплита</span></div></div><div style="text-align:right;"><div style="font-size:16px;font-weight:800;line-height:1.1;">8 000</div><div style="font-size:9px;color:#8E8C86;margin-top:2px;">1.5%</div></div><div style="font-size:16px;color:#8E8C86;">›</div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:#8E8C86;">ТОП МЕРЧАНТ</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px;background:#FFFFFF;border-radius:18px;padding:12px 14px;margin:12px 15px 0;"><img src="assets/logo-bellissimo.png" style="width:40px;height:40px;border-radius:10px;flex:none;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">Bellissimo Pizza</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">14 сплитов в 2 группах</div></div><div style="font-size:16px;font-weight:800;">38 000</div></div>
+  <div style="flex:1;"></div>
+  <div style="display:flex;justify-content:center;padding:22px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;"></div></div>
+</div>
+
+<!-- ═══ Screen 2: Zap detail ═══ -->
+<div data-screen-label="Оплата" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span style="display:flex;align-items:center;gap:4px;white-space:nowrap;">01:26 <span style="font-size:12px;color:#8E8C86;">🔕</span></span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:#BDBBB5;border-radius:1px;"></span></div>
+      <span>5G</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">16</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:#EAE8E1;display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;flex:1;min-width:0;padding:0 8px;"><div style="font-size:19px;font-weight:800;white-space:nowrap;">Ужин пятница 🍕</div></div>
+    <span style="background:#D9FF3A;border-radius:14px;padding:6px 10px;font-size:13px;font-weight:800;">{{ percent }}%</span>
+  </div>
+  <div style="display:flex;justify-content:center;gap:14px;padding:30px 15px 0;">
+    <sc-for list="{{ people }}" as="p" hint-placeholder-count="0">
+      <div onClick="{{ p.toggle }}" style="display:flex;flex-direction:column;align-items:center;text-align:center;width:90px;cursor:pointer;"><div style="position:relative;"><img src="{{ p.img }}" style="width:64px;height:64px;border-radius:50%;border:3px solid {{ p.ring }};box-sizing:border-box;opacity:{{ p.opacity }};"><span style="position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:{{ p.badgeBg }};color:{{ p.badgeFg }};font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">{{ p.badge }}</span><span onClick="{{ p.openPicker }}" title="Реакция" style="position:absolute;left:-8px;top:18px;width:24px;height:24px;border-radius:50%;background:{{ p.reactBg }};color:#8E8C86;font-size:{{ p.reactSize }};display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;cursor:pointer;animation:{{ p.reactAnim }};">{{ p.reactIcon }}</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">{{ p.short }}</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">{{ p.sub }}</div></div>
+    </sc-for>
+  </div>
+  <sc-if value="{{ pickerOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;justify-content:center;padding:14px 15px 0;"><div style="display:flex;gap:6px;background:#FFFFFF;border-radius:22px;padding:6px 8px;box-shadow:0 6px 20px rgba(18,18,18,.10);">
+      <sc-for list="{{ emojis }}" as="e" hint-placeholder-count="0"><div onClick="{{ e.pick }}" style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;background:{{ e.bg }};">{{ e.char }}</div></sc-for>
+    </div></div>
+  </sc-if>
+  
+  <sc-if value="{{ hasUnpaid }}" hint-placeholder-val="{{ true }}"><div style="margin:0 15px;height:8px;background:linear-gradient(45deg,#F1EFE9 6px,transparent 0),linear-gradient(-45deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div></sc-if><sc-if value="{{ allPaid }}" hint-placeholder-val="{{ false }}"></sc-if>
+  <sc-for list="{{ unpaidPeople }}" as="p" hint-placeholder-count="0">
+    <div style="margin:14px 15px 0;">
+      <div style="height:8px;background:linear-gradient(-135deg,#F1EFE9 6px,transparent 0),linear-gradient(135deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div>
+      <div style="background:#FFFFFF;padding:12px 16px 2px;display:flex;align-items:center;gap:12px;"><img src="{{ p.img }}" style="width:36px;height:36px;border-radius:50%;opacity:.7;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">{{ p.name }}</div><div style="font-size:10px;color:#C0553A;margin-top:2px;">ещё не оплатил</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:#8E8C86;">400 000</div><div onClick="{{ p.toggle }}" style="width:34px;height:34px;border-radius:50%;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;">⚡</div></div>
+      <sc-if value="{{ p.hasNext }}" hint-placeholder-val="{{ false }}"><div style="height:8px;background:linear-gradient(45deg,#F1EFE9 6px,transparent 0),linear-gradient(-45deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div></sc-if>
+      <sc-if value="{{ p.isLastUnpaid }}" hint-placeholder-val="{{ false }}"><div style="height:14px;background:#FFFFFF;border-radius:0 0 18px 18px;"></div></sc-if>
+    </div>
+  </sc-for>
+  
+  <div style="flex:1;"></div>
+  <div style="margin:24px 15px 0;height:44px;border:1.5px dashed #CFCDC6;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">Добавить фото 📸</div>
+  <div style="display:flex;justify-content:center;padding:22px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;"></div></div>
+  {{ burstOverlay }}
+</div>
+
+<!-- ═══ Screen 2c: Reaction burst ═══ -->
+<div data-screen-label="Реакция — сердечки" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span style="display:flex;align-items:center;gap:4px;white-space:nowrap;">01:27 <span style="font-size:12px;color:#8E8C86;">🔕</span></span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:#BDBBB5;border-radius:1px;"></span></div>
+      <span>5G</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">16</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:#EAE8E1;display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;flex:1;min-width:0;padding:0 8px;"><div style="font-size:19px;font-weight:800;white-space:nowrap;">Ужин пятница 🍕</div><div style="font-size:11px;color:#8E8C86;margin-top:2px;white-space:nowrap;">3 / 3 оплатили · Все оплатили. Красиво. ⚡</div></div>
+    <span style="background:#D9FF3A;border-radius:14px;padding:6px 10px;font-size:13px;font-weight:800;">100%</span>
+  </div>
+  <div style="display:flex;justify-content:center;gap:14px;padding:30px 15px 0;">
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:90px;"><div style="position:relative;"><img src="assets/av-aziz.png" style="width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"><span style="position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:#D9FF3A;font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">✓</span><span style="position:absolute;left:-8px;top:18px;width:24px;height:24px;border-radius:50%;background:#FFFFFF;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">❤️</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">Aziz · вы</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">Вы оплатили ⚡</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:90px;"><div style="position:relative;"><img src="assets/av-shoshiy.png" style="width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"><span style="position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:#D9FF3A;font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">✓</span><span style="position:absolute;left:-8px;top:18px;width:24px;height:24px;border-radius:50%;background:#EAE8E1;color:#8E8C86;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">+</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">Shoshiy</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">в долг, вы покрыли</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:90px;"><div style="position:relative;"><img src="assets/av-islam.png" style="width:64px;height:64px;border-radius:50%;border:3px solid #D9FF3A;box-sizing:border-box;"><span style="position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:#D9FF3A;font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">✓</span><span style="position:absolute;left:-8px;top:18px;width:24px;height:24px;border-radius:50%;background:#EAE8E1;color:#8E8C86;font-size:14px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">+</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">Ислам</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">в долг, вы покрыли</div></div>
+  </div>
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;"><div style="text-align:center;"><div style="font-size:64px;line-height:1;animation:zapPop .6s ease-out both;">❤️</div><div style="font-size:14px;font-weight:700;margin-top:14px;">Aziz поставил сердечко</div><div style="font-size:11px;color:#8E8C86;margin-top:4px;">Ужин пятница · 1 200 000</div></div></div>
+  <div style="display:flex;justify-content:center;padding:22px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;"></div></div>
+  {{ heartsLoop }}
+</div>
+
+<!-- ═══ Screen 2c: Reaction burst ═══ -->
+
+
+<!-- ═══ Screen 2c: Reaction burst ═══ -->
+
+
+<!-- ═══ Screen 2c: Reaction burst ═══ -->
+
+
+<!-- ═══ Screen 2b: Torn receipt ═══ -->
+<div data-screen-label="Оплата — рваный чек" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span style="display:flex;align-items:center;gap:4px;white-space:nowrap;">01:26 <span style="font-size:12px;color:#8E8C86;">🔕</span></span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:#BDBBB5;border-radius:1px;"></span></div>
+      <span>5G</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">16</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:#EAE8E1;display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;flex:1;min-width:0;padding:0 8px;"><div style="font-size:19px;font-weight:800;white-space:nowrap;">Ужин пятница 🍕</div></div>
+    <span style="background:#D9FF3A;border-radius:14px;padding:6px 10px;font-size:13px;font-weight:800;">{{ t_percent }}%</span>
+  </div>
+  <div style="display:flex;justify-content:center;gap:14px;padding:30px 15px 0;">
+    <sc-for list="{{ t_people }}" as="p" hint-placeholder-count="0">
+      <div onClick="{{ p.toggle }}" style="display:flex;flex-direction:column;align-items:center;text-align:center;width:90px;cursor:pointer;"><div style="position:relative;"><img src="{{ p.img }}" style="width:64px;height:64px;border-radius:50%;border:3px solid {{ p.ring }};box-sizing:border-box;opacity:{{ p.opacity }};"><span style="position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:{{ p.badgeBg }};color:{{ p.badgeFg }};font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">{{ p.badge }}</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">{{ p.short }}</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">{{ p.sub }}</div></div>
+    </sc-for>
+  </div>
+  <div style="margin:30px 15px 0;background:#FFFFFF;border-radius:18px 18px 0 0;padding:20px 16px 8px;position:relative;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      
+      <div><div style="font-size:15px;font-weight:700;">Bellissimo Pizza</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:#8E8C86;margin-top:4px;">·  заказ  #481</div></div>
+    </div>
+    <img src="assets/st-pizza-zap-t.png" style="position:absolute;right:14px;top:6px;width:66px;height:66px;">
+    <div style="border-top:1.5px dashed #DAD8D1;margin-top:16px;"></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;letter-spacing:1px;margin-top:16px;">{{ t_paidSum }}</div>
+    <div style="font-size:11px;color:#8E8C86;margin-top:6px;">оплачено из 1 200 000 · 3 участника</div>
+    <div style="border-top:1.5px dashed #DAD8D1;margin-top:16px;"></div>
+    <sc-for list="{{ t_paidPeople }}" as="p" hint-placeholder-count="0">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px dashed #DAD8D1;overflow:hidden;animation:{{ p.rowAnim }};"><img src="{{ p.img }}" style="width:36px;height:36px;border-radius:50%;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">{{ p.name }}</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">{{ p.sub }}</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">400 000</div></div>
+    </sc-for>
+    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #121212;padding:12px 0 8px;margin-top:-1px;"><span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:#8E8C86;">ОПЛАЧЕНО</span><span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">{{ t_paidSum }}</span></div>
+  </div>
+  <sc-if value="{{ t_hasUnpaid }}" hint-placeholder-val="{{ true }}"><div style="margin:0 15px;height:8px;background:linear-gradient(45deg,#F1EFE9 6px,transparent 0),linear-gradient(-45deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div></sc-if><sc-if value="{{ t_allPaid }}" hint-placeholder-val="{{ false }}"><div style="margin:0 15px;height:14px;background:#FFFFFF;border-radius:0 0 18px 18px;"></div></sc-if>
+  <sc-for list="{{ t_unpaidPeople }}" as="p" hint-placeholder-count="0">
+    <div style="margin:14px 15px 0;overflow:hidden;animation:{{ p.stubAnim }};">
+      <div style="height:8px;background:linear-gradient(-135deg,#F1EFE9 6px,transparent 0),linear-gradient(135deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div>
+      <div style="background:#FFFFFF;padding:12px 16px 2px;display:flex;align-items:center;gap:12px;"><img src="{{ p.img }}" style="width:36px;height:36px;border-radius:50%;opacity:.7;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">{{ p.name }}</div><div style="font-size:10px;color:#C0553A;margin-top:2px;">ещё не оплатил</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:#8E8C86;">400 000</div></div>
+      <div style="background:#FFFFFF;padding:8px 16px 12px;display:flex;gap:8px;"><div onClick="{{ p.lend }}" style="flex:1;height:36px;border-radius:18px;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;">Дать в долг</div><div title="Пингануть" style="width:36px;height:36px;border-radius:50%;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;">⚡</div></div>
+      <sc-if value="{{ p.hasNext }}" hint-placeholder-val="{{ false }}"><div style="height:8px;background:linear-gradient(45deg,#F1EFE9 6px,transparent 0),linear-gradient(-45deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div></sc-if>
+      <sc-if value="{{ p.isLastUnpaid }}" hint-placeholder-val="{{ false }}"><div style="height:14px;background:#FFFFFF;border-radius:0 0 18px 18px;"></div></sc-if>
+    </div>
+  </sc-for>
+  
+  <div style="flex:1;"></div>
+  <div style="margin:24px 15px 0;height:44px;border:1.5px dashed #CFCDC6;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">Добавить фото 📸</div>
+  <div style="display:flex;justify-content:center;padding:22px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;"></div></div>
+</div>
+
+<!-- ═══ Screen 2e: Ping animation ═══ -->
+<div data-screen-label="Пинг ⚡ — анимация" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span style="display:flex;align-items:center;gap:4px;white-space:nowrap;">01:26 <span style="font-size:12px;color:#8E8C86;">🔕</span></span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:#BDBBB5;border-radius:1px;"></span></div>
+      <span>5G</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">16</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:#EAE8E1;display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;flex:1;min-width:0;padding:0 8px;"><div style="font-size:19px;font-weight:800;white-space:nowrap;">Ужин пятница 🍕</div></div>
+    <span style="background:#D9FF3A;border-radius:14px;padding:6px 10px;font-size:13px;font-weight:800;">{{ z_percent }}%</span>
+  </div>
+  <div style="display:flex;justify-content:center;gap:14px;padding:30px 15px 0;">
+    <sc-for list="{{ z_people }}" as="p" hint-placeholder-count="0">
+      <div style="display:flex;flex-direction:column;align-items:center;text-align:center;width:90px;"><div style="position:relative;animation:{{ p.shake }};"><img src="{{ p.img }}" style="width:64px;height:64px;border-radius:50%;border:3px solid {{ p.ring }};box-sizing:border-box;opacity:{{ p.opacity }};"><span style="position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:{{ p.badgeBg }};color:{{ p.badgeFg }};font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">{{ p.badge }}</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">{{ p.short }}</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">{{ p.sub }}</div></div>
+    </sc-for>
+  </div>
+  <div style="margin:30px 15px 0;background:#FFFFFF;border-radius:18px 18px 0 0;padding:20px 16px 8px;position:relative;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      
+      <div><div style="font-size:15px;font-weight:700;">Bellissimo Pizza</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:#8E8C86;margin-top:4px;">·  заказ  #481</div></div>
+    </div>
+    <img src="assets/st-pizza-zap-t.png" style="position:absolute;right:14px;top:6px;width:66px;height:66px;">
+    <div style="border-top:1.5px dashed #DAD8D1;margin-top:16px;"></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;letter-spacing:1px;margin-top:16px;">{{ z_paidSum }}</div>
+    <div style="font-size:11px;color:#8E8C86;margin-top:6px;">оплачено из 1 200 000 · 3 участника</div>
+    <div style="border-top:1.5px dashed #DAD8D1;margin-top:16px;"></div>
+    <sc-for list="{{ z_paidPeople }}" as="p" hint-placeholder-count="0">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px dashed #DAD8D1;overflow:hidden;animation:{{ p.rowAnim }};"><img src="{{ p.img }}" style="width:36px;height:36px;border-radius:50%;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">{{ p.name }}</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">{{ p.sub }}</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">400 000</div></div>
+    </sc-for>
+    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #121212;padding:12px 0 8px;margin-top:-1px;"><span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:#8E8C86;">ОПЛАЧЕНО</span><span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">{{ z_paidSum }}</span></div>
+  </div>
+  <sc-if value="{{ z_hasUnpaid }}" hint-placeholder-val="{{ true }}"><div style="margin:0 15px;height:8px;background:linear-gradient(45deg,#F1EFE9 6px,transparent 0),linear-gradient(-45deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div></sc-if><sc-if value="{{ z_allPaid }}" hint-placeholder-val="{{ false }}"><div style="margin:0 15px;height:14px;background:#FFFFFF;border-radius:0 0 18px 18px;"></div></sc-if>
+  <sc-for list="{{ z_unpaidPeople }}" as="p" hint-placeholder-count="0">
+    <div style="margin:14px 15px 0;overflow:hidden;animation:{{ p.stubAnim }};">
+      <div style="height:8px;background:linear-gradient(-135deg,#F1EFE9 6px,transparent 0),linear-gradient(135deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div>
+      <div style="background:#FFFFFF;padding:12px 16px 2px;display:flex;align-items:center;gap:12px;"><img src="{{ p.img }}" style="width:36px;height:36px;border-radius:50%;opacity:.7;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">{{ p.name }}</div><div style="font-size:10px;color:#C0553A;margin-top:2px;">ещё не оплатил</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:#8E8C86;">400 000</div></div>
+      <div style="background:#FFFFFF;padding:8px 16px 12px;display:flex;gap:8px;"><div onClick="{{ p.lend }}" style="flex:1;height:36px;border-radius:18px;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;">Дать в долг</div><div title="Пингануть" style="position:relative;width:36px;height:36px;border-radius:50%;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:14px;animation:{{ p.pulse }};"><span style="position:absolute;inset:0;border-radius:50%;border:2px solid #D9FF3A;animation:{{ p.ring }};"></span><span style="position:absolute;inset:0;border-radius:50%;border:2px solid #D9FF3A;animation:{{ p.ring2 }};"></span>⚡</div></div>
+      <sc-if value="{{ p.hasNext }}" hint-placeholder-val="{{ false }}"><div style="height:8px;background:linear-gradient(45deg,#F1EFE9 6px,transparent 0),linear-gradient(-45deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div></sc-if>
+      <sc-if value="{{ p.isLastUnpaid }}" hint-placeholder-val="{{ false }}"><div style="height:14px;background:#FFFFFF;border-radius:0 0 18px 18px;"></div></sc-if>
+    </div>
+  </sc-for>
+  
+  <div style="flex:1;"></div>
+  <div style="margin:24px 15px 0;height:44px;border:1.5px dashed #CFCDC6;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">Добавить фото 📸</div>
+  <div style="display:flex;justify-content:center;padding:22px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;"></div></div>
+  <div style="position:absolute;left:15px;right:15px;top:62px;z-index:6;display:flex;justify-content:center;pointer-events:none;"><div style="background:#121212;color:#FFFFFF;border-radius:16px;padding:10px 14px;display:flex;align-items:center;gap:10px;box-shadow:0 10px 30px rgba(18,18,18,.18);animation:zapToast 2.6s ease-in-out infinite;"><span style="width:26px;height:26px;border-radius:50%;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:13px;">⚡</span><div><div style="font-size:12px;font-weight:700;">Shoshiy получил пинг</div><div style="font-size:9.5px;color:#9EB53A;">«Эй, 400 000 ждут тебя» · сейчас</div></div></div></div>
+  <div style="position:absolute;left:0;top:0;width:36px;height:36px;border-radius:50%;background:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:18px;z-index:6;pointer-events:none;box-shadow:0 6px 18px rgba(217,255,58,.6);animation:zapBolt 2.6s cubic-bezier(.3,.9,.3,1) infinite;">⚡</div>
+  <div style="position:absolute;left:157px;top:144px;width:76px;height:76px;border-radius:50%;background:radial-gradient(circle,#D9FF3A 0%,rgba(217,255,58,.6) 45%,rgba(217,255,58,0) 72%);z-index:5;pointer-events:none;animation:zapFlash 2.6s ease-out infinite;"></div>
+  <div style="position:absolute;left:171px;top:60px;font-size:52px;line-height:1;z-index:7;pointer-events:none;filter:drop-shadow(0 0 10px #D9FF3A);animation:zapStrike 2.6s cubic-bezier(.7,0,.3,1) infinite;">⚡</div>
+</div>
+
+<!-- ═══ Screen 2d: Merge loop ═══ -->
+<div data-screen-label="Оплата — анимация (луп)" style="width:390px;background:#F1EFE9;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;position:relative;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span style="display:flex;align-items:center;gap:4px;white-space:nowrap;">01:26 <span style="font-size:12px;color:#8E8C86;">🔕</span></span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:#BDBBB5;border-radius:1px;"></span></div>
+      <span>5G</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">16</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <div style="width:40px;height:40px;border-radius:50%;background:#EAE8E1;display:flex;align-items:center;justify-content:center;font-size:20px;">←</div>
+    <div style="text-align:center;flex:1;min-width:0;padding:0 8px;"><div style="font-size:19px;font-weight:800;white-space:nowrap;">Ужин пятница 🍕</div></div>
+    <span style="background:#D9FF3A;border-radius:14px;padding:6px 10px;font-size:13px;font-weight:800;">{{ l_percent }}%</span>
+  </div>
+  <div style="display:flex;justify-content:center;gap:14px;padding:30px 15px 0;">
+    <sc-for list="{{ l_people }}" as="p" hint-placeholder-count="0">
+      <div onClick="{{ p.toggle }}" style="display:flex;flex-direction:column;align-items:center;text-align:center;width:90px;cursor:pointer;"><div style="position:relative;"><img src="{{ p.img }}" style="width:64px;height:64px;border-radius:50%;border:3px solid {{ p.ring }};box-sizing:border-box;opacity:{{ p.opacity }};"><span style="position:absolute;right:-2px;bottom:-2px;width:20px;height:20px;border-radius:50%;background:{{ p.badgeBg }};color:{{ p.badgeFg }};font-size:11px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px #F1EFE9;">{{ p.badge }}</span></div><div style="font-size:12px;font-weight:700;margin-top:8px;">{{ p.short }}</div><div style="font-size:9.5px;color:#8E8C86;margin-top:2px;">{{ p.sub }}</div></div>
+    </sc-for>
+  </div>
+  <div style="margin:30px 15px 0;background:#FFFFFF;border-radius:18px 18px 0 0;padding:20px 16px 8px;position:relative;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      
+      <div><div style="font-size:15px;font-weight:700;">Bellissimo Pizza</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:#8E8C86;margin-top:4px;">·  заказ  #481</div></div>
+    </div>
+    <img src="assets/st-pizza-zap-t.png" style="position:absolute;right:14px;top:6px;width:66px;height:66px;">
+    <div style="border-top:1.5px dashed #DAD8D1;margin-top:16px;"></div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:700;letter-spacing:1px;margin-top:16px;">{{ l_paidSum }}</div>
+    <div style="font-size:11px;color:#8E8C86;margin-top:6px;">оплачено из 1 200 000 · 3 участника</div>
+    <div style="border-top:1.5px dashed #DAD8D1;margin-top:16px;"></div>
+    <sc-for list="{{ l_paidPeople }}" as="p" hint-placeholder-count="0">
+      <div style="display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px dashed #DAD8D1;overflow:hidden;animation:{{ p.rowAnim }};"><img src="{{ p.img }}" style="width:36px;height:36px;border-radius:50%;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">{{ p.name }}</div><div style="font-size:10px;color:#8E8C86;margin-top:2px;">{{ p.sub }}</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">400 000</div></div>
+    </sc-for>
+    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1.5px solid #121212;padding:12px 0 8px;margin-top:-1px;"><span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:#8E8C86;">ОПЛАЧЕНО</span><span style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;">{{ l_paidSum }}</span></div>
+  </div>
+  <sc-if value="{{ l_hasUnpaid }}" hint-placeholder-val="{{ true }}"><div style="margin:0 15px;height:8px;background:linear-gradient(45deg,#F1EFE9 6px,transparent 0),linear-gradient(-45deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div></sc-if><sc-if value="{{ l_allPaid }}" hint-placeholder-val="{{ false }}"><div style="margin:0 15px;height:14px;background:#FFFFFF;border-radius:0 0 18px 18px;"></div></sc-if>
+  <sc-for list="{{ l_unpaidPeople }}" as="p" hint-placeholder-count="0">
+    <div style="margin:14px 15px 0;overflow:hidden;animation:{{ p.stubAnim }};">
+      <div style="height:8px;background:linear-gradient(-135deg,#F1EFE9 6px,transparent 0),linear-gradient(135deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div>
+      <div style="background:#FFFFFF;padding:12px 16px 2px;display:flex;align-items:center;gap:12px;"><img src="{{ p.img }}" style="width:36px;height:36px;border-radius:50%;opacity:.7;"><div style="flex:1;"><div style="font-size:13px;font-weight:700;">{{ p.name }}</div><div style="font-size:10px;color:#C0553A;margin-top:2px;">ещё не оплатил</div></div><div style="font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:#8E8C86;">400 000</div></div>
+      <div style="background:#FFFFFF;padding:8px 16px 12px;display:flex;gap:8px;"><div onClick="{{ p.lend }}" style="flex:1;height:36px;border-radius:18px;background:#D9FF3A;color:#121212;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;cursor:pointer;">Дать в долг</div><div title="Пингануть" style="width:36px;height:36px;border-radius:50%;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;">⚡</div></div>
+      <sc-if value="{{ p.hasNext }}" hint-placeholder-val="{{ false }}"><div style="height:8px;background:linear-gradient(45deg,#F1EFE9 6px,transparent 0),linear-gradient(-45deg,#F1EFE9 6px,transparent 0);background-size:12px 8px;background-color:#FFFFFF;"></div></sc-if>
+      <sc-if value="{{ p.isLastUnpaid }}" hint-placeholder-val="{{ false }}"><div style="height:14px;background:#FFFFFF;border-radius:0 0 18px 18px;"></div></sc-if>
+    </div>
+  </sc-for>
+  
+  <div style="flex:1;"></div>
+  <div style="margin:24px 15px 0;height:44px;border:1.5px dashed #CFCDC6;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;">Добавить фото 📸</div>
+  <div style="display:flex;justify-content:center;padding:22px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;"></div></div>
+  {{ l_confetti }}
+</div>
+
+<!-- ═══ Screen 2f: Payment success ═══ -->
+<div data-screen-label="Оплата прошла" style="width:390px;background:#D9FF3A;border-radius:40px;overflow:hidden;flex:none;display:flex;flex-direction:column;min-height:848px;position:relative;color:#121212;">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span style="display:flex;align-items:center;gap:4px;white-space:nowrap;">01:31 <span style="font-size:12px;opacity:.5;">🔕</span></span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:rgba(18,18,18,.3);border-radius:1px;"></span></div>
+      <span>5G</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">16</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 15px 0;">
+    <img src="assets/zap-logo.png" style="height:44px;width:auto;animation:zapPop .6s cubic-bezier(.2,.8,.2,1) both;">
+    <div style="width:40px;height:40px;border-radius:50%;background:rgba(18,18,18,.08);display:flex;align-items:center;justify-content:center;font-size:18px;">✕</div>
+  </div>
+  <div style="display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:40px 24px 0 15px;">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;opacity:.6;">ОПЛАТА ПРОШЛА</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:700;letter-spacing:1px;margin-top:8px;line-height:1;">1 200 000</div>
+    <div style="font-size:12px;opacity:.6;margin-top:6px;">UZS · 3 / 3 участника · Ужин пятница 🍕</div>
+    <div style="display:inline-flex;align-items:center;gap:8px;margin-top:14px;background:#121212;color:#D9FF3A;border-radius:14px;padding:8px 12px;"><img src="assets/st-wallet-t.png" style="width:22px;height:24px;"><span style="font-size:12px;font-weight:700;">+12 000 кэшбэка группе</span></div>
+  </div>
+  <div style="margin:28px 15px 0;background:#FFFFFF;border-radius:22px;padding:16px;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <img src="assets/logo-bellissimo.png" style="width:48px;height:48px;border-radius:12px;">
+      <div style="flex:1;"><div style="font-size:16px;font-weight:700;">Bellissimo Pizza</div><div style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2px;color:#8E8C86;margin-top:4px;">ЗАКАЗ #481 · 3 СЕНТЯБРЯ, 01:31</div></div>
+      <div style="background:#D9FF3A;border-radius:12px;padding:5px 10px;font-size:10px;font-weight:800;">ОПЛАЧЕНО</div>
+    </div>
+    <div style="border-top:1.5px dashed #DAD8D1;margin-top:14px;"></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#8E8C86;padding-top:12px;"><span>Транзакция</span><span style="font-family:'JetBrains Mono',monospace;color:#121212;">ZAP-8F2K-481</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#8E8C86;padding-top:8px;"><span>Карта</span><span style="font-family:'JetBrains Mono',monospace;color:#121212;">UZCARD ·· 6556</span></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:#8E8C86;padding-top:8px;"><span>Кэшбэк группе</span><span style="font-family:'JetBrains Mono',monospace;color:#121212;">+12 000</span></div>
+  </div>
+  <div style="margin:14px 15px 0;background:rgba(18,18,18,.06);border-radius:22px;padding:14px 16px;display:flex;align-items:center;gap:12px;">
+    <div style="display:flex;">
+      <img src="assets/av-aziz.png" style="width:32px;height:32px;border-radius:50%;border:2px solid #D9FF3A;">
+      <img src="assets/av-shoshiy.png" style="width:32px;height:32px;border-radius:50%;border:2px solid #D9FF3A;margin-left:-10px;">
+      <img src="assets/av-islam.png" style="width:32px;height:32px;border-radius:50%;border:2px solid #D9FF3A;margin-left:-10px;">
+    </div>
+    <div style="flex:1;font-size:11px;"><b>Aziz, Shoshiy, Ислам</b> — по 400 000</div>
+    <div style="width:64px;height:64px;background:#FFFFFF;border-radius:10px;display:grid;grid-template-columns:repeat(5,1fr);gap:2px;padding:6px;box-sizing:border-box;">
+      <span style="background:#121212;border-radius:1px;"></span><span style="background:#121212;border-radius:1px;"></span><span></span><span style="background:#121212;border-radius:1px;"></span><span style="background:#121212;border-radius:1px;"></span>
+      <span style="background:#121212;border-radius:1px;"></span><span></span><span style="background:#121212;border-radius:1px;"></span><span></span><span style="background:#121212;border-radius:1px;"></span>
+      <span></span><span style="background:#121212;border-radius:1px;"></span><span style="background:#121212;border-radius:1px;"></span><span style="background:#121212;border-radius:1px;"></span><span></span>
+      <span style="background:#121212;border-radius:1px;"></span><span></span><span style="background:#121212;border-radius:1px;"></span><span></span><span style="background:#121212;border-radius:1px;"></span>
+      <span style="background:#121212;border-radius:1px;"></span><span style="background:#121212;border-radius:1px;"></span><span></span><span style="background:#121212;border-radius:1px;"></span><span style="background:#121212;border-radius:1px;"></span>
+    </div>
+  </div>
+  <div style="text-align:left;font-size:10px;opacity:.55;margin-top:12px;padding:0 15px;">Покажите этот экран мерчанту — QR подтверждает оплату</div>
+  <div style="flex:1;"></div>
+  <div style="display:flex;flex-direction:column;gap:10px;padding:0 15px;">
+    <div style="height:48px;border-radius:24px;background:#121212;color:#D9FF3A;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;">Закрыть</div>
+    <div style="height:48px;border-radius:24px;background:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;">Вернуться к чеку</div>
+  </div>
+  <div style="display:flex;justify-content:center;padding:22px 0 10px;"><div style="width:134px;height:5px;border-radius:3px;background:#121212;"></div></div>
+</div>
+
+<!-- ═══ Screen 3: Profile ═══ -->
+<div data-screen-label="Профиль" style="width:390px;background:{{ pbg }};border-radius:40px;overflow:hidden;flex:none;color:{{ ptext }};">
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 26px 0 40px;height:46px;font-size:17px;font-weight:600;">
+    <span>10:53</span>
+    <div style="display:flex;align-items:center;gap:6px;font-size:15px;">
+      <div style="display:flex;align-items:flex-end;gap:1.5px;"><span style="width:3px;height:5px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:7px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:9px;background:#121212;border-radius:1px;"></span><span style="width:3px;height:11px;background:#121212;border-radius:1px;"></span></div>
+      <span style="font-size:13px;">📶</span>
+      <span style="background:#F0D24A;border-radius:5px;padding:0 5px;font-size:12px;font-weight:700;line-height:15px;">11</span>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;padding:20px 15px 0;"><div style="width:40px;height:40px;border-radius:50%;background:{{ pcard }};display:flex;align-items:center;justify-content:center;font-size:20px;">←</div><div title="Сменить фон" style="width:40px;height:40px;border-radius:50%;background:{{ pcard }};display:flex;align-items:center;justify-content:center;font-size:18px;">🎨</div></div>
+  <div style="margin:16px 15px 0;padding:8px 4px 0;">
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;align-items:start;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};">УРОВЕНЬ</div><div style="font-size:18px;font-weight:700;margin-top:4px;">✦ 3</div></div>
+        <div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};">СПЛИТА</div><div style="font-size:18px;font-weight:700;margin-top:4px;">25</div></div>
+      </div>
+      <img src="assets/av-big.png" style="width:98px;height:98px;">
+      <div style="display:flex;flex-direction:column;gap:14px;align-items:flex-end;text-align:right;">
+        <div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};">ГРУППЫ</div><div style="font-size:18px;font-weight:700;margin-top:4px;">1</div></div>
+        <div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};">КЭШБЭК</div><div style="font-size:18px;font-weight:700;margin-top:4px;">41 000</div></div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:14px;">
+      <div style="font-size:21px;font-weight:800;">Aziz Karimov</div>
+      <div style="font-size:12px;color:{{ pmuted }};margin-top:4px;">@zapdemo · ZAP! с августа 2026</div>
+      <div style="display:inline-block;margin-top:8px;background:#121212;color:#D9FF3A;border-radius:12px;padding:5px 12px;font-size:11px;font-weight:700;">Завсегдатай</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;font-size:10px;"><span>ещё 5 zap до «Легенда»</span><span style="font-weight:700;">25/30</span></div>
+    <div style="margin-top:8px;height:8px;border-radius:4px;background:rgba(18,18,18,.12);overflow:hidden;"><div style="width:68%;height:100%;background:#121212;border-radius:4px;"></div></div>
+  </div>
+  <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 15px 0;">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:{{ pmuted }};">АЧИВКИ</span><span style="font-size:10px;font-weight:600;">3 из 6</span>
+  </div>
+  <div style="display:flex;gap:18px;padding:12px 0 0 15px;overflow:hidden;">
+    <div style="display:flex;flex-direction:column;align-items:center;flex:none;width:53px;"><img src="assets/ach-1.png" style="width:53px;height:53px;"><div style="font-size:9.5px;font-weight:600;text-align:center;line-height:1.3;margin-top:4px;">Самый<br>быстрый</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;flex:none;width:53px;"><img src="assets/ach-2.png" style="width:53px;height:53px;"><div style="font-size:9.5px;font-weight:600;text-align:center;line-height:1.3;margin-top:4px;">Надёжный</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;flex:none;width:53px;"><img src="assets/ach-3.png" style="width:53px;height:53px;"><div style="font-size:9.5px;font-weight:600;text-align:center;line-height:1.3;margin-top:4px;">Широкая<br>душа</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;flex:none;width:53px;"><div style="width:53px;height:53px;border-radius:50%;background:{{ pcard }};display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.7;">🔒</div><div style="font-size:9.5px;color:#B5B3AC;text-align:center;line-height:1.3;margin-top:4px;">Пицца-<br>финдир</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;flex:none;width:53px;"><div style="width:53px;height:53px;border-radius:50%;background:{{ pcard }};display:flex;align-items:center;justify-content:center;font-size:16px;opacity:.7;">🔒</div><div style="font-size:9.5px;color:#B5B3AC;text-align:center;line-height:1.3;margin-top:4px;">Кофеман</div></div>
+    <div style="display:flex;flex-direction:column;align-items:center;flex:none;width:53px;"><div style="width:53px;height:53px;border-radius:50%;background:{{ pcard }};opacity:.7;"></div></div>
+  </div>
+  <div style="margin:22px 15px 0;background:#121212;border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:10px;color:#FFFFFF;">
+    <img src="assets/st-itogi-t.png" style="width:56px;height:46px;">
+    <div style="flex:1;"><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2.5px;color:#D9FF3A;">ИТОГИ МЕСЯЦА</div><div style="font-size:16px;font-weight:700;margin-top:4px;">август</div></div>
+    <div style="background:#D9FF3A;color:#121212;border-radius:16px;padding:9px 12px;font-size:11px;font-weight:700;">Смотреть итоги месяца</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 15px 0;">
+    <div style="background:{{ pcard }};border-radius:18px;padding:12px 14px 14px;height:118px;box-sizing:border-box;"><img src="assets/st-pizza-lg-t.png" style="width:54px;height:50px;"><div style="font-size:17px;font-weight:700;margin-top:6px;">Ужин</div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};margin-top:5px;">ЛЮБИМЫЙ СПЛИТ</div></div>
+    <div style="background:{{ pcard }};border-radius:18px;padding:12px 14px 14px;height:118px;box-sizing:border-box;"><img src="assets/st-qr-lg-t.png" style="width:56px;height:50px;"><div style="font-size:17px;font-weight:700;margin-top:6px;">0 сек</div><div style="font-family:'JetBrains Mono',monospace;font-size:7px;letter-spacing:2px;color:{{ pmuted }};margin-top:5px;">САМАЯ БЫСТРАЯ ОПЛАТА</div></div>
+  </div>
+  <div style="padding:24px 15px 0;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:2.5px;color:{{ pmuted }};">КАРТЫ</div>
+  <div style="margin:12px 15px 0;background:{{ pcard }};border-radius:18px;padding:0 14px;">
+    <div style="display:flex;align-items:center;gap:14px;height:66px;border-bottom:1px solid rgba(18,18,18,.08);">
+      <img src="assets/logo-uzc.png" style="width:34px;height:30px;border-radius:7px;">
+      <span style="flex:1;font-size:15px;font-weight:600;">UZCARD ·· 6556</span>
+      <span style="background:#121212;color:#D9FF3A;border-radius:12px;padding:5px 10px;font-size:11px;font-weight:700;">основная</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;height:60px;">
+      <div style="width:34px;height:34px;border-radius:50%;background:rgba(18,18,18,.06);display:flex;align-items:center;justify-content:center;color:{{ pmuted }};font-size:14px;">+</div>
+      <span style="font-size:14px;color:{{ pmuted }};">Добавить карту</span>
+    </div>
+  </div>
+  <div style="height:24px;"></div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;paidPreset&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;interactive&quot;,&quot;options&quot;:[&quot;interactive&quot;,&quot;0&quot;,&quot;1&quot;,&quot;2&quot;,&quot;3&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Экран 2 — оплатили&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;light&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;tsType&quot;:&quot;'light'|'dark'&quot;,&quot;section&quot;:&quot;Экран 1&quot;},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#D9FF3A&quot;,&quot;options&quot;:[&quot;#D9FF3A&quot;,&quot;#FF6B3A&quot;,&quot;#3AB4FF&quot;,&quot;#B48CFF&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Экран 1&quot;},&quot;bg&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#D9FF3A&quot;,&quot;options&quot;:[&quot;#D9FF3A&quot;,&quot;#F1EFE9&quot;,&quot;#3AB4FF&quot;,&quot;#121212&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Экран 1&quot;},&quot;card&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#FFFFFF&quot;,&quot;options&quot;:[&quot;#FFFFFF&quot;,&quot;#EAE8E1&quot;,&quot;#F5F5F2&quot;,&quot;#232320&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Экран 1&quot;},&quot;wallpaper&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;none&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;custom&quot;,&quot;lime&quot;,&quot;dots&quot;],&quot;tsType&quot;:&quot;'none'|'custom'|'lime'|'dots'&quot;,&quot;section&quot;:&quot;Обои&quot;},&quot;wallpaperFade&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:0.55,&quot;min&quot;:0,&quot;max&quot;:1,&quot;step&quot;:0.05,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Обои&quot;},&quot;profileBg&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#D9FF3A&quot;,&quot;options&quot;:[&quot;#D9FF3A&quot;,&quot;#8FD3FF&quot;,&quot;#FFB48A&quot;,&quot;#121212&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Профиль&quot;},&quot;profileCard&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#FFFFFF&quot;,&quot;options&quot;:[&quot;#FFFFFF&quot;,&quot;#F1EFE9&quot;,&quot;#232320&quot;],&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Профиль&quot;}}">
+class Component extends DCLogic {
+  state = { paid: { aziz: true, shoshiy: true, islam: true }, reactions: { aziz: '❤️' }, pickerFor: null, burst: null };
+  particles(emoji, count, loop) {
+    const W = 390, H = 848, items = [];
+    for (let i = 0; i < count; i++) {
+      const side = i % 4, r = Math.random;
+      let x, y;
+      if (side === 0) { x = r() * W; y = -30; } else if (side === 1) { x = W + 30; y = r() * H; } else if (side === 2) { x = r() * W; y = H + 30; } else { x = -30; y = r() * H; }
+      const tx = W / 2 + (r() - .5) * 220, ty = H * 0.42 + (r() - .5) * 260;
+      items.push(React.createElement('span', { key: i, style: { position: 'absolute', left: x, top: y, fontSize: 18 + r() * 22, lineHeight: 1, '--dx': (tx - x) + 'px', '--dy': (ty - y) + 'px', '--rot': (r() * 80 - 40) + 'deg', animation: `zapFly ${1.6 + r() * 1.2}s cubic-bezier(.2,.7,.3,1) ${r() * (loop ? 2.4 : .6)}s ${loop ? 'infinite' : 'both'}` } }, emoji));
+    }
+    return React.createElement('div', { style: { position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 5 } }, items);
+  }
+  renderVals() {
+    const p = this.props, dark = p.theme === 'dark';
+    const EM = ['❤️', '🔥', '👏', '😂', '⚡'];
+    const reactions = this.state.reactions, pickerFor = this.state.pickerFor;
+    if (!this._hearts) this._hearts = this.particles('❤️', 44, true);
+    const emojis = EM.map(char => ({ char, bg: pickerFor && reactions[pickerFor] === char ? '#D9FF3A' : 'transparent',
+      pick: () => { this.setState(s => ({ reactions: { ...s.reactions, [pickerFor]: char }, pickerFor: null, burst: this.particles(char, 40, false) })); clearTimeout(this._bt); this._bt = setTimeout(() => this.setState({ burst: null }), 3200); } }));
+    const reactionsLine = Object.entries(reactions).map(([k, v]) => v + ' ' + ({ aziz: 'Aziz', shoshiy: 'Shoshiy', islam: 'Ислам' }[k])).join('   ') || 'Реакций пока нет';
+    const paid = this.props.paidPreset !== undefined ? this.presetPaid(this.props.paidPreset) : this.state.paid;
+    const base = [
+      { id: 'aziz', img: 'assets/av-aziz.png', name: 'Aziz Karimov · вы', short: 'Aziz · вы', paidSub: 'Вы оплатили ⚡' },
+      { id: 'shoshiy', img: 'assets/av-shoshiy.png', name: 'Shoshiy', short: 'Shoshiy', paidSub: 'в долг, вы покрыли' },
+      { id: 'islam', img: 'assets/av-islam.png', name: 'Ислам Акрамов', short: 'Ислам', paidSub: 'в долг, вы покрыли' },
+    ];
+    const people = base.map(b => {
+      const ok = !!paid[b.id];
+      return { ...b, paid: ok, sub: ok ? b.paidSub : 'ещё не оплатил', ring: ok ? '#D9FF3A' : '#DAD8D1', opacity: ok ? 1 : 0.55,
+        badge: ok ? '✓' : '+', badgeBg: ok ? '#D9FF3A' : '#EAE8E1', badgeFg: ok ? '#121212' : '#8E8C86',
+        reactIcon: reactions[b.id] || '+', reactBg: reactions[b.id] ? '#FFFFFF' : '#EAE8E1', reactSize: reactions[b.id] ? '14px' : '15px', reactAnim: reactions[b.id] ? 'zapPop .5s ease-out both' : 'none',
+        openPicker: (e) => { e.stopPropagation(); this.setState(s => ({ pickerFor: s.pickerFor === b.id ? null : b.id })); },
+        toggle: () => this.setState(s => ({ paid: { ...s.paid, [b.id]: !s.paid[b.id] } })) };
+    });
+    const react = { emojis, reactionsLine, pickerOpen: !!pickerFor, burstOverlay: this.state.burst, heartsLoop: this._hearts };
+    const mark = arr => arr.map((x, i) => ({ ...x, hasNext: i < arr.length - 1, isLastUnpaid: i === arr.length - 1 }));
+    const paidPeople = people.filter(x => x.paid), unpaidPeople = mark(people.filter(x => !x.paid));
+    const n = paidPeople.length;
+    const fmt = v => String(v).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    const s2 = { people, paidPeople, unpaidPeople, hasUnpaid: n < 3, allPaid: n === 3, paidCount: n, percent: Math.round(n / 3 * 100), paidSum: fmt(n * 400000),
+      statusLine: n === 3 ? 'Все оплатили. Красиво. ⚡' : n === 0 ? 'Пока никто не оплатил' : `Ждём ещё ${3 - n}` };
+    const tPaid = this.state.tPaid || { aziz: true, shoshiy: false, islam: false };
+    const merging = this.state.merging, justMerged = this.state.justMerged;
+    const merge = id => { if (this._mt) return; this.setState({ merging: id }); this._mt = setTimeout(() => { this._mt = null; this.setState(s => ({ merging: null, justMerged: id, tPaid: { ...(s.tPaid || tPaid), [id]: true } })); setTimeout(() => this.setState({ justMerged: null }), 800); }, 900); };
+    const play = () => { this.setState({ tPaid: { aziz: true, shoshiy: false, islam: false }, merging: null, justMerged: null }); setTimeout(() => merge('shoshiy'), 500); setTimeout(() => merge('islam'), 2600); };
+    const tPeople = base.map((b, i) => { const ok = tPaid[b.id]; return { ...b, paid: ok, sub: ok ? b.paidSub : 'ещё не оплатил', ring: ok ? '#D9FF3A' : '#DAD8D1', opacity: ok ? 1 : 0.55, badge: ok ? '✓' : '+', badgeBg: ok ? '#D9FF3A' : '#EAE8E1', badgeFg: ok ? '#121212' : '#8E8C86',
+      rowAnim: justMerged === b.id ? 'zapRowIn .6s cubic-bezier(.2,.8,.2,1) both' : 'none', stubAnim: merging === b.id ? 'zapMerge .9s cubic-bezier(.4,0,.2,1) both' : 'none',
+      lend: () => { if (!ok) merge(b.id); }, toggle: () => { if (!ok) merge(b.id); } }; });
+    // loop screen: phases 0 = only aziz, 1 = shoshiy merging, 2 = shoshiy in, 3 = islam merging, 4 = all paid, 5 = split apart
+    const ph = this.state.loopPhase ?? 0;
+    const lPaid = { aziz: true, shoshiy: ph >= 2 && ph < 5, islam: ph >= 4 && ph < 5 };
+    const lPeople = base.map(b => { const ok = lPaid[b.id]; const mergingL = (ph === 1 && b.id === 'shoshiy') || (ph === 3 && b.id === 'islam'); const inL = (ph === 2 && b.id === 'shoshiy') || (ph === 4 && b.id === 'islam');
+      return { ...b, paid: ok, sub: ok ? b.paidSub : 'ещё не оплатил', ring: ok ? '#D9FF3A' : '#DAD8D1', opacity: ok ? 1 : 0.55, badge: ok ? '✓' : '+', badgeBg: ok ? '#D9FF3A' : '#EAE8E1', badgeFg: ok ? '#121212' : '#8E8C86',
+        rowAnim: inL ? 'zapRowIn .6s cubic-bezier(.2,.8,.2,1) both' : 'none', stubAnim: mergingL ? 'zapMerge .9s cubic-bezier(.4,0,.2,1) both' : (ph === 5 && !ok ? 'zapSplit .7s cubic-bezier(.2,.8,.2,1) both' : 'none'), lend: () => {}, toggle: () => {} }; });
+    const lp = lPeople.filter(x => x.paid), lu = mark(lPeople.filter(x => !x.paid));
+    const celebrate = ph === 4;
+    if (celebrate && !this._confetti) this._confetti = this.confetti();
+    if (!celebrate) this._confetti = null;
+    const L = { l_celebrate: celebrate, l_confetti: celebrate ? this._confetti : null, l_people: lPeople, l_paidPeople: lp, l_unpaidPeople: lu, l_hasUnpaid: lu.length > 0, l_allPaid: lu.length === 0, l_paidCount: lp.length, l_percent: Math.round(lp.length / 3 * 100), l_paidSum: fmt(lp.length * 400000), l_statusLine: lu.length ? `Ждём ещё ${lu.length}` : 'Все оплатили. Красиво. ⚡' };
+    const zPaid = { aziz: true, shoshiy: false, islam: false };
+    const zPeople = base.map(b => { const ok = zPaid[b.id], target = b.id === 'shoshiy';
+      return { ...b, paid: ok, sub: ok ? b.paidSub : 'ещё не оплатил', ring: ok ? '#D9FF3A' : '#DAD8D1', opacity: ok ? 1 : 0.55, badge: ok ? '✓' : '+', badgeBg: ok ? '#D9FF3A' : '#EAE8E1', badgeFg: ok ? '#121212' : '#8E8C86', rowAnim: 'none', stubAnim: 'none',
+        shake: target ? 'zapShake 2.6s ease-in-out infinite' : 'none', pulse: target ? 'zapPulse 2.6s ease-in-out infinite' : 'none', ring: target ? 'zapRing 2.6s ease-out infinite' : 'none', ring2: target ? 'zapRing2 2.6s ease-out infinite' : 'none', lend: () => {}, toggle: () => {} }; });
+    const zp = zPeople.filter(x => x.paid), zu = mark(zPeople.filter(x => !x.paid));
+    const Z = { z_people: zPeople, z_paidPeople: zp, z_unpaidPeople: zu, z_hasUnpaid: true, z_allPaid: false, z_paidCount: 1, z_percent: 33, z_paidSum: fmt(400000), z_statusLine: 'Ждём ещё 2' };
+    const tp = tPeople.filter(x => x.paid), tu = mark(tPeople.filter(x => !x.paid));
+    const t = { t_people: tPeople, t_paidPeople: tp, t_unpaidPeople: tu, t_hasUnpaid: tu.length > 0, t_allPaid: tu.length === 0, t_paidCount: tp.length, t_percent: Math.round(tp.length / 3 * 100), t_paidSum: fmt(tp.length * 400000), t_statusLine: tu.length ? `Ждём ещё ${tu.length}` : 'Все оплатили. Красиво. ⚡',
+      t_play: play, t_reset: () => this.setState({ tPaid: { aziz: true, shoshiy: false, islam: false }, merging: null, justMerged: null }) };
+    const pbg = p.profileBg ?? '#D9FF3A', pdark = pbg === '#121212';
+    return { ...s2, ...t, ...L, ...Z, ...react,
+      pbg, pcard: p.profileCard ?? (pdark ? '#232320' : '#FFFFFF'), ptext: pdark ? '#F5F4F0' : '#121212', pmuted: pdark ? '#8E8C86' : (pbg === '#D9FF3A' ? '#5A6A16' : '#6B6A64'),
+      accent: p.accent ?? '#D9FF3A',
+      bg: p.bg ?? (dark ? '#121212' : '#D9FF3A'),
+      card: p.card ?? (dark ? '#232320' : '#FFFFFF'),
+      text: dark ? '#F5F4F0' : '#121212',
+      muted: dark ? '#8E8C86' : '#5A6A16',
+      hasWallpaper: p.wallpaper !== 'none',
+      wallpaperSrc: p.wallpaper === 'lime' ? 'assets/wp-lime.png' : p.wallpaper === 'dots' ? 'assets/wp-dots.png' : undefined,
+      wallpaperFade: p.wallpaperFade ?? 0.55,
+    };
+  }
+  confetti(loop) {
+    const W = 390, r = Math.random, colors = loop ? ['#121212', '#FFFFFF', '#FF6B3A', '#3AB4FF', '#121212'] : ['#D9FF3A', '#121212', '#FFFFFF', '#FF6B3A', '#3AB4FF'], items = [];
+    const inf = loop ? ' infinite' : ' both';
+    for (let i = 0; i < 70; i++) {
+      const x = r() * W, sz = 6 + r() * 8, round = r() > .5;
+      items.push(React.createElement('span', { key: i, style: { position: 'absolute', left: x, top: -20, width: sz, height: round ? sz : sz * 1.6, borderRadius: round ? '50%' : 2, background: colors[i % colors.length], '--dx': ((r() - .5) * 160) + 'px', '--dy': (520 + r() * 420) + 'px', '--rot': (r() * 720 - 360) + 'deg', animation: `zapConfetti ${1.8 + r() * 1.2}s cubic-bezier(.2,.6,.4,1) ${r() * (loop ? 3 : .6)}s${inf}` } }));
+    }
+    for (let i = 0; i < 10; i++) items.push(React.createElement('span', { key: 'e' + i, style: { position: 'absolute', left: r() * W, top: -30, fontSize: 20 + r() * 14, lineHeight: 1, '--dx': ((r() - .5) * 120) + 'px', '--dy': (500 + r() * 400) + 'px', '--rot': (r() * 200 - 100) + 'deg', animation: `zapConfetti ${2 + r()}s cubic-bezier(.2,.6,.4,1) ${r() * (loop ? 3 : .5)}s${inf}` } }, ['🎉', '⚡', '🍕'][i % 3]));
+    return React.createElement('div', { style: { position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none', zIndex: 5 } }, items);
+  }
+  componentDidMount() {
+    const durations = [1400, 900, 1400, 900, 3200, 800];
+    const step = () => { this.setState(s => ({ loopPhase: ((s.loopPhase ?? 0) + 1) % 6 }), () => { this._lt = setTimeout(step, durations[this.state.loopPhase]); }); };
+    this._lt = setTimeout(step, durations[0]);
+  }
+  componentWillUnmount() { clearTimeout(this._lt); }
+  presetPaid(v) {
+    if (v === 'interactive' || v == null) return this.state.paid;
+    const n = Number(v);
+    return { aziz: n >= 1, shoshiy: n >= 2, islam: n >= 3 };
+  }
+  _unused() {
+    return {
+    };
+  }
+}
+</script>
+</body>
+</html>
