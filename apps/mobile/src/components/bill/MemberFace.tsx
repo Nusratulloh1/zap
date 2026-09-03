@@ -30,6 +30,8 @@ interface Props {
   paid: boolean;
   /** моя реакция на этого участника (или undefined) */
   reaction?: string;
+  /** ширина колонки: в макете 90, но вчетвером столько не помещается */
+  width?: number;
   /** в этот аватар только что прилетела молния — он вздрагивает (zapShake) */
   shake?: boolean;
   onPress?: () => void;
@@ -38,7 +40,7 @@ interface Props {
 }
 
 export function MemberFace({
-  memberId, contactId, name, color, initials, sub, paid, reaction, shake, onPress, onReact,
+  memberId, contactId, name, color, initials, sub, paid, reaction, shake, width = 90, onPress, onReact,
 }: Props) {
   const { colors, fixed } = useTheme();
   const stage = useBillStage();
@@ -92,7 +94,7 @@ export function MemberFace({
   }));
 
   return (
-    <PressableScale haptic={false} style={styles.col} onPress={onPress}>
+    <PressableScale haptic={false} style={[styles.col, { width }]} onPress={onPress}>
       <Animated.View ref={faceRef} style={[styles.ring, { borderColor: ring }, shakeStyle]}>
         {/* неоплатившие в макете приглушены до 55% — взгляд идёт к оплатившим */}
         <View style={paid ? undefined : styles.dim}>
@@ -135,7 +137,7 @@ export function MemberFace({
 }
 
 const styles = StyleSheet.create({
-  col: { width: 90, alignItems: 'center' },
+  col: { alignItems: 'center' },
   ring: { padding: 3, borderRadius: 999, borderWidth: 3 },
   badge: {
     position: 'absolute',

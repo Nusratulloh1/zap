@@ -21,12 +21,14 @@ import { font } from '@/theme/tokens';
 interface Props {
   /** «Shoshiy получил пинг» — null прячет плашку */
   title: string | null;
+  /** отступ сверху в системе координат родителя (слоя сцены) */
+  top?: number;
   /** «Эй, 400 000 ждут тебя» */
   line: string;
   onDone: () => void;
 }
 
-export function PingToast({ title, line, onDone }: Props) {
+export function PingToast({ title, line, top, onDone }: Props) {
   const insets = useSafeAreaInsets();
   const p = useSharedValue(0);
 
@@ -56,7 +58,7 @@ export function PingToast({ title, line, onDone }: Props) {
   if (!title) return null;
 
   return (
-    <Animated.View style={[styles.root, { top: insets.top + 8 }, style]} pointerEvents="none">
+    <Animated.View style={[styles.root, { top: top ?? insets.top + 8 }, style]} pointerEvents="none">
       <View style={styles.card}>
         <View style={styles.chip}>
           <Text style={styles.chipGlyph}>⚡</Text>

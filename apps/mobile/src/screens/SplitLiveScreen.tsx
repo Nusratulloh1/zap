@@ -435,6 +435,12 @@ export function SplitLiveScreen() {
   const allPaid = paidMembers.length === members.length && members.length > 0;
   const unpaid = members.filter((m) => m.status !== 'paid' && m.status !== 'debt');
 
+  /*
+    Колонка лица: 90 pt из макета, но при четверых и более ряд шире экрана —
+    ужимаем до 72, дальше в дело вступает горизонтальный скролл.
+  */
+  const faceW = Math.max(72, Math.min(90, (width - SCREEN_PAD_X * 2 - 14 * (members.length - 1)) / Math.max(1, members.length)));
+
   return (
     <BillStageProvider value={stage}>
       {/* фон #F1EFE9 из макета: лаймом подсвечен только чип процента */}
@@ -475,8 +481,16 @@ export function SplitLiveScreen() {
             </View>
           </View>
 
-          {/* лица колонками — ряд шириной 90 на человека */}
-          <View style={styles.faces}>
+          {/*
+            Ряд лиц. В макете колонка 90 pt и трое участников; вчетвером ряд
+            уже не влезает — колонка ужимается, а если и этого мало (пятеро и
+            больше), ряд едет горизонтально, а не обрезается краем экрана.
+          */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.faces}
+          >
             {members.map((m, i) => {
               const memberId = (m as { memberId?: string }).memberId ?? m.contactId;
               const paid = ringsLit && (m.status === 'paid' || m.status === 'debt');
@@ -502,10 +516,11 @@ export function SplitLiveScreen() {
                       : money(m.amount)
                   }
                   onReact={(a) => setReactFor({ memberId, ...a })}
+                  width={faceW}
                 />
               );
             })}
-          </View>
+          </ScrollView>
 
           {/* чек: сумма, оплатившие и итог — узел для Split the Bill */}
           <View style={styles.receiptWrap}>
@@ -748,6 +763,7 @@ export function SplitLiveScreen() {
           <PingToast
             title={pingToast?.title ?? null}
             line={pingToast?.line ?? ''}
+            top={insets.top + 8 - layerAt.y}
             onDone={() => setPingToast(null)}
           />
 
@@ -802,7 +818,7 @@ const styles = StyleSheet.create({
   titleBody: { flex: 1, minWidth: 0, alignItems: 'center' },
   titleText: { fontFamily: font.extrabold, fontSize: 19 },
   titleSub: { fontFamily: font.semibold, fontSize: 11, marginTop: 2 },
-  faces: { flexDirection: 'row', justifyContent: 'center', gap: 14, marginTop: 30 },
+  faces: { flexGrow: 1, justifyContent: 'center', gap: 14, marginTop: 30 },
   reactBar: { alignItems: 'center', marginTop: 14 },
   reactPill: { flexDirection: 'row', gap: 6, borderRadius: 22, paddingVertical: 6, paddingHorizontal: 8 },
   reactCell: { width: 34, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
