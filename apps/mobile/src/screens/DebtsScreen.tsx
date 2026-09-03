@@ -62,6 +62,19 @@ export function DebtsScreen() {
     }
   };
 
+  /*
+    Топ‑3 — самые крупные долги; остальные идут списком. Число совместных
+    сплитов берём из общей базы: в макете это подпись под суммой.
+  */
+  const top3 = useMemo(() => [...openDebts].sort((a, b) => b.amount - a.amount).slice(0, 3), [openDebts]);
+  const rest = useMemo(() => {
+    const ids = new Set(top3.map((d) => d.id));
+    return openDebts.filter((d) => !ids.has(d.id));
+  }, [openDebts, top3]);
+
+  const splitsWith = (contactId: string) =>
+    (home.db?.splits ?? []).filter((s) => s.members.some((m) => m.contactId === contactId)).length;
+
   return (
     <Screen style={styles.root}>
       <ScreenHeader />
@@ -101,8 +114,55 @@ export function DebtsScreen() {
 
         {tab === 'owedToMe' ? (
           <Animated.View key="owed" entering={FadeIn.duration(200)}>
+            {/*
+              Топ‑3 крупными карточками (макет): взгляд сразу цепляется за тех,
+              с кем реально разговаривать, а мелкие долги не тонут в общем
+              списке — они ниже, компактной строкой.
+            */}
+            {top3.length ? (
+              <>
+                <Text style={[styles.mono, { color: colors.faint2 }]}>{t('debts.top3')}</Text>
+                <View style={styles.topRow}>
+                  {top3.map((d) => {
+                    const c = home.contactById(d.contactId);
+                    return (
+                      <PressableScale
+                        key={d.id}
+                        haptic={false}
+                        disabled={!d.splitId}
+                        onPress={() => d.splitId && nav.navigate('SplitLive', { id: d.splitId })}
+                        style={[styles.topCard, { backgroundColor: colors.shell }]}
+                      >
+                        <Avatar
+                          name={c?.name}
+                          letter={c?.initials}
+                          contactId={d.contactId}
+                          color={c?.color ?? '#8A887E'}
+                          size={62}
+                          ring={fixed.lime}
+                          ringWidth={2.5}
+                        />
+                        <Text style={[styles.topName, { color: colors.ink }]} numberOfLines={1}>
+                          {(c?.name ?? '?').split(' ')[0]}
+                        </Text>
+                        <Text style={[styles.topAmount, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
+                          {money(d.amount)}
+                        </Text>
+                        <Text style={[styles.topSub, { color: colors.faint }]} numberOfLines={1}>
+                          {t('debts.splitsCount', { n: splitsWith(d.contactId) })}
+                        </Text>
+                      </PressableScale>
+                    );
+                  })}
+                </View>
+              </>
+            ) : null}
+
+            {rest.length ? (
+              <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('debts.others')}</Text>
+            ) : null}
             <View style={styles.list}>
-              {openDebts.map((d, i) => {
+              {rest.map((d, i) => {
                 const c = home.contactById(d.contactId);
                 return (
                   <Animated.View
@@ -113,7 +173,7 @@ export function DebtsScreen() {
                     haptic={false}
                     disabled={!d.splitId}
                     onPress={() => d.splitId && nav.navigate('SplitLive', { id: d.splitId })}
-                    style={[styles.row, i < openDebts.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
+                    style={[styles.row, i < rest.length - 1 && { borderBottomWidth: 1, borderBottomColor: colors.sand2 }]}
                   >
                     <Avatar name={c?.name} letter={c?.initials} contactId={d.contactId} color={c?.color ?? '#8A887E'} size={48} />
                     <View style={styles.rowBody}>
@@ -180,6 +240,13 @@ export function DebtsScreen() {
 }
 
 const styles = StyleSheet.create({
+  mono: { fontFamily: font.monoBold, fontSize: 8.5, letterSpacing: 2.4, marginTop: 24 },
+  topRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
+  topCard: { flex: 1, alignItems: 'center', borderRadius: 22, paddingVertical: 16, paddingHorizontal: 6 },
+  topName: { fontFamily: font.bold, fontSize: 12, marginTop: 8 },
+  topAmount: { fontFamily: font.extrabold, fontSize: 15, marginTop: 2 },
+  topSub: { fontFamily: font.semibold, fontSize: 9.5, marginTop: 2 },
+
   root: { paddingHorizontal: SCREEN_PAD_X },
   flex: { flex: 1 },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3, marginTop: 24 },

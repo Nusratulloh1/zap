@@ -421,7 +421,8 @@
     "shareText": "ZAP! dagi Zap group ga qo‘shil ⚡",
     "squad": "JAMOA",
     "member": "a’zo",
-    "pickEmoji": "Kompaniya belgisi"
+    "pickEmoji": "Kompaniya belgisi",
+    "contributors": "KIM KO‘P KELTIRDI"
   },
   "debts": {
     "title": "Sizga qarzdor",
@@ -440,7 +441,10 @@
     "alreadyReminded": "Eslatma allaqachon yuborilgan",
     "allAlreadyReminded": "Eslatmalar allaqachon yuborilgan",
     "autoNoteLong": "Odam ZAP! ga summani kiritganda qarz avtomatik yopiladi — sizga push va bo‘lish uchun keshbek keladi.",
-    "iOweZero": "Siz qarzdorsiz · 0"
+    "iOweZero": "Siz qarzdorsiz · 0",
+    "top3": "TOP-3 QARZDOR",
+    "others": "QOLGANLAR",
+    "splitsCount": "{{n}} ta zap"
   },
   "cashback": {
     "title": "Keshbek",
@@ -459,7 +463,14 @@
     "withdrawHint": "Chiqarish · {amount} UZS",
     "availableWith": "UZS · MAVJUD {amount}",
     "allPlaces": "Barcha joylarda",
-    "fromSplits": "{{n}} ta zapdan"
+    "fromSplits": "{{n}} ta zapdan",
+    "tierHint": "hozir {{rate}} · {{next}} gacha yana {{need}}",
+    "tierMax": "{{rate}} — eng yuqori ⚡",
+    "tierNote": "faqat birga zap qilganda yig‘iladi",
+    "perMonth": "BU OYDA",
+    "rate": "STAVKA",
+    "rateUpTo": "{{rate}} gacha",
+    "topMerchant": "TOP JOY"
   },
   "history": {
     "title": "Tarix",

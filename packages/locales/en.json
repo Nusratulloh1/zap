@@ -421,7 +421,8 @@
     "shareText": "Join the Zap group on ZAP! ⚡",
     "squad": "SQUAD",
     "member": "member",
-    "pickEmoji": "Pick a crew icon"
+    "pickEmoji": "Pick a crew icon",
+    "contributors": "WHO BROUGHT MORE"
   },
   "debts": {
     "title": "Owed to you",
@@ -440,7 +441,10 @@
     "alreadyReminded": "Reminder already sent",
     "allAlreadyReminded": "Reminders already sent",
     "autoNoteLong": "The debt closes automatically once they pay through ZAP! — you get a push and cashback for the split.",
-    "iOweZero": "You owe · 0"
+    "iOweZero": "You owe · 0",
+    "top3": "TOP-3 DEBTORS",
+    "others": "OTHERS",
+    "splitsCount": "{{n}} splits"
   },
   "cashback": {
     "title": "Cashback",
@@ -459,7 +463,14 @@
     "withdrawHint": "Withdrawal · {amount} UZS",
     "availableWith": "UZS · AVAILABLE {amount}",
     "allPlaces": "Across all places",
-    "fromSplits": "from {{n}} zaps"
+    "fromSplits": "from {{n}} zaps",
+    "tierHint": "{{rate}} now · {{need}} more to {{next}}",
+    "tierMax": "{{rate}} — top rate ⚡",
+    "tierNote": "accrues only when you split together",
+    "perMonth": "THIS MONTH",
+    "rate": "RATE",
+    "rateUpTo": "up to {{rate}}",
+    "topMerchant": "TOP PLACE"
   },
   "history": {
     "title": "History",

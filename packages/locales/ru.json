@@ -421,7 +421,8 @@
     "shareText": "Заходи в Zap group в ZAP! ⚡",
     "squad": "ОТРЯД",
     "member": "участник",
-    "pickEmoji": "Знак компании"
+    "pickEmoji": "Знак компании",
+    "contributors": "КТО ПРИНЁС БОЛЬШЕ"
   },
   "debts": {
     "title": "Вам должны",
@@ -440,7 +441,10 @@
     "alreadyReminded": "Напоминание уже отправлено",
     "allAlreadyReminded": "Напоминания уже отправлены",
     "autoNoteLong": "Долг закрывается автоматически, когда человек вносит сумму в ZAP! — вы получите пуш и кэшбэк за сплит.",
-    "iOweZero": "Вы должны · 0"
+    "iOweZero": "Вы должны · 0",
+    "top3": "ТОП-3 ДОЛЖНИКА",
+    "others": "ОСТАЛЬНЫЕ",
+    "splitsCount": "{{n}} сплитов"
   },
   "cashback": {
     "title": "Кэшбэк",
@@ -459,7 +463,14 @@
     "withdrawHint": "Вывод · {amount} UZS",
     "availableWith": "UZS · ДОСТУПНО {amount}",
     "allPlaces": "Во всех заведениях",
-    "fromSplits": "с {{n}} сплитов"
+    "fromSplits": "с {{n}} сплитов",
+    "tierHint": "{{rate}} сейчас · ещё {{need}} до {{next}}",
+    "tierMax": "{{rate}} — максимум ⚡",
+    "tierNote": "начисляется только когда сплитите вместе",
+    "perMonth": "ЗА МЕСЯЦ",
+    "rate": "СТАВКА",
+    "rateUpTo": "до {{rate}}",
+    "topMerchant": "ТОП МЕРЧАНТ"
   },
   "history": {
     "title": "История",

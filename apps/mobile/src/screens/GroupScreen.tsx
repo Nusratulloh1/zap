@@ -24,6 +24,7 @@ import { crewStats } from '@/lib/crewStats';
 import { MerchantLogos } from '@/components/MerchantLogos';
 import { STICKER } from '@/components/EmptyState';
 import { FunStatCards } from '@/components/FunStatCards';
+import { CashbackTier } from '@/components/CashbackTier';
 import { VenueIcon } from '@/components/VenueIcon';
 import { CrewEmojiSheet } from '@/components/CrewEmojiSheet';
 import { useCrewColor, useCrewEmoji } from '@/lib/crewEmoji';
@@ -48,6 +49,26 @@ export function GroupScreen() {
   const group = home.db?.groups.find((g) => g.id === id);
   const stats = useMemo(() => crewStats(home.db, id), [home.db, id]);
   const fun = useMemo(() => funStats(home.db, id), [home.db, id]);
+
+  /*
+    Вклад в общий кэшбэк: суммируем доли закрытых сплитов компании. Считаем на
+    клиенте — данные уже есть в /bootstrap, отдельная ручка ради трёх строк
+    не нужна.
+  */
+  const contributors = useMemo(() => {
+    const acc = new Map<string, { cid: string; amount: number; splits: number }>();
+    for (const s of home.splits) {
+      if (s.groupId !== id || s.status !== 'closed') continue;
+      const rate = (group?.rateBp ?? 200) / 10000;
+      for (const m of s.members) {
+        const cur = acc.get(m.contactId) ?? { cid: m.contactId, amount: 0, splits: 0 };
+        cur.amount += Math.round(m.amount * rate);
+        cur.splits += 1;
+        acc.set(m.contactId, cur);
+      }
+    }
+    return [...acc.values()].sort((a, b) => b.amount - a.amount);
+  }, [home.splits, id, group?.rateBp]);
   /*
     memberIds приходит с бэкенда уже вместе со мной (contactId(m.phone) →
     'me' для своего телефона). Раньше я добавлял 'me' сверху — получались
@@ -206,6 +227,9 @@ export function GroupScreen() {
             <Text style={styles.cashValue} numberOfLines={1} adjustsFontSizeToFit>{money(group.cashback)}</Text>
             <Text style={styles.cashCur}>UZS</Text>
           </View>
+          {/* ступень: сколько до следующего процента (макет) */}
+          <CashbackTier pool={group.cashback} rateBp={group.rateBp} nextTier={group.nextTier} />
+
           <View style={styles.cashFoot}>
             <MerchantLogos merchants={groupMerchants} size={30} />
             <Text style={styles.cashMerchants}>
@@ -213,6 +237,28 @@ export function GroupScreen() {
             </Text>
           </View>
         </View>
+
+        {/* кто принёс больше кэшбэка — вклад участников (макет) */}
+        {contributors.length > 1 ? (
+          <View style={[styles.section, { borderTopColor: colors.sand2 }]}>
+            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.contributors')}</Text>
+            {contributors.map((c) => (
+              <View key={c.cid} style={styles.contribRow}>
+                <Avatar contactId={c.cid} name={nameOf(c.cid)} color={colorOf(c.cid)} size={38} />
+                <View style={styles.contribBody}>
+                  <Text style={[styles.memberName, { color: colors.ink }]} numberOfLines={1}>
+                    {nameOf(c.cid)}
+                    {c.cid === 'me' ? t('group.youSuffix') : ''}
+                  </Text>
+                  <Text style={[styles.memberSub, { color: colors.faint }]} numberOfLines={1}>
+                    {translate('debts.splitsCount', { n: c.splits })}
+                  </Text>
+                </View>
+                <Text style={[styles.contribAmount, { color: colors.ink }]}>{money(c.amount)}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
 
         {/*
           Отряд — слоты как в лобби игры: рамка вокруг аватара, шеврон с
@@ -383,6 +429,9 @@ const styles = StyleSheet.create({
   title: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.2 },
   sub: { fontFamily: font.semibold, fontSize: 12.5 },
   ctaRow: { flexDirection: 'row', gap: 10, marginTop: 20 },
+  contribRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 54 },
+  contribBody: { flex: 1, minWidth: 0 },
+  contribAmount: { fontFamily: font.extrabold, fontSize: 15 },
   cashCard: { borderRadius: 24, padding: 18, marginTop: 22, overflow: 'hidden' },
   cashArt: { position: 'absolute', right: 10, top: 8, width: 92, height: 78, transform: [{ rotate: '8deg' }] },
   cashKicker: { fontFamily: font.monoBold, fontSize: 9.5, letterSpacing: 1.5, color: 'rgba(17,17,16,0.55)' },

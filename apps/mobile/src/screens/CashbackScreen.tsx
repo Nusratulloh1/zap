@@ -39,6 +39,32 @@ export function CashbackScreen() {
     return filter === 'all' ? entries : entries.filter((e) => e.groupId === filter);
   }, [home.db?.cashbackEntries, filter]);
 
+  /* сводка: сколько накапало за календарный месяц, лучшая ставка среди
+     компаний и заведение с наибольшим кэшбэком */
+  const monthAmount = useMemo(() => {
+    const from = new Date();
+    from.setDate(1);
+    from.setHours(0, 0, 0, 0);
+    return (home.db?.cashbackEntries ?? [])
+      .filter((e) => e.createdAt >= from.getTime())
+      .reduce((s, e) => s + e.amount, 0);
+  }, [home.db?.cashbackEntries]);
+
+  const bestRateBp = useMemo(
+    () => Math.max(200, ...(home.db?.groups ?? []).map((g) => g.rateBp ?? 200)),
+    [home.db?.groups],
+  );
+
+  const topMerchant = useMemo(() => {
+    const acc = new Map<string, { title: string; amount: number }>();
+    for (const e of home.db?.cashbackEntries ?? []) {
+      const cur = acc.get(e.title) ?? { title: e.title, amount: 0 };
+      cur.amount += e.amount;
+      acc.set(e.title, cur);
+    }
+    return [...acc.values()].sort((a, b) => b.amount - a.amount)[0] ?? null;
+  }, [home.db?.cashbackEntries]);
+
   const groupName = (gid?: string) => (gid ? (groups.find((g) => g.id === gid)?.name ?? '') : '');
   const badgeOf = (badge: string) => badge.split(' · ')[0] ?? badge;
 
@@ -97,6 +123,28 @@ export function CashbackScreen() {
       <MerchantCashbackSlider entries={home.db?.cashbackEntries ?? []} total={home.cashbackBalance} />
 
       <Text style={[styles.hint, { color: colors.muted }]}>{t('cashback.empty')}</Text>
+
+      {/* сводка месяца и ставки — по макету редизайна */}
+      <View style={styles.summary}>
+        <View style={[styles.sumCard, { backgroundColor: colors.shell }]}>
+          <Text style={[styles.sumLabel, { color: colors.faint2 }]}>{t('cashback.perMonth')}</Text>
+          <Text style={[styles.sumValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
+            +{money(monthAmount)}
+          </Text>
+        </View>
+        <View style={[styles.sumCard, { backgroundColor: colors.shell }]}>
+          <Text style={[styles.sumLabel, { color: colors.faint2 }]}>{t('cashback.rate')}</Text>
+          <Text style={[styles.sumValue, { color: colors.ink }]} numberOfLines={1}>
+            {t('cashback.rateUpTo', { rate: `${(bestRateBp / 100).toFixed(bestRateBp % 100 ? 1 : 0)}%` })}
+          </Text>
+        </View>
+        <View style={[styles.sumCard, { backgroundColor: colors.shell }]}>
+          <Text style={[styles.sumLabel, { color: colors.faint2 }]}>{t('cashback.topMerchant')}</Text>
+          <Text style={[styles.sumValue, { color: colors.ink }]} numberOfLines={1} adjustsFontSizeToFit>
+            {topMerchant?.title ?? '—'}
+          </Text>
+        </View>
+      </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filtersWrap} contentContainerStyle={styles.filters}>
         {[{ value: 'all', label: t('cashback.allGroups') }, ...groups.map((g) => ({ value: g.id, label: g.name }))].map(
@@ -206,6 +254,11 @@ export function CashbackScreen() {
 }
 
 const styles = StyleSheet.create({
+  summary: { flexDirection: 'row', gap: 8, marginTop: 14 },
+  sumCard: { flex: 1, borderRadius: 18, paddingVertical: 12, paddingHorizontal: 12 },
+  sumLabel: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 1.6 },
+  sumValue: { fontFamily: font.extrabold, fontSize: 16, marginTop: 5, letterSpacing: -0.2 },
+
   root: { paddingHorizontal: SCREEN_PAD_X },
   title: { fontFamily: font.extrabold, fontSize: 27, letterSpacing: -0.3, marginTop: 24 },
   amountRow: { flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 12 },
