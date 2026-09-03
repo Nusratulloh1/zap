@@ -13,12 +13,20 @@ export interface Venue {
   badgeKind: OfferType;
   badgeValue: string;
   type: OfferType;
+  /*
+    Плитка логотипа на витрине: у кого есть картинка — она на белом, у
+    остальных фирменный цвет и короткое имя. Серый квадрат с буквой выглядел
+    как «логотип не подгрузился».
+  */
+  logoBg?: string;
+  logoFg?: string;
+  abbr?: string;
 }
 
 export const VENUES: Venue[] = [
-  { id: 'b_evos', name: 'EVOS', img: require('../../assets/brand/venues/evos.webp'), badgeKind: 'promo', badgeValue: '1+1', type: 'promo' },
+  { id: 'b_evos', name: 'EVOS', img: require('../../assets/brand/venues/evos.webp'), badgeKind: 'promo', badgeValue: '1+1', type: 'promo', logoBg: '#2E9E3D', logoFg: '#FFFFFF', abbr: 'EVOS' },
   { id: 'b_bellissimo', name: 'Bellissimo Pizza', img: require('../../assets/brand/venues/bellissimo.webp'), badgeKind: 'discount', badgeValue: '10%', type: 'discount' },
   { id: 'b_safia', name: 'Safia café', img: require('../../assets/brand/venues/safia.webp'), badgeKind: 'cashback', badgeValue: '×2', type: 'cashback' },
-  { id: 'b_feedup', name: 'Feed Up', img: require('../../assets/brand/venues/feedup.webp'), badgeKind: 'promo', badgeValue: '2+1', type: 'promo' },
-  { id: 'b_bon', name: 'Bon!', img: require('../../assets/brand/venues/bon.webp'), badgeKind: 'discount', badgeValue: '20%', type: 'discount' },
+  { id: 'b_feedup', name: 'Feed Up', img: require('../../assets/brand/venues/feedup.webp'), badgeKind: 'promo', badgeValue: '2+1', type: 'promo', logoBg: '#121212', logoFg: '#D9FF3A', abbr: 'feed up' },
+  { id: 'b_bon', name: 'Bon!', img: require('../../assets/brand/venues/bon.webp'), badgeKind: 'discount', badgeValue: '20%', type: 'discount', logoBg: '#F0D24A', logoFg: '#121212', abbr: 'Bon!' },
 ];

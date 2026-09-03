@@ -118,6 +118,8 @@ export function HomeScreenV2() {
         name: m.name,
         letter: m.letter,
         color: m.color,
+        fg: INK,
+        cashback: (m.offer?.multiplier ?? 0) > 1,
         tag: m.offer?.label ?? '',
         terms: m.offer?.terms ?? '',
       }));
@@ -125,8 +127,10 @@ export function HomeScreenV2() {
     const partners = VENUES.filter((v) => !taken.has(v.name.toLowerCase())).map((v) => ({
       key: v.id,
       name: v.name,
-      letter: v.name[0] ?? '·',
-      color: '#EAE8E1',
+      letter: v.abbr ?? v.name,
+      color: v.logoBg ?? '#EAE8E1',
+      fg: v.logoFg ?? INK,
+      cashback: v.type === 'cashback',
       tag: translate(`badge.${v.badgeKind}`, { v: v.badgeValue }),
       terms: hasKey(`offers.${v.id}`) ? translate(`offers.${v.id}`) : '',
     }));
@@ -471,15 +475,21 @@ export function HomeScreenV2() {
                     haptic={false}
                     style={[
                       styles.merchant,
-                      { backgroundColor: i % 2 ? LIME : '#FFFFFF', transform: [{ rotate: i % 2 ? '2deg' : '-2deg' }] },
+                      {
+                        // лаймом выделена витрина с кэшбэком — как в прототипе
+                        backgroundColor: m.cashback ? LIME : '#FFFFFF',
+                        transform: [{ rotate: i % 2 ? '2deg' : '-2deg' }],
+                      },
                     ]}
                     onPress={() => nav.navigate('Cashback')}
                   >
                     <View style={[styles.merchantLogo, { backgroundColor: logo ? '#FFFFFF' : m.color }]}>
                       {logo ? (
-                        <Image source={logo} style={styles.merchantLogoImg} resizeMode="cover" />
+                        <Image source={logo} style={styles.merchantLogoImg} resizeMode="contain" />
                       ) : (
-                        <Text style={styles.merchantLetter} numberOfLines={1}>{m.letter}</Text>
+                        <Text style={[styles.merchantLetter, { color: m.fg }]} numberOfLines={2}>
+                          {m.letter}
+                        </Text>
                       )}
                     </View>
                     <Text style={styles.merchantName} numberOfLines={1}>{m.name}</Text>
@@ -639,10 +649,20 @@ const styles = StyleSheet.create({
   crewDoneGlyph: { fontSize: 16, color: LIME, fontFamily: font.extrabold },
 
   merchants: { gap: 10, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6 },
-  merchant: { width: 118, borderRadius: 22, padding: 12 },
+  merchant: {
+    width: 118,
+    borderRadius: 22,
+    padding: 12,
+    // мягкая тень из прототипа — без неё плитки выглядят наклейками на бумаге
+    shadowColor: INK,
+    shadowOpacity: 0.06,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 3,
+  },
   merchantLogo: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  merchantLogoImg: { width: '100%', height: '100%' },
-  merchantLetter: { fontFamily: font.extrabold, fontSize: 16, color: INK },
+  merchantLogoImg: { width: '86%', height: '86%' },
+  merchantLetter: { fontFamily: font.extrabold, fontSize: 11, lineHeight: 13, textAlign: 'center', paddingHorizontal: 3 },
   merchantName: { fontFamily: font.extrabold, fontSize: 13, color: INK, marginTop: 12 },
   merchantTag: { alignSelf: 'flex-start', backgroundColor: INK, borderRadius: 10, paddingVertical: 3, paddingHorizontal: 8, marginTop: 6 },
   merchantTagText: { fontFamily: font.extrabold, fontSize: 10, color: LIME },
