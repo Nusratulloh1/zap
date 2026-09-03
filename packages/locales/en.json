@@ -578,7 +578,10 @@
     "maxRank": "Top rank reached ⚡",
     "achievementsOf": "{{done}} of {{total}}",
     "recapKicker": "MONTH RECAP",
-    "level": "Level"
+    "level": "Level",
+    "icon_receipts": "Receipts",
+    "icon_mosaic": "Mosaic",
+    "icon_hands": "Hands"
   },
   "install": {
     "title": "Install ZAP!",

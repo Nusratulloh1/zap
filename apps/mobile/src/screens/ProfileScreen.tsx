@@ -13,6 +13,8 @@ import { PressableScale } from '@/components/PressableScale';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinDots } from '@/components/PinDots';
 import { AvatarSheet } from '@/components/AvatarSheet';
+import { SkinSheet } from '@/components/SkinSheet';
+import { useSkin } from '@/lib/screenSkin';
 import { PlayerCard } from '@/components/PlayerCard';
 import { AchievementStrip } from '@/components/AchievementStrip';
 import { STICKER } from '@/components/EmptyState';
@@ -201,6 +203,8 @@ export function ProfileScreen() {
   const [groupsSheet, setGroupsSheet] = useState(false);
   const [logoutSheet, setLogoutSheet] = useState(false);
   const [avatarSheet, setAvatarSheet] = useState(false);
+  const [skinSheet, setSkinSheet] = useState(false);
+  const skin = useSkin();
   const loggingOut = useRef(false);
 
 
@@ -435,21 +439,13 @@ export function ProfileScreen() {
                 </View>
               </View>
 
-              {/* иконка приложения — три превью прямо здесь */}
-              <View style={[styles.gRow, styles.gRowTall, styles.gDiv, { borderBottomColor: colors.sand2 }]}>
-                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>✨</Text></View>
-                <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.appIcon')}</Text>
-                <View style={styles.inlinePills}>
-                  {APP_ICONS.map((k) => (
-                    <PressableScale key={k} haptic={false} onPress={() => pickAppIcon(k)}>
-                      <Image
-                        source={ICON_PREVIEW[k]}
-                        style={[styles.iconPreview, k === appIcon && { borderColor: fixed.lime }]}
-                      />
-                    </PressableScale>
-                  ))}
-                </View>
-              </View>
+              {/* фон экрана — открывает ту же палитру, что кнопка «🎨» */}
+              <PressableScale haptic={false} style={[styles.gRow, styles.gDiv, { borderBottomColor: colors.sand2 }]} onPress={() => setSkinSheet(true)}>
+                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>🎨</Text></View>
+                <Text style={[styles.gTitle, { color: colors.ink }]}>{t('skin.title')}</Text>
+                <View style={[styles.skinDot, { backgroundColor: skin ?? colors.dune2, borderColor: colors.sand2 }]} />
+                <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
+              </PressableScale>
 
               <PressableScale haptic={false} style={styles.gRow} onPress={() => setGroupsSheet(true)}>
                 <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>👥</Text></View>
@@ -457,6 +453,31 @@ export function ProfileScreen() {
                 <Text style={[styles.settingValue, { color: colors.muted }]}>{groups.length}</Text>
                 <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
               </PressableScale>
+            </View>
+
+            {/*
+              Иконка приложения — сеткой, как в «Appearance» у Telegram:
+              секция‑заголовок, карточка, иконки 60 с подписями. Три превью в
+              строке настроек не давали понять, что это выбор.
+            */}
+            <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('profile.appIcon')}</Text>
+            <View style={[styles.group, { backgroundColor: colors.shell }]}>
+              <View style={styles.iconGrid}>
+                {APP_ICONS.map((k) => (
+                  <PressableScale key={k} haptic={false} style={styles.iconCell} onPress={() => pickAppIcon(k)}>
+                    <Image
+                      source={ICON_PREVIEW[k]}
+                      style={[styles.iconBig, k === appIcon && { borderColor: colors.ink, borderWidth: 2.5 }]}
+                    />
+                    <Text
+                      style={[styles.iconLabel, { color: k === appIcon ? colors.ink : colors.muted }]}
+                      numberOfLines={1}
+                    >
+                      {t(`profile.icon_${k}`)}
+                    </Text>
+                  </PressableScale>
+                ))}
+              </View>
             </View>
 
             <PressableScale haptic={false} style={[styles.logoutBtn, { borderColor: colors.sand2 }]} onPress={() => setLogoutSheet(true)}>
@@ -487,6 +508,14 @@ export function ProfileScreen() {
           onPress={() => nav.goBack()}
         >
           <BackIcon size={20} color={colors.ink} />
+        </PressableScale>
+        <PressableScale
+          small
+          accessibilityLabel={t('skin.title')}
+          style={[styles.topBtn, { backgroundColor: colors.sand }]}
+          onPress={() => setSkinSheet(true)}
+        >
+          <Text style={styles.topGlyph}>🎨</Text>
         </PressableScale>
         {/*
           Переключатель темы скрыт: тёмная тема отключена по продуктовому
@@ -647,6 +676,8 @@ export function ProfileScreen() {
       </BottomSheet>
 
       {/* выход */}
+      <SkinSheet open={skinSheet} onClose={() => setSkinSheet(false)} />
+
       <AvatarSheet open={avatarSheet} onClose={() => setAvatarSheet(false)} onCamera={() => nav.navigate('AvatarCamera')} />
 
       <BottomSheet open={logoutSheet} onClose={() => setLogoutSheet(false)}>
@@ -671,6 +702,13 @@ export function ProfileScreen() {
 const styles = StyleSheet.create({
   // ── сгруппированные карточки настроек ──
   group: { borderRadius: 22, marginTop: 10, overflow: 'hidden' },
+  mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
+  skinDot: { width: 24, height: 24, borderRadius: 999, borderWidth: 1 },
+  iconGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 16, paddingHorizontal: 8 },
+  iconCell: { width: '33.33%', alignItems: 'center', paddingHorizontal: 4 },
+  iconBig: { width: 60, height: 60, borderRadius: 14, borderWidth: 0, borderColor: 'transparent' },
+  iconLabel: { fontFamily: font.semibold, fontSize: 11, marginTop: 7 },
+  topGlyph: { fontSize: 17 },
   gRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58, paddingHorizontal: 14 },
   gRowTall: { minHeight: 72 },
   gDiv: { borderBottomWidth: 1 },
@@ -756,7 +794,6 @@ const styles = StyleSheet.create({
   langPill: { height: 34, paddingHorizontal: 13, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   langPillText: { fontFamily: font.extrabold, fontSize: 12.5 },
   iconPreview: { width: 46, height: 46, borderRadius: 12, borderWidth: 2.5, borderColor: 'transparent' },
-  mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, marginTop: 26 },
   cardBadge: { width: 42, height: 30, borderRadius: 8, alignItems: 'center', justifyContent: 'center' },
   cardBadgeText: { fontFamily: font.monoBold, fontSize: 8 },
   plusGlyph: { fontSize: 16, fontFamily: font.semibold },

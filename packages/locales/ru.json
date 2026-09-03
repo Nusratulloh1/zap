@@ -578,7 +578,10 @@
     "maxRank": "Максимальный ранг ⚡",
     "achievementsOf": "{{done}} из {{total}}",
     "recapKicker": "ИТОГИ МЕСЯЦА",
-    "level": "Уровень"
+    "level": "Уровень",
+    "icon_receipts": "Чеки",
+    "icon_mosaic": "Мозаика",
+    "icon_hands": "Руки"
   },
   "install": {
     "title": "Установите ZAP!",

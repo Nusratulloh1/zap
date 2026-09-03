@@ -578,7 +578,10 @@
     "maxRank": "Eng yuqori daraja ⚡",
     "achievementsOf": "{{total}} tadan {{done}} ta",
     "recapKicker": "OYLIK YAKUN",
-    "level": "Daraja"
+    "level": "Daraja",
+    "icon_receipts": "Cheklar",
+    "icon_mosaic": "Mozaika",
+    "icon_hands": "Qo‘llar"
   },
   "install": {
     "title": "ZAP! ni o'rnating",
