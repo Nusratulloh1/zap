@@ -9,6 +9,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
   Keyframe,
+  runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withDelay,
@@ -74,7 +75,9 @@ export function UnpaidStub({
     анимируемой высоте, а сам корешок сообщает свою через onLayout.
   */
   const [full, setFull] = useState(0);
-  const play = justSplit && !reduceMotion();
+  // отыграли — высоту отпускаем, иначе корешок навсегда останется фиксированным
+  const [torn, setTorn] = useState(false);
+  const play = justSplit && !reduceMotion() && !torn;
   const grow = useSharedValue(play ? 0 : -1);
 
   useEffect(() => {
@@ -82,13 +85,16 @@ export function UnpaidStub({
     grow.value = 0;
     grow.value = withDelay(
       delay + index * 160,
-      withTiming(1, { duration: 700, easing: Easing.bezier(0.2, 0.8, 0.2, 1) }),
+      withTiming(1, { duration: 700, easing: Easing.bezier(0.2, 0.8, 0.2, 1) }, (fin) => {
+        'worklet';
+        if (fin) runOnJS(setTorn)(true);
+      }),
     );
   }, [full, play, grow, delay, index]);
 
   const tear = useAnimatedStyle(() => ({
     // -1 — анимации нет: высоту не трогаем, чтобы не мешать раскладке
-    height: grow.value < 0 || !full ? undefined : full * grow.value,
+    height: grow.value < 0 || grow.value >= 1 || !full ? undefined : full * grow.value,
     // до первой раскладки высота неизвестна — прячем, иначе мелькнёт целиком
     opacity: grow.value < 0 ? 1 : full ? Math.min(1, grow.value * 2.2) : 0,
   }));

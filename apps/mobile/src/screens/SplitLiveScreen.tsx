@@ -21,7 +21,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { ShareCardSheet } from '@/components/share/ShareCardSheet';
-import { StickerBurst } from '@/components/StickerBurst';
 import { cue } from '@/lib/feedback';
 import { reminderLine } from '@/lib/reminders';
 import { themeForMerchant } from '@/lib/merchantTheme';
@@ -43,8 +42,6 @@ import { STICKER } from '@/components/EmptyState';
 import { BackIcon } from '@/components/icons';
 import { MemberFace } from '@/components/bill/MemberFace';
 import { TornEdge } from '@/components/bill/TornEdge';
-import { SplitTheBill } from '@/components/bill/SplitTheBill';
-import { EveryonePaid } from '@/components/bill/EveryonePaid';
 import { fetchSplit, remindMember, coverRemainder, reactToMember, renameSplit } from '@/api/splits';
 import { qk } from '@/api/data';
 import type { Db, SplitReaction } from '@zap/shared/types';
@@ -58,7 +55,6 @@ import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import { startLiveActivity, endLiveActivity } from '@/lib/liveActivity';
 import { merchantLogo } from '@/lib/merchantLogo';
 import { EASE_ZAP } from '@/lib/motion';
-import { reduceMotion } from '@/lib/feedback';
 
 
 
@@ -104,14 +100,13 @@ export function SplitLiveScreen() {
     return () => stage.setCenter(null);
   }, [stage, centerRef]);
 
-  // ⚡ Split the Bill проигрывается один раз при первом открытии свежего
-  // сплита: это момент «я только что разделил счёт», а не каждый вход
-  const [splitAnim, setSplitAnim] = useState(false);
-  const splitPlayed = useRef(false);
-  // кольца участников загораются на шаге 800–1000 мс таймлайна
-  const [ringsLit, setRingsLit] = useState(true);
-
-  // 🎉 Everyone Paid — когда последний участник закрыл долю
+  /*
+    Разделение счёта показывает сам экран: корешки отрываются от чека
+    (zapSplit), оплата возвращает их обратно (zapMerge + zapRowIn), последний
+    закрытый долг сыплет конфетти. Отдельный оверлей «Split the Bill» с
+    летящими кусками и вспышкой ZAP! из макета не следует — он перекрывал ту
+    самую сцену, ради которой всё и рисовалось, поэтому убран.
+  */
   const [celebrate, setCelebrate] = useState(false);
   const prevPaidCount = useRef<number | null>(null);
 
@@ -130,17 +125,6 @@ export function SplitLiveScreen() {
     });
   }, [split?.code, refetch, qc]);
 
-  // сплит открыт впервые и ещё никто не платил — играем подписную анимацию
-  useEffect(() => {
-    if (!split || splitPlayed.current) return;
-    const fresh = route.params?.justCreated === true;
-    if (!fresh) return;
-    splitPlayed.current = true;
-    if (reduceMotion()) return;
-    setRingsLit(false);
-    setSplitAnim(true);
-  }, [split, route.params?.justCreated]);
-
   useEffect(() => {
     if (!split) return;
     const paidNow = split.members.filter((m) => m.status === 'paid' || m.status === 'debt').length;
@@ -158,24 +142,20 @@ export function SplitLiveScreen() {
   }, [split]);
 
   useEffect(() => {
-    // на закрытие уводим только после празднования
-    if (split?.status === 'closed' && wasActive.current && !celebrate) {
-      const timer = setTimeout(() => nav.replace('SplitClosed', { id }), 900);
-      return () => clearTimeout(timer);
-    }
+    // конфетти отсыпается на самом экране, и только потом — «готово»
+    if (split?.status !== 'closed' || !wasActive.current) return;
+    const timer = setTimeout(() => nav.replace('SplitClosed', { id }), celebrate ? 2600 : 900);
+    return () => clearTimeout(timer);
   }, [split?.status, nav, id, celebrate]);
 
   // одна памятка на весь расчёт: список участников — новая ссылка на каждый
   // рендер, и без этого мемо пересчёт шёл бы на каждое событие сокета
   const members = useMemo(() => split?.members ?? [], [split?.members]);
-  const { paidMembers, paidAmount, remainder, progress } = useMemo(() => {
+  const { paidMembers, paidAmount, progress } = useMemo(() => {
     const paidList = members.filter((m) => m.status === 'paid' || m.status === 'debt');
     return {
       paidMembers: paidList,
       paidAmount: paidList.reduce((s, m) => s + m.amount, 0),
-      remainder: members
-        .filter((m) => m.status !== 'paid' && m.status !== 'debt')
-        .reduce((s, m) => s + m.amount, 0),
       progress: members.length ? paidList.length / members.length : 0,
     };
   }, [members]);
@@ -256,7 +236,6 @@ export function SplitLiveScreen() {
   const covering = useRef(false);
   // ref спасает от двойного тапа, состояние — рисует ожидание
   const [isCovering, setCovering] = useState(false);
-  const [coverBurst, setCoverBurst] = useState(false);
   const [cardOpen, setCardOpen] = useState(false);
   const [boltTo, setBoltTo] = useState<string | null>(null);
   const [boltContact, setBoltContact] = useState<string | null>(null);
@@ -407,9 +386,6 @@ export function SplitLiveScreen() {
     try {
       await coverRemainder(id, [target.memberId]);
       cue('paid');
-      // стикер успеха: если этим действием счёт закрылся полностью, его
-      // место займёт празднование «все оплатили» — два подряд не нужны
-      if (target.amount < remainder) setCoverBurst(true);
       await refetch();
       await qc.invalidateQueries({ queryKey: qk.bootstrap });
     } finally {
@@ -493,7 +469,7 @@ export function SplitLiveScreen() {
           >
             {members.map((m, i) => {
               const memberId = (m as { memberId?: string }).memberId ?? m.contactId;
-              const paid = ringsLit && (m.status === 'paid' || m.status === 'debt');
+              const paid = m.status === 'paid' || m.status === 'debt';
               const mine = reactions.find((r) => r.memberId === memberId && r.fromUserId === myUserId)?.emoji;
               return (
                 <MemberFace
@@ -661,33 +637,6 @@ export function SplitLiveScreen() {
           </PressableScale>
         </BottomSheet>
 
-        {/* ⚡ подписная анимация разделения счёта */}
-        <SplitTheBill
-          run={splitAnim}
-          pieces={members.map((m) => ({
-            memberId: (m as { memberId?: string }).memberId ?? m.contactId,
-            amount: m.amount,
-          }))}
-          onDone={() => {
-            setSplitAnim(false);
-            setRingsLit(true);
-          }}
-        />
-
-        {/* 🎉 все закрыли счёт */}
-        <EveryonePaid
-          run={celebrate}
-          onDone={() => {
-            setCelebrate(false);
-            nav.replace('SplitClosed', { id });
-          }}
-          onShare={() => {
-            setCelebrate(false);
-            void doShare();
-            nav.replace('SplitClosed', { id });
-          }}
-        />
-
         <PinSheet
           open={!!coverFor}
           hint={t('live.pinHint', { amount: money(coverFor?.amount ?? 0) })}
@@ -695,8 +644,6 @@ export function SplitLiveScreen() {
           onConfirm={() => void confirmCover()}
         />
         <ZapOverlay open={isCovering} steps={PAY_STEPS} stickers={PAY_STICKERS} />
-        {/* доля закрыта — стикер вспыхивает и уходит сам */}
-        <StickerBurst run={coverBurst} sticker="handsHeart" onDone={() => setCoverBurst(false)} />
         {/*
           Слой сцены во всё окно: measure() отдаёт оконные координаты, а
           содержимое экрана лежит внутри safe-area и полей по 15 — без этого
