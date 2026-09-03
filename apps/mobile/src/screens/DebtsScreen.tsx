@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { Podium } from '@/components/Podium';
+import { SectionLabel } from '@/components/SectionLabel';
 import { SkinSheet } from '@/components/SkinSheet';
 import { isDarkSkin, useSkin } from '@/lib/screenSkin';
 import { CountUp } from '@/components/CountUp';
@@ -149,7 +150,7 @@ export function DebtsScreen() {
               })}
             </View>
 
-            <Text style={[styles.mono, { color: muted }]}>{t('debts.tabOwedToMe')}</Text>
+            <SectionLabel onDark={onDark} style={styles.sectionGap}>{t('debts.tabOwedToMe')}</SectionLabel>
             <View style={styles.amountRow}>
               <View style={styles.amountBox}>
                 <CountUp value={home.totalOwedToMe} duration={800} style={[styles.amount, { color: ink }]} />
@@ -168,7 +169,7 @@ export function DebtsScreen() {
             */}
             {top3.length ? (
               <>
-                <Text style={[styles.mono, { color: colors.faint2 }]}>{t('debts.top3')}</Text>
+                <SectionLabel onDark={onDark} style={styles.sectionGap}>{t('debts.top3')}</SectionLabel>
                 <Podium
                   frame={colors.dune2}
                   showPlace
@@ -193,7 +194,7 @@ export function DebtsScreen() {
 
             {rest.length ? (
               <View style={styles.restHead}>
-                <Text style={[styles.mono, { color: colors.faint2 }]}>{t('debts.others')}</Text>
+                <SectionLabel onDark={onDark}>{t('debts.others')}</SectionLabel>
                 <Text style={[styles.restCount, { color: colors.ink }]}>
                   {t('debts.peopleCount', { n: rest.length })}
                 </Text>
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
   round: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   roundGlyph: { fontSize: 18 },
   headTitle: { flex: 1, textAlign: 'center', fontFamily: font.bold, fontSize: 19 },
-  mono: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 2.5, marginTop: 22 },
+  sectionGap: { marginTop: 22 },
   restHead: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   restCount: { fontFamily: font.bold, fontSize: 11, marginTop: 24 },
 

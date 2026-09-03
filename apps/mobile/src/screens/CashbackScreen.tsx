@@ -13,6 +13,7 @@ import { VenueIcon } from '@/components/VenueIcon';
 import { Avatar } from '@/components/Avatar';
 import { CashbackTier } from '@/components/CashbackTier';
 import { Podium } from '@/components/Podium';
+import { SectionLabel } from '@/components/SectionLabel';
 import { STICKER } from '@/components/EmptyState';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinSheet } from '@/components/PinSheet';
@@ -229,7 +230,7 @@ export function CashbackScreen() {
             {groups.length ? (
               <>
                 <View style={styles.sectionHead}>
-                  <Text style={[styles.mono, { color: muted }]}>{t('cashback.byGroups')}</Text>
+                  <SectionLabel onDark={onDark}>{t('cashback.byGroups')}</SectionLabel>
                   <Text style={[styles.sectionCount, { color: ink }]}>{groups.length}</Text>
                 </View>
                 {groups.map((g) => (
@@ -280,7 +281,7 @@ export function CashbackScreen() {
 
             {merchantRows[0] ? (
               <>
-                <Text style={[styles.mono, styles.sectionMono, { color: muted }]}>{t('cashback.topMerchant')}</Text>
+                <SectionLabel onDark={onDark} style={styles.sectionMono}>{t('cashback.topMerchant')}</SectionLabel>
                 <View style={[styles.row, { backgroundColor: colors.paper }]}>
                   <VenueIcon name={merchantRows[0].title} size={40} />
                   <View style={styles.rowBody}>
@@ -301,7 +302,7 @@ export function CashbackScreen() {
             {/* «НАКОПИЛИ ВМЕСТЕ» + стикер (spec/09) */}
             <View style={styles.poolRow}>
               <View style={styles.poolBody}>
-                <Text style={[styles.mono, { color: muted }]}>{t('cashback.pooledTogether')}</Text>
+                <SectionLabel onDark={onDark}>{t('cashback.pooledTogether')}</SectionLabel>
                 <View style={styles.poolAmountRow}>
                   <Text style={[styles.poolAmount, { color: ink }]} numberOfLines={1} adjustsFontSizeToFit>
                     {money(groupPool)}
@@ -319,7 +320,7 @@ export function CashbackScreen() {
 
             {contributors.length > 1 ? (
               <>
-                <Text style={[styles.mono, styles.sectionMono, { color: muted }]}>{t('group.contributors')}</Text>
+                <SectionLabel onDark={onDark} style={styles.sectionMono}>{t('group.contributors')}</SectionLabel>
                 <Podium
                   frame={bg}
                   items={contributors.slice(0, 3).map((c) => ({
@@ -338,7 +339,7 @@ export function CashbackScreen() {
             {merchantRows.length ? (
               <>
                 <View style={styles.sectionHead}>
-                  <Text style={[styles.mono, { color: muted }]}>{t('cashback.merchants')}</Text>
+                  <SectionLabel onDark={onDark}>{t('cashback.merchants')}</SectionLabel>
                   <Text style={[styles.sectionCount, { color: ink }]}>{merchantRows.length}</Text>
                 </View>
                 {merchantRows.map((m) => (

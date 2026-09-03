@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { CrewStatsBlock } from '@/components/CrewStatsBlock';
+import { SectionLabel } from '@/components/SectionLabel';
 import { EmptyState } from '@/components/EmptyState';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { PressableScale } from '@/components/PressableScale';
@@ -257,7 +258,7 @@ export function GroupScreen() {
         >
           <Image source={STICKER.wallet} style={styles.cashArt} resizeMode="contain" />
           <View style={styles.cashBody}>
-            <Text style={[styles.mono, { color: colors.faint2 }]}>{t('group.cashback')}</Text>
+            <SectionLabel color={colors.faint2}>{t('group.cashback')}</SectionLabel>
             <View style={styles.cashAmountRow}>
               <Text style={[styles.cashValue, { color: colors.ink }]}>{money(group.cashback)}</Text>
               <Text style={[styles.cashCur, { color: colors.faint2 }]}>{t('common.currency')}</Text>
@@ -269,7 +270,7 @@ export function GroupScreen() {
         {/* долги внутри компании — карточками, как в макете */}
         {debtors.length ? (
           <>
-            <Text style={[styles.mono, styles.sectionMono, { color: sectionColor }]}>{t('debts.title')}</Text>
+            <SectionLabel onDark={onDark} style={styles.sectionMono}>{t('debts.title')}</SectionLabel>
             {debtors.map((d) => (
               <View key={d.cid} style={[styles.debtCard, { backgroundColor: colors.paper }]}>
                 <Avatar contactId={d.cid} name={nameOf(d.cid)} color={colorOf(d.cid)} size={44} />
@@ -307,7 +308,7 @@ export function GroupScreen() {
 
         <View style={styles.section}>
           <View style={styles.splitsHead}>
-            <Text style={[styles.mono, { color: sectionColor }]}>{t('group.lastZaps')}</Text>
+            <SectionLabel onDark={onDark}>{t('group.lastZaps')}</SectionLabel>
             <PressableScale onPress={() => nav.popTo('Tabs', { screen: 'History' })}>
               <Text style={[styles.seeAll, { color: sectionColor }]}>{t('home.seeAll')}</Text>
             </PressableScale>
@@ -493,7 +494,6 @@ const styles = StyleSheet.create({
   headCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#121212' },
   headCtaLight: { fontFamily: font.bold, fontSize: 15 },
   section: { marginTop: 22 },
-  mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, textTransform: 'uppercase' },
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   memberBody: { flex: 1, gap: 1 },
   memberName: { fontFamily: font.bold, fontSize: 15 },

@@ -3,20 +3,24 @@
 //
 // Раньше участники были строками-карточками; в макете это ряд лиц шириной 90 —
 // компания читается одним взглядом, а деньги уходят в подпись.
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
+  useAnimatedRef,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
 import { Avatar } from '@/components/Avatar';
+import { useBillStage } from '@/lib/billStage';
 import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
 interface Props {
+  /** id участника в сплите — по нему сцена находит аватар для ⚡ */
+  memberId?: string;
   contactId: string;
   name: string;
   color?: string;
@@ -29,13 +33,26 @@ interface Props {
   /** в этот аватар только что прилетела молния — он вздрагивает (zapShake) */
   shake?: boolean;
   onPress?: () => void;
-  onReact?: () => void;
+  /** экранные координаты кружка реакции — палитра встаёт под ним */
+  onReact?: (anchor: { x: number; y: number; width: number; height: number }) => void;
 }
 
 export function MemberFace({
-  contactId, name, color, initials, sub, paid, reaction, shake, onPress, onReact,
+  memberId, contactId, name, color, initials, sub, paid, reaction, shake, onPress, onReact,
 }: Props) {
   const { colors, fixed } = useTheme();
+  const stage = useBillStage();
+
+  /*
+    Регистрируем аватар в сцене. Без этого молния не находила цель и весь пинг
+    молча схлопывался: measure() возвращал null, сцена сразу звала onDone.
+  */
+  const faceRef = useAnimatedRef<View>();
+  useEffect(() => {
+    if (!memberId) return;
+    stage?.setMember(memberId, faceRef);
+    return () => stage?.setMember(memberId, null);
+  }, [stage, memberId, faceRef]);
   const ring = paid ? fixed.lime : colors.sand2;
 
   // zapShake из макета: аватар качается, когда до него долетел пинг
@@ -50,6 +67,8 @@ export function MemberFace({
       withTiming(0, { duration: 90 }),
     );
   }, [shake, tilt]);
+
+  const reactRef = useRef<React.ComponentRef<typeof View>>(null);
 
   const pop = useSharedValue(reaction ? 1 : 0);
   useEffect(() => {
@@ -74,7 +93,7 @@ export function MemberFace({
 
   return (
     <PressableScale haptic={false} style={styles.col} onPress={onPress}>
-      <Animated.View style={[styles.ring, { borderColor: ring }, shakeStyle]}>
+      <Animated.View ref={faceRef} style={[styles.ring, { borderColor: ring }, shakeStyle]}>
         {/* неоплатившие в макете приглушены до 55% — взгляд идёт к оплатившим */}
         <View style={paid ? undefined : styles.dim}>
           <Avatar contactId={contactId} name={name} letter={initials} color={color ?? '#8A887E'} size={58} />
@@ -92,13 +111,17 @@ export function MemberFace({
           </Text>
         </View>
 
-        <Animated.View style={[styles.react, popStyle]}>
+        <Animated.View style={[styles.react, popStyle]} ref={reactRef} collapsable={false}>
           <PressableScale
             style={[
               styles.reactBtn,
               { backgroundColor: reaction ? colors.paper : colors.cream, borderColor: colors.dune2 },
             ]}
-            onPress={onReact}
+            onPress={() =>
+              reactRef.current?.measureInWindow((x, y, width, height) =>
+                onReact?.({ x, y, width, height }),
+              )
+            }
           >
             <Text style={[styles.reactText, { color: colors.muted }]}>{reaction ?? '+'}</Text>
           </PressableScale>

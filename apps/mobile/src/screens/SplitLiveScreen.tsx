@@ -13,10 +13,11 @@
 //   • Reminder        → от аватара «меня» к stage.members[id] летит ⚡
 //   • QR → receipt    → на ScanScreen, приземляется в stage.receipt этого экрана
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TextInput, View , useWindowDimensions } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View , useWindowDimensions } from 'react-native';
 import { useAnimatedRef, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { ShareCardSheet } from '@/components/share/ShareCardSheet';
@@ -60,6 +61,9 @@ import { EASE_ZAP } from '@/lib/motion';
 import { reduceMotion } from '@/lib/feedback';
 
 
+
+/** Ширина палитры реакций: 5 кружков по 34 + зазоры 6 + поля 8. */
+const PICKER_W = 5 * 34 + 4 * 6 + 16;
 
 /** Подписи ожидания оплаты. */
 const PAY_STEPS = ['loading.paying1', 'loading.paying2'] as const;
@@ -254,9 +258,16 @@ export function SplitLiveScreen() {
   const [pingToast, setPingToast] = useState<{ title: string; line: string } | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
-  // для кого сейчас открыта палитра реакций
-  const [reactFor, setReactFor] = useState<string | null>(null);
+  /*
+    Палитра реакций: держим не только «кому», но и экранные координаты
+    кружка «+». Раньше она вставлялась в поток и сдвигала весь чек вниз —
+    в Telegram палитра всплывает над контентом, ничего не двигая.
+  */
+  const [reactFor, setReactFor] = useState<
+    { memberId: string; x: number; y: number; width: number; height: number } | null
+  >(null);
   const { width } = useWindowDimensions();
+  const insets = useSafeAreaInsets();
   const [renameValue, setRenameValue] = useState('');
 
   // реакции: сервер уже отдаёт их вместе со сплитом, локально держим
@@ -285,6 +296,13 @@ export function SplitLiveScreen() {
    */
   const ping = async (m: { contactId: string; memberId?: string }, from?: { x: number; y: number } | null) => {
     const target = m.memberId ?? m.contactId;
+    /*
+      Кнопка гасла только когда молния долетала — за эти полсекунды успевали
+      нажать второй раз, и второй запрос упирался в троттлинг сервера: два
+      «отправлено» подряд и следом «попробуйте позже». Гасим сразу.
+    */
+    if (pinged.has(m.contactId)) return;
+    setPinged((prev) => new Set([...prev, m.contactId]));
     setBoltFrom(from ?? null);
     setBoltTo(target);
     setBoltContact(m.contactId);
@@ -293,6 +311,11 @@ export function SplitLiveScreen() {
       await remindMember(id, target);
     } catch (e) {
       setBoltTo(null);
+      setPinged((prev) => {
+        const next = new Set(prev);
+        next.delete(m.contactId);
+        return next;
+      });
       toast(e instanceof Error ? e.message : t('debts.alreadyReminded'));
     }
   };
@@ -301,7 +324,6 @@ export function SplitLiveScreen() {
   const onBoltLanded = () => {
     const contactId = boltContact;
     if (!contactId) return;
-    setPinged((sset) => new Set([...sset, contactId]));
     setShakeId(contactId);
     setTimeout(() => setShakeId(null), 700);
     // живая фраза вместо «напоминание отправлено» (vision §B4)
@@ -456,6 +478,7 @@ export function SplitLiveScreen() {
               return (
                 <MemberFace
                   key={memberId + i}
+                  memberId={memberId}
                   contactId={m.isYou ? 'me' : m.contactId}
                   name={m.isYou ? t('members.youShort') : (nameOf(m.contactId).split(' ')[0] ?? '?')}
                   initials={home.contactById(m.contactId)?.initials}
@@ -472,21 +495,11 @@ export function SplitLiveScreen() {
                           : t('live.zapped', { name: nameOf(m.contactId).split(' ')[0] })
                       : money(m.amount)
                   }
-                  onReact={() => setReactFor(memberId)}
+                  onReact={(a) => setReactFor({ memberId, ...a })}
                 />
               );
             })}
           </View>
-
-          {reactFor ? (
-            <ReactionPicker
-              current={reactions.find((r) => r.memberId === reactFor && r.fromUserId === myUserId)?.emoji}
-              onPick={(e) => {
-                void react(reactFor, e);
-                setReactFor(null);
-              }}
-            />
-          ) : null}
 
           {/* чек: сумма, оплатившие и итог — узел для Split the Bill */}
           <View style={styles.receiptWrap}>
@@ -662,29 +675,68 @@ export function SplitLiveScreen() {
         <ZapOverlay open={isCovering} steps={PAY_STEPS} stickers={PAY_STICKERS} />
         {/* доля закрыта — стикер вспыхивает и уходит сам */}
         <StickerBurst run={coverBurst} sticker="handsHeart" onDone={() => setCoverBurst(false)} />
-        {/* реакция во весь экран: большой эмодзи и облако значков */}
-        <ReactionBurst
-          emoji={burst?.emoji ?? null}
-          title={t('live.reactionBy', { name: burst?.name ?? '', emoji: burst?.emoji ?? '' })}
-          sub={`${split.title} · ${money(split.total)}`}
-          onDone={() => setBurst(null)}
-        />
+        {/*
+          Слой сцены во всё окно: measure() отдаёт оконные координаты, а
+          содержимое экрана лежит внутри safe-area и полей по 15 — без этого
+          слоя молния и палитра приземлялись бы со сдвигом.
+        */}
+        <View
+          style={[
+            styles.stageLayer,
+            { left: -SCREEN_PAD_X, right: -SCREEN_PAD_X, top: -insets.top, bottom: -insets.bottom },
+          ]}
+          pointerEvents="box-none"
+        >
+          {/* палитра реакций: всплывает под кружком «+», контент не двигается */}
+          {reactFor ? (
+            <>
+              <Pressable style={styles.backdrop} onPress={() => setReactFor(null)} />
+              <View
+                style={[
+                  styles.pickerFloat,
+                  {
+                    left: Math.max(12, Math.min(reactFor.x + reactFor.width / 2 - PICKER_W / 2, width - PICKER_W - 12)),
+                    top: reactFor.y + reactFor.height + 10,
+                  },
+                ]}
+              >
+                <ReactionPicker
+                  current={
+                    reactions.find((r) => r.memberId === reactFor.memberId && r.fromUserId === myUserId)?.emoji
+                  }
+                  onPick={(e) => {
+                    void react(reactFor.memberId, e);
+                    setReactFor(null);
+                  }}
+                />
+              </View>
+            </>
+          ) : null}
 
-        {/* ⚡ летит из кнопки в аватар: полёт, вспышка и удар сверху */}
-        <PingStrike
-          toMemberId={boltTo}
-          from={boltFrom}
-          onHit={onBoltLanded}
-          onDone={() => setBoltTo(null)}
-        />
-        <PingToast
-          title={pingToast?.title ?? null}
-          line={pingToast?.line ?? ''}
-          onDone={() => setPingToast(null)}
-        />
+          {/* реакция во весь экран: большой эмодзи и облако значков */}
+          <ReactionBurst
+            emoji={burst?.emoji ?? null}
+            title={t('live.reactionBy', { name: burst?.name ?? '', emoji: burst?.emoji ?? '' })}
+            sub={`${split.title} · ${money(split.total)}`}
+            onDone={() => setBurst(null)}
+          />
 
-        {/* 🎉 все закрыли счёт — конфетти сыплется прямо на экран сплита */}
-        <Confetti run={celebrate} />
+          {/* ⚡ летит из кнопки в аватар: полёт, вспышка и удар сверху */}
+          <PingStrike
+            toMemberId={boltTo}
+            from={boltFrom}
+            onHit={onBoltLanded}
+            onDone={() => setBoltTo(null)}
+          />
+          <PingToast
+            title={pingToast?.title ?? null}
+            line={pingToast?.line ?? ''}
+            onDone={() => setPingToast(null)}
+          />
+
+          {/* 🎉 все закрыли счёт — конфетти сыплется прямо на экран сплита */}
+          <Confetti run={celebrate} />
+        </View>
 
         {/* карточка для сторис — то, что расходится органически */}
         <ShareCardSheet
@@ -713,6 +765,9 @@ const styles = StyleSheet.create({
   loading: { marginTop: 48, alignItems: 'center' },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20 },
   round: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  backdrop: { ...StyleSheet.absoluteFill, zIndex: 40 },
+  pickerFloat: { position: 'absolute', zIndex: 41 },
+  stageLayer: { position: 'absolute', zIndex: 40 },
   menuRow: {
     flexDirection: 'row',
     alignItems: 'center',

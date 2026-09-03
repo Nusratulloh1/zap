@@ -8,6 +8,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Avatar } from '@/components/Avatar';
+import { SectionLabel } from '@/components/SectionLabel';
 import type { CrewStats } from '@/lib/crewStats';
 import type { FunStat } from '@/lib/funStats';
 import { money } from '@/lib/format';
@@ -54,7 +55,7 @@ export function CrewStatsBlock({ stats, fun = [], sectionColor, nameOf, initials
 
   return (
     <View style={styles.root}>
-      <Text style={[styles.section, { color: sectionColor ?? colors.muted }]}>{t('crew.stats')}</Text>
+      <SectionLabel color={sectionColor}>{t('crew.stats')}</SectionLabel>
 
       {/* крупные цифры: сколько раз и на сколько */}
       <View style={[styles.card, { backgroundColor: colors.paper }]}>
@@ -147,14 +148,6 @@ export function CrewStatsBlock({ stats, fun = [], sectionColor, nameOf, initials
 
 const styles = StyleSheet.create({
   root: { gap: 8, marginTop: 22 },
-  // тот же заголовок секции, что и «ДОЛГИ» / «ПОСЛЕДНИЕ ZAP» (spec/01)
-  section: {
-    fontFamily: font.monoBold,
-    fontSize: 10,
-    letterSpacing: 1.6,
-    textTransform: 'uppercase',
-    marginBottom: 2,
-  },
   card: { borderRadius: radius.inner, padding: 16, gap: 12 },
   headRow: { gap: 2 },
   zaps: { fontFamily: font.extrabold, fontSize: 22, letterSpacing: -0.4 },
