@@ -11,6 +11,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { PressableScale } from '@/components/PressableScale';
 import { Avatar } from '@/components/Avatar';
 import { VenueIcon } from '@/components/VenueIcon';
+import { SpendingBlock } from '@/components/SpendingBlock';
 import { SearchIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { money, dayLabel } from '@/lib/format';
@@ -129,6 +130,9 @@ export function HistoryScreen() {
             ) : null}
           </View>
         ) : null}
+
+        {/* аналитика расходов (редизайн): расход, категории, «с кем тратишь» */}
+        <SpendingBlock />
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabsWrap} contentContainerStyle={styles.tabs}>
           {TABS.map((tb) => {

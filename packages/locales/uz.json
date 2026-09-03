@@ -481,7 +481,19 @@
     "empty": "Hozircha bo'sh",
     "today": "BUGUN",
     "yesterday": "KECHA",
-    "searchPlaceholder": "Tarixdan qidirish"
+    "searchPlaceholder": "Tarixdan qidirish",
+    "spent": "XARAJAT",
+    "spentSub": "{{splits}} ta zap · {{groups}} ta crew",
+    "mCashback": "KESHBEK",
+    "mReturned": "QAYTARILDI",
+    "mAvg": "O‘RTACHA",
+    "whereGoes": "Nimaga ketyapti",
+    "withWhom": "Kim bilan sarflaysiz",
+    "topPlace": "Ko‘pincha · {{name}} ×{{n}}",
+    "period": {
+      "week": "Hafta",
+      "month": "Oy"
+    }
   },
   "profile": {
     "title": "Profil",
@@ -992,5 +1004,26 @@
     "female": "Qiz",
     "skip": "O‘tkazib yuborish",
     "hint": "Avatarni profilda istalgan vaqt almashtirsa bo‘ladi"
+  },
+  "category": {
+    "food": "Ovqat",
+    "coffee": "Qahva",
+    "grocery": "Oziq-ovqat",
+    "utilities": "Kommunal",
+    "taxi": "Taksi",
+    "shopping": "Xaridlar",
+    "fun": "Ko‘ngilochar",
+    "other": "Boshqa"
+  },
+  "receipt": {
+    "done": "TO‘LOV O‘TDI",
+    "sub": "UZS · {{members}} ishtirokchi · {{title}}",
+    "order": "BUYURTMA #{{no}}",
+    "paid": "TO‘LANDI",
+    "tx": "Tranzaksiya",
+    "card": "Karta",
+    "cashbackGroup": "Kompaniyaga keshbek",
+    "close": "Yopish",
+    "backToBill": "Chekka qaytish"
   }
 }

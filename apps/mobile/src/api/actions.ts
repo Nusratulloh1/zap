@@ -69,8 +69,13 @@ export async function changePin(oldPin: string, newPin: string): Promise<boolean
 
 // ---------- оплата целиком / соло ----------
 
-export async function payAlone(amount: number, merchantId?: string, title?: string): Promise<void> {
-  await http('/payments/pay', {
+/** Возвращает номер транзакции: его показывает экран чека. */
+export async function payAlone(
+  amount: number,
+  merchantId?: string,
+  title?: string,
+): Promise<{ txId?: string | null }> {
+  return http('/payments/pay', {
     method: 'POST',
     pt: true,
     headers: { 'Idempotency-Key': `pay-${Date.now().toString(36)}` },

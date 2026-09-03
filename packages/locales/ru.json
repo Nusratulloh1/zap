@@ -481,7 +481,19 @@
     "empty": "Пока пусто",
     "today": "СЕГОДНЯ",
     "yesterday": "ВЧЕРА",
-    "searchPlaceholder": "Поиск по истории"
+    "searchPlaceholder": "Поиск по истории",
+    "spent": "РАСХОД",
+    "spentSub": "{{splits}} сплитов · {{groups}} crew",
+    "mCashback": "КЭШБЭК",
+    "mReturned": "ВЕРНУЛИ ВАМ",
+    "mAvg": "СР. ЧЕК",
+    "whereGoes": "На что уходит",
+    "withWhom": "С кем тратишь",
+    "topPlace": "Чаще всего · {{name}} ×{{n}}",
+    "period": {
+      "week": "Неделя",
+      "month": "Месяц"
+    }
   },
   "profile": {
     "title": "Профиль",
@@ -992,5 +1004,26 @@
     "female": "Девушка",
     "skip": "Пропустить",
     "hint": "Аватар можно поменять в профиле в любой момент"
+  },
+  "category": {
+    "food": "Еда",
+    "coffee": "Кофе",
+    "grocery": "Продукты",
+    "utilities": "Коммуналка",
+    "taxi": "Такси",
+    "shopping": "Покупки",
+    "fun": "Развлечения",
+    "other": "Другое"
+  },
+  "receipt": {
+    "done": "ОПЛАТА ПРОШЛА",
+    "sub": "UZS · {{members}} участника · {{title}}",
+    "order": "ЗАКАЗ #{{no}}",
+    "paid": "ОПЛАЧЕНО",
+    "tx": "Транзакция",
+    "card": "Карта",
+    "cashbackGroup": "Кэшбэк группе",
+    "close": "Закрыть",
+    "backToBill": "Вернуться к чеку"
   }
 }

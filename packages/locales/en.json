@@ -481,7 +481,19 @@
     "empty": "Nothing yet",
     "today": "TODAY",
     "yesterday": "YESTERDAY",
-    "searchPlaceholder": "Search history"
+    "searchPlaceholder": "Search history",
+    "spent": "SPENT",
+    "spentSub": "{{splits}} splits · {{groups}} crews",
+    "mCashback": "CASHBACK",
+    "mReturned": "RETURNED",
+    "mAvg": "AVG BILL",
+    "whereGoes": "Where it goes",
+    "withWhom": "Who you spend with",
+    "topPlace": "Most often · {{name}} ×{{n}}",
+    "period": {
+      "week": "Week",
+      "month": "Month"
+    }
   },
   "profile": {
     "title": "Profile",
@@ -992,5 +1004,26 @@
     "female": "Girl",
     "skip": "Skip",
     "hint": "You can change the avatar any time in your profile"
+  },
+  "category": {
+    "food": "Food",
+    "coffee": "Coffee",
+    "grocery": "Groceries",
+    "utilities": "Utilities",
+    "taxi": "Taxi",
+    "shopping": "Shopping",
+    "fun": "Fun",
+    "other": "Other"
+  },
+  "receipt": {
+    "done": "PAYMENT COMPLETE",
+    "sub": "UZS · {{members}} · {{title}}",
+    "order": "ORDER #{{no}}",
+    "paid": "PAID",
+    "tx": "Transaction",
+    "card": "Card",
+    "cashbackGroup": "Cashback to crew",
+    "close": "Close",
+    "backToBill": "Back to the bill"
   }
 }

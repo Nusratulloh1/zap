@@ -126,11 +126,16 @@ export function AmountScreen() {
             // оплата идёт по сети — держим ZAP на экране, а не пустоту
             setPaying(true);
             try {
-              await payAlone(amount);
+              const res = await payAlone(amount);
               cue('paid');
-              toast.success(t('amount.paidToast', { amount: money(amount) }));
               setRaw('');
-              nav.navigate('Home');
+              // чек вместо тоста: номер транзакции нужен для поддержки
+              nav.navigate('PaidReceipt', {
+                splitId: '',
+                amount,
+                txId: res?.txId ?? null,
+                at: Date.now(),
+              });
             } catch (e) {
               toast(e instanceof Error && e.message ? e.message : t('errors.payCancelled'));
             } finally {
