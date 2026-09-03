@@ -1028,6 +1028,8 @@
     "card": "Карта",
     "cashbackGroup": "Кэшбэк группе",
     "close": "Закрыть",
-    "backToBill": "Вернуться к чеку"
+    "backToBill": "Вернуться к чеку",
+    "cashbackChip": "+{{amount}} кэшбэка группе",
+    "eachFor": " — по {{amount}}"
   }
 }

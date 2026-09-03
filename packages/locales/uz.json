@@ -1028,6 +1028,8 @@
     "card": "Karta",
     "cashbackGroup": "Kompaniyaga keshbek",
     "close": "Yopish",
-    "backToBill": "Chekka qaytish"
+    "backToBill": "Chekka qaytish",
+    "cashbackChip": "kompaniyaga +{{amount}} keshbek",
+    "eachFor": " — {{amount}} dan"
   }
 }

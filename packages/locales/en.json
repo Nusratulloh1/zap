@@ -1028,6 +1028,8 @@
     "card": "Card",
     "cashbackGroup": "Cashback to crew",
     "close": "Close",
-    "backToBill": "Back to the bill"
+    "backToBill": "Back to the bill",
+    "cashbackChip": "+{{amount}} cashback to the crew",
+    "eachFor": " — {{amount}} each"
   }
 }
