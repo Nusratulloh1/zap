@@ -57,6 +57,11 @@ const LOGO = require('../../assets/home2/logo.png');
 const LIME = '#D9FF3A';
 const INK = '#121212';
 
+/** Имя для плитки витрины: «Bellissimo Pizza» в 118 pt не влезает. */
+function shortName(name: string): string {
+  return name.length > 12 ? (name.split(' ')[0] ?? name) : name;
+}
+
 /*
   Плитки в прототипе показывают «5.3M», а не «5 300 000»: цифра там — акцент
   крупным кеглем, и полная сумма в две строки не влезает. Миллионы сокращаем,
@@ -119,7 +124,6 @@ export function HomeScreenV2() {
         letter: m.letter,
         color: m.color,
         fg: INK,
-        cashback: (m.offer?.multiplier ?? 0) > 1,
         tag: m.offer?.label ?? '',
         terms: m.offer?.terms ?? '',
       }));
@@ -130,7 +134,6 @@ export function HomeScreenV2() {
       letter: v.abbr ?? v.name,
       color: v.logoBg ?? '#EAE8E1',
       fg: v.logoFg ?? INK,
-      cashback: v.type === 'cashback',
       tag: translate(`badge.${v.badgeKind}`, { v: v.badgeValue }),
       terms: hasKey(`offers.${v.id}`) ? translate(`offers.${v.id}`) : '',
     }));
@@ -476,8 +479,8 @@ export function HomeScreenV2() {
                     style={[
                       styles.merchant,
                       {
-                        // лаймом выделена витрина с кэшбэком — как в прототипе
-                        backgroundColor: m.cashback ? LIME : '#FFFFFF',
+                        // чередование белая/лаймовая — ритм витрины из прототипа
+                        backgroundColor: i % 2 ? LIME : '#FFFFFF',
                         transform: [{ rotate: i % 2 ? '2deg' : '-2deg' }],
                       },
                     ]}
@@ -492,7 +495,7 @@ export function HomeScreenV2() {
                         </Text>
                       )}
                     </View>
-                    <Text style={styles.merchantName} numberOfLines={1}>{m.name}</Text>
+                    <Text style={styles.merchantName} numberOfLines={1}>{shortName(m.name)}</Text>
                     <View style={styles.merchantTag}>
                       <Text style={styles.merchantTagText} numberOfLines={1}>{m.tag}</Text>
                     </View>
@@ -661,7 +664,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   merchantLogo: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  merchantLogoImg: { width: '86%', height: '86%' },
+  merchantLogoImg: { width: '100%', height: '100%' },
   merchantLetter: { fontFamily: font.extrabold, fontSize: 11, lineHeight: 13, textAlign: 'center', paddingHorizontal: 3 },
   merchantName: { fontFamily: font.extrabold, fontSize: 13, color: INK, marginTop: 12 },
   merchantTag: { alignSelf: 'flex-start', backgroundColor: INK, borderRadius: 10, paddingVertical: 3, paddingHorizontal: 8, marginTop: 6 },
