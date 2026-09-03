@@ -14,7 +14,7 @@
 //   • QR → receipt    → на ScanScreen, приземляется в stage.receipt этого экрана
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View , useWindowDimensions } from 'react-native';
-import { useAnimatedRef, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { useAnimatedRef, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -82,6 +82,9 @@ export function SplitLiveScreen() {
   // счёт только что разделили — корешки отрываются от чека (zapSplit)
   const justSplit = route.params?.justCreated === true;
   const centerRef = useAnimatedRef<View>();
+  // слой сцены: от него считаются координаты молнии и палитры
+  const layerRef = useAnimatedRef<View>();
+  const [layerAt, setLayerAt] = useState({ x: 0, y: 0 });
 
   const { data: split, refetch } = useQuery({
     queryKey: qk.split(id),
@@ -679,7 +682,11 @@ export function SplitLiveScreen() {
           содержимое экрана лежит внутри safe-area и полей по 15 — без этого
           слоя молния и палитра приземлялись бы со сдвигом.
         */}
-        <View
+        <Animated.View
+          ref={layerRef}
+          onLayout={() =>
+            layerRef.current?.measureInWindow((x, y) => setLayerAt({ x, y }))
+          }
           style={[
             styles.stageLayer,
             { left: -SCREEN_PAD_X, right: -SCREEN_PAD_X, top: -insets.top, bottom: -insets.bottom },
@@ -696,10 +703,16 @@ export function SplitLiveScreen() {
                   {
                     left: Math.max(
                       12,
-                      Math.min(reactFor.x + reactFor.width / 2 - PICKER_W / 2, width - PICKER_W - 12),
+                      Math.min(
+                        reactFor.x + reactFor.width / 2 - PICKER_W / 2 - layerAt.x,
+                        width - PICKER_W - 12,
+                      ),
                     ),
                     // если снизу не хватает места — раскрываем вверх
-                    top: Math.min(reactFor.y + reactFor.height + 10, height - PICKER_H - 24),
+                    top: Math.min(
+                      reactFor.y + reactFor.height + 10 - layerAt.y,
+                      height - PICKER_H - 24,
+                    ),
                   },
                 ]}
               >
@@ -722,6 +735,7 @@ export function SplitLiveScreen() {
           {/* ⚡ летит из кнопки в аватар: полёт, вспышка и удар сверху */}
           <PingStrike
             toMemberId={boltTo}
+            layer={layerRef}
             from={boltFrom}
             onHit={onBoltLanded}
             onDone={() => setBoltTo(null)}
@@ -734,7 +748,7 @@ export function SplitLiveScreen() {
 
           {/* 🎉 все закрыли счёт — конфетти сыплется прямо на экран сплита */}
           <Confetti run={celebrate} />
-        </View>
+        </Animated.View>
 
         {/* карточка для сторис — то, что расходится органически */}
         <ShareCardSheet

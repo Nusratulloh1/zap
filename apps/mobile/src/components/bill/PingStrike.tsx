@@ -8,8 +8,9 @@
 // Координаты цели берём measure() на UI-потоке (как в Split the Bill), точку
 // старта передаёт кнопка — так молния вылетает из того ⚡, который нажали.
 import React, { useEffect } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, type View } from 'react-native';
 import Animated, {
+  type AnimatedRef,
   Easing,
   interpolate,
   measure,
@@ -31,13 +32,19 @@ const HIT = 0.55;
 interface Props {
   /** memberId получателя пинга; null — сцена спит */
   toMemberId: string | null;
+  /**
+   * Слой, внутри которого рисуется сцена. measure() отдаёт оконные
+   * координаты, а left/top считаются от этого слоя — без вычитания его начала
+   * молния приземлялась со сдвигом на поля экрана.
+   */
+  layer?: AnimatedRef<View>;
   /** экранные координаты кнопки ⚡, из которой вылетает молния */
   from?: { x: number; y: number } | null;
   onHit: () => void;
   onDone: () => void;
 }
 
-export function PingStrike({ toMemberId, from, onHit, onDone }: Props) {
+export function PingStrike({ toMemberId, layer, from, onHit, onDone }: Props) {
   const stage = useBillStage();
   const t = useSharedValue(0);
   const src = useSharedValue({ x: 0, y: 0 });
@@ -64,8 +71,11 @@ export function PingStrike({ toMemberId, from, onHit, onDone }: Props) {
         runOnJS(onDone)();
         return;
       }
-      dst.value = { x: mt.pageX + mt.width / 2, y: mt.pageY + mt.height / 2 };
-      src.value = fx || fy ? { x: fx, y: fy } : { x: dst.value.x, y: dst.value.y + 220 };
+      const ml = layer ? measure(layer) : null;
+      const ox = ml ? ml.pageX : 0;
+      const oy = ml ? ml.pageY : 0;
+      dst.value = { x: mt.pageX + mt.width / 2 - ox, y: mt.pageY + mt.height / 2 - oy };
+      src.value = fx || fy ? { x: fx - ox, y: fy - oy } : { x: dst.value.x, y: dst.value.y + 220 };
 
       ready.value = 1;
       t.value = 0;
@@ -168,8 +178,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     zIndex: 96,
   },
-  boltGlyph: { fontSize: 18 },
+  boltGlyph: { fontSize: 18, width: 24, lineHeight: 22, textAlign: 'center' },
   flash: { position: 'absolute', left: 0, top: 0, width: 76, height: 76, zIndex: 94 },
   strike: { position: 'absolute', left: 0, top: 0, width: 52, height: 52, alignItems: 'center', justifyContent: 'center', zIndex: 97 },
-  strikeGlyph: { fontSize: 46 },
+  strikeGlyph: { fontSize: 46, width: 52, lineHeight: 52, textAlign: 'center' },
 });
