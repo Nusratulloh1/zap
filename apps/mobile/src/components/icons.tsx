@@ -27,6 +27,16 @@ export function ScanIcon({ size = 24, color = '#FFFFFF', strokeWidth = 2.4, cent
   );
 }
 
+/** Контраст — переключатель темы в шапке новой главной (круг, половина залита). */
+export function ContrastIcon({ size = 18, color = '#FFFFFF', strokeWidth = 2 }: P) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <Circle cx={12} cy={12} r={9} stroke={color} strokeWidth={strokeWidth} />
+      <Path d="M12 3a9 9 0 0 1 0 18z" fill={color} />
+    </Svg>
+  );
+}
+
 /** Лупа поиска. */
 export function SearchIcon({ size = 18, color = '#5B594F' }: P) {
   return (

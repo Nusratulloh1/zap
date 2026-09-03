@@ -34,7 +34,7 @@ import { Screen } from '@/components/Screen';
 import { Avatar } from '@/components/Avatar';
 import { PressableScale } from '@/components/PressableScale';
 import { toast } from '@/components/ToastHost';
-import { ScanIcon } from '@/components/icons';
+import { ContrastIcon, ScanIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { qk } from '@/api/data';
 import { remindMember } from '@/api/splits';
@@ -49,11 +49,24 @@ import { font } from '@/theme/tokens';
 const MASCOT = require('../../assets/home2/mascot.png');
 const STK_RECEIPT = require('../../assets/home2/receipt-qr.png');
 const STK_CHECK = require('../../assets/home2/check-avatars.png');
-const WORDMARK = require('../../assets/brand/zap-wordmark.png');
-const WORDMARK_LIGHT = require('../../assets/brand/zap-wordmark-light.png');
+// логотип-наклейка из прототипа: он же и на тёмном, и на светлом холсте
+const LOGO = require('../../assets/home2/logo.png');
 
 const LIME = '#D9FF3A';
 const INK = '#121212';
+
+/*
+  Плитки в прототипе показывают «5.3M», а не «5 300 000»: цифра там — акцент
+  крупным кеглем, и полная сумма в две строки не влезает. Миллионы сокращаем,
+  всё что меньше — как обычно.
+*/
+function compact(v: number): string {
+  if (v >= 1_000_000) {
+    const m = v / 1_000_000;
+    return `${m >= 10 ? Math.round(m) : Math.round(m * 10) / 10}M`;
+  }
+  return money(v);
+}
 
 export function HomeScreenV2() {
   const { t } = useTranslation();
@@ -182,25 +195,21 @@ export function HomeScreenV2() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
         {/* шапка: логотип, тема, сканер, аватар */}
         <View style={styles.head}>
-          <Image
-            source={dark ? WORDMARK_LIGHT : WORDMARK}
-            style={styles.logo}
-            resizeMode="contain"
-          />
+          <Image source={LOGO} style={styles.logo} resizeMode="contain" />
           <View style={styles.headBtns}>
             <PressableScale
               small
               style={[styles.round, { backgroundColor: c.card, borderColor: c.line }]}
               onPress={() => setHomeSkin(dark ? 'light' : 'dark')}
             >
-              <Text style={[styles.themeGlyph, { color: c.fg }]}>{dark ? '☀︎' : '☾'}</Text>
+              <ContrastIcon size={18} color={c.fg} />
             </PressableScale>
             <PressableScale
               small
               style={[styles.round, { backgroundColor: c.card, borderColor: c.line }]}
               onPress={() => nav.navigate('Scan')}
             >
-              <ScanIcon size={18} color={c.fg} />
+              <ScanIcon size={18} color={c.fg} strokeWidth={2} />
             </PressableScale>
             <PressableScale small onPress={() => nav.navigate('Profile')}>
               <Avatar contactId="me" size={40} ring={c.accent} ringWidth={3} />
@@ -301,7 +310,7 @@ export function HomeScreenV2() {
           >
             <Text style={[styles.tileKicker, { color: '#5A6A16' }]}>{t('home2.tileCashback')}</Text>
             <Text style={[styles.tileValue, { color: INK }]} numberOfLines={1} adjustsFontSizeToFit>
-              {money(home.cashbackBalance)}
+              {compact(home.cashbackBalance)}
             </Text>
             <Text style={[styles.tileSub, { color: '#5A6A16' }]} numberOfLines={1}>
               {t('home2.tileGroups', { n: home.groups.length })}
@@ -316,7 +325,7 @@ export function HomeScreenV2() {
           >
             <Text style={[styles.tileKicker, { color: c.mute }]}>{t('home2.tileOwed')}</Text>
             <Text style={[styles.tileValue, { color: c.fg }]} numberOfLines={1} adjustsFontSizeToFit>
-              {money(home.totalOwedToMe)}
+              {compact(home.totalOwedToMe)}
             </Text>
             <View style={styles.tileFaces}>
               {home.debtors.slice(0, 2).map((d, i) => (
@@ -533,10 +542,9 @@ const styles = StyleSheet.create({
   scroll: { paddingBottom: 120 },
 
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 12 },
-  logo: { height: 40, width: 88 },
+  logo: { height: 44, width: 68 },
   headBtns: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   round: { width: 40, height: 40, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  themeGlyph: { fontSize: 16 },
 
   stories: { gap: 14, paddingLeft: 16, paddingRight: 16, paddingTop: 20 },
   story: { alignItems: 'center', gap: 6, width: 68 },
@@ -575,7 +583,7 @@ const styles = StyleSheet.create({
   tiles: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingTop: 22 },
   tile: { flex: 1, minHeight: 128, borderRadius: 24, padding: 14, overflow: 'hidden' },
   tileKicker: { fontFamily: font.monoBold, fontSize: 7, letterSpacing: 2 },
-  tileValue: { fontFamily: font.extrabold, fontSize: 24, letterSpacing: -0.5, marginTop: 8 },
+  tileValue: { fontFamily: font.extrabold, fontSize: 26, letterSpacing: -0.5, marginTop: 8 },
   tileSub: { fontFamily: font.semibold, fontSize: 10, marginTop: 3 },
   tileFaces: { flexDirection: 'row', alignItems: 'center', marginTop: 5 },
   tileFaceStacked: { marginLeft: -8 },
