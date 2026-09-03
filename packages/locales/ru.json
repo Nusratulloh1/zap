@@ -581,7 +581,8 @@
     "level": "Уровень",
     "icon_receipts": "Чеки",
     "icon_mosaic": "Мозаика",
-    "icon_hands": "Руки"
+    "icon_hands": "Руки",
+    "appIconSection": "ИКОНКА ПРИЛОЖЕНИЯ"
   },
   "install": {
     "title": "Установите ZAP!",

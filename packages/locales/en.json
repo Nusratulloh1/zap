@@ -581,7 +581,8 @@
     "level": "Level",
     "icon_receipts": "Receipts",
     "icon_mosaic": "Mosaic",
-    "icon_hands": "Hands"
+    "icon_hands": "Hands",
+    "appIconSection": "APP ICON"
   },
   "install": {
     "title": "Install ZAP!",

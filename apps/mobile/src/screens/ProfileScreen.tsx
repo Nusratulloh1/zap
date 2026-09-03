@@ -294,7 +294,8 @@ export function ProfileScreen() {
 
   return (
     // без edges: отступ снизу задаёт сама прокрутка, иначе остаётся белая полоса
-    <Screen style={styles.root} edges={[]}>
+    // фон: выбранный кнопкой «🎨», по умолчанию — наш лайм
+    <Screen style={styles.root} edges={[]} background={skin ?? fixed.lime} darkBar={false}>
       <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: insets.bottom + 16 }}>
         {me ? (
           <>
@@ -439,13 +440,6 @@ export function ProfileScreen() {
                 </View>
               </View>
 
-              {/* фон экрана — открывает ту же палитру, что кнопка «🎨» */}
-              <PressableScale haptic={false} style={[styles.gRow, styles.gDiv, { borderBottomColor: colors.sand2 }]} onPress={() => setSkinSheet(true)}>
-                <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>🎨</Text></View>
-                <Text style={[styles.gTitle, { color: colors.ink }]}>{t('skin.title')}</Text>
-                <View style={[styles.skinDot, { backgroundColor: skin ?? colors.dune2, borderColor: colors.sand2 }]} />
-                <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
-              </PressableScale>
 
               <PressableScale haptic={false} style={styles.gRow} onPress={() => setGroupsSheet(true)}>
                 <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>👥</Text></View>
@@ -460,7 +454,7 @@ export function ProfileScreen() {
               секция‑заголовок, карточка, иконки 60 с подписями. Три превью в
               строке настроек не давали понять, что это выбор.
             */}
-            <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('profile.appIcon')}</Text>
+            <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('profile.appIconSection')}</Text>
             <View style={[styles.group, { backgroundColor: colors.shell }]}>
               <View style={styles.iconGrid}>
                 {APP_ICONS.map((k) => (
@@ -703,7 +697,6 @@ const styles = StyleSheet.create({
   // ── сгруппированные карточки настроек ──
   group: { borderRadius: 22, marginTop: 10, overflow: 'hidden' },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
-  skinDot: { width: 24, height: 24, borderRadius: 999, borderWidth: 1 },
   iconGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 16, paddingHorizontal: 8 },
   iconCell: { width: '33.33%', alignItems: 'center', paddingHorizontal: 4 },
   iconBig: { width: 60, height: 60, borderRadius: 14, borderWidth: 0, borderColor: 'transparent' },

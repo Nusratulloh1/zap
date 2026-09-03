@@ -581,7 +581,8 @@
     "level": "Daraja",
     "icon_receipts": "Cheklar",
     "icon_mosaic": "Mozaika",
-    "icon_hands": "Qo‘llar"
+    "icon_hands": "Qo‘llar",
+    "appIconSection": "ILOVA IKONKASI"
   },
   "install": {
     "title": "ZAP! ni o'rnating",
