@@ -22,7 +22,7 @@ import { useDraft } from '@/store/draft';
 import { money, humanDateLc, peopleCount, dayMonth } from '@/lib/format';
 import { crewStats } from '@/lib/crewStats';
 import { STICKER } from '@/components/EmptyState';
-import { useSkin } from '@/lib/screenSkin';
+import { isDarkSkin, useSkin } from '@/lib/screenSkin';
 import { SkinSheet } from '@/components/SkinSheet';
 import { VenueIcon } from '@/components/VenueIcon';
 import { SquadCircle } from '@/components/SquadCircle';
@@ -94,6 +94,12 @@ export function GroupScreen() {
   const crewEmoji = useCrewEmoji(home.db, id);
   const crewColor = useCrewColor(home.db, id);
   const skin = useSkin();
+  /*
+    Заголовки секций на цветном фоне: на светлом — тёмно-оливковый из макета,
+    на тёмном фон съедает его, поэтому берём песочный.
+  */
+  const onDark = isDarkSkin(skin ?? fixed.lime);
+  const sectionColor = onDark ? colors.sand : colors.deep;
 
   /*
     Ачивки человека показываем стикерами вокруг аватара — как в макете, где у
@@ -263,7 +269,7 @@ export function GroupScreen() {
         {/* долги внутри компании — карточками, как в макете */}
         {debtors.length ? (
           <>
-            <Text style={[styles.mono, styles.sectionMono, { color: colors.faint2 }]}>{t('debts.title')}</Text>
+            <Text style={[styles.mono, styles.sectionMono, { color: sectionColor }]}>{t('debts.title')}</Text>
             {debtors.map((d) => (
               <View key={d.cid} style={[styles.debtCard, { backgroundColor: colors.paper }]}>
                 <Avatar contactId={d.cid} name={nameOf(d.cid)} color={colorOf(d.cid)} size={44} />
@@ -292,6 +298,7 @@ export function GroupScreen() {
 
         {/* история компании: сколько ужинов и кофе вместе, кто должен, кто платил */}
         <CrewStatsBlock
+          sectionColor={sectionColor}
           stats={stats}
           nameOf={(cid) => home.contactById(cid)?.name ?? ''}
           initialsOf={(cid) => home.contactById(cid)?.initials}
@@ -300,9 +307,9 @@ export function GroupScreen() {
 
         <View style={styles.section}>
           <View style={styles.splitsHead}>
-            <Text style={[styles.mono, { color: colors.muted }]}>{t('group.lastZaps')}</Text>
+            <Text style={[styles.mono, { color: sectionColor }]}>{t('group.lastZaps')}</Text>
             <PressableScale onPress={() => nav.popTo('Tabs', { screen: 'History' })}>
-              <Text style={[styles.seeAll, { color: colors.muted }]}>{t('home.seeAll')}</Text>
+              <Text style={[styles.seeAll, { color: sectionColor }]}>{t('home.seeAll')}</Text>
             </PressableScale>
           </View>
           {groupSplits.map((s) => {
@@ -486,7 +493,7 @@ const styles = StyleSheet.create({
   headCtaDark: { fontFamily: font.extrabold, fontSize: 15, color: '#121212' },
   headCtaLight: { fontFamily: font.bold, fontSize: 15 },
   section: { marginTop: 22 },
-  mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
+  mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6, textTransform: 'uppercase' },
   memberRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58 },
   memberBody: { flex: 1, gap: 1 },
   memberName: { fontFamily: font.bold, fontSize: 15 },

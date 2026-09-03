@@ -39,12 +39,14 @@ interface Props {
   stats: CrewStats;
   /** смешная статистика компании (vision §C11); пустой массив — блока нет */
   fun?: FunStat[];
+  /** цвет заголовка секции — экран компании красится по выбранному фону */
+  sectionColor?: string;
   nameOf: (contactId: string) => string;
   initialsOf: (contactId: string) => string | undefined;
   colorOf: (contactId: string) => string;
 }
 
-export function CrewStatsBlock({ stats, fun = [], nameOf, initialsOf, colorOf }: Props) {
+export function CrewStatsBlock({ stats, fun = [], sectionColor, nameOf, initialsOf, colorOf }: Props) {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
 
@@ -52,7 +54,7 @@ export function CrewStatsBlock({ stats, fun = [], nameOf, initialsOf, colorOf }:
 
   return (
     <View style={styles.root}>
-      <Text style={[styles.section, { color: colors.muted }]}>{t('crew.stats')}</Text>
+      <Text style={[styles.section, { color: sectionColor ?? colors.muted }]}>{t('crew.stats')}</Text>
 
       {/* крупные цифры: сколько раз и на сколько */}
       <View style={[styles.card, { backgroundColor: colors.paper }]}>
@@ -144,10 +146,11 @@ export function CrewStatsBlock({ stats, fun = [], nameOf, initialsOf, colorOf }:
 }
 
 const styles = StyleSheet.create({
-  root: { gap: 8, marginTop: 18 },
+  root: { gap: 8, marginTop: 22 },
+  // тот же заголовок секции, что и «ДОЛГИ» / «ПОСЛЕДНИЕ ZAP» (spec/01)
   section: {
-    fontFamily: font.extrabold,
-    fontSize: 12.5,
+    fontFamily: font.monoBold,
+    fontSize: 10,
     letterSpacing: 1.6,
     textTransform: 'uppercase',
     marginBottom: 2,
