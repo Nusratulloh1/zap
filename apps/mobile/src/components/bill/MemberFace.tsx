@@ -24,8 +24,6 @@ interface Props {
   /** подпись под именем: «Вы оплатили ⚡», «в долг, вы покрыли», «👀» */
   sub: string;
   paid: boolean;
-  /** доля закрыта другим человеком */
-  covered?: boolean;
   /** моя реакция на этого участника (или undefined) */
   reaction?: string;
   /** в этот аватар только что прилетела молния — он вздрагивает (zapShake) */
@@ -35,7 +33,7 @@ interface Props {
 }
 
 export function MemberFace({
-  contactId, name, color, initials, sub, paid, covered, reaction, shake, onPress, onReact,
+  contactId, name, color, initials, sub, paid, reaction, shake, onPress, onReact,
 }: Props) {
   const { colors, fixed } = useTheme();
   const ring = paid ? fixed.lime : colors.sand2;
@@ -53,6 +51,23 @@ export function MemberFace({
     );
   }, [shake, tilt]);
 
+  const pop = useSharedValue(reaction ? 1 : 0);
+  useEffect(() => {
+    if (!reaction) {
+      pop.value = 0;
+      return;
+    }
+    pop.value = withSequence(
+      withTiming(0, { duration: 0 }),
+      withTiming(1.15, { duration: 300 }),
+      withTiming(1, { duration: 200 }),
+    );
+  }, [reaction, pop]);
+
+  const popStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: reaction ? 0.6 + pop.value * 0.4 : 1 }],
+  }));
+
   const shakeStyle = useAnimatedStyle(() => ({
     transform: [{ rotate: `${tilt.value * 8}deg` }, { scale: 1 + Math.abs(tilt.value) * 0.06 }],
   }));
@@ -60,29 +75,34 @@ export function MemberFace({
   return (
     <PressableScale haptic={false} style={styles.col} onPress={onPress}>
       <Animated.View style={[styles.ring, { borderColor: ring }, shakeStyle]}>
-        <Avatar contactId={contactId} name={name} letter={initials} color={color ?? '#8A887E'} size={58} />
+        {/* неоплатившие в макете приглушены до 55% — взгляд идёт к оплатившим */}
+        <View style={paid ? undefined : styles.dim}>
+          <Avatar contactId={contactId} name={name} letter={initials} color={color ?? '#8A887E'} size={58} />
+        </View>
 
-        {/* статус: ✓ у оплативших, «+» у покрытых, «👀» у ожидающих */}
+        {/* статус из макета: ✓ на лайме у оплативших, «+» у ожидающих */}
         <View
           style={[
             styles.badge,
-            { backgroundColor: paid && !covered ? fixed.lime : colors.sand, borderColor: colors.dune2 },
+            { backgroundColor: paid ? fixed.lime : colors.cream, borderColor: colors.dune2 },
           ]}
         >
-          <Text style={[styles.badgeText, { color: paid && !covered ? fixed.ink : colors.muted }]}>
-            {paid ? (covered ? '+' : '✓') : '👀'}
+          <Text style={[styles.badgeText, { color: paid ? fixed.ink : colors.muted }]}>
+            {paid ? '✓' : '+'}
           </Text>
         </View>
 
-        <PressableScale
-          style={[
-            styles.react,
-            { backgroundColor: reaction ? colors.paper : colors.sand, borderColor: colors.dune2 },
-          ]}
-          onPress={onReact}
-        >
-          <Text style={[styles.reactText, { color: colors.muted }]}>{reaction ?? '+'}</Text>
-        </PressableScale>
+        <Animated.View style={[styles.react, popStyle]}>
+          <PressableScale
+            style={[
+              styles.reactBtn,
+              { backgroundColor: reaction ? colors.paper : colors.cream, borderColor: colors.dune2 },
+            ]}
+            onPress={onReact}
+          >
+            <Text style={[styles.reactText, { color: colors.muted }]}>{reaction ?? '+'}</Text>
+          </PressableScale>
+        </Animated.View>
       </Animated.View>
 
       <Text style={[styles.name, { color: colors.ink }]} numberOfLines={1}>{name}</Text>
@@ -106,10 +126,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   badgeText: { fontSize: 10 },
-  react: {
-    position: 'absolute',
-    left: -8,
-    top: 18,
+  react: { position: 'absolute', left: -8, top: 18 },
+  reactBtn: {
     width: 24,
     height: 24,
     borderRadius: 999,
@@ -117,6 +135,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  dim: { opacity: 0.55 },
   reactText: { fontSize: 12 },
   name: { fontFamily: font.bold, fontSize: 12, marginTop: 8 },
   sub: { fontFamily: font.semibold, fontSize: 9.5, marginTop: 2 },

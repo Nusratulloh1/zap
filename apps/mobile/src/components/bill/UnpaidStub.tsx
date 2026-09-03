@@ -4,7 +4,7 @@
 // Пинг анимирован ровно как в макете (zapPulse + zapRing/zapRing2): кнопка
 // проседает и разбухает, из неё расходятся два лаймовых кольца. Без этого тап
 // по ⚡ выглядел бы как «ничего не произошло»: молния улетает мгновенно.
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Keyframe,
@@ -24,10 +24,18 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
 /*
+  zapSplit: корешок «отрывается» от чека, когда счёт только что разделили —
+  выезжает сверху вниз, будто его отрезали от общего листа.
+
   zapMerge из макета: когда человек оплатил, его корешок уезжает вверх и
   растворяется — а строка тут же появляется в чеке. Получается один жест
   «кусок вернулся в чек», а не «одно исчезло, другое возникло».
 */
+const SPLIT_OUT = new Keyframe({
+  0: { opacity: 0, transform: [{ translateY: -46 }, { scale: 0.96 }] },
+  100: { opacity: 1, transform: [{ translateY: 0 }, { scale: 1 }] },
+}).duration(700);
+
 const MERGE_UP = new Keyframe({
   0: { opacity: 1, transform: [{ translateY: 0 }, { scale: 1 }] },
   30: { opacity: 1, transform: [{ translateY: -6 }, { scale: 1.02 }] },
@@ -46,13 +54,19 @@ interface Props {
   /** это моя доля: вместо «дать в долг» — «оплатить» */
   mine?: boolean;
   pinged?: boolean;
+  /** порядковый номер: корешки отрываются от чека по очереди */
+  index?: number;
+  /** счёт только что разделили — корешки выезжают из чека */
+  justSplit?: boolean;
   onLend: () => void;
-  onPing: () => void;
+  /** точка вылета молнии — экранные координаты нажатой кнопки */
+  onPing: (from: { x: number; y: number } | null) => void;
 }
 
 export function UnpaidStub({
-  contactId, name, initials, color, amount, width, last, mine, pinged, onLend, onPing,
+  contactId, name, initials, color, amount, width, last, mine, pinged, index = 0, justSplit, onLend, onPing,
 }: Props) {
+  const boltRef = useRef<React.ComponentRef<typeof View>>(null);
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
 
@@ -82,7 +96,11 @@ export function UnpaidStub({
   }));
 
   return (
-    <Animated.View style={styles.root} exiting={reduceMotion() ? undefined : MERGE_UP}>
+    <Animated.View
+      style={styles.root}
+      entering={justSplit && !reduceMotion() ? SPLIT_OUT.delay(index * 160) : undefined}
+      exiting={reduceMotion() ? undefined : MERGE_UP}
+    >
       <TornEdge color={colors.paper} side="top" width={width} />
 
       <View style={[styles.body, { backgroundColor: colors.paper }]}>
@@ -111,17 +129,24 @@ export function UnpaidStub({
             </Text>
           </PressableScale>
 
-          <Animated.View style={boltStyle}>
+          <View ref={boltRef} collapsable={false}>
+            <Animated.View style={boltStyle}>
             <PressableScale
               style={[styles.ping, { backgroundColor: fixed.ink }, pinged && styles.dimmed]}
               disabled={pinged}
-              onPress={onPing}
+              onPress={() => {
+                // молния должна вылететь ровно из этой кнопки
+                boltRef.current?.measureInWindow((x, y, w, h) =>
+                  onPing({ x: x + w / 2, y: y + h / 2 }),
+                );
+              }}
             >
               <Animated.View style={[styles.wave, { borderColor: fixed.lime }, ring1]} pointerEvents="none" />
               <Animated.View style={[styles.wave, { borderColor: fixed.lime }, ring2]} pointerEvents="none" />
               <Text style={[styles.pingGlyph, { color: fixed.lime }]}>⚡</Text>
-            </PressableScale>
-          </Animated.View>
+              </PressableScale>
+            </Animated.View>
+          </View>
         </View>
       </View>
 

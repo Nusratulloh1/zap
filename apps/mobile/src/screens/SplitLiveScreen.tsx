@@ -34,10 +34,12 @@ import { toast } from '@/components/ToastHost';
 import { LiveReceipt } from '@/components/bill/LiveReceipt';
 import { UnpaidStub } from '@/components/bill/UnpaidStub';
 import { ReactionBurst } from '@/components/bill/ReactionBurst';
+import { ReactionPicker } from '@/components/bill/ReactionPicker';
+import { PingStrike } from '@/components/bill/PingStrike';
+import { PingToast } from '@/components/bill/PingToast';
+import { Confetti } from '@/components/bill/Confetti';
 import { STICKER } from '@/components/EmptyState';
 import { BackIcon } from '@/components/icons';
-import { BoltFlight } from '@/components/bill/BoltFlight';
-import { REACTIONS } from '@/components/bill/MemberOrb';
 import { MemberFace } from '@/components/bill/MemberFace';
 import { TornEdge } from '@/components/bill/TornEdge';
 import { SplitTheBill } from '@/components/bill/SplitTheBill';
@@ -72,6 +74,8 @@ export function SplitLiveScreen() {
   const home = useHomeData();
   const id = route.params?.id as string;
   const stage = useBillStageValue();
+  // счёт только что разделили — корешки отрываются от чека (zapSplit)
+  const justSplit = route.params?.justCreated === true;
   const centerRef = useAnimatedRef<View>();
 
   const { data: split, refetch } = useQuery({
@@ -244,6 +248,11 @@ export function SplitLiveScreen() {
   const [cardOpen, setCardOpen] = useState(false);
   const [boltTo, setBoltTo] = useState<string | null>(null);
   const [boltContact, setBoltContact] = useState<string | null>(null);
+  // откуда вылетает молния — центр нажатой кнопки ⚡
+  const [boltFrom, setBoltFrom] = useState<{ x: number; y: number } | null>(null);
+  // плашка «получил пинг» из макета
+  const [pingToast, setPingToast] = useState<{ title: string; line: string } | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   // для кого сейчас открыта палитра реакций
   const [reactFor, setReactFor] = useState<string | null>(null);
@@ -266,12 +275,6 @@ export function SplitLiveScreen() {
   const merchant = home.db?.merchants.find((m) => m.id === split?.merchantId);
   const myUserId = home.db?.user?.id;
 
-  /** Ваша карточка — точка вылета молнии при пинге. */
-  const myMemberId = (() => {
-    const me = members.find((m) => m.isYou) as { memberId?: string; contactId: string } | undefined;
-    return me ? (me.memberId ?? me.contactId) : undefined;
-  })();
-
   /**
    * «⚡ Пингануть» — фирменная механика (vision, часть A, «👀 Reminder»).
    *
@@ -280,8 +283,9 @@ export function SplitLiveScreen() {
    * Поэтому статус ставится не здесь, а в onDone у полёта: иначе аватар
    * дёргался бы раньше, чем до него что-то долетело.
    */
-  const ping = async (m: { contactId: string; memberId?: string }) => {
+  const ping = async (m: { contactId: string; memberId?: string }, from?: { x: number; y: number } | null) => {
     const target = m.memberId ?? m.contactId;
+    setBoltFrom(from ?? null);
     setBoltTo(target);
     setBoltContact(m.contactId);
     cue('reminder');
@@ -293,22 +297,22 @@ export function SplitLiveScreen() {
     }
   };
 
-  /** Молния долетела: теперь вздрагивание и подпись. */
+  /** Молния долетела: аватар вздрагивает, сверху приезжает плашка. */
   const onBoltLanded = () => {
     const contactId = boltContact;
-    setBoltTo(null);
     if (!contactId) return;
     setPinged((sset) => new Set([...sset, contactId]));
     setShakeId(contactId);
     setTimeout(() => setShakeId(null), 700);
     // живая фраза вместо «напоминание отправлено» (vision §B4)
     const m = members.find((x) => x.contactId === contactId);
-    toast.success(
-      reminderLine(contactId, pinged.size, {
+    setPingToast({
+      title: t('live.pingToast', { name: nameOf(contactId).split(' ')[0] }),
+      line: reminderLine(contactId, pinged.size, {
         name: nameOf(contactId),
         amount: money(m?.amount ?? 0),
       }),
-    );
+    });
   };
 
   const react = async (memberId: string, emoji: string) => {
@@ -423,13 +427,8 @@ export function SplitLiveScreen() {
             </PressableScale>
 
             <View style={styles.titleBody}>
-              <PressableScale
-                haptic={false}
-                onPress={() => {
-                  setRenameValue(split.title);
-                  setRenameOpen(true);
-                }}
-              >
+              {/* тап по названию — меню счёта: переименовать и поделиться */}
+              <PressableScale haptic={false} onPress={() => setMenuOpen(true)}>
                 <Text style={[styles.titleText, { color: colors.ink }]} numberOfLines={1}>{split.title}</Text>
               </PressableScale>
               {allPaid ? (
@@ -440,19 +439,6 @@ export function SplitLiveScreen() {
                 </Text>
               ) : null}
             </View>
-
-            {/*
-              Кнопка «поделиться» в макете не нарисована, но без неё в счёт
-              некого позвать: ссылка — единственный вход для тех, кого нет в
-              контактах. Поэтому она круглая и песочная, как «назад».
-            */}
-            <PressableScale
-              small
-              style={[styles.round, { backgroundColor: colors.cream }]}
-              onPress={() => void doShare()}
-            >
-              <Text style={[styles.shareGlyph, { color: colors.ink }]}>↗</Text>
-            </PressableScale>
 
             <View style={[styles.pct, { backgroundColor: fixed.lime }]}>
               <Text style={[styles.pctText, { color: fixed.ink }]}>
@@ -466,7 +452,6 @@ export function SplitLiveScreen() {
             {members.map((m, i) => {
               const memberId = (m as { memberId?: string }).memberId ?? m.contactId;
               const paid = ringsLit && (m.status === 'paid' || m.status === 'debt');
-              const covered = m.status === 'debt';
               const mine = reactions.find((r) => r.memberId === memberId && r.fromUserId === myUserId)?.emoji;
               return (
                 <MemberFace
@@ -476,12 +461,11 @@ export function SplitLiveScreen() {
                   initials={home.contactById(m.contactId)?.initials}
                   color={colorOf(m.contactId)}
                   paid={paid}
-                  covered={covered}
                   reaction={mine}
                   shake={shakeId === m.contactId}
                   sub={
                     paid
-                      ? covered
+                      ? m.status === 'debt'
                         ? t('live.debtCoveredShort')
                         : m.isYou
                           ? t('live.youZapped')
@@ -494,24 +478,14 @@ export function SplitLiveScreen() {
             })}
           </View>
 
-          {/* палитра реакций — белая пилюля, как в макете */}
           {reactFor ? (
-            <View style={styles.reactBar}>
-              <View style={[styles.reactPill, { backgroundColor: colors.paper }]}>
-                {REACTIONS.map((e) => (
-                  <PressableScale
-                    key={e}
-                    style={[styles.reactCell, { backgroundColor: colors.sand }]}
-                    onPress={() => {
-                      void react(reactFor, e);
-                      setReactFor(null);
-                    }}
-                  >
-                    <Text style={styles.reactGlyph}>{e}</Text>
-                  </PressableScale>
-                ))}
-              </View>
-            </View>
+            <ReactionPicker
+              current={reactions.find((r) => r.memberId === reactFor && r.fromUserId === myUserId)?.emoji}
+              onPick={(e) => {
+                void react(reactFor, e);
+                setReactFor(null);
+              }}
+            />
           ) : null}
 
           {/* чек: сумма, оплатившие и итог — узел для Split the Bill */}
@@ -558,6 +532,8 @@ export function SplitLiveScreen() {
           {unpaid.map((m, i) => (
             <UnpaidStub
               key={(m as { memberId?: string }).memberId ?? m.contactId}
+              index={i}
+              justSplit={justSplit}
               contactId={m.isYou ? 'me' : m.contactId}
               name={nameOf(m.contactId)}
               initials={home.contactById(m.contactId)?.initials}
@@ -574,7 +550,9 @@ export function SplitLiveScreen() {
                 }
                 setCoverFor({ memberId: (m as { memberId?: string }).memberId ?? m.contactId, amount: m.amount });
               }}
-              onPing={() => void ping({ contactId: m.contactId, memberId: (m as { memberId?: string }).memberId })}
+              onPing={(pt) =>
+                void ping({ contactId: m.contactId, memberId: (m as { memberId?: string }).memberId }, pt)
+              }
             />
           ))}
 
@@ -597,6 +575,35 @@ export function SplitLiveScreen() {
             )
           ) : null}
         </ScrollView>
+
+        {/*
+          Меню счёта. Кнопки «поделиться» в шапке нет — в макете там только
+          «назад», название и процент; действия живут за тапом по названию.
+        */}
+        <BottomSheet open={menuOpen} onClose={() => setMenuOpen(false)}>
+          <Text style={[styles.sheetTitle, { color: colors.ink }]} numberOfLines={1}>{split.title}</Text>
+          <PressableScale
+            style={[styles.menuRow, { backgroundColor: colors.sand }]}
+            onPress={() => {
+              setMenuOpen(false);
+              setRenameValue(split.title);
+              setRenameOpen(true);
+            }}
+          >
+            <Text style={styles.menuGlyph}>✏️</Text>
+            <Text style={[styles.menuText, { color: colors.ink }]}>{t('live.renameTitle')}</Text>
+          </PressableScale>
+          <PressableScale
+            style={[styles.menuRow, { backgroundColor: colors.sand }]}
+            onPress={() => {
+              setMenuOpen(false);
+              void doShare();
+            }}
+          >
+            <Text style={styles.menuGlyph}>↗</Text>
+            <Text style={[styles.menuText, { color: colors.ink }]}>{t('live.shareAction')}</Text>
+          </PressableScale>
+        </BottomSheet>
 
         {/* своё название вечера: «Boys Dinner 🍕» вместо мерчанта (vision §14) */}
         <BottomSheet open={renameOpen} onClose={() => setRenameOpen(false)}>
@@ -663,8 +670,21 @@ export function SplitLiveScreen() {
           onDone={() => setBurst(null)}
         />
 
-        {/* ⚡ летит от вашего аватара к должнику */}
-        <BoltFlight fromMemberId={myMemberId} toMemberId={boltTo} onDone={onBoltLanded} />
+        {/* ⚡ летит из кнопки в аватар: полёт, вспышка и удар сверху */}
+        <PingStrike
+          toMemberId={boltTo}
+          from={boltFrom}
+          onHit={onBoltLanded}
+          onDone={() => setBoltTo(null)}
+        />
+        <PingToast
+          title={pingToast?.title ?? null}
+          line={pingToast?.line ?? ''}
+          onDone={() => setPingToast(null)}
+        />
+
+        {/* 🎉 все закрыли счёт — конфетти сыплется прямо на экран сплита */}
+        <Confetti run={celebrate} />
 
         {/* карточка для сторис — то, что расходится органически */}
         <ShareCardSheet
@@ -693,7 +713,17 @@ const styles = StyleSheet.create({
   loading: { marginTop: 48, alignItems: 'center' },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20 },
   round: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  shareGlyph: { fontFamily: font.bold, fontSize: 17 },
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    height: 56,
+    borderRadius: 18,
+    paddingHorizontal: 16,
+    marginTop: 8,
+  },
+  menuGlyph: { fontSize: 17 },
+  menuText: { fontFamily: font.bold, fontSize: 15 },
   receiptWrap: { marginTop: 30 },
   receiptFoot: { height: 14, borderBottomLeftRadius: 18, borderBottomRightRadius: 18 },
   addPhotoText: { fontFamily: font.bold, fontSize: 14 },
