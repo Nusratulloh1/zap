@@ -79,8 +79,12 @@ export function SplitLiveScreen() {
   const home = useHomeData();
   const id = route.params?.id as string;
   const stage = useBillStageValue();
-  // счёт только что разделили — корешки отрываются от чека (zapSplit)
-  const justSplit = route.params?.justCreated === true;
+  /*
+    Отрыв корешков от чека играем при каждом открытии счёта, а не только сразу
+    после создания: это главный жест экрана — «чек разорвали на части». Если
+    перед этим идёт подписная анимация разделения, ждём, пока она отыграет.
+  */
+  const justCreated = route.params?.justCreated === true;
   const centerRef = useAnimatedRef<View>();
   // слой сцены: от него считаются координаты молнии и палитры
   const layerRef = useAnimatedRef<View>();
@@ -548,7 +552,8 @@ export function SplitLiveScreen() {
             <UnpaidStub
               key={(m as { memberId?: string }).memberId ?? m.contactId}
               index={i}
-              justSplit={justSplit}
+              justSplit
+              delay={justCreated ? 950 : 0}
               contactId={m.isYou ? 'me' : m.contactId}
               name={nameOf(m.contactId)}
               initials={home.contactById(m.contactId)?.initials}
