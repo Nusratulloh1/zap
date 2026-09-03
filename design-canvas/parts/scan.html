@@ -1,0 +1,54 @@
+<div style="width: 390px; height: 844px; background: #151513; color: #FFFFFF; position: relative; overflow: hidden; display: flex; flex-direction: column">
+
+  <!-- кадр камеры (в макете — заливка вместо живого видео) -->
+  <div style="position: absolute; inset: 0; background: radial-gradient(120% 80% at 50% 42%, #3A3833 0%, #211F1B 55%, #121110 100%)"></div>
+  <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.25)"></div>
+
+  <!-- верхний скрим -->
+  <div style="position: absolute; left: 0; right: 0; top: 0; height: 180px; background: linear-gradient(to bottom, rgba(0,0,0,0.75), rgba(0,0,0,0.3) 50%, transparent)"></div>
+
+  <!-- ЗОНА 1 — верх -->
+  <div style="position: relative; z-index: 2; display: flex; align-items: center; gap: 8px; padding: 12px 16px 0">
+    <div style="display: flex; align-items: center; justify-content: center; height: 40px; width: 40px; flex-shrink: 0; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.3)">
+      <svg width="17" height="17" viewBox="0 0 18 18" fill="none"><path d="m4.5 4.5 9 9M13.5 4.5l-9 9" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" /></svg>
+    </div>
+    <div style="position: relative; margin: 0 auto; display: flex; height: 40px; width: 220px; flex-shrink: 0; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.35); padding: 4px">
+      <div style="display: flex; align-items: center; justify-content: center; height: 32px; flex: 1; border-radius: 999px; background: #DDFF33; font-size: 13px; font-weight: 700; color: #111110">Скан</div>
+      <div style="display: flex; align-items: center; justify-content: center; height: 32px; flex: 1; border-radius: 999px; font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.75)">Фото</div>
+    </div>
+    <div style="display: flex; align-items: center; justify-content: center; height: 40px; width: 40px; flex-shrink: 0; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.3)">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M13 2L5 13H11L9 22L19 10H12.5L13 2Z" stroke="#FFFFFF" stroke-width="1.8" stroke-linejoin="round" /></svg>
+    </div>
+  </div>
+
+  <!-- ЗОНА 2 — рамка сканера -->
+  <div style="position: relative; z-index: 2; flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 16px">
+    <div style="position: relative; height: 232px; width: 232px">
+      <svg width="232" height="232" viewBox="0 0 232 232" fill="none" style="position: absolute; inset: 0">
+        <path d="M6 54V22C6 13.2 13.2 6 22 6H54" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
+        <path d="M178 6H210C218.8 6 226 13.2 226 22V54" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
+        <path d="M226 178V210C226 218.8 218.8 226 210 226H178" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
+        <path d="M54 226H22C13.2 226 6 218.8 6 210V178" stroke="#DDFF33" stroke-width="5" stroke-linecap="round" />
+      </svg>
+      <div style="position: absolute; left: 22px; right: 22px; top: 104px; height: 3px; border-radius: 999px; background: rgba(221,255,51,0.6); box-shadow: 0 0 18px rgba(221,255,51,0.5)"></div>
+    </div>
+  </div>
+
+  <!-- нижний скрим -->
+  <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 230px; background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.35) 50%, transparent)"></div>
+
+  <!-- ЗОНА 3 — низ -->
+  <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 0 16px 28px">
+    <div style="text-align: center; font-size: 15px; font-weight: 600; color: #FFFFFF">Наведите на QR-код чека</div>
+    <div style="display: flex; align-items: center; gap: 8px">
+      <div style="display: flex; align-items: center; gap: 6px; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.95); padding: 0 12px">
+        <img src="mysoliq.svg" alt="" style="height: 18px; width: auto">
+        <span style="font-size: 11.5px; font-weight: 700; color: #364BA8">MySoliq</span>
+      </div>
+      <div style="display: flex; align-items: center; height: 32px; border-radius: 999px; background: rgba(255,255,255,0.95); padding: 0 12px">
+        <img src="rahmat.svg" alt="Rahmat" style="height: 13px; width: auto">
+      </div>
+    </div>
+    <div style="font-size: 13.5px; font-weight: 700; color: rgba(255,255,255,0.75)">Ввести сумму вручную</div>
+  </div>
+</div>

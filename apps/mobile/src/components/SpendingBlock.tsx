@@ -25,15 +25,18 @@ export function SpendingBlock() {
   const [period, setPeriod] = useState<'week' | 'month'>('week');
   // выбранный столбик — показываем его сумму над графиком
   const [picked, setPicked] = useState<number | null>(null);
-  const monthLabel = useMemo(
-    () => new Date().toLocaleDateString(undefined, { month: 'long' }),
-    [],
-  );
+  const [pickedCat, setPickedCat] = useState<string | null>(null);
+  // месяц называем ключом из локалей: toLocaleDateString давал «September»
+  const monthLabel = t(`recap.month.${new Date().getMonth() + 1}`);
 
   const sum = useMemo(() => spendSummary(home.db, period), [home.db, period]);
   const cats = useMemo(() => byCategory(home.db, period), [home.db, period]);
   const people = useMemo(() => byPerson(home.db, period), [home.db, period]);
   const place = useMemo(() => topPlace(home.db, period), [home.db, period]);
+  const shown = useMemo(
+    () => cats.find((c) => c.key === pickedCat) ?? cats[0],
+    [cats, pickedCat],
+  );
   const days = useMemo(() => daily(home.db), [home.db]);
   const maxDay = useMemo(() => Math.max(...days.map((d) => d.amount), 1), [days]);
 
@@ -165,9 +168,10 @@ export function SpendingBlock() {
                     r={15.9155}
                     fill="none"
                     stroke={SLICE_COLORS[i]}
-                    strokeWidth={7}
+                    strokeWidth={pickedCat === c.key ? 8.5 : 7}
                     strokeDasharray={`${c.share} ${100 - c.share}`}
                     strokeDashoffset={offset}
+                    onPress={() => setPickedCat(pickedCat === c.key ? null : c.key)}
                   />
                 );
               })}
@@ -188,11 +192,17 @@ export function SpendingBlock() {
                 </Text>
               );
             })}
+            {/* в центре — выбранный сегмент, иначе крупнейший */}
             <View style={styles.donutCenter} pointerEvents="none">
-              <Text style={[styles.donutPct, { color: colors.ink }]}>{cats[0]?.share ?? 0}%</Text>
-              <Text style={[styles.donutName, { color: colors.faint2 }]}>
-                {cats[0] ? t(`category.${cats[0].key}`).toLowerCase() : ''}
+              <Text style={[styles.donutPct, { color: colors.ink }]}>{shown?.share ?? 0}%</Text>
+              <Text style={[styles.donutName, { color: colors.faint2 }]} numberOfLines={1}>
+                {shown ? t(`category.${shown.key}`).toLowerCase() : ''}
               </Text>
+              {pickedCat && shown ? (
+                <Text style={[styles.donutAmount, { color: colors.ink }]} numberOfLines={1}>
+                  {money(shown.amount)}
+                </Text>
+              ) : null}
             </View>
           </View>
 
@@ -200,7 +210,7 @@ export function SpendingBlock() {
             {cats.slice(0, 5).map((c, i) => (
               <View key={c.key} style={styles.legendRow}>
                 <View style={[styles.legendDot, { backgroundColor: SLICE_COLORS[i] }]} />
-                <Text style={[styles.legendName, { color: colors.ink }]} numberOfLines={1}>
+                <Text style={[styles.legendName, { color: colors.ink }]} numberOfLines={1} ellipsizeMode="tail">
                   {c.glyph} {t(`category.${c.key}`)}
                 </Text>
                 <Text style={[styles.legendAmount, { color: colors.ink }]} numberOfLines={1}>{money(c.amount)}</Text>
@@ -222,10 +232,13 @@ export function SpendingBlock() {
             frame={colors.paper}
             items={people.slice(0, 3).map((p) => {
               const c = home.contactById(p.contactId);
+              // если контакта нет в справочнике, показываем его @username или
+              // телефон — «?» на экране выглядел как ошибка
+              const full = c?.name ?? c?.handle ?? p.contactId;
               return {
                 key: p.contactId,
                 contactId: p.contactId,
-                name: (c?.name ?? '?').split(' ')[0] ?? '?',
+                name: full.split(' ')[0] ?? full,
                 color: c?.color,
                 initials: c?.initials,
                 amount: p.amount,
@@ -266,10 +279,11 @@ const styles = StyleSheet.create({
   donutCenter: { position: 'absolute', alignItems: 'center' },
   donutPct: { fontFamily: font.extrabold, fontSize: 30 },
   donutName: { fontFamily: font.semibold, fontSize: 11, marginTop: 4 },
+  donutAmount: { fontFamily: font.extrabold, fontSize: 13, marginTop: 4 },
   legend: { marginTop: 18, gap: 12 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   legendDot: { width: 12, height: 12, borderRadius: 4 },
-  legendName: { flex: 1, fontFamily: font.bold, fontSize: 13 },
+  legendName: { flex: 1, fontFamily: font.bold, fontSize: 13, marginRight: 8 },
   legendAmount: { fontFamily: font.monoBold, fontSize: 13 },
   legendShare: { width: 40, textAlign: 'right', fontFamily: font.semibold, fontSize: 12 },
   placeRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginTop: 14, paddingTop: 12, borderTopWidth: 1 },

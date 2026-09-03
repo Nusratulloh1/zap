@@ -77,7 +77,9 @@ export function HistoryScreen() {
     (e.amount > 0 ? '+' : e.amount < 0 ? '−' : '') + money(Math.abs(e.amount));
 
   return (
-    <Screen style={styles.flex}>
+    // фон бежевый (#F1EFE9), карточки белые — как в макете: раньше и фон, и
+    // карточки были белыми, и блоки сливались в одно полотно
+    <Screen style={styles.flex} background={colors.dune2}>
       {/*
         Один скролл на весь экран: заголовок, поиск и вкладки едут вместе со
         списком. Закреплённая шапка отъедала верх, и длинная история
