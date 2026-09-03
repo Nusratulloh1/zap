@@ -88,15 +88,6 @@ export function SpendingBlock() {
           Столбики за неделю. Тап по столбику показывает сумму этого дня —
           иначе график только «настроение», а цифру за вторник не узнать.
         */}
-        {picked !== null && days[picked] ? (
-          <View style={styles.tipRow}>
-            <View style={[styles.tip, { backgroundColor: 'rgba(255,255,255,0.12)' }]}>
-              <Text style={styles.tipText}>
-                {days[picked]!.label} · {money(days[picked]!.amount)}
-              </Text>
-            </View>
-          </View>
-        ) : null}
         <View style={styles.chart}>
           {days.map((d, i) => (
             <PressableScale
@@ -116,6 +107,29 @@ export function SpendingBlock() {
               />
             </PressableScale>
           ))}
+
+          {/*
+            Тултип абсолютный: раньше он вставлялся строкой над графиком и при
+            каждом тапе вся карточка подпрыгивала. Теперь всплывает над
+            столбиком и вёрстку не двигает — как в веб‑дашбордах.
+          */}
+          {picked !== null && days[picked] ? (
+            <View
+              style={[
+                styles.tip,
+                {
+                  backgroundColor: colors.paper,
+                  left: `${(picked + 0.5) * (100 / days.length)}%`,
+                  bottom: Math.max(8, (days[picked]!.amount / Math.max(1, maxDay)) * 96) + 8,
+                },
+              ]}
+              pointerEvents="none"
+            >
+              <Text style={[styles.tipText, { color: colors.ink }]} numberOfLines={1}>
+                {days[picked]!.label} · {money(days[picked]!.amount)}
+              </Text>
+            </View>
+          ) : null}
         </View>
         <View style={styles.chartLabels}>
           {days.map((d, i) => (
@@ -157,6 +171,7 @@ export function SpendingBlock() {
             поэтому проценты кладутся в dasharray без пересчёта.
           */}
           <View style={styles.donutWrap}>
+            <View style={styles.donutBox}>
             <Svg width={180} height={180} viewBox="0 0 42 42" style={styles.donut}>
               {cats.slice(0, 5).map((c, i) => {
                 const offset = -cats.slice(0, i).reduce((a, x) => a + x.share, 0) + 25;
@@ -185,7 +200,7 @@ export function SpendingBlock() {
                   key={`g-${c.key}`}
                   style={[
                     styles.donutGlyph,
-                    { left: 90 + Math.cos(angle) * 66 - 10, top: 90 + Math.sin(angle) * 66 - 10 },
+                    { left: 90 + Math.cos(angle) * 68 - 11, top: 90 + Math.sin(angle) * 68 - 11 },
                   ]}
                 >
                   {c.glyph}
@@ -203,6 +218,7 @@ export function SpendingBlock() {
                   {money(shown.amount)}
                 </Text>
               ) : null}
+            </View>
             </View>
           </View>
 
@@ -275,6 +291,9 @@ const styles = StyleSheet.create({
   cardTitle2: { fontFamily: font.extrabold, fontSize: 16, letterSpacing: -0.3 },
   cardSub: { fontFamily: font.semibold, fontSize: 10 },
   donutWrap: { alignItems: 'center', justifyContent: 'center', marginTop: 16, height: 180 },
+  // отдельный кадр 180×180: эмодзи позиционируются относительно него, иначе
+  // они считались от края карточки и вылезали за кольцо
+  donutBox: { width: 180, height: 180, alignItems: 'center', justifyContent: 'center' },
   donut: { transform: [{ rotate: '-90deg' }] },
   donutCenter: { position: 'absolute', alignItems: 'center' },
   donutPct: { fontFamily: font.extrabold, fontSize: 30 },
@@ -300,11 +319,23 @@ const styles = StyleSheet.create({
   deltaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8 },
   deltaChip: { borderRadius: 8, paddingVertical: 2, paddingHorizontal: 7 },
   deltaText: { fontFamily: font.extrabold, fontSize: 11 },
-  tipRow: { alignItems: 'center', marginTop: 12 },
-  tip: { borderRadius: 12, paddingVertical: 5, paddingHorizontal: 10 },
-  tipText: { fontFamily: font.bold, fontSize: 11, color: '#FFFFFF' },
+  tip: {
+    position: 'absolute',
+    transform: [{ translateX: -48 }],
+    minWidth: 96,
+    alignItems: 'center',
+    borderRadius: 12,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    shadowColor: '#121212',
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 6,
+  },
+  tipText: { fontFamily: font.bold, fontSize: 11 },
   barTap: { flex: 1, justifyContent: 'flex-end' },
-  donutGlyph: { position: 'absolute', fontSize: 16, width: 20, textAlign: 'center' },
+  donutGlyph: { position: 'absolute', fontSize: 16, width: 22, height: 22, lineHeight: 22, textAlign: 'center' },
   delta: { fontFamily: font.extrabold, fontSize: 14 },
   sub: { flex: 1, fontFamily: font.semibold, fontSize: 11, color: 'rgba(255,255,255,0.55)' },
   metrics: { flexDirection: 'row', gap: 8, marginTop: 16 },
