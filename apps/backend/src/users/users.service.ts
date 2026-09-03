@@ -236,7 +236,7 @@ export class UsersService {
         nextTier: nextTier(g.cashbackPool),
         merchantsCount: new Set(g.splits.map((s) => s.merchantId).filter(Boolean)).size || 1,
       })),
-      splits: splits.map((s) => this.mapSplit(s, contactId)),
+      splits: splits.map((s) => this.mapSplit(s, contactId, userId)),
       debts: [
         ...debtsOut.map((d) => ({
           id: d.id,
@@ -320,7 +320,13 @@ export class UsersService {
     }
   }
 
-  mapSplit(s: FullSplit, contactId: (phone: string) => string) {
+  /*
+    `selfId` — id смотрящего. Себя в bootstrap мы везде отдаём как 'me'
+    (user.id тоже 'me'), поэтому и автора реакции надо приводить к 'me':
+    иначе приложение не узнаёт свою же реакцию и после обновления данных она
+    пропадает с аватара.
+  */
+  mapSplit(s: FullSplit, contactId: (phone: string) => string, selfId?: string) {
     const statusMap: Record<string, string> = { pending: 'waiting', opened: 'opened', paid: 'paid', covered: 'debt', debt: 'debt' }
     return {
       id: s.id,
@@ -351,7 +357,7 @@ export class UsersService {
       reactions: (s.reactions ?? []).map((r) => ({
         memberId: r.memberId,
         emoji: r.emoji,
-        fromUserId: r.fromUserId,
+        fromUserId: selfId && r.fromUserId === selfId ? 'me' : r.fromUserId,
         fromName: (r.fromUser?.name || '').split(' ')[0],
       })),
     }
