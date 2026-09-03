@@ -1,8 +1,10 @@
-// Палитра реакций — белая пилюля из макета, открывается по-телеграмному:
-// сама пилюля выезжает пружиной, а кружки эмодзи всплывают по очереди.
+// Палитра реакций — белый столбик, который раскрывается под кружком «+»:
+// сама пилюля выезжает пружиной, а кружки эмодзи всплывают сверху вниз.
 //
+// Колонка, а не строка: палитра висит ровно под своим «+» и не перекрывает
+// соседние лица — по горизонтали пять кружков накрыли бы весь ряд участников.
 // Мгновенное появление читалось как «выскочило меню»; стаггер в 28 мс делает
-// из этого жест — палитра раскрывается слева направо, как в Telegram.
+// из этого жест — палитра раскрывается сверху вниз, как в Telegram.
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
@@ -39,7 +41,7 @@ function Cell({ emoji, index, active, onPick }: { emoji: string; index: number; 
 
   const style = useAnimatedStyle(() => ({
     opacity: Math.min(1, p.value * 1.6),
-    transform: [{ scale: 0.4 + p.value * 0.6 }, { translateY: (1 - p.value) * 10 }],
+    transform: [{ scale: 0.4 + p.value * 0.6 }, { translateY: (1 - p.value) * -8 }],
   }));
 
   return (
@@ -65,7 +67,7 @@ export function ReactionPicker({ current, onPick }: Props) {
 
   const style = useAnimatedStyle(() => ({
     opacity: withTiming(p.value, { duration: 120 }),
-    transform: [{ scale: 0.86 + p.value * 0.14 }, { translateY: (1 - p.value) * -8 }],
+    transform: [{ scale: 0.86 + p.value * 0.14 }, { translateY: (1 - p.value) * -10 }],
   }));
 
   return (
@@ -80,13 +82,14 @@ export function ReactionPicker({ current, onPick }: Props) {
 }
 
 const styles = StyleSheet.create({
-  row: { alignItems: 'center', marginTop: 14 },
+  row: { alignItems: 'center' },
   pill: {
-    flexDirection: 'row',
+    // столбик: палитра раскрывается вниз под своим «+»
+    alignItems: 'center',
     gap: 6,
-    borderRadius: 22,
-    paddingVertical: 6,
-    paddingHorizontal: 8,
+    borderRadius: 26,
+    paddingVertical: 8,
+    paddingHorizontal: 6,
     // тень из макета: 0 6px 20px rgba(18,18,18,.10)
     shadowColor: '#121212',
     shadowOpacity: 0.1,

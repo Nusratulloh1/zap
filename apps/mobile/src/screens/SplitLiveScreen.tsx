@@ -62,8 +62,9 @@ import { reduceMotion } from '@/lib/feedback';
 
 
 
-/** Ширина палитры реакций: 5 кружков по 34 + зазоры 6 + поля 8. */
-const PICKER_W = 5 * 34 + 4 * 6 + 16;
+/** Палитра реакций — столбик: кружок 34 + поля 6, высота на 5 эмодзи. */
+const PICKER_W = 34 + 12;
+const PICKER_H = 5 * 34 + 4 * 6 + 16;
 
 /** Подписи ожидания оплаты. */
 const PAY_STEPS = ['loading.paying1', 'loading.paying2'] as const;
@@ -244,7 +245,7 @@ export function SplitLiveScreen() {
   // строки, появившиеся в чеке только что: они въезжают с лаймовой вспышкой
   const [fresh, setFresh] = useState<Set<string>>(new Set());
   // реакция, которую сейчас показываем во весь экран
-  const [burst, setBurst] = useState<{ emoji: string; x: number; y: number } | null>(null);
+  const [burst, setBurst] = useState<{ emoji: string } | null>(null);
   const covering = useRef(false);
   // ref спасает от двойного тапа, состояние — рисует ожидание
   const [isCovering, setCovering] = useState(false);
@@ -266,7 +267,7 @@ export function SplitLiveScreen() {
   const [reactFor, setReactFor] = useState<
     { memberId: string; x: number; y: number; width: number; height: number } | null
   >(null);
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const [renameValue, setRenameValue] = useState('');
 
@@ -337,7 +338,7 @@ export function SplitLiveScreen() {
     });
   };
 
-  const react = async (memberId: string, emoji: string, at?: { x: number; y: number }) => {
+  const react = async (memberId: string, emoji: string) => {
     if (!myUserId) return;
     const mine = reactions.find((r) => r.memberId === memberId && r.fromUserId === myUserId);
     const next = reactions.filter((r) => !(r.memberId === memberId && r.fromUserId === myUserId));
@@ -345,7 +346,7 @@ export function SplitLiveScreen() {
       next.push({ memberId, emoji, fromUserId: myUserId, fromName: (home.db?.user?.name ?? '').split(' ')[0] ?? '' });
     }
     setOptimistic(next);
-    if (mine?.emoji !== emoji && at) setBurst({ emoji, ...at });
+    if (mine?.emoji !== emoji) setBurst({ emoji });
     try {
       await reactToMember(id, memberId, emoji);
       await refetch();
@@ -693,8 +694,12 @@ export function SplitLiveScreen() {
                 style={[
                   styles.pickerFloat,
                   {
-                    left: Math.max(12, Math.min(reactFor.x + reactFor.width / 2 - PICKER_W / 2, width - PICKER_W - 12)),
-                    top: reactFor.y + reactFor.height + 10,
+                    left: Math.max(
+                      12,
+                      Math.min(reactFor.x + reactFor.width / 2 - PICKER_W / 2, width - PICKER_W - 12),
+                    ),
+                    // если снизу не хватает места — раскрываем вверх
+                    top: Math.min(reactFor.y + reactFor.height + 10, height - PICKER_H - 24),
                   },
                 ]}
               >
@@ -703,11 +708,7 @@ export function SplitLiveScreen() {
                     reactions.find((r) => r.memberId === reactFor.memberId && r.fromUserId === myUserId)?.emoji
                   }
                   onPick={(e) => {
-                    // всплеск идёт от аватара, у которого нажали «+»
-                    void react(reactFor.memberId, e, {
-                      x: reactFor.x + reactFor.width / 2 + 26,
-                      y: reactFor.y,
-                    });
+                    void react(reactFor.memberId, e);
                     setReactFor(null);
                   }}
                 />
@@ -716,11 +717,7 @@ export function SplitLiveScreen() {
           ) : null}
 
           {/* реакция во весь экран: большой эмодзи и облако значков */}
-          <ReactionBurst
-            emoji={burst?.emoji ?? null}
-            origin={burst ? { x: burst.x, y: burst.y } : null}
-            onDone={() => setBurst(null)}
-          />
+          <ReactionBurst emoji={burst?.emoji ?? null} onDone={() => setBurst(null)} />
 
           {/* ⚡ летит из кнопки в аватар: полёт, вспышка и удар сверху */}
           <PingStrike
