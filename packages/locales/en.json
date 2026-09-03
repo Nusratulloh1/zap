@@ -319,7 +319,13 @@
     "roast2": "💸 {{name}} is still “about to pay” 😴",
     "roast3": "🍕 {{name}} ate — payment.exe not found 😂",
     "roast4": "⚡ waiting for {{name}}… still waiting 🤔",
-    "notPaidYet": "not paid yet"
+    "notPaidYet": "not paid yet",
+    "lend": "Cover for them",
+    "payMine": "Pay",
+    "paidLabel": "PAID",
+    "paidOutOf": "paid of {total} · {people}",
+    "debtCoveredShort": "on credit, you covered",
+    "reactionBy": "{name} reacted {emoji}"
   },
   "closed": {
     "title": "Done, split closed",

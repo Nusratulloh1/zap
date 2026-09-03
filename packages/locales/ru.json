@@ -319,7 +319,13 @@
     "roast2": "💸 {{name}} всё ещё «сейчас переведёт» 😴",
     "roast3": "🍕 {{name}} поел — платить забыл 😂",
     "roast4": "⚡ ждём {{name}}… всё ещё ждём 🤔",
-    "notPaidYet": "ещё не оплатил"
+    "notPaidYet": "ещё не оплатил",
+    "lend": "Дать в долг",
+    "payMine": "Оплатить",
+    "paidLabel": "ОПЛАЧЕНО",
+    "paidOutOf": "оплачено из {total} · {people}",
+    "debtCoveredShort": "в долг, вы покрыли",
+    "reactionBy": "{name} поставил {emoji}"
   },
   "closed": {
     "title": "Готово, сплит закрыт",

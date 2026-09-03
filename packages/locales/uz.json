@@ -319,7 +319,13 @@
     "roast2": "💸 {{name}} «hozir tashlayman» deyapti 😴",
     "roast3": "🍕 {{name}} yeb bo‘ldi — to‘lash esidan chiqdi 😂",
     "roast4": "⚡ {{name}}ni kutyapmiz… hali ham kutyapmiz 🤔",
-    "notPaidYet": "hali to‘lamadi"
+    "notPaidYet": "hali to‘lamadi",
+    "lend": "Qarzga berish",
+    "payMine": "To'lash",
+    "paidLabel": "TO'LANDI",
+    "paidOutOf": "{total} dan · {people}",
+    "debtCoveredShort": "qarzga, siz yopdingiz",
+    "reactionBy": "{name} {emoji} qo‘ydi"
   },
   "closed": {
     "title": "Tayyor, bo'lish yopildi",

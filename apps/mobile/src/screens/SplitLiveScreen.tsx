@@ -14,11 +14,7 @@
 //   • QR → receipt    → на ScanScreen, приземляется в stage.receipt этого экрана
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TextInput, View , useWindowDimensions } from 'react-native';
-import Animated, {
-  useAnimatedRef,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import { useAnimatedRef, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -35,10 +31,12 @@ import { PressableScale } from '@/components/PressableScale';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PinSheet } from '@/components/PinSheet';
 import { toast } from '@/components/ToastHost';
-import { BillReceipt } from '@/components/bill/BillReceipt';
-import { ThemeGarnish } from '@/components/bill/ThemeGarnish';
+import { LiveReceipt } from '@/components/bill/LiveReceipt';
+import { UnpaidStub } from '@/components/bill/UnpaidStub';
+import { ReactionBurst } from '@/components/bill/ReactionBurst';
+import { STICKER } from '@/components/EmptyState';
+import { BackIcon } from '@/components/icons';
 import { BoltFlight } from '@/components/bill/BoltFlight';
-import { Avatar } from '@/components/Avatar';
 import { REACTIONS } from '@/components/bill/MemberOrb';
 import { MemberFace } from '@/components/bill/MemberFace';
 import { TornEdge } from '@/components/bill/TornEdge';
@@ -203,13 +201,42 @@ export function SplitLiveScreen() {
     if (split?.status === 'closed') endLiveActivity(split.id);
   }, [split?.status, split?.id]);
 
+  /*
+    Кто закрыл долю только что: сравниваем состав оплативших с прошлым
+    рендером. Первый заход только запоминает список — иначе при открытии
+    экрана лаймом вспыхнули бы все строки сразу.
+  */
+  const knownPaid = useRef<Set<string> | null>(null);
+  useEffect(() => {
+    const now = new Set(
+      members
+        .filter((m) => m.status === 'paid' || m.status === 'debt')
+        .map((m) => (m as { memberId?: string }).memberId ?? m.contactId),
+    );
+    const was = knownPaid.current;
+    knownPaid.current = now;
+    if (!was) return;
+    const added = [...now].filter((x) => !was.has(x));
+    if (!added.length) return;
+    setFresh(new Set(added));
+    const timer = setTimeout(() => setFresh(new Set()), 1200);
+    return () => clearTimeout(timer);
+  }, [members]);
+
   const bar = useSharedValue(0);
   useEffect(() => {
     bar.value = withTiming(progress, { duration: 700, easing: EASE_ZAP });
   }, [progress, bar]);
 
   const [pinged, setPinged] = useState<Set<string>>(new Set());
-  const [coverSheet, setCoverSheet] = useState(false);
+  // кому именно закрываем долю: null — никому, иначе PIN на эту сумму
+  const [coverFor, setCoverFor] = useState<{ memberId: string; amount: number } | null>(null);
+  // аватар, в который только что прилетела молния
+  const [shakeId, setShakeId] = useState<string | null>(null);
+  // строки, появившиеся в чеке только что: они въезжают с лаймовой вспышкой
+  const [fresh, setFresh] = useState<Set<string>>(new Set());
+  // реакция, которую сейчас показываем во весь экран
+  const [burst, setBurst] = useState<{ emoji: string; name: string } | null>(null);
   const covering = useRef(false);
   // ref спасает от двойного тапа, состояние — рисует ожидание
   const [isCovering, setCovering] = useState(false);
@@ -272,6 +299,8 @@ export function SplitLiveScreen() {
     setBoltTo(null);
     if (!contactId) return;
     setPinged((sset) => new Set([...sset, contactId]));
+    setShakeId(contactId);
+    setTimeout(() => setShakeId(null), 700);
     // живая фраза вместо «напоминание отправлено» (vision §B4)
     const m = members.find((x) => x.contactId === contactId);
     toast.success(
@@ -290,6 +319,9 @@ export function SplitLiveScreen() {
       next.push({ memberId, emoji, fromUserId: myUserId, fromName: (home.db?.user?.name ?? '').split(' ')[0] ?? '' });
     }
     setOptimistic(next);
+    if (mine?.emoji !== emoji) {
+      setBurst({ emoji, name: (home.db?.user?.name ?? '').split(' ')[0] || t('members.youShort') });
+    }
     try {
       await reactToMember(id, memberId, emoji);
       await refetch();
@@ -334,16 +366,18 @@ export function SplitLiveScreen() {
   };
 
   const confirmCover = async () => {
-    setCoverSheet(false);
+    const target = coverFor;
+    setCoverFor(null);
+    if (!target) return;
     if (covering.current) return;
     covering.current = true;
     setCovering(true);
     try {
-      await coverRemainder(id);
+      await coverRemainder(id, [target.memberId]);
       cue('paid');
       // стикер успеха: если этим действием счёт закрылся полностью, его
       // место займёт празднование «все оплатили» — два подряд не нужны
-      if (remainder < (split?.total ?? 0)) setCoverBurst(true);
+      if (target.amount < remainder) setCoverBurst(true);
       await refetch();
       await qc.invalidateQueries({ queryKey: qk.bootstrap });
     } finally {
@@ -354,7 +388,7 @@ export function SplitLiveScreen() {
 
   if (!split) {
     return (
-      <Screen style={styles.root} background={colors.cream}>
+      <Screen style={styles.root} background={colors.dune2}>
         <ScreenHeader onBack={() => nav.popTo('Tabs')} />
         <View style={styles.loading}>
           <ZapLoader label={t('bill.loading')} />
@@ -363,36 +397,31 @@ export function SplitLiveScreen() {
     );
   }
 
-  // тема заведения — гарнир, а не перекраска (vision §5)
+  // тема заведения — стикер в углу чека (vision §5)
   const theme = themeForMerchant(merchant?.name ?? split.title);
 
   const allPaid = paidMembers.length === members.length && members.length > 0;
-  const waitingNames = members
-    .filter((m) => m.status !== 'paid' && m.status !== 'debt')
-    .map((m) => nameOf(m.contactId));
-
-  const closed = split.status === 'closed';
   const unpaid = members.filter((m) => m.status !== 'paid' && m.status !== 'debt');
-  const headInk = colors.ink;
-  const headMuted = colors.muted;
 
   return (
     <BillStageProvider value={stage}>
-      {/*
-        Фон закрытого счёта — #F1EFE9, как в макете (spec/12): лаймом там
-        подсвечен только чип «100%». Ранее я красил весь экран в лайм — это
-        было моё решение, макет говорит иначе.
-      */}
-      <Screen style={styles.root} background={closed ? colors.dune2 : colors.cream} darkBar={false}>
-        <ScreenHeader onBack={() => nav.popTo('Tabs')} tint="sand" />
-
+      {/* фон #F1EFE9 из макета: лаймом подсвечен только чип процента */}
+      <Screen style={styles.root} background={colors.dune2} darkBar={false}>
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
           {/*
-            Шапка spec/11: название по центру, под ним статус мелким, справа
-            лаймовый чип процента. Крупной строки «3 / 4 оплатили» в макете нет
-            — она дублировала чип.
+            Шапка spec/11: круглая «назад», название по центру и лаймовый чип
+            процента. Подзаголовок в макете есть только у закрытого счёта
+            (spec/12) — там он несёт «Все оплатили. Красиво. ⚡».
           */}
           <View style={styles.titleRow}>
+            <PressableScale
+              small
+              style={[styles.round, { backgroundColor: colors.cream }]}
+              onPress={() => nav.popTo('Tabs')}
+            >
+              <BackIcon size={20} color={colors.ink} />
+            </PressableScale>
+
             <View style={styles.titleBody}>
               <PressableScale
                 haptic={false}
@@ -401,42 +430,38 @@ export function SplitLiveScreen() {
                   setRenameOpen(true);
                 }}
               >
-                <Text style={[styles.titleText, { color: headInk }]} numberOfLines={1}>{split.title}</Text>
+                <Text style={[styles.titleText, { color: colors.ink }]} numberOfLines={1}>{split.title}</Text>
               </PressableScale>
-              <Text style={[styles.titleSub, { color: headMuted }]} numberOfLines={1}>
-                {t('live.paidOfCount', { paid: paidMembers.length, total: members.length })}
-                {' · '}
-                {allPaid ? t('live.allPaidHeadline') : t('live.waitingFor', { names: waitingNames.join(', ') })}
-              </Text>
+              {allPaid ? (
+                <Text style={[styles.titleSub, { color: colors.muted }]} numberOfLines={1}>
+                  {t('live.paidOfCount', { paid: paidMembers.length, total: members.length })}
+                  {' · '}
+                  {t('live.allPaidHeadline')}
+                </Text>
+              ) : null}
             </View>
-            <View style={[styles.pct, { backgroundColor: allPaid ? fixed.lime : colors.sand }]}>
-              <Text style={[styles.pctText, { color: colors.ink }]}>
+
+            {/*
+              Кнопка «поделиться» в макете не нарисована, но без неё в счёт
+              некого позвать: ссылка — единственный вход для тех, кого нет в
+              контактах. Поэтому она круглая и песочная, как «назад».
+            */}
+            <PressableScale
+              small
+              style={[styles.round, { backgroundColor: colors.cream }]}
+              onPress={() => void doShare()}
+            >
+              <Text style={[styles.shareGlyph, { color: colors.ink }]}>↗</Text>
+            </PressableScale>
+
+            <View style={[styles.pct, { backgroundColor: fixed.lime }]}>
+              <Text style={[styles.pctText, { color: fixed.ink }]}>
                 {Math.round((paidMembers.length / Math.max(1, members.length)) * 100)}%
               </Text>
             </View>
           </View>
 
-          {/* центральный чек — узел для Split the Bill */}
-          <View>
-            <ThemeGarnish theme={theme} />
-            <BillReceipt
-            title={split.title}
-            merchantName={merchant?.name}
-            merchantLogo={merchantLogo(merchantName) ?? undefined}
-            orderLine={split.bill ? t('live.orderNo', { no: split.bill.orderNo }).trim() : undefined}
-            total={split.total}
-            paidAmount={paidAmount}
-              onPressTitle={() => {
-                setRenameValue(split.title);
-                setRenameOpen(true);
-              }}
-            />
-          </View>
-
-          {/* точка схождения для Everyone Paid */}
-          <Animated.View ref={centerRef} style={styles.center} pointerEvents="none" />
-
-          {/* лица колонками — ряд шириной 90 на человека (spec/11) */}
+          {/* лица колонками — ряд шириной 90 на человека */}
           <View style={styles.faces}>
             {members.map((m, i) => {
               const memberId = (m as { memberId?: string }).memberId ?? m.contactId;
@@ -453,10 +478,11 @@ export function SplitLiveScreen() {
                   paid={paid}
                   covered={covered}
                   reaction={mine}
+                  shake={shakeId === m.contactId}
                   sub={
                     paid
                       ? covered
-                        ? t('live.debtCovered')
+                        ? t('live.debtCoveredShort')
                         : m.isYou
                           ? t('live.youZapped')
                           : t('live.zapped', { name: nameOf(m.contactId).split(' ')[0] })
@@ -488,83 +514,88 @@ export function SplitLiveScreen() {
             </View>
           ) : null}
 
-          {/* рваный чек: кто ещё не оплатил (spec/11) */}
-          {unpaid.length ? (
-            <View style={styles.torn}>
-              <TornEdge color={colors.paper} side="top" width={width - 30} />
-              <View style={[styles.tornBody, { backgroundColor: colors.paper }]}>
-                {unpaid.map((m) => (
-                  <View key={m.contactId} style={styles.tornRow}>
-                    <Avatar
-                      contactId={m.contactId}
-                      name={nameOf(m.contactId)}
-                      color={colorOf(m.contactId)}
-                      size={36}
-                      style={styles.tornFace}
-                    />
-                    <View style={styles.tornBodyText}>
-                      <Text style={[styles.tornName, { color: colors.ink }]} numberOfLines={1}>
-                        {nameOf(m.contactId)}
-                      </Text>
-                      <Text style={styles.tornState} numberOfLines={1}>{t('live.notPaidYet')}</Text>
-                    </View>
-                    <Text style={[styles.tornAmount, { color: colors.muted }]}>{money(m.amount)}</Text>
-                    <PressableScale
-                      disabled={pinged.has(m.contactId)}
-                      style={[styles.tornPing, { backgroundColor: colors.ink }, pinged.has(m.contactId) && styles.dimmed]}
-                      onPress={() => void ping({ contactId: m.contactId, memberId: (m as { memberId?: string }).memberId })}
-                    >
-                      <Text style={[styles.tornPingText, { color: fixed.lime }]}>⚡</Text>
-                    </PressableScale>
-                  </View>
-                ))}
-              </View>
-              <TornEdge color={colors.paper} side="bottom" width={width - 30} />
-            </View>
-          ) : null}
+          {/* чек: сумма, оплатившие и итог — узел для Split the Bill */}
+          <View style={styles.receiptWrap}>
+            <LiveReceipt
+              merchantName={merchant?.name ?? split.title}
+              orderLine={split.bill ? t('live.orderNo', { no: split.bill.orderNo }).trim() : undefined}
+              sticker={theme?.sticker ? STICKER[theme.sticker] : undefined}
+              paidAmount={paidAmount}
+              total={split.total}
+              membersCount={members.length}
+              rows={paidMembers.map((m) => {
+                const memberId = (m as { memberId?: string }).memberId ?? m.contactId;
+                return {
+                  key: memberId,
+                  contactId: m.isYou ? 'me' : m.contactId,
+                  name: m.isYou ? `${nameOf(m.contactId)}${t('live.youSuffix')}` : nameOf(m.contactId),
+                  initials: home.contactById(m.contactId)?.initials,
+                  color: colorOf(m.contactId),
+                  sub:
+                    m.status === 'debt'
+                      ? t('live.debtCoveredShort')
+                      : m.isYou
+                        ? t('live.youZapped')
+                        : t('live.zapped', { name: nameOf(m.contactId).split(' ')[0] }),
+                  amount: m.amount,
+                  fresh: fresh.has(memberId),
+                };
+              })}
+              onPressTitle={() => {
+                setRenameValue(split.title);
+                setRenameOpen(true);
+              }}
+            />
+            {/* низ чека: зубцы, если кто-то ещё должен, иначе ровный край */}
+            {unpaid.length ? (
+              <TornEdge color={colors.paper} side="bottom" width={width - SCREEN_PAD_X * 2} />
+            ) : (
+              <View style={[styles.receiptFoot, { backgroundColor: colors.paper }]} />
+            )}
+          </View>
+
+          {/* корешки тех, кто ещё не оплатил */}
+          {unpaid.map((m, i) => (
+            <UnpaidStub
+              key={(m as { memberId?: string }).memberId ?? m.contactId}
+              contactId={m.isYou ? 'me' : m.contactId}
+              name={nameOf(m.contactId)}
+              initials={home.contactById(m.contactId)?.initials}
+              color={colorOf(m.contactId)}
+              amount={m.amount}
+              width={width - SCREEN_PAD_X * 2}
+              last={i === unpaid.length - 1}
+              mine={m.isYou}
+              pinged={pinged.has(m.contactId)}
+              onLend={() => {
+                if (m.isYou) {
+                  nav.navigate('Participant', { code: split.code });
+                  return;
+                }
+                setCoverFor({ memberId: (m as { memberId?: string }).memberId ?? m.contactId, amount: m.amount });
+              }}
+              onPing={() => void ping({ contactId: m.contactId, memberId: (m as { memberId?: string }).memberId })}
+            />
+          ))}
 
           <View style={styles.spacer} />
 
-          <View style={styles.actions}>
-            {remainder > 0 ? (
+          {/*
+            Photo Moment (vision §C15) — в макете это единственная кнопка внизу
+            экрана: пунктирная «Добавить фото 📸».
+          */}
+          {members.length > 1 ? (
+            split.photoUrl ? (
+              <Image source={{ uri: split.photoUrl }} style={styles.moment} resizeMode="cover" />
+            ) : (
               <PressableScale
-                primary
-                style={[styles.cta, { backgroundColor: fixed.ink }]}
-                onPress={() => setCoverSheet(true)}
+                style={[styles.addPhoto, { borderColor: colors.hairline }]}
+                onPress={() => nav.navigate('PhotoMoment', { id })}
               >
-                <Text style={[styles.ctaText, { color: fixed.lime }]}>
-                  {t('live.coverAction', { amount: money(remainder) })}
-                </Text>
+                <Text style={[styles.addPhotoText, { color: colors.ink }]}>{t('photoMoment.add')}</Text>
               </PressableScale>
-            ) : null}
-
-            {/*
-              Photo Moment (vision §C15). Экран закрытия показывается один раз
-              сразу после оплаты, а из истории счёт открывается именно сюда —
-              поэтому снимок должен жить здесь, рядом с суммой и составом.
-              Иначе «а где моё фото?» — ровно тот вопрос, который и возник.
-            */}
-            {split.status === 'closed' && members.length > 1 ? (
-              split.photoUrl ? (
-                <Image source={{ uri: split.photoUrl }} style={styles.moment} resizeMode="cover" />
-              ) : (
-                <PressableScale
-                  style={[styles.addPhoto, { borderColor: colors.hairline }]}
-                  onPress={() => nav.navigate('PhotoMoment', { id })}
-                >
-                  <Text style={[styles.ctaText, { color: colors.ink }]}>{t('photoMoment.add')}</Text>
-                </PressableScale>
-              )
-            ) : null}
-
-            {/* Share Card появится следующим проходом — кнопка уже на месте */}
-            <PressableScale
-              style={[styles.cta, { backgroundColor: colors.sand }]}
-              onPress={() => void doShare()}
-            >
-              <Text style={[styles.ctaText, { color: colors.ink }]}>{t('live.shareAction')}</Text>
-            </PressableScale>
-          </View>
+            )
+          ) : null}
         </ScrollView>
 
         {/* своё название вечера: «Boys Dinner 🍕» вместо мерчанта (vision §14) */}
@@ -616,14 +647,22 @@ export function SplitLiveScreen() {
         />
 
         <PinSheet
-          open={coverSheet}
-          hint={t('live.pinHint', { amount: money(remainder) })}
-          onClose={() => setCoverSheet(false)}
+          open={!!coverFor}
+          hint={t('live.pinHint', { amount: money(coverFor?.amount ?? 0) })}
+          onClose={() => setCoverFor(null)}
           onConfirm={() => void confirmCover()}
         />
         <ZapOverlay open={isCovering} steps={PAY_STEPS} stickers={PAY_STICKERS} />
         {/* доля закрыта — стикер вспыхивает и уходит сам */}
         <StickerBurst run={coverBurst} sticker="handsHeart" onDone={() => setCoverBurst(false)} />
+        {/* реакция во весь экран: большой эмодзи и облако значков */}
+        <ReactionBurst
+          emoji={burst?.emoji ?? null}
+          title={t('live.reactionBy', { name: burst?.name ?? '', emoji: burst?.emoji ?? '' })}
+          sub={`${split.title} · ${money(split.total)}`}
+          onDone={() => setBurst(null)}
+        />
+
         {/* ⚡ летит от вашего аватара к должнику */}
         <BoltFlight fromMemberId={myMemberId} toMemberId={boltTo} onDone={onBoltLanded} />
 
@@ -653,6 +692,11 @@ const styles = StyleSheet.create({
   scroll: { paddingBottom: 12, flexGrow: 1 },
   loading: { marginTop: 48, alignItems: 'center' },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20 },
+  round: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  shareGlyph: { fontFamily: font.bold, fontSize: 17 },
+  receiptWrap: { marginTop: 30 },
+  receiptFoot: { height: 14, borderBottomLeftRadius: 18, borderBottomRightRadius: 18 },
+  addPhotoText: { fontFamily: font.bold, fontSize: 14 },
   titleBody: { flex: 1, minWidth: 0, alignItems: 'center' },
   titleText: { fontFamily: font.extrabold, fontSize: 19 },
   titleSub: { fontFamily: font.semibold, fontSize: 11, marginTop: 2 },
@@ -661,43 +705,20 @@ const styles = StyleSheet.create({
   reactPill: { flexDirection: 'row', gap: 6, borderRadius: 22, paddingVertical: 6, paddingHorizontal: 8 },
   reactCell: { width: 34, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   reactGlyph: { fontSize: 18 },
-  torn: { marginTop: 14 },
-  tornBody: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 2 },
-  tornRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingBottom: 12 },
-  tornFace: { opacity: 0.7 },
-  tornBodyText: { flex: 1, minWidth: 0 },
-  tornName: { fontFamily: font.bold, fontSize: 13 },
-  tornState: { fontFamily: font.semibold, fontSize: 10, color: '#C0553A', marginTop: 2 },
-  tornAmount: { fontFamily: font.monoBold, fontSize: 16 },
-  tornPing: { width: 34, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  tornPingText: { fontSize: 14 },
-  dimmed: { opacity: 0.45 },
-  statusRow: { marginTop: 18, gap: 5 },
-  statusHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
-  status: { flex: 1, fontFamily: font.extrabold, fontSize: 30, letterSpacing: -0.6 },
   pct: { height: 30, minWidth: 52, paddingHorizontal: 10, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   pctText: { fontFamily: font.extrabold, fontSize: 13 },
-  statusSub: { fontFamily: font.semibold, fontSize: 13.5 },
-  // полоса заметно толще прежних 8 px: это заголовок экрана, а не сноска
-  track: { height: 13, borderRadius: 999, overflow: 'hidden', marginTop: 14, marginBottom: 20 },
-  fill: { height: '100%', borderRadius: 999 },
   center: { alignSelf: 'center', width: 1, height: 1 },
-  // +9 px под зубцы чека, которые выступают за его нижний край
-  members: { gap: 10, marginTop: 27 },
   spacer: { flexGrow: 1, minHeight: 18 },
-  actions: { gap: 10, marginTop: 18 },
-  cta: { height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  moment: { height: 190, borderRadius: 24, marginBottom: 10, backgroundColor: 'rgba(18,18,18,0.06)' },
+  moment: { height: 190, borderRadius: 24, marginTop: 24, backgroundColor: 'rgba(18,18,18,0.06)' },
   addPhoto: {
-    height: 56,
-    borderRadius: 999,
-    borderWidth: 2,
+    height: 44,
+    borderRadius: 22,
+    borderWidth: 1.5,
     borderStyle: 'dashed',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 10,
+    marginTop: 24,
   },
-  ctaText: { fontFamily: font.extrabold, fontSize: 16 },
   sheetTitle: { fontFamily: font.extrabold, fontSize: 15, textAlign: 'center', marginBottom: 12 },
   renameInput: { fontFamily: font.bold, fontSize: 18, borderBottomWidth: 2, paddingBottom: 10, padding: 0 },
   sheetBtn: { height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 18 },

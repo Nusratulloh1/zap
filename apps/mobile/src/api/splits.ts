@@ -74,8 +74,16 @@ export function sendSplitLinkSms(splitId: string): Promise<{ sent: number }> {
   return http(`/splits/${splitId}/send-link`, { method: 'POST' });
 }
 
-export function coverRemainder(splitId: string): Promise<Split> {
-  return http(`/splits/${splitId}/cover`, { method: 'POST', pt: true });
+/**
+ * Закрыть чужие доли. Без `memberIds` — весь остаток; со списком — доли
+ * конкретных людей: в макете «Дать в долг» стоит у каждого корешка отдельно.
+ */
+export function coverRemainder(splitId: string, memberIds?: string[]): Promise<Split> {
+  return http(`/splits/${splitId}/cover`, {
+    method: 'POST',
+    pt: true,
+    ...(memberIds ? { body: JSON.stringify({ memberIds }) } : {}),
+  });
 }
 
 export function saveGroup(
