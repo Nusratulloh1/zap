@@ -13,10 +13,9 @@
 //   • Reminder        → от аватара «меня» к stage.members[id] летит ⚡
 //   • QR → receipt    → на ScanScreen, приземляется в stage.receipt этого экрана
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TextInput, View , useWindowDimensions } from 'react-native';
 import Animated, {
   useAnimatedRef,
-  useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
@@ -39,7 +38,10 @@ import { toast } from '@/components/ToastHost';
 import { BillReceipt } from '@/components/bill/BillReceipt';
 import { ThemeGarnish } from '@/components/bill/ThemeGarnish';
 import { BoltFlight } from '@/components/bill/BoltFlight';
-import { MemberOrb } from '@/components/bill/MemberOrb';
+import { Avatar } from '@/components/Avatar';
+import { REACTIONS } from '@/components/bill/MemberOrb';
+import { MemberFace } from '@/components/bill/MemberFace';
+import { TornEdge } from '@/components/bill/TornEdge';
 import { SplitTheBill } from '@/components/bill/SplitTheBill';
 import { EveryonePaid } from '@/components/bill/EveryonePaid';
 import { fetchSplit, remindMember, coverRemainder, reactToMember, renameSplit } from '@/api/splits';
@@ -54,7 +56,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 import { startLiveActivity, endLiveActivity } from '@/lib/liveActivity';
 import { merchantLogo } from '@/lib/merchantLogo';
-import { EASE_ZAP, SPLIT_TIMELINE } from '@/lib/motion';
+import { EASE_ZAP } from '@/lib/motion';
 import { reduceMotion } from '@/lib/feedback';
 
 
@@ -205,7 +207,6 @@ export function SplitLiveScreen() {
   useEffect(() => {
     bar.value = withTiming(progress, { duration: 700, easing: EASE_ZAP });
   }, [progress, bar]);
-  const barStyle = useAnimatedStyle(() => ({ width: `${Math.min(100, bar.value * 100)}%` }));
 
   const [pinged, setPinged] = useState<Set<string>>(new Set());
   const [coverSheet, setCoverSheet] = useState(false);
@@ -217,6 +218,9 @@ export function SplitLiveScreen() {
   const [boltTo, setBoltTo] = useState<string | null>(null);
   const [boltContact, setBoltContact] = useState<string | null>(null);
   const [renameOpen, setRenameOpen] = useState(false);
+  // для кого сейчас открыта палитра реакций
+  const [reactFor, setReactFor] = useState<string | null>(null);
+  const { width } = useWindowDimensions();
   const [renameValue, setRenameValue] = useState('');
 
   // реакции: сервер уже отдаёт их вместе со сплитом, локально держим
@@ -368,41 +372,48 @@ export function SplitLiveScreen() {
     .map((m) => nameOf(m.contactId));
 
   const closed = split.status === 'closed';
-  // на лайме свои тона: чернила вместо ink-темы и полупрозрачные подписи
-  const headInk = closed ? fixed.ink : colors.ink;
-  const headMuted = closed ? 'rgba(18,18,18,0.6)' : colors.muted;
+  const unpaid = members.filter((m) => m.status !== 'paid' && m.status !== 'debt');
+  const headInk = colors.ink;
+  const headMuted = colors.muted;
 
   return (
     <BillStageProvider value={stage}>
       {/*
-        Закрытый счёт открывается в лаймовом виде — как экран закрытия: из
-        истории и списка это сразу читается как «всё оплачено», без чтения
-        подписей. Активный остаётся кремовым.
+        Фон закрытого счёта — #F1EFE9, как в макете (spec/12): лаймом там
+        подсвечен только чип «100%». Ранее я красил весь экран в лайм — это
+        было моё решение, макет говорит иначе.
       */}
-      <Screen style={styles.root} background={closed ? fixed.lime : colors.cream} darkBar={false}>
-        <ScreenHeader onBack={() => nav.popTo('Tabs')} tint={closed ? 'onLime' : 'sand'} />
+      <Screen style={styles.root} background={closed ? colors.dune2 : colors.cream} darkBar={false}>
+        <ScreenHeader onBack={() => nav.popTo('Tabs')} tint="sand" />
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
-          {/* «3 / 4 оплатили» — статус читается мгновенно (Who's left) */}
-          <View style={styles.statusRow}>
-            <View style={styles.statusHead}>
-              <Text style={[styles.status, { color: headInk }]}>
+          {/*
+            Шапка spec/11: название по центру, под ним статус мелким, справа
+            лаймовый чип процента. Крупной строки «3 / 4 оплатили» в макете нет
+            — она дублировала чип.
+          */}
+          <View style={styles.titleRow}>
+            <View style={styles.titleBody}>
+              <PressableScale
+                haptic={false}
+                onPress={() => {
+                  setRenameValue(split.title);
+                  setRenameOpen(true);
+                }}
+              >
+                <Text style={[styles.titleText, { color: headInk }]} numberOfLines={1}>{split.title}</Text>
+              </PressableScale>
+              <Text style={[styles.titleSub, { color: headMuted }]} numberOfLines={1}>
                 {t('live.paidOfCount', { paid: paidMembers.length, total: members.length })}
+                {' · '}
+                {allPaid ? t('live.allPaidHeadline') : t('live.waitingFor', { names: waitingNames.join(', ') })}
               </Text>
-              {/* доля закрытого — крупной плашкой, а не мелким процентом у полосы */}
-              <View style={[styles.pct, { backgroundColor: closed ? fixed.ink : allPaid ? fixed.lime : colors.sand }]}>
-                <Text style={[styles.pctText, { color: closed ? fixed.lime : colors.ink }]}>
-                  {Math.round((paidMembers.length / Math.max(1, members.length)) * 100)}%
-                </Text>
-              </View>
             </View>
-            <Text style={[styles.statusSub, { color: headMuted }]} numberOfLines={1}>
-              {allPaid ? t('live.allPaidHeadline') : t('live.waitingFor', { names: waitingNames.join(', ') })}
-            </Text>
-          </View>
-
-          <View style={[styles.track, { backgroundColor: closed ? 'rgba(18,18,18,0.16)' : colors.pebble }]}>
-            <Animated.View style={[styles.fill, { backgroundColor: closed ? fixed.ink : fixed.lime }, barStyle]} />
+            <View style={[styles.pct, { backgroundColor: allPaid ? fixed.lime : colors.sand }]}>
+              <Text style={[styles.pctText, { color: colors.ink }]}>
+                {Math.round((paidMembers.length / Math.max(1, members.length)) * 100)}%
+              </Text>
+            </View>
           </View>
 
           {/* центральный чек — узел для Split the Bill */}
@@ -425,33 +436,92 @@ export function SplitLiveScreen() {
           {/* точка схождения для Everyone Paid */}
           <Animated.View ref={centerRef} style={styles.center} pointerEvents="none" />
 
-          {/* лица вокруг чека: крупно, деньги вторичны */}
-          <View style={styles.members}>
+          {/* лица колонками — ряд шириной 90 на человека (spec/11) */}
+          <View style={styles.faces}>
             {members.map((m, i) => {
               const memberId = (m as { memberId?: string }).memberId ?? m.contactId;
+              const paid = ringsLit && (m.status === 'paid' || m.status === 'debt');
+              const covered = m.status === 'debt';
+              const mine = reactions.find((r) => r.memberId === memberId && r.fromUserId === myUserId)?.emoji;
               return (
-                <MemberOrb
+                <MemberFace
                   key={memberId + i}
-                  memberId={memberId}
-                  contactId={m.contactId}
-                  name={nameOf(m.contactId)}
+                  contactId={m.isYou ? 'me' : m.contactId}
+                  name={m.isYou ? t('members.youShort') : (nameOf(m.contactId).split(' ')[0] ?? '?')}
                   initials={home.contactById(m.contactId)?.initials}
                   color={colorOf(m.contactId)}
-                  amount={m.amount}
-                  paid={ringsLit && (m.status === 'paid' || m.status === 'debt')}
-                  covered={m.status === 'debt'}
-                  opened={m.status === 'opened'}
-                  isYou={m.isYou}
-                  pinged={pinged.has(m.contactId)}
-                  ringDelay={splitAnim ? Math.max(0, SPLIT_TIMELINE.rings.at - SPLIT_TIMELINE.fly.at) + i * 60 : 0}
-                  reactions={reactions.filter((r) => r.memberId === memberId)}
-                  myUserId={myUserId}
-                  onPing={m.isYou ? undefined : () => void ping({ contactId: m.contactId, memberId: (m as { memberId?: string }).memberId })}
-                  onReact={(e) => void react(memberId, e)}
+                  paid={paid}
+                  covered={covered}
+                  reaction={mine}
+                  sub={
+                    paid
+                      ? covered
+                        ? t('live.debtCovered')
+                        : m.isYou
+                          ? t('live.youZapped')
+                          : t('live.zapped', { name: nameOf(m.contactId).split(' ')[0] })
+                      : money(m.amount)
+                  }
+                  onReact={() => setReactFor(memberId)}
                 />
               );
             })}
           </View>
+
+          {/* палитра реакций — белая пилюля, как в макете */}
+          {reactFor ? (
+            <View style={styles.reactBar}>
+              <View style={[styles.reactPill, { backgroundColor: colors.paper }]}>
+                {REACTIONS.map((e) => (
+                  <PressableScale
+                    key={e}
+                    style={[styles.reactCell, { backgroundColor: colors.sand }]}
+                    onPress={() => {
+                      void react(reactFor, e);
+                      setReactFor(null);
+                    }}
+                  >
+                    <Text style={styles.reactGlyph}>{e}</Text>
+                  </PressableScale>
+                ))}
+              </View>
+            </View>
+          ) : null}
+
+          {/* рваный чек: кто ещё не оплатил (spec/11) */}
+          {unpaid.length ? (
+            <View style={styles.torn}>
+              <TornEdge color={colors.paper} side="top" width={width - 30} />
+              <View style={[styles.tornBody, { backgroundColor: colors.paper }]}>
+                {unpaid.map((m) => (
+                  <View key={m.contactId} style={styles.tornRow}>
+                    <Avatar
+                      contactId={m.contactId}
+                      name={nameOf(m.contactId)}
+                      color={colorOf(m.contactId)}
+                      size={36}
+                      style={styles.tornFace}
+                    />
+                    <View style={styles.tornBodyText}>
+                      <Text style={[styles.tornName, { color: colors.ink }]} numberOfLines={1}>
+                        {nameOf(m.contactId)}
+                      </Text>
+                      <Text style={styles.tornState} numberOfLines={1}>{t('live.notPaidYet')}</Text>
+                    </View>
+                    <Text style={[styles.tornAmount, { color: colors.muted }]}>{money(m.amount)}</Text>
+                    <PressableScale
+                      disabled={pinged.has(m.contactId)}
+                      style={[styles.tornPing, { backgroundColor: colors.ink }, pinged.has(m.contactId) && styles.dimmed]}
+                      onPress={() => void ping({ contactId: m.contactId, memberId: (m as { memberId?: string }).memberId })}
+                    >
+                      <Text style={[styles.tornPingText, { color: fixed.lime }]}>⚡</Text>
+                    </PressableScale>
+                  </View>
+                ))}
+              </View>
+              <TornEdge color={colors.paper} side="bottom" width={width - 30} />
+            </View>
+          ) : null}
 
           <View style={styles.spacer} />
 
@@ -582,11 +652,31 @@ const styles = StyleSheet.create({
   root: { paddingHorizontal: SCREEN_PAD_X },
   scroll: { paddingBottom: 12, flexGrow: 1 },
   loading: { marginTop: 48, alignItems: 'center' },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20 },
+  titleBody: { flex: 1, minWidth: 0, alignItems: 'center' },
+  titleText: { fontFamily: font.extrabold, fontSize: 19 },
+  titleSub: { fontFamily: font.semibold, fontSize: 11, marginTop: 2 },
+  faces: { flexDirection: 'row', justifyContent: 'center', gap: 14, marginTop: 30 },
+  reactBar: { alignItems: 'center', marginTop: 14 },
+  reactPill: { flexDirection: 'row', gap: 6, borderRadius: 22, paddingVertical: 6, paddingHorizontal: 8 },
+  reactCell: { width: 34, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  reactGlyph: { fontSize: 18 },
+  torn: { marginTop: 14 },
+  tornBody: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 2 },
+  tornRow: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingBottom: 12 },
+  tornFace: { opacity: 0.7 },
+  tornBodyText: { flex: 1, minWidth: 0 },
+  tornName: { fontFamily: font.bold, fontSize: 13 },
+  tornState: { fontFamily: font.semibold, fontSize: 10, color: '#C0553A', marginTop: 2 },
+  tornAmount: { fontFamily: font.monoBold, fontSize: 16 },
+  tornPing: { width: 34, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  tornPingText: { fontSize: 14 },
+  dimmed: { opacity: 0.45 },
   statusRow: { marginTop: 18, gap: 5 },
   statusHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   status: { flex: 1, fontFamily: font.extrabold, fontSize: 30, letterSpacing: -0.6 },
-  pct: { height: 34, minWidth: 56, paddingHorizontal: 12, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  pctText: { fontFamily: font.extrabold, fontSize: 15 },
+  pct: { height: 30, minWidth: 52, paddingHorizontal: 10, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+  pctText: { fontFamily: font.extrabold, fontSize: 13 },
   statusSub: { fontFamily: font.semibold, fontSize: 13.5 },
   // полоса заметно толще прежних 8 px: это заголовок экрана, а не сноска
   track: { height: 13, borderRadius: 999, overflow: 'hidden', marginTop: 14, marginBottom: 20 },
