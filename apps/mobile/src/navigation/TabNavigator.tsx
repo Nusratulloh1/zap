@@ -6,6 +6,8 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from '@/screens/HomeScreen';
+import { HomeScreenV2 } from '@/screens/HomeScreenV2';
+import { useHomeVariant } from '@/lib/homeVariant';
 import { AmountScreen } from '@/screens/AmountScreen';
 import { HistoryScreen } from '@/screens/HistoryScreen';
 import { TabBar } from '@/components/TabBar';
@@ -19,6 +21,12 @@ export type TabParamList = {
 const Tab = createBottomTabNavigator<TabParamList>();
 
 export function TabNavigator() {
+  /*
+    A/B: главных две. Классическая — та, что была; «Pulse» — перенос прототипа.
+    Выбор живёт в профиле и хранится локально, остальные вкладки общие.
+  */
+  const variant = useHomeVariant();
+
   return (
     <Tab.Navigator
       tabBar={(props) => <TabBar {...props} />}
@@ -31,7 +39,7 @@ export function TabNavigator() {
         sceneStyle: { backgroundColor: 'transparent' },
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Home" component={variant === 'pulse' ? HomeScreenV2 : HomeScreen} />
       <Tab.Screen name="Amount" component={AmountScreen} />
       <Tab.Screen name="History" component={HistoryScreen} />
     </Tab.Navigator>

@@ -24,6 +24,7 @@ import { BackIcon } from '@/components/icons';
 import { refocus, useKeyboardLock } from '@/lib/keyboard';
 import { Toggle } from '@/components/Toggle';
 import { toast } from '@/components/ToastHost';
+import { setHomeVariant, useHomeVariant } from '@/lib/homeVariant';
 import { addCard, setPrimaryCard, changePin, toggleDebtNotifications, fetchRecap } from '@/api/actions';
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
@@ -60,6 +61,7 @@ function stripGlyph(v: string): string {
 export function ProfileScreen() {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
+  const homeVariant = useHomeVariant();
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
   const qc = useQueryClient();
@@ -469,6 +471,38 @@ export function ProfileScreen() {
               </View>
             </View>
 
+            {/*
+              Выбор главной. Их две: классическая и «Pulse» по новому прототипу.
+              Держим обе и даём переключать — это A/B, а не миграция: пока не
+              видно, какая лучше живёт, выкидывать прежнюю рано.
+            */}
+            <Text style={[styles.mono, { color: colors.faint2, marginTop: 22 }]}>{t('profile.homeSection')}</Text>
+            <View style={[styles.group, { backgroundColor: colors.paper }]}>
+              <View style={styles.homeRow}>
+                {(['classic', 'pulse'] as const).map((v) => (
+                  <PressableScale
+                    key={v}
+                    haptic={false}
+                    style={[
+                      styles.homeCell,
+                      { backgroundColor: v === homeVariant ? colors.ink : colors.sand },
+                    ]}
+                    onPress={() => {
+                      setHomeVariant(v);
+                      toast.success(t(v === 'pulse' ? 'profile.homePulse' : 'profile.homeClassic'));
+                    }}
+                  >
+                    <Text
+                      style={[styles.homeCellText, { color: v === homeVariant ? fixed.lime : colors.ink }]}
+                    >
+                      {t(v === 'pulse' ? 'profile.homePulse' : 'profile.homeClassic')}
+                    </Text>
+                  </PressableScale>
+                ))}
+              </View>
+              <Text style={[styles.homeHint, { color: colors.muted }]}>{t('profile.homeHint')}</Text>
+            </View>
+
             <PressableScale haptic={false} style={[styles.logoutBtn, { borderColor: colors.sand2 }]} onPress={() => setLogoutSheet(true)}>
               <Text style={[styles.logoutText, { color: colors.ember }]}>{t('profile.logout')}</Text>
             </PressableScale>
@@ -693,6 +727,10 @@ const styles = StyleSheet.create({
   // ── сгруппированные карточки настроек ──
   group: { borderRadius: 22, marginTop: 10, overflow: 'hidden' },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
+  homeRow: { flexDirection: 'row', gap: 8, padding: 14, paddingBottom: 0 },
+  homeCell: { flex: 1, height: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  homeCellText: { fontFamily: font.bold, fontSize: 15 },
+  homeHint: { fontFamily: font.semibold, fontSize: 12, paddingHorizontal: 14, paddingVertical: 12 },
   iconGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 16, paddingHorizontal: 8 },
   iconCell: { width: '33.33%', alignItems: 'center', paddingHorizontal: 4 },
   iconBig: { width: 60, height: 60, borderRadius: 14, borderWidth: 0, borderColor: 'transparent' },

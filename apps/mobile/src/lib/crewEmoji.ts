@@ -44,13 +44,18 @@ const listeners = new Set<() => void>();
 
 export function setCrewEmoji(groupId: string, emoji: string) {
   storage.set(KEY(groupId), emoji);
+  version += 1;
   listeners.forEach((l) => l());
 }
 
 export function setCrewColor(groupId: string, color: string) {
   storage.set(KEY_COLOR(groupId), color);
+  version += 1;
   listeners.forEach((l) => l());
 }
+
+/** Версия локальных знаков: меняется на каждый выбор, ею перерисовываются списки. */
+let version = 0;
 
 export function useCrewColor(db: Db | undefined, groupId: string): string {
   const stored = useSyncExternalStore(
@@ -65,6 +70,23 @@ export function useCrewColor(db: Db | undefined, groupId: string): string {
 function subscribe(cb: () => void) {
   listeners.add(cb);
   return () => listeners.delete(cb);
+}
+
+/*
+  Не-хуковые чтения: на главной компании перебираются списком, а хук на каждую
+  строку не повесишь. Перерисовку обеспечивает useCrewSignsVersion.
+*/
+export function crewEmojiOf(db: Db | undefined, groupId: string): string {
+  return storage.getString(KEY(groupId)) ?? defaultCrewEmoji(db, groupId);
+}
+
+export function crewColorOf(db: Db | undefined, groupId: string): string {
+  return storage.getString(KEY_COLOR(groupId)) ?? colorForGlyph(crewEmojiOf(db, groupId));
+}
+
+/** Версия локальных знаков компаний: меняется на каждый выбор. */
+export function useCrewSignsVersion(): number {
+  return useSyncExternalStore(subscribe, () => version, () => version);
 }
 
 /** Знак по умолчанию: категория заведения, где компания была чаще всего. */

@@ -590,7 +590,11 @@
     "icon_receipts": "Receipts",
     "icon_mosaic": "Mosaic",
     "icon_hands": "Hands",
-    "appIconSection": "APP ICON"
+    "appIconSection": "APP ICON",
+    "homeSection": "HOME SCREEN",
+    "homeClassic": "Classic",
+    "homePulse": "Pulse",
+    "homeHint": "Two home screens — pick the one you like"
   },
   "install": {
     "title": "Install ZAP!",
@@ -1056,5 +1060,29 @@
   "skin": {
     "title": "Screen colour",
     "hint": "Pick a background — the rest stays readable"
+  },
+  "home2": {
+    "whatsNew": "What's new",
+    "greeting": "HEY, {name}",
+    "heroSplit": "Split.",
+    "heroEarn": "Zearn.",
+    "promoCta": "Gather your crew",
+    "tileCashback": "CASHBACK",
+    "tileGroups": "{n} crew | {n} crews",
+    "tileOwed": "OWED TO ME",
+    "crews": "Your crews",
+    "seeAllN": "all {n} →",
+    "crewWaiting": "waiting for {n} · {amount}",
+    "crewSettled": "all settled",
+    "earn": "Where to Zearn",
+    "feed": "Feed",
+    "filterCrew": "Crew",
+    "filterAll": "All",
+    "ping": "Ping",
+    "pingedCrew": "Pinged everyone in {name}",
+    "feedWaiting": "still owes {amount}",
+    "feedPaid": "closed {amount} · {what}",
+    "feedCashback": "caught +{amount} cashback",
+    "feedZap": "ZAP"
   }
 }

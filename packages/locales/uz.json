@@ -590,7 +590,11 @@
     "icon_receipts": "Cheklar",
     "icon_mosaic": "Mozaika",
     "icon_hands": "Qo‘llar",
-    "appIconSection": "ILOVA IKONKASI"
+    "appIconSection": "ILOVA IKONKASI",
+    "homeSection": "BOSH SAHIFA",
+    "homeClassic": "Klassik",
+    "homePulse": "Pulse",
+    "homeHint": "Ikkita bosh sahifa — qaysi biri yoqsa, o‘shani tanlang"
   },
   "install": {
     "title": "ZAP! ni o'rnating",
@@ -1056,5 +1060,29 @@
   "skin": {
     "title": "Ekran rangi",
     "hint": "Fonni tanlang — qolgani o‘qiladigan bo‘lib qoladi"
+  },
+  "home2": {
+    "whatsNew": "Yangiliklar",
+    "greeting": "SALOM, {name}",
+    "heroSplit": "Bo‘lish.",
+    "heroEarn": "Zishla.",
+    "promoCta": "Crew yig‘ish",
+    "tileCashback": "KESHBEK",
+    "tileGroups": "{n} ta guruh",
+    "tileOwed": "MENGA QARZ",
+    "crews": "Sizning Crew’laringiz",
+    "seeAllN": "hammasi {n} →",
+    "crewWaiting": "{n} ta to‘lov kutilyapti · {amount}",
+    "crewSettled": "hammasi to‘langan",
+    "earn": "Qayerda Zishlash",
+    "feed": "Lenta",
+    "filterCrew": "Crew",
+    "filterAll": "Hammasi",
+    "ping": "Ping",
+    "pingedCrew": "«{name}» dagi hamma pinglandi",
+    "feedWaiting": "hali {amount} to‘lamadi",
+    "feedPaid": "{amount} yopdi · {what}",
+    "feedCashback": "+{amount} keshbek ushladi",
+    "feedZap": "ZAP"
   }
 }

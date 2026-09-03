@@ -590,7 +590,11 @@
     "icon_receipts": "Чеки",
     "icon_mosaic": "Мозаика",
     "icon_hands": "Руки",
-    "appIconSection": "ИКОНКА ПРИЛОЖЕНИЯ"
+    "appIconSection": "ИКОНКА ПРИЛОЖЕНИЯ",
+    "homeSection": "ГЛАВНАЯ",
+    "homeClassic": "Классика",
+    "homePulse": "Pulse",
+    "homeHint": "Две главные — выбирайте, какая нравится"
   },
   "install": {
     "title": "Установите ZAP!",
@@ -1056,5 +1060,29 @@
   "skin": {
     "title": "Цвет экрана",
     "hint": "Выберите фон — остальное останется читаемым"
+  },
+  "home2": {
+    "whatsNew": "Что нового",
+    "greeting": "ПРИВЕТ, {name}",
+    "heroSplit": "Сплить.",
+    "heroEarn": "Zарабатывай.",
+    "promoCta": "Собрать Crew",
+    "tileCashback": "КЭШБЭК",
+    "tileGroups": "{n} группа | {n} группы | {n} групп",
+    "tileOwed": "ДОЛЖНЫ МНЕ",
+    "crews": "Твои Crews",
+    "seeAllN": "все {n} →",
+    "crewWaiting": "ждём {n} оплат · {amount}",
+    "crewSettled": "всё оплачено",
+    "earn": "Где Zарабатывать",
+    "feed": "Лента",
+    "filterCrew": "Crew",
+    "filterAll": "Все",
+    "ping": "Пингануть",
+    "pingedCrew": "Пингануты все в «{name}»",
+    "feedWaiting": "ещё не оплатил {amount}",
+    "feedPaid": "закрыл {amount} · {what}",
+    "feedCashback": "словил +{amount} кэшбэка",
+    "feedZap": "ZAP"
   }
 }
