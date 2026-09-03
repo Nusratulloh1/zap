@@ -324,8 +324,7 @@
     "payMine": "Оплатить",
     "paidLabel": "ОПЛАЧЕНО",
     "paidOutOf": "оплачено из {total} · {people}",
-    "debtCoveredShort": "в долг, вы покрыли",
-    "reactionBy": "{name} поставил {emoji}"
+    "debtCoveredShort": "в долг, вы покрыли"
   },
   "closed": {
     "title": "Готово, сплит закрыт",

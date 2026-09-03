@@ -244,7 +244,7 @@ export function SplitLiveScreen() {
   // строки, появившиеся в чеке только что: они въезжают с лаймовой вспышкой
   const [fresh, setFresh] = useState<Set<string>>(new Set());
   // реакция, которую сейчас показываем во весь экран
-  const [burst, setBurst] = useState<{ emoji: string; name: string } | null>(null);
+  const [burst, setBurst] = useState<{ emoji: string; x: number; y: number } | null>(null);
   const covering = useRef(false);
   // ref спасает от двойного тапа, состояние — рисует ожидание
   const [isCovering, setCovering] = useState(false);
@@ -337,7 +337,7 @@ export function SplitLiveScreen() {
     });
   };
 
-  const react = async (memberId: string, emoji: string) => {
+  const react = async (memberId: string, emoji: string, at?: { x: number; y: number }) => {
     if (!myUserId) return;
     const mine = reactions.find((r) => r.memberId === memberId && r.fromUserId === myUserId);
     const next = reactions.filter((r) => !(r.memberId === memberId && r.fromUserId === myUserId));
@@ -345,9 +345,7 @@ export function SplitLiveScreen() {
       next.push({ memberId, emoji, fromUserId: myUserId, fromName: (home.db?.user?.name ?? '').split(' ')[0] ?? '' });
     }
     setOptimistic(next);
-    if (mine?.emoji !== emoji) {
-      setBurst({ emoji, name: (home.db?.user?.name ?? '').split(' ')[0] || t('members.youShort') });
-    }
+    if (mine?.emoji !== emoji && at) setBurst({ emoji, ...at });
     try {
       await reactToMember(id, memberId, emoji);
       await refetch();
@@ -705,7 +703,11 @@ export function SplitLiveScreen() {
                     reactions.find((r) => r.memberId === reactFor.memberId && r.fromUserId === myUserId)?.emoji
                   }
                   onPick={(e) => {
-                    void react(reactFor.memberId, e);
+                    // всплеск идёт от аватара, у которого нажали «+»
+                    void react(reactFor.memberId, e, {
+                      x: reactFor.x + reactFor.width / 2 + 26,
+                      y: reactFor.y,
+                    });
                     setReactFor(null);
                   }}
                 />
@@ -716,8 +718,7 @@ export function SplitLiveScreen() {
           {/* реакция во весь экран: большой эмодзи и облако значков */}
           <ReactionBurst
             emoji={burst?.emoji ?? null}
-            title={t('live.reactionBy', { name: burst?.name ?? '', emoji: burst?.emoji ?? '' })}
-            sub={`${split.title} · ${money(split.total)}`}
+            origin={burst ? { x: burst.x, y: burst.y } : null}
             onDone={() => setBurst(null)}
           />
 

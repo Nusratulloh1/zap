@@ -324,8 +324,7 @@
     "payMine": "To'lash",
     "paidLabel": "TO'LANDI",
     "paidOutOf": "{total} dan · {people}",
-    "debtCoveredShort": "qarzga, siz yopdingiz",
-    "reactionBy": "{name} {emoji} qo‘ydi"
+    "debtCoveredShort": "qarzga, siz yopdingiz"
   },
   "closed": {
     "title": "Tayyor, bo'lish yopildi",

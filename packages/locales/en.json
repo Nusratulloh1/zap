@@ -324,8 +324,7 @@
     "payMine": "Pay",
     "paidLabel": "PAID",
     "paidOutOf": "paid of {total} · {people}",
-    "debtCoveredShort": "on credit, you covered",
-    "reactionBy": "{name} reacted {emoji}"
+    "debtCoveredShort": "on credit, you covered"
   },
   "closed": {
     "title": "Done, split closed",

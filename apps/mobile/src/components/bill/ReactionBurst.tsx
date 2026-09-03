@@ -1,10 +1,10 @@
-// Реакция во весь экран — перенос `particles()` из макета: 40 эмодзи влетают
-// со ВСЕХ четырёх сторон и сходятся к точке чуть выше центра, вырастая с 0.3
-// до 1.25 и разворачиваясь на ±40°.
+// Всплеск реакции — как в Telegram: выбранный эмодзи вырастает прямо там, где
+// его поставили, и из него во все стороны разлетаются копии.
 //
-// Раньше значки летели снизу вверх — читалось как «что-то промелькнуло».
-// В макете движение обратное, к центру: экран будто затягивает реакцию, и
-// поверх неё встаёт крупный эмодзи с подписью «кто поставил» (spec/12).
+// В макете значки, наоборот, слетались к центру со всех краёв экрана; на
+// телефоне это читается как посторонний листопад, а не как «я отреагировал вот
+// на этого человека». Поэтому движение развёрнуто наружу и привязано к аватару,
+// а подписи под эмодзи нет — реакция говорит сама за себя.
 import React, { useEffect, useMemo } from 'react';
 import { StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import Animated, {
@@ -18,24 +18,20 @@ import Animated, {
 } from 'react-native-reanimated';
 import { reduceMotion } from '@/lib/feedback';
 import { EASE_POP } from '@/lib/motion';
-import { useTheme } from '@/theme/ThemeProvider';
-import { font } from '@/theme/tokens';
 
 interface Props {
   /** эмодзи реакции; null — ничего не показываем */
   emoji: string | null;
-  title: string;
-  sub: string;
+  /** откуда разлетается: экранные координаты аватара */
+  origin?: { x: number; y: number } | null;
   onDone: () => void;
 }
 
-const N = 40;
-/** cubic-bezier(.2,.7,.3,1) из макета. */
+const N = 18;
+/** cubic-bezier(.2,.7,.3,1) — та же кривая, что у макета. */
 const EASE = Easing.bezier(0.2, 0.7, 0.3, 1);
 
 interface Fly {
-  x: number;
-  y: number;
   dx: number;
   dy: number;
   rot: number;
@@ -44,7 +40,7 @@ interface Fly {
   delay: number;
 }
 
-function Particle({ emoji, f }: { emoji: string; f: Fly }) {
+function Particle({ emoji, f, x, y }: { emoji: string; f: Fly; x: number; y: number }) {
   const t = useSharedValue(0);
 
   useEffect(() => {
@@ -52,92 +48,87 @@ function Particle({ emoji, f }: { emoji: string; f: Fly }) {
   }, [t, f.delay, f.dur]);
 
   const style = useAnimatedStyle(() => ({
-    opacity: t.value < 0.12 ? t.value / 0.12 : 1 - t.value,
+    opacity: t.value < 0.1 ? t.value / 0.1 : 1 - t.value,
     transform: [
+      // к концу полёта значки слегка проседают — так разлёт выглядит живым
       { translateX: t.value * f.dx },
-      { translateY: t.value * f.dy },
+      { translateY: t.value * f.dy + t.value * t.value * 60 },
       { rotate: `${t.value * f.rot}deg` },
-      { scale: 0.3 + t.value * 0.95 },
+      { scale: 0.4 + t.value * 0.8 },
     ],
   }));
 
   return (
-    <Animated.Text style={[styles.fly, { left: f.x, top: f.y, fontSize: f.size }, style]}>
+    <Animated.Text style={[styles.fly, { left: x, top: y, fontSize: f.size }, style]}>
       {emoji}
     </Animated.Text>
   );
 }
 
-export function ReactionBurst({ emoji, title, sub, onDone }: Props) {
-  const { colors } = useTheme();
+export function ReactionBurst({ emoji, origin, onDone }: Props) {
   const { width: W, height: H } = useWindowDimensions();
   const p = useSharedValue(0);
 
-  // старт с четырёх сторон, цель — точка на 0.42 высоты, как в макете
+  const x = origin?.x ?? W / 2;
+  const y = origin?.y ?? H * 0.35;
+
+  // разлёт по кругу: угол равномерный, дальность и размер — случайные
   const flies = useMemo<Fly[]>(() => {
     const r = Math.random;
     return Array.from({ length: N }, (_, i) => {
-      const side = i % 4;
-      const x = side === 0 ? r() * W : side === 1 ? W + 30 : side === 2 ? r() * W : -30;
-      const y = side === 0 ? -30 : side === 1 ? r() * H : side === 2 ? H + 30 : r() * H;
-      const tx = W / 2 + (r() - 0.5) * 220;
-      const ty = H * 0.42 + (r() - 0.5) * 260;
+      const angle = (i / N) * Math.PI * 2 + r() * 0.5;
+      const dist = 110 + r() * 190;
       return {
-        x,
-        y,
-        dx: tx - x,
-        dy: ty - y,
-        rot: r() * 80 - 40,
-        size: 18 + r() * 22,
-        dur: 1600 + r() * 1200,
-        delay: r() * 600,
+        dx: Math.cos(angle) * dist,
+        dy: Math.sin(angle) * dist - 40,
+        rot: r() * 120 - 60,
+        size: 16 + r() * 18,
+        dur: 900 + r() * 700,
+        delay: r() * 160,
       };
     });
-  }, [W, H]);
+  }, []);
 
   useEffect(() => {
     if (!emoji) return;
     if (reduceMotion()) {
-      const timer = setTimeout(onDone, 700);
+      const timer = setTimeout(onDone, 600);
       return () => clearTimeout(timer);
     }
     p.value = 0;
     p.value = withSequence(
-      withTiming(1, { duration: 600, easing: EASE_POP }),
+      withTiming(1, { duration: 420, easing: EASE_POP }),
       withDelay(
-        1400,
-        withTiming(0, { duration: 380 }, (fin) => {
+        700,
+        withTiming(0, { duration: 320 }, (fin) => {
           if (fin) runOnJS(onDone)();
         }),
       ),
     );
   }, [emoji, p, onDone]);
 
+  // крупный эмодзи всплывает ровно над аватаром и уходит вверх, растворяясь
   const pop = useAnimatedStyle(() => ({
     opacity: Math.min(1, p.value * 2),
-    transform: [{ scale: 0.6 + p.value * 0.4 }],
+    transform: [{ scale: 0.5 + p.value * 0.75 }, { translateY: -20 * p.value }],
   }));
 
   if (!emoji) return null;
 
   return (
     <View style={styles.root} pointerEvents="none">
-      {!reduceMotion() ? flies.map((f, i) => <Particle key={i} emoji={emoji} f={f} />) : null}
+      {!reduceMotion() ? flies.map((f, i) => <Particle key={i} emoji={emoji} f={f} x={x} y={y} />) : null}
 
-      <Animated.View style={[styles.center, pop]}>
+      <Animated.View style={[styles.center, { left: x - 40, top: y - 40 }, pop]}>
         <Text style={styles.big}>{emoji}</Text>
-        <Text style={[styles.title, { color: colors.ink }]} numberOfLines={1}>{title}</Text>
-        <Text style={[styles.sub, { color: colors.muted }]} numberOfLines={1}>{sub}</Text>
       </Animated.View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', zIndex: 65 },
-  center: { alignItems: 'center' },
-  big: { fontSize: 64, lineHeight: 72 },
-  title: { fontFamily: font.bold, fontSize: 14, marginTop: 14 },
-  sub: { fontFamily: font.semibold, fontSize: 11, marginTop: 4 },
+  root: { ...StyleSheet.absoluteFill, zIndex: 65 },
+  center: { position: 'absolute', width: 80, height: 80, alignItems: 'center', justifyContent: 'center' },
+  big: { fontSize: 56, lineHeight: 64 },
   fly: { position: 'absolute' },
 });
