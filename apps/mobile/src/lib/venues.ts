@@ -23,9 +23,15 @@ export interface Venue {
   abbr?: string;
 }
 
+/** Фирменная подложка логотипа по имени заведения — для витрины на главной. */
+export function venuePlate(name: string): string | undefined {
+  const low = name.toLowerCase();
+  return VENUES.find((v) => low.includes(v.name.toLowerCase()) || v.name.toLowerCase().includes(low))?.logoBg;
+}
+
 export const VENUES: Venue[] = [
   { id: 'b_evos', name: 'EVOS', img: require('../../assets/brand/venues/evos.webp'), badgeKind: 'promo', badgeValue: '1+1', type: 'promo', logoBg: '#2E9E3D', logoFg: '#FFFFFF', abbr: 'EVOS' },
-  { id: 'b_bellissimo', name: 'Bellissimo Pizza', img: require('../../assets/brand/venues/bellissimo.webp'), badgeKind: 'discount', badgeValue: '10%', type: 'discount' },
+  { id: 'b_bellissimo', name: 'Bellissimo Pizza', img: require('../../assets/brand/venues/bellissimo.webp'), badgeKind: 'discount', badgeValue: '10%', type: 'discount', logoBg: '#D9FF3A' },
   { id: 'b_safia', name: 'Safia café', img: require('../../assets/brand/venues/safia.webp'), badgeKind: 'cashback', badgeValue: '×2', type: 'cashback' },
   { id: 'b_feedup', name: 'Feed Up', img: require('../../assets/brand/venues/feedup.webp'), badgeKind: 'promo', badgeValue: '2+1', type: 'promo', logoBg: '#121212', logoFg: '#D9FF3A', abbr: 'feed up' },
   { id: 'b_bon', name: 'Bon!', img: require('../../assets/brand/venues/bon.webp'), badgeKind: 'discount', badgeValue: '20%', type: 'discount', logoBg: '#F0D24A', logoFg: '#121212', abbr: 'Bon!' },

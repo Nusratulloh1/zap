@@ -41,7 +41,7 @@ import { remindMember } from '@/api/splits';
 import { homeFeed } from '@/lib/homeFeed';
 import { crewColorOf, crewEmojiOf, useCrewSignsVersion } from '@/lib/crewEmoji';
 import { merchantLogo } from '@/lib/merchantLogo';
-import { VENUES } from '@/lib/venues';
+import { VENUES, venuePlate } from '@/lib/venues';
 import { hasKey, translate } from '@/i18n';
 import { money, peopleCount } from '@/lib/format';
 import { cue, reduceMotion } from '@/lib/feedback';
@@ -123,6 +123,8 @@ export function HomeScreenV2() {
         name: m.name,
         letter: m.letter,
         color: m.color,
+        // подложка логотипа фирменная: у Bellissimo она лаймовая, как в макете
+        plate: venuePlate(m.name),
         fg: INK,
         tag: m.offer?.label ?? '',
         terms: m.offer?.terms ?? '',
@@ -133,6 +135,7 @@ export function HomeScreenV2() {
       name: v.name,
       letter: v.abbr ?? v.name,
       color: v.logoBg ?? '#EAE8E1',
+      plate: v.logoBg,
       fg: v.logoFg ?? INK,
       tag: translate(`badge.${v.badgeKind}`, { v: v.badgeValue }),
       terms: hasKey(`offers.${v.id}`) ? translate(`offers.${v.id}`) : '',
@@ -488,7 +491,12 @@ export function HomeScreenV2() {
                     ]}
                     onPress={() => nav.navigate('Cashback')}
                   >
-                    <View style={[styles.merchantLogo, { backgroundColor: logo ? '#FFFFFF' : m.color }]}>
+                    <View
+                      style={[
+                        styles.merchantLogo,
+                        { backgroundColor: logo ? (m.plate ?? '#FFFFFF') : m.color },
+                      ]}
+                    >
                       {logo ? (
                         <Image source={logo} style={styles.merchantLogoImg} resizeMode="contain" />
                       ) : (
