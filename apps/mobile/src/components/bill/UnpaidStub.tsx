@@ -7,6 +7,7 @@
 import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Animated, {
+  Keyframe,
   useAnimatedStyle,
   useSharedValue,
   withSequence,
@@ -21,6 +22,17 @@ import { reduceMotion } from '@/lib/feedback';
 import { EASE_OUT_QUAD, EASE_POP } from '@/lib/motion';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
+
+/*
+  zapMerge из макета: когда человек оплатил, его корешок уезжает вверх и
+  растворяется — а строка тут же появляется в чеке. Получается один жест
+  «кусок вернулся в чек», а не «одно исчезло, другое возникло».
+*/
+const MERGE_UP = new Keyframe({
+  0: { opacity: 1, transform: [{ translateY: 0 }, { scale: 1 }] },
+  30: { opacity: 1, transform: [{ translateY: -6 }, { scale: 1.02 }] },
+  100: { opacity: 0, transform: [{ translateY: -46 }, { scale: 0.96 }] },
+}).duration(520);
 
 interface Props {
   contactId: string;
@@ -70,7 +82,7 @@ export function UnpaidStub({
   }));
 
   return (
-    <View style={styles.root}>
+    <Animated.View style={styles.root} exiting={reduceMotion() ? undefined : MERGE_UP}>
       <TornEdge color={colors.paper} side="top" width={width} />
 
       <View style={[styles.body, { backgroundColor: colors.paper }]}>
@@ -118,7 +130,7 @@ export function UnpaidStub({
       ) : (
         <TornEdge color={colors.paper} side="bottom" width={width} />
       )}
-    </View>
+    </Animated.View>
   );
 }
 
