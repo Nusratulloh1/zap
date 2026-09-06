@@ -89,8 +89,8 @@ export function useCrewSignsVersion(): number {
   return useSyncExternalStore(subscribe, () => version, () => version);
 }
 
-/** Знак по умолчанию: категория заведения, где компания была чаще всего. */
-export function defaultCrewEmoji(db: Db | undefined, groupId: string): string {
+/** Категория заведения, где компания сидит чаще всего. */
+function categoryGlyph(db: Db | undefined, groupId: string): string | undefined {
   const counts = new Map<string, number>();
   for (const s of db?.splits ?? []) {
     if (s.groupId !== groupId) continue;
@@ -98,8 +98,43 @@ export function defaultCrewEmoji(db: Db | undefined, groupId: string): string {
     const glyph = themeForMerchant(name)?.glyph;
     if (glyph) counts.set(glyph, (counts.get(glyph) ?? 0) + 1);
   }
-  const top = [...counts.entries()].sort((a, b) => b[1] - a[1])[0];
-  return top?.[0] ?? '⚡';
+  return [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+}
+
+/** Свободный знак из палитры — стабильно по id, чтобы не прыгал между запусками. */
+function freeGlyph(groupId: string, used: Set<string>): string {
+  const seed = [...groupId].reduce((a, ch) => a + ch.charCodeAt(0), 0);
+  for (let i = 0; i < CREW_EMOJI.length; i += 1) {
+    const glyph = CREW_EMOJI[(seed + i) % CREW_EMOJI.length]!;
+    if (!used.has(glyph)) return glyph;
+  }
+  return '⚡';
+}
+
+/**
+ * Знак по умолчанию: категория заведения, где компания была чаще всего.
+ *
+ * Компании часто ходят в одно и то же место, и по категории все они получали
+ * одинаковую пиццу — на главной ряд сторис выглядел как копипаста. Поэтому
+ * знаки раздаются по всем компаниям сразу: первая занимает свою категорию,
+ * следующим с тем же знаком достаётся свободный из палитры. Порядок стабилен
+ * (по дате создания), так что знак у компании не меняется от запуска к запуску.
+ */
+export function defaultCrewEmoji(db: Db | undefined, groupId: string): string {
+  const groups = [...(db?.groups ?? [])].sort((a, b) => a.createdAt - b.createdAt);
+  if (!groups.some((g) => g.id === groupId)) return categoryGlyph(db, groupId) ?? '⚡';
+
+  const used = new Set<string>();
+  let mine = '⚡';
+  for (const g of groups) {
+    // чужой осознанный выбор тоже занимает знак
+    const stored = storage.getString(KEY(g.id));
+    let glyph = stored ?? categoryGlyph(db, g.id) ?? '⚡';
+    if (!stored && used.has(glyph)) glyph = freeGlyph(g.id, used);
+    used.add(glyph);
+    if (g.id === groupId) mine = glyph;
+  }
+  return mine;
 }
 
 export function useCrewEmoji(db: Db | undefined, groupId: string): string {
