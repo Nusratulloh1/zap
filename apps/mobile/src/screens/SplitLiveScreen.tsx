@@ -638,7 +638,7 @@ export function SplitLiveScreen() {
           />
           <PressableScale
             primary
-            style={[styles.sheetBtn, { backgroundColor: colors.ink }]}
+            style={[styles.sheetBtn, { backgroundColor: colors.ctaBg }]}
             onPress={() => void saveTitle()}
           >
             <Text style={[styles.sheetBtnText, { color: colors.paper }]}>{t('live.renameSave')}</Text>

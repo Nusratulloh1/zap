@@ -78,8 +78,8 @@ export function CrewEmojiSheet({ open, groupId, current, currentColor, onClose }
         ))}
       </View>
 
-      <PressableScale style={[styles.done, { backgroundColor: colors.ink }]} onPress={onClose}>
-        <Text style={[styles.doneText, { color: fixed.lime }]}>{t('common.done')}</Text>
+      <PressableScale style={[styles.done, { backgroundColor: colors.ctaBg }]} onPress={onClose}>
+        <Text style={[styles.doneText, { color: colors.ctaFg }]}>{t('common.done')}</Text>
       </PressableScale>
     </BottomSheet>
   );

@@ -210,8 +210,8 @@ export function ParticipantScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: insets.bottom + 12, flexGrow: 1 }}>
         {/* организатор просит долю */}
         <View style={styles.asksRow}>
-          <View style={[styles.creatorDot, { backgroundColor: colors.ink }]}>
-            <Text style={[styles.creatorLetter, { color: fixed.lime }]}>
+          <View style={[styles.creatorDot, { backgroundColor: colors.ctaBg }]}>
+            <Text style={[styles.creatorLetter, { color: colors.ctaFg }]}>
               {(view.creatorName || t('participant.organizer'))[0]?.toUpperCase()}
             </Text>
           </View>
@@ -287,7 +287,7 @@ export function ParticipantScreen() {
         />
         <Text style={[styles.customCurrency, { color: colors.faint2 }]}>UZS</Text>
         <PressableScale
-          style={[styles.sheetCta, { backgroundColor: colors.ink }]}
+          style={[styles.sheetCta, { backgroundColor: colors.ctaBg }]}
           onPress={() => {
             const v = Number(customRaw || '0');
             if (v > 0) setAmount(remaining > 0 ? Math.min(v, remaining) : v);

@@ -356,8 +356,8 @@ export function MembersScreen() {
                 </View>
                 <PressableScale small onPress={() => onAmountTap(m.contactId)}>
                   {m.debt ? (
-                    <View style={[styles.debtChip, { backgroundColor: colors.ink }]}>
-                      <Text style={[styles.debtChipText, { color: colors.lime }]}>{t('members.debtToggle')}</Text>
+                    <View style={[styles.debtChip, { backgroundColor: colors.ctaBg }]}>
+                      <Text style={[styles.debtChipText, { color: colors.ctaFg }]}>{t('members.debtToggle')}</Text>
                     </View>
                   ) : (
                     <Text
@@ -518,7 +518,7 @@ export function MembersScreen() {
           style={[styles.editInput, { color: colors.ink }]}
         />
         <Text style={[styles.editCurrency, { color: colors.faint2 }]}>UZS</Text>
-        <PressableScale style={[styles.sheetBtn, { backgroundColor: colors.ink }]} onPress={commitEdit}>
+        <PressableScale style={[styles.sheetBtn, { backgroundColor: colors.ctaBg }]} onPress={commitEdit}>
           <Text style={[styles.sheetBtnText, { color: colors.paper }]}>{t('common.done')}</Text>
         </PressableScale>
       </BottomSheet>

@@ -35,7 +35,7 @@ const SIZE = 200;
 
 export function SquadCircle({ owner, members, frame, onInvite }: Props) {
   const { t } = useTranslation();
-  const { colors, fixed } = useTheme();
+  const { colors } = useTheme();
   const sides = members.slice(0, 2);
 
   /*
@@ -60,11 +60,11 @@ export function SquadCircle({ owner, members, frame, onInvite }: Props) {
           style={[
             styles.bolt,
             extra === 'left' ? styles.boltLeft : styles.boltRight,
-            { backgroundColor: colors.ink, borderColor: frame },
+            { backgroundColor: colors.ctaBg, borderColor: frame },
           ]}
           onPress={m.onPing}
         >
-          <Text style={[styles.boltText, { color: fixed.lime }]}>⚡</Text>
+          <Text style={[styles.boltText, { color: colors.ctaFg }]}>⚡</Text>
         </PressableScale>
       ) : null}
     </View>
@@ -76,8 +76,8 @@ export function SquadCircle({ owner, members, frame, onInvite }: Props) {
         {/* владелец — сверху, наполовину над окружностью */}
         <View style={styles.top}>
           {face(owner)}
-          <View style={[styles.ownerChip, { backgroundColor: colors.ink, borderColor: frame }]}>
-            <Text style={[styles.ownerText, { color: fixed.lime }]}>{t('group.owner')}</Text>
+          <View style={[styles.ownerChip, { backgroundColor: colors.ctaBg, borderColor: frame }]}>
+            <Text style={[styles.ownerText, { color: colors.ctaFg }]}>{t('group.owner')}</Text>
           </View>
         </View>
 

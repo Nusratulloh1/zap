@@ -409,7 +409,7 @@ export function GroupScreen() {
           selectionColor={fixed.lime}
           autoFocus
         />
-        <PressableScale style={[styles.sheetCta, { backgroundColor: colors.ink }]} onPress={() => void applyRename()}>
+        <PressableScale style={[styles.sheetCta, { backgroundColor: colors.ctaBg }]} onPress={() => void applyRename()}>
           <Text style={[styles.sheetCtaText, { color: colors.cream }]}>{t('group.save')}</Text>
         </PressableScale>
       </BottomSheet>

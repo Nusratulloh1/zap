@@ -21,6 +21,9 @@ import {
 import Animated, {
   Easing,
   FadeIn,
+  interpolate,
+  runOnJS,
+  useAnimatedScrollHandler,
   useAnimatedStyle,
   useSharedValue,
   withRepeat,
@@ -35,6 +38,7 @@ import { Screen } from '@/components/Screen';
 import { Avatar } from '@/components/Avatar';
 import { PingButton } from '@/components/PingButton';
 import { BottomSheet } from '@/components/BottomSheet';
+import { Glass } from '@/components/Glass';
 import { PressableScale } from '@/components/PressableScale';
 import { toast } from '@/components/ToastHost';
 import { CheckIcon, ScanIcon } from '@/components/icons';
@@ -97,7 +101,7 @@ export function HomeScreenV2() {
   const qc = useQueryClient();
   const home = useHomeData();
   // листы рисуются в общей теме приложения, поэтому берём её палитру
-  const { colors, fixed, name: themeName } = useTheme();
+  const { colors, name: themeName } = useTheme();
 
   // знаки компаний живут в MMKV — версия заставляет список перерисоваться
   const signs = useCrewSignsVersion();
@@ -243,6 +247,21 @@ export function HomeScreenV2() {
     await qc.invalidateQueries({ queryKey: qk.bootstrap });
   };
 
+  /*
+    Прокрутка: стекло шапки проявляется на первых 60 pt, а у нижнего края
+    подгружается лента. Хендлер один — он на UI-потоке, поэтому подгрузку
+    зовём через runOnJS.
+  */
+  const scrollY = useSharedValue(0);
+  const onScroll = useAnimatedScrollHandler((e) => {
+    scrollY.value = e.contentOffset.y;
+    const bottom = e.contentOffset.y + e.layoutMeasurement.height;
+    if (bottom > e.contentSize.height - 240) runOnJS(loadMore)();
+  });
+  const headGlassStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(scrollY.value, [0, 60], [0, 1], 'clamp'),
+  }));
+
   // маскот на промо-карточке качается, как в прототипе (float 4s)
   const floatY = useSharedValue(0);
   React.useEffect(() => {
@@ -270,8 +289,14 @@ export function HomeScreenV2() {
         <Rect x={0} y={0} width="100%" height="100%" fill="url(#dots)" />
       </Svg>
 
-      {/* шапка закреплена: логотип, сканер и аватар всегда под рукой */}
-      <View style={styles.head}>
+      {/*
+        Шапка закреплена и на прокрутке уходит под стекло: контент подъезжал
+        вплотную к логотипу и читался поверх него.
+      */}
+      <View style={[styles.head, { paddingTop: 12 }]} pointerEvents="box-none">
+        <Animated.View style={[styles.headGlass, headGlassStyle]} pointerEvents="none">
+          <Glass thin dark={dark} amount={8} fallback={dark ? 'rgba(18,18,18,0.86)' : 'rgba(241,239,233,0.86)'} style={StyleSheet.absoluteFill as object} />
+        </Animated.View>
         {/* тап по логотипу — выбор его стиля, как в прототипе */}
         <PressableScale haptic={false} onPress={() => setLogoSheet(true)}>
           <Image source={HOME_LOGOS[logo]?.src ?? LOGO} style={styles.logo} resizeMode="contain" />
@@ -290,14 +315,11 @@ export function HomeScreenV2() {
         </View>
       </View>
 
-      <ScrollView
+      <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
-        scrollEventThrottle={64}
-        onScroll={(e) => {
-          const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
-          if (contentOffset.y + layoutMeasurement.height > contentSize.height - 240) loadMore();
-        }}
+        scrollEventThrottle={16}
+        onScroll={onScroll}
       >
         {/* сторис компаний */}
         <ScrollView
@@ -637,7 +659,7 @@ export function HomeScreenV2() {
             </View>
           ) : null}
         </View>
-      </ScrollView>
+      </Animated.ScrollView>
 
       {/*
         Растворение низа: в прототипе под таб-баром градиент в цвет фона, без
@@ -683,21 +705,21 @@ export function HomeScreenV2() {
         <Text style={[styles.sheetTitle, { color: colors.ink }]} numberOfLines={1}>
           {venueSheet?.name}
         </Text>
-        <View style={[styles.venueTag, { backgroundColor: colors.ink }]}>
-          <Text style={[styles.venueTagText, { color: fixed.lime }]}>{venueSheet?.tag}</Text>
+        <View style={[styles.venueTag, { backgroundColor: colors.ctaBg }]}>
+          <Text style={[styles.venueTagText, { color: colors.ctaFg }]}>{venueSheet?.tag}</Text>
         </View>
         {venueSheet?.terms ? (
           <Text style={[styles.sheetSub, { color: colors.muted }]}>{venueSheet.terms}</Text>
         ) : null}
         <PressableScale
           primary
-          style={[styles.venueCta, { backgroundColor: colors.ink }]}
+          style={[styles.venueCta, { backgroundColor: colors.ctaBg }]}
           onPress={() => {
             setVenueSheet(null);
             nav.navigate('Amount');
           }}
         >
-          <Text style={[styles.venueCtaText, { color: fixed.lime }]}>{t('home2.venueCta')}</Text>
+          <Text style={[styles.venueCtaText, { color: colors.ctaFg }]}>{t('home2.venueCta')}</Text>
         </PressableScale>
       </BottomSheet>
     </Screen>
@@ -708,7 +730,8 @@ const styles = StyleSheet.create({
   root: { paddingHorizontal: 0 },
   scroll: { paddingBottom: 120 },
 
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 12 },
+  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 10, zIndex: 20 },
+  headGlass: { position: 'absolute', left: 0, right: 0, top: -80, bottom: 0 },
   logo: { height: 44, width: 68 },
   headBtns: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   round: { width: 40, height: 40, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },

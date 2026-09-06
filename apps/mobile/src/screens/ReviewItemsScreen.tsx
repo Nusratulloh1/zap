@@ -199,7 +199,7 @@ export function ReviewItemsScreen() {
           style={[styles.editAmount, { color: colors.ink }]}
           selectionColor={fixed.lime}
         />
-        <PressableScale style={[styles.sheetCta, { backgroundColor: colors.ink }]} onPress={commitEdit}>
+        <PressableScale style={[styles.sheetCta, { backgroundColor: colors.ctaBg }]} onPress={commitEdit}>
           <Text style={[styles.sheetCtaText, { color: colors.cream }]}>{t('common.done')}</Text>
         </PressableScale>
       </BottomSheet>

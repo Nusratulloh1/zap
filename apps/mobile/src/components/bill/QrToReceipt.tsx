@@ -279,7 +279,7 @@ export function QrToReceipt({ run, frameRef, amount, onHandoff }: Props) {
           <Animated.View style={[styles.fillAbs, { backgroundColor: fixed.lime }, tintStyle]} />
           {/* набросок чека: шапка, линия отрыва, строки — узнаётся как бумага */}
           <Animated.View style={[styles.ink, inkStyle]}>
-            <View style={[styles.logo, { backgroundColor: colors.ink }]} />
+            <View style={[styles.logo, { backgroundColor: colors.ctaBg }]} />
             <View style={[styles.lineWide, { backgroundColor: colors.pebble }]} />
             <View style={[styles.tear, { borderColor: colors.hairline }]} />
             {amount && amount > 0 ? (

@@ -176,7 +176,7 @@ export function PhotoToReceipt({ photoUri, phase, onHandoff, onDismiss }: Props)
 
   return (
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
-      <Animated.View style={[styles.fill, { backgroundColor: colors.ink }, scrimStyle]} />
+      <Animated.View style={[styles.fill, { backgroundColor: colors.ctaBg }, scrimStyle]} />
 
       <View style={styles.center}>
         <Animated.View style={[styles.card, { width: cardW, height: cardH }, cardStyle]}>

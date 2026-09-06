@@ -29,7 +29,7 @@ export function DebtsScreen() {
   const nav = useNavigation<any>();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { colors, fixed } = useTheme();
+  const { colors } = useTheme();
   const skin = useSkin();
   const [skinSheet, setSkinSheet] = useState(false);
   const bg = skin ?? colors.dune2;
@@ -141,10 +141,10 @@ export function DebtsScreen() {
                 return (
                   <PressableScale
                     key={k}
-                    style={[styles.tab, { backgroundColor: active ? colors.ink : colors.paper }]}
+                    style={[styles.tab, { backgroundColor: active ? colors.ctaBg : colors.paper }]}
                     onPress={() => setTab(k)}
                   >
-                    <Text style={[styles.tabText, { color: active ? fixed.lime : colors.ink }]}>
+                    <Text style={[styles.tabText, { color: active ? colors.ctaFg : colors.ink }]}>
                       {k === 'owedToMe' ? t('debts.tabOwedToMe') : t('debts.iOweZero')}
                     </Text>
                   </PressableScale>
@@ -256,8 +256,8 @@ export function DebtsScreen() {
             <View style={styles.spacer} />
 
             {openDebts.length ? (
-              <PressableScale style={[styles.cta, { backgroundColor: colors.ink }]} onPress={() => void remindAll()}>
-                <Text style={[styles.ctaText, { color: fixed.lime }]}>⚡ {t('debts.remindAll')}</Text>
+              <PressableScale style={[styles.cta, { backgroundColor: colors.ctaBg }]} onPress={() => void remindAll()}>
+                <Text style={[styles.ctaText, { color: colors.ctaFg }]}>⚡ {t('debts.remindAll')}</Text>
               </PressableScale>
             ) : null}
           </Animated.View>

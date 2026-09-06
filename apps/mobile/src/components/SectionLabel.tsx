@@ -22,8 +22,14 @@ interface Props {
 export function SectionLabel({ children, onDark, color, style }: Props) {
   const { colors } = useTheme();
 
+  /*
+    На тёмном фоне песочный из палитры сам тёмный — подпись пропадала. Берём
+    приглушённый белый: он читается и на чернилах, и на цветных тёмных фонах.
+  */
   return (
-    <Text style={[styles.label, { color: color ?? (onDark ? colors.sand : colors.deep) }, style]}>
+    <Text
+      style={[styles.label, { color: color ?? (onDark ? 'rgba(255,255,255,0.55)' : colors.deep) }, style]}
+    >
       {children}
     </Text>
   );

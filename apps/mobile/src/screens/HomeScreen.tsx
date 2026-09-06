@@ -307,8 +307,8 @@ export function HomeScreen() {
           */}
 
           {suggestion && !crewSkipped ? (
-            <View style={[styles.crewCard, { backgroundColor: colors.ink }]}>
-              <Text style={[styles.crewTitle, { color: fixed.lime }]}>{t('crew.suggestTitle')}</Text>
+            <View style={[styles.crewCard, { backgroundColor: colors.ctaBg }]}>
+              <Text style={[styles.crewTitle, { color: colors.ctaFg }]}>{t('crew.suggestTitle')}</Text>
               <Text style={styles.crewBody}>{t('crew.suggestBody', { n: suggestion.splits })}</Text>
               <View style={styles.crewCtas}>
                 <PressableScale

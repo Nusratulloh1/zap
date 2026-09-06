@@ -58,13 +58,13 @@ export function PlayerCard({ avatar, initials, name, handle, splits, cashback, g
             {avatar ? (
               <Image source={avatar} style={styles.avatar} />
             ) : (
-              <View style={[styles.avatar, styles.fallback, { backgroundColor: colors.ink }]}>
-                <Text style={[styles.fallbackText, { color: fixed.lime }]}>{initials}</Text>
+              <View style={[styles.avatar, styles.fallback, { backgroundColor: colors.ctaBg }]}>
+                <Text style={[styles.fallbackText, { color: colors.ctaFg }]}>{initials}</Text>
               </View>
             )}
             {/* уровень — как шеврон на аватаре в играх */}
-            <View style={[styles.levelBadge, { backgroundColor: colors.ink, borderColor: colors.shell }]}>
-              <Text style={[styles.levelText, { color: fixed.lime }]}>{level + 1}</Text>
+            <View style={[styles.levelBadge, { backgroundColor: colors.ctaBg, borderColor: colors.shell }]}>
+              <Text style={[styles.levelText, { color: colors.ctaFg }]}>{level + 1}</Text>
             </View>
             <View style={[styles.editDot, { backgroundColor: fixed.lime, borderColor: colors.shell }]}>
               <Text style={styles.editGlyph}>✎</Text>

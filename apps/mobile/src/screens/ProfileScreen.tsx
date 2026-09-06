@@ -433,7 +433,12 @@ export function ProfileScreen() {
                       style={[styles.langPill, { backgroundColor: l === locale ? fixed.lime : colors.sand }]}
                       onPress={() => pickLocale(l)}
                     >
-                      <Text style={[styles.langPillText, { color: '#121212' }]}>{l.toUpperCase()}</Text>
+                      {/* на лайме текст чернильный, на песке — цвета темы */}
+                      <Text
+                        style={[styles.langPillText, { color: l === locale ? fixed.ink : colors.ink }]}
+                      >
+                        {l.toUpperCase()}
+                      </Text>
                     </PressableScale>
                   ))}
                 </View>
@@ -481,7 +486,9 @@ export function ProfileScreen() {
                     haptic={false}
                     style={[
                       styles.homeCell,
-                      { backgroundColor: v === homeVariant ? colors.ink : colors.sand },
+                      // выбранная — лаймовая: colors.ink в тёмной теме светлеет,
+                      // и лайм на нём становился нечитаемым
+                      { backgroundColor: v === homeVariant ? fixed.lime : colors.sand },
                     ]}
                     onPress={() => {
                       setHomeVariant(v);
@@ -489,7 +496,7 @@ export function ProfileScreen() {
                     }}
                   >
                     <Text
-                      style={[styles.homeCellText, { color: v === homeVariant ? fixed.lime : colors.ink }]}
+                      style={[styles.homeCellText, { color: v === homeVariant ? fixed.ink : colors.ink }]}
                     >
                       {t(v === 'pulse' ? 'profile.homePulse' : 'profile.homeClassic')}
                     </Text>

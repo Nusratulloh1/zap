@@ -56,8 +56,8 @@ export function Podium({ items, frame, showPlace }: Props) {
                 ringWidth={3}
               />
               {showPlace ? (
-                <View style={[styles.place, { backgroundColor: colors.ink, borderColor: frame }]}>
-                  <Text style={[styles.placeText, { color: fixed.lime }]}>{place}</Text>
+                <View style={[styles.place, { backgroundColor: colors.ctaBg, borderColor: frame }]}>
+                  <Text style={[styles.placeText, { color: colors.ctaFg }]}>{place}</Text>
                 </View>
               ) : null}
               {it.onPing ? (
@@ -65,11 +65,11 @@ export function Podium({ items, frame, showPlace }: Props) {
                   disabled={it.pingDisabled}
                   style={[
                     styles.ping,
-                    { backgroundColor: colors.ink, borderColor: frame, opacity: it.pingDisabled ? 0.45 : 1 },
+                    { backgroundColor: colors.ctaBg, borderColor: frame, opacity: it.pingDisabled ? 0.45 : 1 },
                   ]}
                   onPress={it.onPing}
                 >
-                  <Text style={[styles.pingText, { color: fixed.lime }]}>⚡</Text>
+                  <Text style={[styles.pingText, { color: colors.ctaFg }]}>⚡</Text>
                 </PressableScale>
               ) : null}
             </View>
