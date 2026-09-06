@@ -102,12 +102,6 @@ export function HomeScreenV2() {
   const qc = useQueryClient();
   const home = useHomeData();
   const insets = useSafeAreaInsets();
-  /*
-    Высоту шапки меряем, а не считаем: она зависит от выреза и от логотипа,
-    который пользователь может сменить. Прикидка на глаз уже дала пустую
-    полосу над сторис.
-  */
-  const [headH, setHeadH] = useState(insets.top + 62);
   // листы рисуются в общей теме приложения, поэтому берём её палитру
   const { colors, name: themeName } = useTheme();
 
@@ -298,14 +292,26 @@ export function HomeScreenV2() {
       </Svg>
 
       {/*
-        Шапка закреплена и на прокрутке уходит под стекло: контент подъезжал
-        вплотную к логотипу и читался поверх него.
+        contentInsetAdjustmentBehavior=never: iOS сам добавляет скроллу у края
+        экрана верхний инсет безопасной зоны, и вместе с нашим отступом под
+        шапку он складывался в пустую полосу над сторис.
       */}
-      <View
-        style={[styles.head, { paddingTop: insets.top + 12 }]}
-        pointerEvents="box-none"
-        onLayout={(e) => setHeadH(e.nativeEvent.layout.height)}
+      <Animated.ScrollView
+        showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="never"
+        automaticallyAdjustContentInsets={false}
+        contentContainerStyle={styles.scroll}
+        stickyHeaderIndices={[0]}
+        scrollEventThrottle={16}
+        onScroll={onScroll}
       >
+        {/*
+          Липкая шапка первым элементом списка: она прилипает к верху сама, а
+          контент уезжает под неё. Раньше шапка висела абсолютом, и отступ
+          скролла под неё приходилось задавать руками — промах каждый раз
+          вылезал пустой полосой.
+        */}
+        <View style={[styles.head, { paddingTop: insets.top + 12 }]}>
         {/*
           Стекло проявляется на прокрутке: контент уезжает ПОД шапку, и без
           размытия логотип читался поверх карточек.
@@ -335,21 +341,8 @@ export function HomeScreenV2() {
             <Avatar contactId="me" size={40} ring={c.accent} ringWidth={3} />
           </PressableScale>
         </View>
-      </View>
+        </View>
 
-      {/*
-        contentInsetAdjustmentBehavior=never: iOS сам добавляет скроллу у края
-        экрана верхний инсет безопасной зоны, и вместе с нашим отступом под
-        шапку он складывался в пустую полосу над сторис.
-      */}
-      <Animated.ScrollView
-        showsVerticalScrollIndicator={false}
-        contentInsetAdjustmentBehavior="never"
-        automaticallyAdjustContentInsets={false}
-        contentContainerStyle={[styles.scroll, { paddingTop: headH + 8 }]}
-        scrollEventThrottle={16}
-        onScroll={onScroll}
-      >
         {/* сторис компаний */}
         <ScrollView
           horizontal
@@ -760,10 +753,6 @@ const styles = StyleSheet.create({
   scroll: { paddingBottom: 120 },
 
   head: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    top: 0,
     zIndex: 20,
     flexDirection: 'row',
     alignItems: 'center',
