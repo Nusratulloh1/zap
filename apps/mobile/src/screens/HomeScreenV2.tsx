@@ -72,6 +72,9 @@ const HOME_LOGOS = [
   { key: 'receipt', src: require('../../assets/home2/receipt-qr.png'), bg: '#FFFFFF' },
 ] as const;
 
+/** Безопасную зону сверху рисует сама шапка — SafeAreaView не вмешивается. */
+const NO_EDGES = [] as const;
+
 /** Явный нулевой инсет: iOS иначе подставляет свой. */
 const ZERO_INSET = { top: 0, bottom: 0, left: 0, right: 0 } as const;
 
@@ -283,7 +286,13 @@ export function HomeScreenV2() {
   const mascotStyle = useAnimatedStyle(() => ({ transform: [{ translateY: floatY.value }] }));
 
   return (
-    <Screen style={styles.root} background={c.bg} darkBar={dark} edges={['top']} noTopFade>
+    /*
+      edges={[]} — безопасную зону сверху отрабатывает сама шапка своим
+      paddingTop. С edges={['top']} её добавлял ещё и SafeAreaView, причём
+      асинхронно: контент уезжал вниз на высоту статус-бара уже после первой
+      раскладки — это и была та самая пустая полоса.
+    */
+    <Screen style={styles.root} background={c.bg} darkBar={dark} edges={NO_EDGES} noTopFade>
       {/* фон в точку: 1 px через 14 — как background-image в прототипе */}
       <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
         <Defs>
@@ -304,7 +313,10 @@ export function HomeScreenV2() {
         абсолютом, внутри обычный ряд. Липкий заголовок внутри скролла я уже
         пробовал: RN оборачивает его по-своему, и ряд разъезжался в колонку.
       */}
-      <View style={[styles.head, { paddingTop: insets.top + 12 }]} pointerEvents="box-none">
+      <View
+        style={[styles.head, { paddingTop: insets.top + 12 }]}
+        pointerEvents="box-none"
+      >
         <Animated.View style={[styles.headGlass, headGlassStyle]} pointerEvents="none">
           <Glass
             dark={dark}
