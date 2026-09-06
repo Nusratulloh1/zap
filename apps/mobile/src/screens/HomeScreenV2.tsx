@@ -32,6 +32,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { Circle, Defs, LinearGradient, Pattern, Rect, Stop } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
@@ -100,6 +101,7 @@ export function HomeScreenV2() {
   const nav = useNavigation<any>();
   const qc = useQueryClient();
   const home = useHomeData();
+  const insets = useSafeAreaInsets();
   // листы рисуются в общей теме приложения, поэтому берём её палитру
   const { colors, name: themeName } = useTheme();
 
@@ -293,9 +295,19 @@ export function HomeScreenV2() {
         Шапка закреплена и на прокрутке уходит под стекло: контент подъезжал
         вплотную к логотипу и читался поверх него.
       */}
-      <View style={[styles.head, { paddingTop: 12 }]} pointerEvents="box-none">
+      <View style={[styles.head, { paddingTop: insets.top + 12 }]} pointerEvents="box-none">
+        {/*
+          Стекло проявляется на прокрутке: контент уезжает ПОД шапку, и без
+          размытия логотип читался поверх карточек.
+        */}
         <Animated.View style={[styles.headGlass, headGlassStyle]} pointerEvents="none">
-          <Glass thin dark={dark} amount={8} fallback={dark ? 'rgba(18,18,18,0.86)' : 'rgba(241,239,233,0.86)'} style={StyleSheet.absoluteFill as object} />
+          <Glass
+            dark={dark}
+            amount={18}
+            fallback={dark ? 'rgba(18,18,18,0.82)' : 'rgba(241,239,233,0.82)'}
+            tint={dark ? 'rgba(18,18,18,0.28)' : 'rgba(255,255,255,0.24)'}
+            style={StyleSheet.absoluteFill as object}
+          />
         </Animated.View>
         {/* тап по логотипу — выбор его стиля, как в прототипе */}
         <PressableScale haptic={false} onPress={() => setLogoSheet(true)}>
@@ -317,7 +329,7 @@ export function HomeScreenV2() {
 
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 64 }]}
         scrollEventThrottle={16}
         onScroll={onScroll}
       >
@@ -730,13 +742,24 @@ const styles = StyleSheet.create({
   root: { paddingHorizontal: 0 },
   scroll: { paddingBottom: 120 },
 
-  head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 10, zIndex: 20 },
-  headGlass: { position: 'absolute', left: 0, right: 0, top: -80, bottom: 0 },
+  head: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    zIndex: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingBottom: 10,
+  },
+  headGlass: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   logo: { height: 44, width: 68 },
   headBtns: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   round: { width: 40, height: 40, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
 
-  stories: { gap: 14, paddingLeft: 16, paddingRight: 16, paddingTop: 20 },
+  stories: { gap: 14, paddingLeft: 16, paddingRight: 16, paddingTop: 8 },
   story: { alignItems: 'center', gap: 6, width: 68 },
   storyRing: { width: 64, height: 64, borderRadius: 999, borderWidth: 2, padding: 3 },
   storyInner: { flex: 1, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
