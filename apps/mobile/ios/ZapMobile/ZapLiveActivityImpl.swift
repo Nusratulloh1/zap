@@ -34,16 +34,17 @@ public class ZapLiveActivityImpl: NSObject {
     amount: String,
     paid: Int,
     total: Int,
-    pending: String
+    pending: String,
+    headline: String
   ) {
     guard #available(iOS 16.2, *), isSupported() else { return }
     // повторный старт того же счёта — это обновление, а не вторая плашка
     if live[splitId] != nil {
-      update(splitId, paid: paid, total: total, pending: pending)
+      update(splitId, paid: paid, total: total, pending: pending, headline: headline)
       return
     }
     let attrs = ZapSplitAttributes(merchant: merchant, amount: amount)
-    let state = ZapSplitAttributes.ContentState(paid: paid, total: total, pending: pending)
+    let state = ZapSplitAttributes.ContentState(paid: paid, total: total, pending: pending, headline: headline)
     do {
       let activity = try Activity.request(
         attributes: attrs,
@@ -57,10 +58,16 @@ public class ZapLiveActivityImpl: NSObject {
     }
   }
 
-  @objc public static func update(_ splitId: String, paid: Int, total: Int, pending: String) {
+  @objc public static func update(
+    _ splitId: String,
+    paid: Int,
+    total: Int,
+    pending: String,
+    headline: String
+  ) {
     guard #available(iOS 16.2, *) else { return }
     guard let activity = live[splitId] as? Activity<ZapSplitAttributes> else { return }
-    let state = ZapSplitAttributes.ContentState(paid: paid, total: total, pending: pending)
+    let state = ZapSplitAttributes.ContentState(paid: paid, total: total, pending: pending, headline: headline)
     Task { await activity.update(.init(state: state, staleDate: nil)) }
   }
 

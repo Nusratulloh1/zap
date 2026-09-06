@@ -594,7 +594,9 @@
     "homeSection": "HOME SCREEN",
     "homeClassic": "Classic",
     "homePulse": "Pulse",
-    "homeHint": "Two home screens — pick the one you like"
+    "homeHint": "Two home screens — pick the one you like",
+    "themeLightShort": "Light",
+    "themeDarkShort": "Dark"
   },
   "install": {
     "title": "Install ZAP!",
@@ -1064,8 +1066,8 @@
   "home2": {
     "whatsNew": "What's new",
     "greeting": "HEY, {name}",
-    "heroSplit": "Split.",
-    "heroEarn": "Zearn.",
+    "heroSplit": "Split it.",
+    "heroEarn": "Earn it.",
     "promoCta": "Gather your crew",
     "tileCashback": "CASHBACK",
     "tileGroups": "{n} crew | {n} crews",
@@ -1084,6 +1086,10 @@
     "feedPaid": "closed {amount} · {what}",
     "feedCashback": "caught +{amount} cashback",
     "feedZap": "ZAP",
-    "loadingMore": "loading more…"
+    "loadingMore": "loading more…",
+    "logoTitle": "Logo style",
+    "logoHint": "How ZAP! looks in the header",
+    "collapse": "collapse ↑",
+    "venueCta": "Split here"
   }
 }

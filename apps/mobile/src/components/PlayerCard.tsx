@@ -28,15 +28,13 @@ interface Props {
   initials: string;
   name: string;
   handle: string;
-  /** «в ZAP! с августа» — короткой строкой под ником */
-  since: string;
   splits: number;
   cashback: string;
   groups: number;
   onAvatarPress: () => void;
 }
 
-export function PlayerCard({ avatar, initials, name, handle, since, splits, cashback, groups, onAvatarPress }: Props) {
+export function PlayerCard({ avatar, initials, name, handle, splits, cashback, groups, onAvatarPress }: Props) {
   const { t } = useTranslation();
   const { colors, fixed } = useTheme();
   const { level, from, next } = rankOf(splits);
@@ -82,12 +80,12 @@ export function PlayerCard({ avatar, initials, name, handle, since, splits, cash
 
       <View style={styles.who}>
         <Text style={[styles.name, { color: colors.ink }]} numberOfLines={1}>{name}</Text>
-        <Text style={[styles.handle, { color: colors.muted }]} numberOfLines={1}>
-          {handle} · {since}
-        </Text>
-        <View style={[styles.rankChip, { backgroundColor: fixed.lime }]}>
-          <Text style={styles.rankText} numberOfLines={1}>{t(`profile.rank${level}`)}</Text>
-        </View>
+        {/*
+          Под именем только @handle. Дата регистрации и лаймовый чип с рангом
+          спорили с ним за внимание, а ранг и так виден: цифра на аватаре и
+          полоса опыта ниже.
+        */}
+        <Text style={[styles.handle, { color: colors.muted }]} numberOfLines={1}>{handle}</Text>
       </View>
 
       {/* полоса опыта до следующего ранга */}

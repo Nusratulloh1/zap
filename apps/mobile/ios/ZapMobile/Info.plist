@@ -95,6 +95,11 @@
 		<string>Manrope-ExtraBold.ttf</string>
 		<string>Manrope-Medium.ttf</string>
 		<string>Manrope-SemiBold.ttf</string>
+		<string>Onest-ExtraBold.ttf</string>
+		<string>Onest-Medium.ttf</string>
+		<string>Onest-Bold.ttf</string>
+		<string>Onest-SemiBold.ttf</string>
+		<string>Onest-Black.ttf</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>

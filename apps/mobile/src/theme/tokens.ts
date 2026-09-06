@@ -116,6 +116,18 @@ export const font = {
   monoBold: 'JetBrainsMono-Bold',
 } as const;
 
+/*
+  Onest — гарнитура прототипа новой главной. Держим отдельно от основной
+  Manrope: меняется только «Pulse», остальные экраны не должны поехать.
+*/
+export const fontHome = {
+  medium: 'Onest-Medium',
+  semibold: 'Onest-SemiBold',
+  bold: 'Onest-Bold',
+  extrabold: 'Onest-ExtraBold',
+  black: 'Onest-Black',
+} as const;
+
 /** Кривая ease-zap из веба: cubic-bezier(0.22, 1, 0.36, 1). */
 export const EASE_ZAP = [0.22, 1, 0.36, 1] as const;
 

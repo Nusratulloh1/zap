@@ -90,12 +90,12 @@ const styles = StyleSheet.create({
     borderRadius: 26,
     paddingVertical: 8,
     paddingHorizontal: 6,
-    // тень из макета: 0 6px 20px rgba(18,18,18,.10)
+    // тень плотнее макета: столбик висит над чеком, и лёгкая тень не отделяла
     shadowColor: '#121212',
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+    shadowOpacity: 0.22,
+    shadowRadius: 22,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 12,
   },
   cell: { width: 34, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   glyph: { fontSize: 18 },

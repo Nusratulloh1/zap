@@ -32,6 +32,16 @@
 		DBBC80D2589B99BFE968EA3E /* ZapActivityAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AB9502E6946234A1DA5ECB7 /* ZapActivityAttributes.swift */; };
 		EC3F9361832A40BE8C4BDEEF /* Manrope-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 42595C6DF87F47F6808A7165 /* Manrope-SemiBold.ttf */; };
 		FBDA487F823B22F19ABF76D1 /* ZapActivityBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D9C026BDE0F76852C785097 /* ZapActivityBundle.swift */; };
+		86397542D9544E8D9BECBEEE /* Onest-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6B325C968496496492742A97 /* Onest-ExtraBold.ttf */; };
+		F1AA029F3D6749A981EB8D44 /* Onest-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6B325C968496496492742A97 /* Onest-ExtraBold.ttf */; };
+		A4D92DCD8F1148B8B36204C9 /* Onest-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BA0E1848029D4A1C9ABB20C8 /* Onest-Medium.ttf */; };
+		A46B06F803F744329DED11C3 /* Onest-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BA0E1848029D4A1C9ABB20C8 /* Onest-Medium.ttf */; };
+		1190A21CE1614B96BF639280 /* Onest-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C78ECF951B2441DAB9E36E4E /* Onest-Bold.ttf */; };
+		6749B81C22544E9DB57FA294 /* Onest-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C78ECF951B2441DAB9E36E4E /* Onest-Bold.ttf */; };
+		2B47D088F01E4CFEA09A2C51 /* Onest-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A0F1BEBAB0C14E8C92EE14F3 /* Onest-SemiBold.ttf */; };
+		506E9B4A69C7405BAF7C9603 /* Onest-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A0F1BEBAB0C14E8C92EE14F3 /* Onest-SemiBold.ttf */; };
+		4E56CCEC3D0041768C362B23 /* Onest-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 285D6199DA7A4F33898E39B4 /* Onest-Black.ttf */; };
+		992D3394BD8949F3A98B7CAE /* Onest-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 285D6199DA7A4F33898E39B4 /* Onest-Black.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +101,11 @@
 		CCF2E86B88DC4377B26DB638 /* split.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = split.mp3; path = ../assets/sounds/split.mp3; sourceTree = "<group>"; };
 		CFEBBF2C5BD24C9CA630C530 /* reminder.mp3 */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = reminder.mp3; path = ../assets/sounds/reminder.mp3; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		6B325C968496496492742A97 /* Onest-ExtraBold.ttf */ = {isa = PBXFileReference; name = "Onest-ExtraBold.ttf"; path = "../assets/fonts/Onest-ExtraBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		BA0E1848029D4A1C9ABB20C8 /* Onest-Medium.ttf */ = {isa = PBXFileReference; name = "Onest-Medium.ttf"; path = "../assets/fonts/Onest-Medium.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		C78ECF951B2441DAB9E36E4E /* Onest-Bold.ttf */ = {isa = PBXFileReference; name = "Onest-Bold.ttf"; path = "../assets/fonts/Onest-Bold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		A0F1BEBAB0C14E8C92EE14F3 /* Onest-SemiBold.ttf */ = {isa = PBXFileReference; name = "Onest-SemiBold.ttf"; path = "../assets/fonts/Onest-SemiBold.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		285D6199DA7A4F33898E39B4 /* Onest-Black.ttf */ = {isa = PBXFileReference; name = "Onest-Black.ttf"; path = "../assets/fonts/Onest-Black.ttf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,6 +230,11 @@
 				3ABF7D8A31794B63ABFD04E2 /* split_done.mp3 */,
 				8E1FDCC89DD547B889A97CE3 /* paid.mp3 */,
 				CFEBBF2C5BD24C9CA630C530 /* reminder.mp3 */,
+				6B325C968496496492742A97 /* Onest-ExtraBold.ttf */,
+				BA0E1848029D4A1C9ABB20C8 /* Onest-Medium.ttf */,
+				C78ECF951B2441DAB9E36E4E /* Onest-Bold.ttf */,
+				A0F1BEBAB0C14E8C92EE14F3 /* Onest-SemiBold.ttf */,
+				285D6199DA7A4F33898E39B4 /* Onest-Black.ttf */,
 			);
 			name = Resources;
 			path = "";
@@ -316,6 +336,11 @@
 				833D28DD0A5D4304B867B15C /* split_done.mp3 in Resources */,
 				78626FB348C44E69B94066DB /* paid.mp3 in Resources */,
 				A400A48381024F6BB12F7605 /* reminder.mp3 in Resources */,
+				86397542D9544E8D9BECBEEE /* Onest-ExtraBold.ttf in Resources */,
+				A4D92DCD8F1148B8B36204C9 /* Onest-Medium.ttf in Resources */,
+				1190A21CE1614B96BF639280 /* Onest-Bold.ttf in Resources */,
+				2B47D088F01E4CFEA09A2C51 /* Onest-SemiBold.ttf in Resources */,
+				4E56CCEC3D0041768C362B23 /* Onest-Black.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -323,6 +348,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1AA029F3D6749A981EB8D44 /* Onest-ExtraBold.ttf in Resources */,
+				A46B06F803F744329DED11C3 /* Onest-Medium.ttf in Resources */,
+				6749B81C22544E9DB57FA294 /* Onest-Bold.ttf in Resources */,
+				506E9B4A69C7405BAF7C9603 /* Onest-SemiBold.ttf in Resources */,
+				992D3394BD8949F3A98B7CAE /* Onest-Black.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

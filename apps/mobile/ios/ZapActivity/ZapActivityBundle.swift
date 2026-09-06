@@ -28,7 +28,9 @@ struct ZapSplitActivity: Widget {
             .font(.system(size: 13, weight: .bold))
             .foregroundColor(.white.opacity(0.7))
         }
-        Text("\(context.state.paid) of \(context.state.total) paid")
+        Text(context.state.headline.isEmpty
+             ? "\(context.state.paid) / \(context.state.total)"
+             : context.state.headline)
           .font(.system(size: 22, weight: .heavy))
           .foregroundColor(.white)
         ZapProgress(paid: context.state.paid, total: context.state.total)

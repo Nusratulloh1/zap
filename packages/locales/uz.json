@@ -594,7 +594,9 @@
     "homeSection": "BOSH SAHIFA",
     "homeClassic": "Klassik",
     "homePulse": "Pulse",
-    "homeHint": "Ikkita bosh sahifa — qaysi biri yoqsa, o‘shani tanlang"
+    "homeHint": "Ikkita bosh sahifa — qaysi biri yoqsa, o‘shani tanlang",
+    "themeLightShort": "Yorug‘",
+    "themeDarkShort": "Qorong‘i"
   },
   "install": {
     "title": "ZAP! ni o'rnating",
@@ -1064,8 +1066,8 @@
   "home2": {
     "whatsNew": "Yangiliklar",
     "greeting": "SALOM, {name}",
-    "heroSplit": "Bo‘lish.",
-    "heroEarn": "Zishla.",
+    "heroSplit": "Bo‘ling.",
+    "heroEarn": "Keshbek oling.",
     "promoCta": "Crew yig‘ish",
     "tileCashback": "KESHBEK",
     "tileGroups": "{n} ta guruh",
@@ -1084,6 +1086,10 @@
     "feedPaid": "{amount} yopdi · {what}",
     "feedCashback": "+{amount} keshbek ushladi",
     "feedZap": "ZAP",
-    "loadingMore": "yana yuklanyapti…"
+    "loadingMore": "yana yuklanyapti…",
+    "logoTitle": "Logo uslubi",
+    "logoHint": "ZAP! shapkada qanday ko‘rinadi",
+    "collapse": "yig‘ish ↑",
+    "venueCta": "Shu yerda bo‘lish"
   }
 }

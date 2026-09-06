@@ -34,10 +34,12 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { Avatar } from '@/components/Avatar';
 import { PingButton } from '@/components/PingButton';
+import { BottomSheet } from '@/components/BottomSheet';
 import { PressableScale } from '@/components/PressableScale';
 import { toast } from '@/components/ToastHost';
-import { CheckIcon, ContrastIcon, ScanIcon } from '@/components/icons';
+import { CheckIcon, ScanIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
+import { useTheme } from '@/theme/ThemeProvider';
 import { qk } from '@/api/data';
 import { remindMember } from '@/api/splits';
 import { homeFeed } from '@/lib/homeFeed';
@@ -47,14 +49,23 @@ import { VENUES, venuePlate } from '@/lib/venues';
 import { hasKey, translate } from '@/i18n';
 import { money, peopleCount } from '@/lib/format';
 import { cue, reduceMotion } from '@/lib/feedback';
-import { useHomeSkin, setHomeSkin } from '@/lib/homeVariant';
-import { font } from '@/theme/tokens';
+import { useHomeLogo, setHomeLogo } from '@/lib/homeVariant';
+import { font, fontHome } from '@/theme/tokens';
 
 const MASCOT = require('../../assets/home2/mascot.png');
 const STK_RECEIPT = require('../../assets/home2/receipt-qr.png');
 const STK_CHECK = require('../../assets/home2/check-avatars.png');
 // логотип-наклейка из прототипа: он же и на тёмном, и на светлом холсте
 const LOGO = require('../../assets/home2/logo.png');
+
+/** Стили логотипа из прототипа: тап по шапке открывает этот выбор. */
+const HOME_LOGOS = [
+  { key: 'classic', src: LOGO, bg: '#FFFFFF' },
+  { key: 'mono', src: require('../../assets/home2/logo-mono.png'), bg: '#D9FF3A' },
+  { key: 'heart', src: require('../../assets/home2/heart.png'), bg: '#FFFFFF' },
+  { key: 'phone', src: require('../../assets/home2/phone-check.png'), bg: '#D9FF3A' },
+  { key: 'receipt', src: require('../../assets/home2/receipt-qr.png'), bg: '#FFFFFF' },
+] as const;
 
 /** Сколько событий ленты показываем за раз. */
 const FEED_PAGE = 6;
@@ -85,10 +96,14 @@ export function HomeScreenV2() {
   const nav = useNavigation<any>();
   const qc = useQueryClient();
   const home = useHomeData();
-  const skin = useHomeSkin();
+  // листы рисуются в общей теме приложения, поэтому берём её палитру
+  const { colors, fixed, name: themeName } = useTheme();
+
   // знаки компаний живут в MMKV — версия заставляет список перерисоваться
   const signs = useCrewSignsVersion();
-  const dark = skin === 'dark';
+  const logo = useHomeLogo();
+  // холст следует теме приложения: выбор темы живёт в профиле
+  const dark = themeName === 'dark';
 
   // палитра прототипа: тёмный холст либо песочный
   const c = useMemo(
@@ -111,6 +126,11 @@ export function HomeScreenV2() {
     Целиком она уезжала на несколько экранов вниз, и до нижних секций никто
     не доходил.
   */
+  const [logoSheet, setLogoSheet] = useState(false);
+  // все компании списком или только три верхние
+  const [allCrews, setAllCrews] = useState(false);
+  // карточка заведения: условия и «сплитить здесь»
+  const [venueSheet, setVenueSheet] = useState<{ name: string; tag: string; terms: string } | null>(null);
   const [shown, setShown] = useState(FEED_PAGE);
   const [loadingMore, setLoadingMore] = useState(false);
   const [pinged, setPinged] = useState<Set<string>>(new Set());
@@ -252,6 +272,26 @@ export function HomeScreenV2() {
         <Rect x={0} y={0} width="100%" height="100%" fill="url(#dots)" />
       </Svg>
 
+      {/* шапка закреплена: логотип, сканер и аватар всегда под рукой */}
+      <View style={styles.head}>
+        {/* тап по логотипу — выбор его стиля, как в прототипе */}
+        <PressableScale haptic={false} onPress={() => setLogoSheet(true)}>
+          <Image source={HOME_LOGOS[logo]?.src ?? LOGO} style={styles.logo} resizeMode="contain" />
+        </PressableScale>
+        <View style={styles.headBtns}>
+          <PressableScale
+            small
+            style={[styles.round, { backgroundColor: c.card, borderColor: c.line }]}
+            onPress={() => nav.navigate('Scan')}
+          >
+            <ScanIcon size={18} color={c.fg} strokeWidth={2} />
+          </PressableScale>
+          <PressableScale small onPress={() => nav.navigate('Profile')}>
+            <Avatar contactId="me" size={40} ring={c.accent} ringWidth={3} />
+          </PressableScale>
+        </View>
+      </View>
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
@@ -261,37 +301,14 @@ export function HomeScreenV2() {
           if (contentOffset.y + layoutMeasurement.height > contentSize.height - 240) loadMore();
         }}
       >
-        {/* шапка: логотип, тема, сканер, аватар */}
-        <View style={styles.head}>
-          <Image source={LOGO} style={styles.logo} resizeMode="contain" />
-          <View style={styles.headBtns}>
-            <PressableScale
-              small
-              style={[styles.round, { backgroundColor: c.card, borderColor: c.line }]}
-              onPress={() => setHomeSkin(dark ? 'light' : 'dark')}
-            >
-              <ContrastIcon size={18} color={c.fg} />
-            </PressableScale>
-            <PressableScale
-              small
-              style={[styles.round, { backgroundColor: c.card, borderColor: c.line }]}
-              onPress={() => nav.navigate('Scan')}
-            >
-              <ScanIcon size={18} color={c.fg} strokeWidth={2} />
-            </PressableScale>
-            <PressableScale small onPress={() => nav.navigate('Profile')}>
-              <Avatar contactId="me" size={40} ring={c.accent} ringWidth={3} />
-            </PressableScale>
-          </View>
-        </View>
-
         {/* сторис компаний */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.stories}
         >
-          <PressableScale haptic={false} style={styles.story} onPress={() => nav.navigate('Tabs', { screen: 'History' })}>
+          {/* «Что нового» — сводка месяца: единственный экран, где это и лежит */}
+          <PressableScale haptic={false} style={styles.story} onPress={() => nav.navigate('Recap')}>
             <View style={[styles.storyRing, { borderColor: c.accent, borderStyle: 'solid' }]}>
               <View style={[styles.storyInner, { backgroundColor: INK }]}>
                 <Text style={styles.storyGlyph}>💸</Text>
@@ -426,15 +443,15 @@ export function HomeScreenV2() {
           <>
             <View style={styles.sectionHead}>
               <Text style={[styles.sectionTitle, { color: c.fg }]}>{t('home2.crews')}</Text>
-              <PressableScale haptic={false} onPress={() => nav.navigate('Profile')}>
+              <PressableScale haptic={false} onPress={() => setAllCrews((v) => !v)}>
                 <Text style={[styles.sectionLink, { color: c.accent }]}>
-                  {t('home2.seeAllN', { n: crews.length })}
+                  {allCrews ? t('home2.collapse') : t('home2.seeAllN', { n: crews.length })}
                 </Text>
               </PressableScale>
             </View>
 
             <View style={styles.crewRows}>
-              {crews.slice(0, 3).map((crew) => (
+              {(allCrews ? crews : crews.slice(0, 3)).map((crew) => (
                 <PressableScale
                   key={crew.id}
                   haptic={false}
@@ -525,7 +542,7 @@ export function HomeScreenV2() {
                       // чередование белая/лаймовая — ритм витрины из прототипа
                       { backgroundColor: i % 2 ? LIME : '#FFFFFF' },
                     ]}
-                    onPress={() => nav.navigate('Cashback')}
+                    onPress={() => setVenueSheet({ name: m.name, tag: m.tag, terms: m.terms })}
                   >
                     <View
                       style={[
@@ -623,6 +640,53 @@ export function HomeScreenV2() {
           ) : null}
         </View>
       </ScrollView>
+
+      {/* выбор логотипа — как в прототипе: сетка стилей */}
+      <BottomSheet open={logoSheet} onClose={() => setLogoSheet(false)}>
+        <Text style={[styles.sheetTitle, { color: colors.ink }]}>{t('home2.logoTitle')}</Text>
+        <Text style={[styles.sheetSub, { color: colors.muted }]}>{t('home2.logoHint')}</Text>
+        <View style={styles.logoGrid}>
+          {HOME_LOGOS.map((l, i) => (
+            <PressableScale
+              key={l.key}
+              haptic={false}
+              style={[
+                styles.logoCell,
+                { backgroundColor: l.bg, borderColor: i === logo ? colors.ink : 'transparent' },
+              ]}
+              onPress={() => {
+                setHomeLogo(i);
+                setLogoSheet(false);
+              }}
+            >
+              <Image source={l.src} style={styles.logoCellImg} resizeMode="contain" />
+            </PressableScale>
+          ))}
+        </View>
+      </BottomSheet>
+
+      {/* карточка заведения: условия предложения и путь к сплиту */}
+      <BottomSheet open={!!venueSheet} onClose={() => setVenueSheet(null)}>
+        <Text style={[styles.sheetTitle, { color: colors.ink }]} numberOfLines={1}>
+          {venueSheet?.name}
+        </Text>
+        <View style={[styles.venueTag, { backgroundColor: colors.ink }]}>
+          <Text style={[styles.venueTagText, { color: fixed.lime }]}>{venueSheet?.tag}</Text>
+        </View>
+        {venueSheet?.terms ? (
+          <Text style={[styles.sheetSub, { color: colors.muted }]}>{venueSheet.terms}</Text>
+        ) : null}
+        <PressableScale
+          primary
+          style={[styles.venueCta, { backgroundColor: colors.ink }]}
+          onPress={() => {
+            setVenueSheet(null);
+            nav.navigate('Amount');
+          }}
+        >
+          <Text style={[styles.venueCtaText, { color: fixed.lime }]}>{t('home2.venueCta')}</Text>
+        </PressableScale>
+      </BottomSheet>
     </Screen>
   );
 }
@@ -642,19 +706,19 @@ const styles = StyleSheet.create({
   storyInner: { flex: 1, borderRadius: 999, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   storyGlyph: { fontSize: 26, lineHeight: 32 },
   storyDot: { position: 'absolute', right: 4, top: 4, width: 9, height: 9, borderRadius: 999, borderWidth: 2 },
-  storyName: { fontFamily: font.bold, fontSize: 10 },
+  storyName: { fontFamily: fontHome.bold, fontSize: 10 },
 
   hero: { paddingHorizontal: 16, paddingTop: 26 },
   heroKicker: { fontFamily: font.monoBold, fontSize: 8, letterSpacing: 2.5 },
   // 44/900 с плотным интерлиньяжем — как в прототипе
-  heroLine: { fontFamily: font.extrabold, fontSize: 42, lineHeight: 44, letterSpacing: -1.5, marginTop: 8 },
+  heroLine: { fontFamily: fontHome.black, fontSize: 42, lineHeight: 44, letterSpacing: -1.5, marginTop: 8 },
   heroAccent: { alignSelf: 'flex-start', marginTop: 0, borderRadius: 8, paddingHorizontal: 6, fontStyle: 'italic' },
 
   promoWrap: { height: 196, marginHorizontal: 16, marginTop: 22 },
   promoTilt: { ...StyleSheet.absoluteFill, borderRadius: 26, transform: [{ rotate: '-2deg' }] },
   promoCard: { ...StyleSheet.absoluteFill, backgroundColor: '#FFFFFF', borderRadius: 26, padding: 18, overflow: 'hidden' },
-  promoTitle: { fontFamily: font.extrabold, fontSize: 24, lineHeight: 26, letterSpacing: -0.6, color: INK, marginTop: 10, width: 190 },
-  promoSub: { fontFamily: font.semibold, fontSize: 11, color: '#8E8C86', marginTop: 8, width: 180 },
+  promoTitle: { fontFamily: fontHome.black, fontSize: 24, lineHeight: 26, letterSpacing: -0.6, color: INK, marginTop: 10, width: 190 },
+  promoSub: { fontFamily: fontHome.semibold, fontSize: 11, color: '#8E8C86', marginTop: 8, width: 180 },
   promoCta: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -666,31 +730,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginTop: 14,
   },
-  promoCtaText: { fontFamily: font.extrabold, fontSize: 12, color: LIME },
-  promoCtaArrow: { fontFamily: font.extrabold, fontSize: 12, color: LIME },
+  promoCtaText: { fontFamily: fontHome.extrabold, fontSize: 12, color: LIME },
+  promoCtaArrow: { fontFamily: fontHome.extrabold, fontSize: 12, color: LIME },
   mascot: { position: 'absolute', right: -8, bottom: -10, width: 150, height: 150 },
 
   tiles: { flexDirection: 'row', gap: 10, paddingHorizontal: 16, paddingTop: 22 },
   tile: { flex: 1, minHeight: 128, borderRadius: 24, padding: 14, overflow: 'hidden' },
   tileKicker: { fontFamily: font.monoBold, fontSize: 7, letterSpacing: 2 },
-  tileValue: { fontFamily: font.extrabold, fontSize: 26, letterSpacing: -0.5, marginTop: 8 },
-  tileSub: { fontFamily: font.semibold, fontSize: 10, marginTop: 3 },
+  tileValue: { fontFamily: fontHome.black, fontSize: 26, letterSpacing: -0.5, marginTop: 8 },
+  tileSub: { fontFamily: fontHome.semibold, fontSize: 10, marginTop: 3 },
   tileFaces: { flexDirection: 'row', alignItems: 'center', marginTop: 5 },
   tileFaceStacked: { marginLeft: -8 },
   tileArtRight: { position: 'absolute', right: -6, bottom: -8, width: 82, height: 82 },
 
   sectionHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 26 },
-  sectionTitle: { fontFamily: font.extrabold, fontSize: 20, letterSpacing: -0.5 },
-  sectionLink: { fontFamily: font.extrabold, fontSize: 12 },
+  sectionTitle: { fontFamily: fontHome.black, fontSize: 20, letterSpacing: -0.5 },
+  sectionLink: { fontFamily: fontHome.extrabold, fontSize: 12 },
 
   crewRows: { gap: 8, paddingHorizontal: 16, paddingTop: 14 },
   crewRow: { flexDirection: 'row', alignItems: 'center', gap: 12, borderRadius: 20, borderWidth: 1, paddingVertical: 12, paddingHorizontal: 14 },
   crewIcon: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
   crewIconGlyph: { fontSize: 20 },
   crewBody: { flex: 1, minWidth: 0 },
-  crewTitle: { fontFamily: font.extrabold, fontSize: 14 },
+  crewTitle: { fontFamily: fontHome.black, fontSize: 14 },
   crewSubRow: { flexDirection: 'row', alignItems: 'center', marginTop: 5 },
-  crewSub: { fontFamily: font.semibold, fontSize: 10, marginLeft: 6, flexShrink: 1 },
+  crewSub: { fontFamily: fontHome.semibold, fontSize: 10, marginLeft: 6, flexShrink: 1 },
   crewPing: { width: 44, height: 44, borderRadius: 999, backgroundColor: LIME, alignItems: 'center', justifyContent: 'center' },
   crewPingGlyph: { fontSize: 18 },
   crewDone: { width: 44, height: 44, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
@@ -709,14 +773,14 @@ const styles = StyleSheet.create({
   },
   merchantLogo: { width: 44, height: 44, borderRadius: 14, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
   merchantLogoImg: { width: '100%', height: '100%' },
-  merchantLetter: { fontFamily: font.extrabold, fontSize: 11, lineHeight: 13, textAlign: 'center', paddingHorizontal: 3 },
-  merchantName: { fontFamily: font.extrabold, fontSize: 13, color: INK, marginTop: 12 },
+  merchantLetter: { fontFamily: fontHome.extrabold, fontSize: 11, lineHeight: 13, textAlign: 'center', paddingHorizontal: 3 },
+  merchantName: { fontFamily: fontHome.black, fontSize: 13, color: INK, marginTop: 12 },
   merchantTag: { alignSelf: 'flex-start', backgroundColor: INK, borderRadius: 10, paddingVertical: 3, paddingHorizontal: 8, marginTop: 6 },
-  merchantTagText: { fontFamily: font.extrabold, fontSize: 10, color: LIME },
+  merchantTagText: { fontFamily: fontHome.extrabold, fontSize: 10, color: LIME },
 
   filters: { flexDirection: 'row', gap: 6 },
   filter: { height: 26, borderRadius: 13, borderWidth: 1, paddingHorizontal: 10, justifyContent: 'center' },
-  filterText: { fontFamily: font.extrabold, fontSize: 11 },
+  filterText: { fontFamily: fontHome.extrabold, fontSize: 11 },
 
   feed: { gap: 10, paddingHorizontal: 16, paddingTop: 14 },
   feedRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
@@ -724,12 +788,21 @@ const styles = StyleSheet.create({
   feedBolt: { fontSize: 16 },
   // «хвостик» слева сверху, как у пузыря сообщения
   bubble: { flex: 1, borderWidth: 1, borderTopLeftRadius: 4, borderTopRightRadius: 20, borderBottomLeftRadius: 20, borderBottomRightRadius: 20, paddingVertical: 12, paddingHorizontal: 14 },
-  bubbleText: { fontFamily: font.semibold, fontSize: 13, lineHeight: 18 },
-  bubbleWho: { fontFamily: font.extrabold },
+  bubbleText: { fontFamily: fontHome.semibold, fontSize: 13, lineHeight: 18 },
+  bubbleWho: { fontFamily: fontHome.extrabold },
   bubbleFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 8 },
-  bubbleTime: { fontFamily: font.semibold, fontSize: 10, flexShrink: 1 },
+  bubbleTime: { fontFamily: fontHome.semibold, fontSize: 10, flexShrink: 1 },
+  sheetTitle: { fontFamily: fontHome.black, fontSize: 19, letterSpacing: -0.4 },
+  sheetSub: { fontFamily: fontHome.semibold, fontSize: 12.5, marginTop: 4 },
+  logoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 16, paddingBottom: 4 },
+  logoCell: { width: '47%', height: 104, borderRadius: 20, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
+  logoCellImg: { width: '64%', height: 54 },
+  venueTag: { alignSelf: 'flex-start', borderRadius: 12, paddingVertical: 5, paddingHorizontal: 10, marginTop: 10 },
+  venueTagText: { fontFamily: fontHome.extrabold, fontSize: 12 },
+  venueCta: { height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center', marginTop: 18 },
+  venueCtaText: { fontFamily: fontHome.extrabold, fontSize: 15 },
   feedMore: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 18 },
-  feedMoreText: { fontFamily: font.semibold, fontSize: 11 },
+  feedMoreText: { fontFamily: fontHome.semibold, fontSize: 11 },
 
   dim: { opacity: 0.5 },
 });

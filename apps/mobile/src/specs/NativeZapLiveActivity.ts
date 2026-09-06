@@ -17,10 +17,19 @@ export interface Spec extends TurboModule {
    * Запустить активность для счёта. Повторный вызов с тем же splitId
    * не создаёт вторую — обновляет существующую.
    */
-  start(splitId: string, merchant: string, amount: string, paid: number, total: number, pending: string): void;
+  start(
+    splitId: string,
+    merchant: string,
+    amount: string,
+    paid: number,
+    total: number,
+    pending: string,
+    /** «3 / 4 оплатили» — строку собирает и переводит приложение */
+    headline: string,
+  ): void;
 
   /** Обновить прогресс: сколько оплатили и кого ждём. */
-  update(splitId: string, paid: number, total: number, pending: string): void;
+  update(splitId: string, paid: number, total: number, pending: string, headline: string): void;
 
   /** Завершить активность (счёт закрыт или отменён). */
   end(splitId: string): void;

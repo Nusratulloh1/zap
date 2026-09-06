@@ -594,7 +594,9 @@
     "homeSection": "ГЛАВНАЯ",
     "homeClassic": "Классика",
     "homePulse": "Pulse",
-    "homeHint": "Две главные — выбирайте, какая нравится"
+    "homeHint": "Две главные — выбирайте, какая нравится",
+    "themeLightShort": "Светлая",
+    "themeDarkShort": "Тёмная"
   },
   "install": {
     "title": "Установите ZAP!",
@@ -1084,6 +1086,10 @@
     "feedPaid": "закрыл {amount} · {what}",
     "feedCashback": "словил +{amount} кэшбэка",
     "feedZap": "ZAP",
-    "loadingMore": "грузим ещё…"
+    "loadingMore": "грузим ещё…",
+    "logoTitle": "Стиль логотипа",
+    "logoHint": "Как ZAP! выглядит в шапке",
+    "collapse": "свернуть ↑",
+    "venueCta": "Сплитить здесь"
   }
 }

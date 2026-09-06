@@ -19,8 +19,7 @@ import { PlayerCard } from '@/components/PlayerCard';
 import { AchievementStrip } from '@/components/AchievementStrip';
 import { STICKER } from '@/components/EmptyState';
 import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-svg';
-// SunIcon и MoonIcon нужны только скрытому переключателю темы, см. ниже
-import { BackIcon } from '@/components/icons';
+import { BackIcon, MoonIcon, SunIcon } from '@/components/icons';
 import { refocus, useKeyboardLock } from '@/lib/keyboard';
 import { Toggle } from '@/components/Toggle';
 import { toast } from '@/components/ToastHost';
@@ -29,7 +28,7 @@ import { addCard, setPrimaryCard, changePin, toggleDebtNotifications, fetchRecap
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { useSession } from '@/store/session';
-import { money, phone, monthYear } from '@/lib/format';
+import { money, phone } from '@/lib/format';
 import { titlesFor, personalBest, favouriteTheme, type TitleKey } from '@/lib/funStats';
 import { useMyAvatar } from '@/lib/myAvatar';
 import { APP_ICONS, ICON_PREVIEW, currentAppIcon, setAppIcon, type AppIconKey } from '@/lib/appIcon';
@@ -60,7 +59,7 @@ function stripGlyph(v: string): string {
 
 export function ProfileScreen() {
   const { t } = useTranslation();
-  const { colors, fixed } = useTheme();
+  const { colors, fixed, name, setPref } = useTheme();
   const homeVariant = useHomeVariant();
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
@@ -75,12 +74,6 @@ export function ProfileScreen() {
   useEffect(() => {
     if (home.db) setNotifs(home.db.settings.debtNotifications);
   }, [home.db]);
-
-  const sinceLabel = (() => {
-    const ts = Date.parse(me?.memberSince ?? '');
-    if (Number.isNaN(ts)) return me?.memberSince ?? '';
-    return monthYear(ts);
-  })();
 
   // ---- добавление карты: форма → SMS → «проверяем карту» ----
   const [cardSheet, setCardSheet] = useState(false);
@@ -307,7 +300,6 @@ export function ProfileScreen() {
               initials={me.initials}
               name={me.name}
               handle={me.handle}
-              since={t('profile.since', { date: sinceLabel })}
               splits={me.splitsCount}
               cashback={money(home.cashbackBalance)}
               groups={groups.length}
@@ -501,6 +493,30 @@ export function ProfileScreen() {
                 ))}
               </View>
               <Text style={[styles.homeHint, { color: colors.muted }]}>{t('profile.homeHint')}</Text>
+
+              {/*
+                Тема приложения. Вернулась вместе с новой главной: она рисуется
+                на тёмном холсте, и уходить с неё на белую историю больно.
+              */}
+              <View style={[styles.homeRow, styles.themeRow, { borderTopColor: colors.sand2 }]}>
+                {(['light', 'dark'] as const).map((p) => (
+                  <PressableScale
+                    key={p}
+                    haptic={false}
+                    style={[styles.homeCell, { backgroundColor: p === name ? colors.ink : colors.sand }]}
+                    onPress={() => setPref(p)}
+                  >
+                    {p === 'dark' ? (
+                      <MoonIcon size={17} color={p === name ? fixed.lime : colors.ink} />
+                    ) : (
+                      <SunIcon size={17} color={p === name ? fixed.lime : colors.ink} />
+                    )}
+                    <Text style={[styles.homeCellText, { color: p === name ? fixed.lime : colors.ink }]}>
+                      {t(p === 'dark' ? 'profile.themeDarkShort' : 'profile.themeLightShort')}
+                    </Text>
+                  </PressableScale>
+                ))}
+              </View>
             </View>
 
             <PressableScale haptic={false} style={[styles.logoutBtn, { borderColor: colors.sand2 }]} onPress={() => setLogoutSheet(true)}>
@@ -728,7 +744,8 @@ const styles = StyleSheet.create({
   group: { borderRadius: 22, marginTop: 10, overflow: 'hidden' },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
   homeRow: { flexDirection: 'row', gap: 8, padding: 14, paddingBottom: 0 },
-  homeCell: { flex: 1, height: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  homeCell: { flex: 1, height: 46, borderRadius: 16, flexDirection: 'row', gap: 7, alignItems: 'center', justifyContent: 'center' },
+  themeRow: { borderTopWidth: 1, paddingTop: 12, marginTop: 2 },
   homeCellText: { fontFamily: font.bold, fontSize: 15 },
   homeHint: { fontFamily: font.semibold, fontSize: 12, paddingHorizontal: 14, paddingVertical: 12 },
   iconGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 16, paddingHorizontal: 8 },

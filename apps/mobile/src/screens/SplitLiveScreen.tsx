@@ -190,7 +190,15 @@ export function SplitLiveScreen() {
       const seed = [...(split.id + name)].reduce((a, c) => a + c.charCodeAt(0), 0);
       pending = t(`live.roast${(seed % 4) + 1}`, { name: name.split(' ')[0] });
     }
-    startLiveActivity(split.id, merchantName, money(split.total), paidNow, members.length, pending);
+    startLiveActivity(
+      split.id,
+      merchantName,
+      money(split.total),
+      paidNow,
+      members.length,
+      pending,
+      t('live.paidOfCount', { paid: paidNow, total: members.length }),
+    );
   }, [split, members, merchantName, home, t]);
 
   useEffect(() => {
@@ -745,7 +753,8 @@ const styles = StyleSheet.create({
   loading: { marginTop: 48, alignItems: 'center' },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 20 },
   round: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  backdrop: { ...StyleSheet.absoluteFill, zIndex: 40 },
+  // лёгкое затемнение под палитрой: без него столбик читался как часть чека
+  backdrop: { ...StyleSheet.absoluteFill, zIndex: 40, backgroundColor: 'rgba(18,18,18,0.14)' },
   pickerFloat: { position: 'absolute', zIndex: 41 },
   stageLayer: { position: 'absolute', zIndex: 40 },
   menuRow: {

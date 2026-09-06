@@ -29,14 +29,15 @@ const ICON_SIZE = 24;
 
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const { fixed } = useTheme();
+  const { fixed, name: themeName } = useTheme();
   /*
     Экран пада — сплошной лайм. Светлое стекло на лайме сливается с фоном в
     грязно-салатовую плашку, поэтому ТОЛЬКО там пилл чернильный: тёмное стекло
     с светлыми иконками. На остальных экранах — светлое, как в вебе.
   */
   const onLime = state.routes[state.index]?.name === 'Amount';
-  const dark = onLime;
+  // в тёмной теме светлое стекло висело белой плашкой поверх тёмных экранов
+  const dark = onLime || themeName === 'dark';
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
@@ -51,11 +52,11 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
       */}
       <Glass
         thin
-        dark={onLime}
+        dark={dark}
         amount={5}
-        fallback={onLime ? 'rgba(24,24,22,0.60)' : 'rgba(255,255,255,0.55)'}
-        tint={onLime ? 'rgba(18,18,18,0.30)' : 'rgba(255,255,255,0.18)'}
-        style={[styles.pill, onLime ? styles.pillSurfaceInk : styles.pillSurface]}
+        fallback={dark ? 'rgba(24,24,22,0.60)' : 'rgba(255,255,255,0.55)'}
+        tint={dark ? 'rgba(18,18,18,0.30)' : 'rgba(255,255,255,0.18)'}
+        style={[styles.pill, dark ? styles.pillSurfaceInk : styles.pillSurface]}
       >
         {/* верхний глянец — блик на светлом стекле; на чернильном он лишний */}
         {onLime ? null : (

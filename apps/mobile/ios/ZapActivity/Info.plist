@@ -9,5 +9,13 @@
 	</dict>
 	<key>RCTNewArchEnabled</key>
 	<true/>
+	<key>UIAppFonts</key>
+	<array>
+		<string>Onest-ExtraBold.ttf</string>
+		<string>Onest-Medium.ttf</string>
+		<string>Onest-Bold.ttf</string>
+		<string>Onest-SemiBold.ttf</string>
+		<string>Onest-Black.ttf</string>
+	</array>
 </dict>
 </plist>

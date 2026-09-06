@@ -31,19 +31,27 @@ export function startLiveActivity(
   paid: number,
   total: number,
   pending: string,
+  /** «3 / 4 оплатили» — уже переведённая строка для локскрина */
+  headline: string,
 ) {
   if (!ok()) return;
   try {
-    mod!.start(splitId, merchant, amount, paid, total, pending);
+    mod!.start(splitId, merchant, amount, paid, total, pending, headline);
   } catch {
     // Живая плашка — украшение. Её отказ не должен всплывать в сценарии оплаты.
   }
 }
 
-export function updateLiveActivity(splitId: string, paid: number, total: number, pending: string) {
+export function updateLiveActivity(
+  splitId: string,
+  paid: number,
+  total: number,
+  pending: string,
+  headline: string,
+) {
   if (!ok()) return;
   try {
-    mod!.update(splitId, paid, total, pending);
+    mod!.update(splitId, paid, total, pending, headline);
   } catch {}
 }
 

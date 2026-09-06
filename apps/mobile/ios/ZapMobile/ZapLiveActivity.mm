@@ -34,18 +34,28 @@ RCT_EXPORT_MODULE()
          paid:(double)paid
         total:(double)total
       pending:(NSString *)pending
+     headline:(NSString *)headline
 {
   [ZapLiveActivityImpl start:splitId
                     merchant:merchant
                       amount:amount
                         paid:(NSInteger)paid
                        total:(NSInteger)total
-                     pending:pending];
+                     pending:pending
+                    headline:headline];
 }
 
-- (void)update:(NSString *)splitId paid:(double)paid total:(double)total pending:(NSString *)pending
+- (void)update:(NSString *)splitId
+          paid:(double)paid
+         total:(double)total
+       pending:(NSString *)pending
+      headline:(NSString *)headline
 {
-  [ZapLiveActivityImpl update:splitId paid:(NSInteger)paid total:(NSInteger)total pending:pending];
+  [ZapLiveActivityImpl update:splitId
+                         paid:(NSInteger)paid
+                        total:(NSInteger)total
+                      pending:pending
+                     headline:headline];
 }
 
 - (void)end:(NSString *)splitId

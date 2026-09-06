@@ -15,11 +15,18 @@ public struct ZapSplitAttributes: ActivityAttributes {
     public var total: Int
     /// кого ждём; пустая строка — не ждём никого
     public var pending: String
+    /*
+      «3 / 4 оплатили» одной строкой. Собирает приложение: перевод живёт в
+      локалях JS, и дублировать его в Swift значило бы получить на локскрине
+      английский текст в русском интерфейсе — что и было.
+    */
+    public var headline: String
 
-    public init(paid: Int, total: Int, pending: String) {
+    public init(paid: Int, total: Int, pending: String, headline: String = "") {
       self.paid = paid
       self.total = total
       self.pending = pending
+      self.headline = headline
     }
   }
 

@@ -12,6 +12,7 @@ export type HomeSkin = 'dark' | 'light';
 
 const KEY = 'zap:home-variant';
 const KEY_SKIN = 'zap:home-skin';
+const KEY_LOGO = 'zap:home-logo';
 
 const subs = new Set<() => void>();
 
@@ -49,6 +50,20 @@ export function getHomeSkin(): HomeSkin {
 export function setHomeSkin(v: HomeSkin) {
   storage.set(KEY_SKIN, v);
   emit();
+}
+
+/** Стиль логотипа в шапке новой главной — индекс в наборе прототипа. */
+export function getHomeLogo(): number {
+  return Number(storage.getString(KEY_LOGO) ?? 0) || 0;
+}
+
+export function setHomeLogo(i: number) {
+  storage.set(KEY_LOGO, String(i));
+  emit();
+}
+
+export function useHomeLogo(): number {
+  return useSyncExternalStore(subscribe, getHomeLogo, getHomeLogo);
 }
 
 export function useHomeSkin(): HomeSkin {

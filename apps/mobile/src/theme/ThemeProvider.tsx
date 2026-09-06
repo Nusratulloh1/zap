@@ -45,12 +45,12 @@ const Ctx = createContext<ThemeValue | null>(null);
 
 function readPref(): ThemePref {
   const v = storage.getString(KEY);
-  return v === 'light' || v === 'dark' || v === 'system' ? v : 'system';
+  // по умолчанию светлая, а не системная: тёмную выбирают осознанно
+  return v === 'light' || v === 'dark' || v === 'system' ? v : 'light';
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // системная тема нужна только закомментированной строке ниже
-  void useColorScheme();
+  const system = useColorScheme();
   const [pref, setPrefState] = useState<ThemePref>(readPref);
 
   useEffect(() => {
@@ -58,15 +58,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [pref]);
 
   /*
-    Тёмная тема отключена по продуктовому решению — приложение всегда светлое.
-
-    Механика оставлена целиком (палитра, хранение выбора, системная тема):
-    вернуть тёмную — это снять комментарий со строки ниже и с кнопки в
-    ProfileScreen. Вырезать её насовсем значило бы потом переверстывать
-    каждый экран заново.
+    Тёмная тема снова включена: новая главная рисуется на тёмном холсте, и
+    когда с неё уходишь на историю или кэшбэк, светлый экран бьёт по глазам.
+    Выбор живёт в профиле; по умолчанию — светлая.
   */
-  // const name: ThemeName = pref === 'system' ? (system === 'dark' ? 'dark' : 'light') : pref;
-  const name: ThemeName = 'light';
+  const name: ThemeName = pref === 'system' ? (system === 'dark' ? 'dark' : 'light') : pref;
 
   const value = useMemo<ThemeValue>(
     () => ({ colors: palette[name], fixed: fixedPalette, name, pref, setPref: setPrefState }),

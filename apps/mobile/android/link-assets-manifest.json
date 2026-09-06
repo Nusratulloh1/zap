@@ -26,6 +26,26 @@
       "sha1": "fd53123942bfa8cbdec5dea50b5a799211c4608a"
     },
     {
+      "path": "assets/fonts/Onest-Black.ttf",
+      "sha1": "b74da1e7a7ab6f222c5d1a6837b682b576d1c2b7"
+    },
+    {
+      "path": "assets/fonts/Onest-Bold.ttf",
+      "sha1": "e9253c21aee870d9ec0c927fe12d33e0b02d3b41"
+    },
+    {
+      "path": "assets/fonts/Onest-ExtraBold.ttf",
+      "sha1": "f7873360a7e23ee4acf8cbab4a1737460e8d25a7"
+    },
+    {
+      "path": "assets/fonts/Onest-Medium.ttf",
+      "sha1": "0dd329e9fa5bbb134507f3f643723aff90263d36"
+    },
+    {
+      "path": "assets/fonts/Onest-SemiBold.ttf",
+      "sha1": "d7192265e073343eb5dcc389a09e7e9ffa548099"
+    },
+    {
       "path": "assets/sounds/everyone_paid.mp3",
       "sha1": "55e95319930d4b9c7c0b43131abe86fcac0d1f72"
     },
