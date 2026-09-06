@@ -1090,6 +1090,9 @@
     "logoTitle": "Стиль логотипа",
     "logoHint": "Как ZAP! выглядит в шапке",
     "collapse": "свернуть ↑",
-    "venueCta": "Сплитить здесь"
+    "venueCta": "Сплитить здесь",
+    "crewsCount": "{n} компания | {n} компании | {n} компаний",
+    "crewZaps": "{n} zap | {n} zapа | {n} zapов",
+    "crewWaitingShort": "ждём {n}"
   }
 }

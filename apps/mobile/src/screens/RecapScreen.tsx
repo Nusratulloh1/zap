@@ -46,7 +46,7 @@ function panelsFor(r: MonthlyRecap): Panel[] {
 
 export function RecapScreen() {
   const { t } = useTranslation();
-  const { colors, fixed } = useTheme();
+  const { fixed } = useTheme();
   const nav = useNavigation<any>();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
@@ -126,7 +126,12 @@ export function RecapScreen() {
       </View>
 
       <PressableScale style={[styles.share, { backgroundColor: fixed.lime }]} onPress={() => setShareOpen(true)}>
-        <Text style={[styles.shareText, { color: colors.ink }]}>{t('recap.share')}</Text>
+        {/*
+          Экран итогов всегда чернильный, кнопка всегда лаймовая — значит и
+          текст на ней всегда тёмный. В тёмной теме colors.ink светлеет, и
+          надпись пропадала на лайме.
+        */}
+        <Text style={[styles.shareText, { color: fixed.ink }]}>{t('recap.share')}</Text>
       </PressableScale>
 
       <ShareCardSheet

@@ -33,7 +33,8 @@ export function DebtsScreen() {
   const skin = useSkin();
   const [skinSheet, setSkinSheet] = useState(false);
   const bg = skin ?? colors.dune2;
-  const onDark = isDarkSkin(skin);
+  // тёмный ли фон решает сам фон, а не факт выбора: в тёмной теме фон тёмный и без выбора
+  const onDark = isDarkSkin(bg);
   const ink = onDark ? '#FFFFFF' : colors.ink;
   const muted = onDark ? 'rgba(255,255,255,0.6)' : colors.muted;
 

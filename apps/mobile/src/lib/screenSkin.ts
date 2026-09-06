@@ -5,11 +5,18 @@
 // и лайм читаются на каждом из этих фонов. Произвольный цвет не даём — на
 // случайном фоне лаймовые кнопки исчезают.
 import { useSyncExternalStore } from 'react';
-import { storage } from '@/theme/ThemeProvider';
+import { storage, useTheme } from '@/theme/ThemeProvider';
+import type { ThemeName } from '@/theme/tokens';
 
-const KEY = 'zap:skin';
+/*
+  Фон хранится ОТДЕЛЬНО для светлой и тёмной темы. Общий ключ означал, что
+  выбранный на свету лайм оставался фоном и в тёмной теме: текст и карточки к
+  тому моменту уже светлые — экран разваливался.
+*/
+const KEY = (theme: ThemeName) => `zap:skin:${theme}`;
 
-export const SKINS = [
+/** Палитра светлой темы. */
+export const SKINS_LIGHT = [
   '#F1EFE9', // песочный — как в макете по умолчанию
   '#EAE8E1', // тёплый серый
   '#DAD8D1', // глина
@@ -20,16 +27,30 @@ export const SKINS = [
   '#121212', // чернила
 ] as const;
 
-export type Skin = (typeof SKINS)[number];
+/** Палитра тёмной темы — те же настроения, но фон остаётся тёмным. */
+export const SKINS_DARK = [
+  '#121212', // чернила
+  '#1A1916', // графит
+  '#22211D', // тёплый уголь
+  '#0F1A22', // ночное небо
+  '#1B2110', // тёмный лайм
+  '#231A12', // жжёный персик
+  '#1C1526', // тёмная лаванда
+  '#0F1A16', // хвоя
+] as const;
+
+export const SKINS = SKINS_LIGHT;
+
+export type Skin = (typeof SKINS_LIGHT)[number];
 
 const listeners = new Set<() => void>();
 
-function read(): string | undefined {
-  return storage.getString(KEY);
+function read(theme: ThemeName): string | undefined {
+  return storage.getString(KEY(theme));
 }
 
-export function setSkin(color: string) {
-  storage.set(KEY, color);
+export function setSkin(color: string, theme: ThemeName) {
+  storage.set(KEY(theme), color);
   listeners.forEach((l) => l());
 }
 
@@ -38,9 +59,15 @@ function subscribe(cb: () => void) {
   return () => listeners.delete(cb);
 }
 
-/** Выбранный фон или null — тогда экран берёт цвет темы. */
+/** Выбранный фон текущей темы или null — тогда экран берёт цвет темы. */
 export function useSkin(): string | null {
-  return useSyncExternalStore(subscribe, read, read) ?? null;
+  const { name } = useTheme();
+  return useSyncExternalStore(subscribe, () => read(name), () => read(name)) ?? null;
+}
+
+/** Палитра для текущей темы. */
+export function skinsFor(theme: ThemeName): readonly string[] {
+  return theme === 'dark' ? SKINS_DARK : SKINS_LIGHT;
 }
 
 /** Тёмный ли фон — на нём текст и иконки становятся светлыми. */

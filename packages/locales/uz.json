@@ -1090,6 +1090,9 @@
     "logoTitle": "Logo uslubi",
     "logoHint": "ZAP! shapkada qanday ko‘rinadi",
     "collapse": "yig‘ish ↑",
-    "venueCta": "Shu yerda bo‘lish"
+    "venueCta": "Shu yerda bo‘lish",
+    "crewsCount": "{n} ta kompaniya",
+    "crewZaps": "{n} ta zap",
+    "crewWaitingShort": "{n} ta kutilyapti"
   }
 }

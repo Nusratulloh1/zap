@@ -49,7 +49,7 @@ const TITLE_STICKER: Record<TitleKey, keyof typeof STICKER> = {
 export function GroupScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { colors, fixed } = useTheme();
+  const { colors, fixed, name: themeName } = useTheme();
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const qc = useQueryClient();
@@ -100,7 +100,8 @@ export function GroupScreen() {
     Заголовки секций на цветном фоне: на светлом — тёмно-оливковый из макета,
     на тёмном фон съедает его, поэтому берём песочный.
   */
-  const onDark = isDarkSkin(skin ?? fixed.lime);
+  const bg = skin ?? (themeName === 'dark' ? colors.dune2 : fixed.lime);
+  const onDark = isDarkSkin(bg);
   const sectionColor = onDark ? colors.sand : colors.deep;
 
   /*
@@ -196,7 +197,7 @@ export function GroupScreen() {
   }
 
   return (
-    <Screen style={styles.root} background={skin ?? fixed.lime} darkBar={false}>
+    <Screen style={styles.root} background={bg} darkBar={onDark}>
       {/* шапка spec/01: назад — знак и название по центру — «🎨» */}
       <View style={styles.head}>
         <PressableScale style={[styles.round, { backgroundColor: colors.paper }]} onPress={() => nav.goBack()}>

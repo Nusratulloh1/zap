@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { trigger } from 'react-native-haptic-feedback';
 import { BottomSheet } from '@/components/BottomSheet';
 import { PressableScale } from '@/components/PressableScale';
-import { SKINS, setSkin, useSkin } from '@/lib/screenSkin';
+import { skinsFor, setSkin, useSkin } from '@/lib/screenSkin';
 import { useTheme } from '@/theme/ThemeProvider';
 import { font } from '@/theme/tokens';
 
@@ -18,12 +18,13 @@ interface Props {
 
 export function SkinSheet({ open, onClose, extra }: Props) {
   const { t } = useTranslation();
-  const { colors } = useTheme();
+  const { colors, name } = useTheme();
+  const skins = skinsFor(name);
   const current = useSkin();
 
   const pick = (c: string) => {
     trigger('impactLight', { enableVibrateFallback: true, ignoreAndroidSystemSettings: false });
-    setSkin(c);
+    setSkin(c, name);
   };
 
   return (
@@ -31,12 +32,12 @@ export function SkinSheet({ open, onClose, extra }: Props) {
       <Text style={[styles.title, { color: colors.ink }]}>{t('skin.title')}</Text>
       <Text style={[styles.sub, { color: colors.muted }]}>{t('skin.hint')}</Text>
       <View style={styles.grid}>
-        {SKINS.map((c) => (
+        {skins.map((c) => (
           <PressableScale key={c} haptic={false} onPress={() => pick(c)}>
             <View
               style={[
                 styles.cell,
-                { backgroundColor: c, borderColor: c === (current ?? SKINS[0]) ? colors.ink : colors.sand2 },
+                { backgroundColor: c, borderColor: c === (current ?? skins[0]) ? colors.ink : colors.sand2 },
               ]}
             />
           </PressableScale>

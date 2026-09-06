@@ -1090,6 +1090,9 @@
     "logoTitle": "Logo style",
     "logoHint": "How ZAP! looks in the header",
     "collapse": "collapse ↑",
-    "venueCta": "Split here"
+    "venueCta": "Split here",
+    "crewsCount": "{n} crew | {n} crews",
+    "crewZaps": "{n} zap | {n} zaps",
+    "crewWaitingShort": "waiting {n}"
   }
 }

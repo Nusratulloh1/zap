@@ -11,18 +11,17 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
   withDelay,
-  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { PressableScale } from '@/components/PressableScale';
 import { reduceMotion } from '@/lib/feedback';
-import { SPRING_SNAPPY } from '@/lib/motion';
+import { EASE_POP } from '@/lib/motion';
 import { useTheme } from '@/theme/ThemeProvider';
 
 /** Набор из макета: ❤️ 🔥 👏 😂 ⚡. */
 export const REACTION_EMOJI = ['❤️', '🔥', '👏', '😂', '⚡'] as const;
 
-const STEP_MS = 28;
+const STEP_MS = 18;
 
 interface Props {
   /** уже поставленная мной реакция — её кружок подсвечен лаймом */
@@ -36,7 +35,7 @@ function Cell({ emoji, index, active, onPick }: { emoji: string; index: number; 
 
   useEffect(() => {
     if (reduceMotion()) return;
-    p.value = withDelay(index * STEP_MS, withSpring(1, SPRING_SNAPPY));
+    p.value = withDelay(index * STEP_MS, withTiming(1, { duration: 120, easing: EASE_POP }));
   }, [p, index]);
 
   const style = useAnimatedStyle(() => ({
@@ -62,7 +61,7 @@ export function ReactionPicker({ current, onPick }: Props) {
 
   useEffect(() => {
     if (reduceMotion()) return;
-    p.value = withSpring(1, SPRING_SNAPPY);
+    p.value = withTiming(1, { duration: 140, easing: EASE_POP });
   }, [p]);
 
   const style = useAnimatedStyle(() => ({

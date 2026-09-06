@@ -27,7 +27,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import Svg, { Circle, Defs, Pattern, Rect } from 'react-native-svg';
+import Svg, { Circle, Defs, LinearGradient, Pattern, Rect, Stop } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
@@ -127,8 +127,6 @@ export function HomeScreenV2() {
     не доходил.
   */
   const [logoSheet, setLogoSheet] = useState(false);
-  // все компании списком или только три верхние
-  const [allCrews, setAllCrews] = useState(false);
   // карточка заведения: условия и «сплитить здесь»
   const [venueSheet, setVenueSheet] = useState<{ name: string; tag: string; terms: string } | null>(null);
   const [shown, setShown] = useState(FEED_PAGE);
@@ -443,15 +441,15 @@ export function HomeScreenV2() {
           <>
             <View style={styles.sectionHead}>
               <Text style={[styles.sectionTitle, { color: c.fg }]}>{t('home2.crews')}</Text>
-              <PressableScale haptic={false} onPress={() => setAllCrews((v) => !v)}>
+              <PressableScale haptic={false} onPress={() => nav.navigate('Crews')}>
                 <Text style={[styles.sectionLink, { color: c.accent }]}>
-                  {allCrews ? t('home2.collapse') : t('home2.seeAllN', { n: crews.length })}
+                  {t('home2.seeAllN', { n: crews.length })}
                 </Text>
               </PressableScale>
             </View>
 
             <View style={styles.crewRows}>
-              {(allCrews ? crews : crews.slice(0, 3)).map((crew) => (
+              {crews.slice(0, 3).map((crew) => (
                 <PressableScale
                   key={crew.id}
                   haptic={false}
@@ -641,6 +639,21 @@ export function HomeScreenV2() {
         </View>
       </ScrollView>
 
+      {/*
+        Растворение низа: в прототипе под таб-баром градиент в цвет фона, без
+        него лента упиралась в плашку и читалась как обрезанная.
+      */}
+      <Svg style={styles.bottomFade} pointerEvents="none">
+        <Defs>
+          <LinearGradient id="homeFade" x1="0" y1="0" x2="0" y2="1">
+            <Stop offset="0" stopColor={c.bg} stopOpacity={0} />
+            <Stop offset="0.45" stopColor={c.bg} stopOpacity={0.92} />
+            <Stop offset="1" stopColor={c.bg} stopOpacity={1} />
+          </LinearGradient>
+        </Defs>
+        <Rect x={0} y={0} width="100%" height="100%" fill="url(#homeFade)" />
+      </Svg>
+
       {/* выбор логотипа — как в прототипе: сетка стилей */}
       <BottomSheet open={logoSheet} onClose={() => setLogoSheet(false)}>
         <Text style={[styles.sheetTitle, { color: colors.ink }]}>{t('home2.logoTitle')}</Text>
@@ -792,6 +805,7 @@ const styles = StyleSheet.create({
   bubbleWho: { fontFamily: fontHome.extrabold },
   bubbleFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 8 },
   bubbleTime: { fontFamily: fontHome.semibold, fontSize: 10, flexShrink: 1 },
+  bottomFade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 132 },
   sheetTitle: { fontFamily: fontHome.black, fontSize: 19, letterSpacing: -0.4 },
   sheetSub: { fontFamily: fontHome.semibold, fontSize: 12.5, marginTop: 4 },
   logoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 16, paddingBottom: 4 },

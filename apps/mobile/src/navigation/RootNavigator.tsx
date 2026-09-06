@@ -17,6 +17,7 @@ import { SplitClosedScreen } from '@/screens/SplitClosedScreen';
 import { SaveGroupScreen } from '@/screens/SaveGroupScreen';
 import { CashbackAwardScreen } from '@/screens/CashbackAwardScreen';
 import { GroupScreen } from '@/screens/GroupScreen';
+import { CrewsScreen } from '@/screens/CrewsScreen';
 import { DebtsScreen } from '@/screens/DebtsScreen';
 import { CashbackScreen } from '@/screens/CashbackScreen';
 import { ProfileScreen } from '@/screens/ProfileScreen';
@@ -49,6 +50,7 @@ export type RootStackParamList = {
   SaveGroup: { id: string };
   CashbackAward: { id: string };
   Group: { id: string };
+  Crews: undefined;
   Debts: undefined;
   Cashback: undefined;
   Profile: undefined;
@@ -169,6 +171,7 @@ export function RootNavigator() {
             <Stack.Screen name="SaveGroup" component={SaveGroupScreen} />
             <Stack.Screen name="CashbackAward" component={CashbackAwardScreen} options={Platform.OS === 'ios' ? { presentation: 'fullScreenModal' } : { animation: 'slide_from_bottom' }} />
             <Stack.Screen name="Group" component={GroupScreen} />
+            <Stack.Screen name="Crews" component={CrewsScreen} />
             <Stack.Screen name="Debts" component={DebtsScreen} />
             <Stack.Screen name="Cashback" component={CashbackScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />

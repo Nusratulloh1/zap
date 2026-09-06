@@ -200,7 +200,11 @@ export function ProfileScreen() {
   const [avatarSheet, setAvatarSheet] = useState(false);
   const [skinSheet, setSkinSheet] = useState(false);
   const skin = useSkin();
-  const skinBg = skin ?? '#D9FF3A';
+  /*
+    Лайм — фон профиля по умолчанию, но только в светлой теме: в тёмной текст
+    и карточки светлые, и на лайме экран становился нечитаемым.
+  */
+  const skinBg = skin ?? (name === 'dark' ? colors.dune2 : '#D9FF3A');
   const loggingOut = useRef(false);
 
 
@@ -291,7 +295,7 @@ export function ProfileScreen() {
   return (
     // без edges: отступ снизу задаёт сама прокрутка, иначе остаётся белая полоса
     // фон: выбранный кнопкой «🎨», по умолчанию — наш лайм
-    <Screen style={styles.root} edges={[]} background={skinBg} darkBar={false}>
+    <Screen style={styles.root} edges={[]} background={skinBg} darkBar={name === 'dark'}>
       <Animated.ScrollView onScroll={onScroll} scrollEventThrottle={16} showsVerticalScrollIndicator={false} keyboardDismissMode="interactive" contentContainerStyle={{ paddingTop: insets.top + 56, paddingBottom: insets.bottom + 16 }}>
         {me ? (
           <>
@@ -493,30 +497,6 @@ export function ProfileScreen() {
                 ))}
               </View>
               <Text style={[styles.homeHint, { color: colors.muted }]}>{t('profile.homeHint')}</Text>
-
-              {/*
-                Тема приложения. Вернулась вместе с новой главной: она рисуется
-                на тёмном холсте, и уходить с неё на белую историю больно.
-              */}
-              <View style={[styles.homeRow, styles.themeRow, { borderTopColor: colors.sand2 }]}>
-                {(['light', 'dark'] as const).map((p) => (
-                  <PressableScale
-                    key={p}
-                    haptic={false}
-                    style={[styles.homeCell, { backgroundColor: p === name ? colors.ink : colors.sand }]}
-                    onPress={() => setPref(p)}
-                  >
-                    {p === 'dark' ? (
-                      <MoonIcon size={17} color={p === name ? fixed.lime : colors.ink} />
-                    ) : (
-                      <SunIcon size={17} color={p === name ? fixed.lime : colors.ink} />
-                    )}
-                    <Text style={[styles.homeCellText, { color: p === name ? fixed.lime : colors.ink }]}>
-                      {t(p === 'dark' ? 'profile.themeDarkShort' : 'profile.themeLightShort')}
-                    </Text>
-                  </PressableScale>
-                ))}
-              </View>
             </View>
 
             <PressableScale haptic={false} style={[styles.logoutBtn, { borderColor: colors.sand2 }]} onPress={() => setLogoutSheet(true)}>
@@ -549,6 +529,18 @@ export function ProfileScreen() {
         >
           <BackIcon size={20} color={colors.ink} />
         </PressableScale>
+        {/*
+          Тема и палитра стоят рядом в шапке: оба переключателя про внешний
+          вид, и искать тему в списке настроек внизу никто не станет.
+        */}
+        <PressableScale
+          small
+          accessibilityLabel={name === 'dark' ? t('common.themeLight') : t('common.themeDark')}
+          style={[styles.topBtn, styles.topBtnGap, { backgroundColor: colors.sand }]}
+          onPress={() => setPref(name === 'dark' ? 'light' : 'dark')}
+        >
+          {name === 'dark' ? <SunIcon size={19} color={colors.slate} /> : <MoonIcon size={19} color={colors.slate} />}
+        </PressableScale>
         <PressableScale
           small
           accessibilityLabel={t('skin.title')}
@@ -557,19 +549,6 @@ export function ProfileScreen() {
         >
           <Text style={styles.topGlyph}>🎨</Text>
         </PressableScale>
-        {/*
-          Переключатель темы скрыт: тёмная тема отключена по продуктовому
-          решению, см. ThemeProvider. Кнопка оставлена в разметке — вернуть
-          тему значит снять комментарий здесь и там.
-        */}
-        {/* <PressableScale
-          small
-          accessibilityLabel={name === 'dark' ? t('common.themeLight') : t('common.themeDark')}
-          style={[styles.topBtn, { backgroundColor: colors.sand }]}
-          onPress={() => setPref(name === 'dark' ? 'light' : 'dark')}
-        >
-          {name === 'dark' ? <MoonIcon size={19} color={colors.slate} /> : <SunIcon size={19} color={colors.slate} />}
-        </PressableScale> */}
       </View>
 
       {/* новая карта */}
@@ -744,14 +723,14 @@ const styles = StyleSheet.create({
   group: { borderRadius: 22, marginTop: 10, overflow: 'hidden' },
   mono: { fontFamily: font.monoBold, fontSize: 10, letterSpacing: 1.6 },
   homeRow: { flexDirection: 'row', gap: 8, padding: 14, paddingBottom: 0 },
-  homeCell: { flex: 1, height: 46, borderRadius: 16, flexDirection: 'row', gap: 7, alignItems: 'center', justifyContent: 'center' },
-  themeRow: { borderTopWidth: 1, paddingTop: 12, marginTop: 2 },
+  homeCell: { flex: 1, height: 46, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   homeCellText: { fontFamily: font.bold, fontSize: 15 },
   homeHint: { fontFamily: font.semibold, fontSize: 12, paddingHorizontal: 14, paddingVertical: 12 },
   iconGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingVertical: 16, paddingHorizontal: 8 },
   iconCell: { width: '33.33%', alignItems: 'center', paddingHorizontal: 4 },
   iconBig: { width: 60, height: 60, borderRadius: 14, borderWidth: 0, borderColor: 'transparent' },
   iconLabel: { fontFamily: font.semibold, fontSize: 11, marginTop: 7 },
+  topBtnGap: { marginLeft: 'auto' },
   topGlyph: { fontSize: 17 },
   gRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58, paddingHorizontal: 14 },
   gRowTall: { minHeight: 72 },

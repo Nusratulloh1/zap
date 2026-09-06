@@ -144,7 +144,7 @@ export function CashbackScreen() {
   const [skinSheet, setSkinSheet] = useState(false);
   const [historySheet, setHistorySheet] = useState(false);
   const bg = skin ?? colors.dune2;
-  const onDark = isDarkSkin(skin);
+  const onDark = isDarkSkin(bg);
   const ink = onDark ? '#FFFFFF' : colors.ink;
   const muted = onDark ? 'rgba(255,255,255,0.6)' : colors.muted;
 
