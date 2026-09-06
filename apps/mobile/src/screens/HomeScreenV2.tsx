@@ -102,6 +102,12 @@ export function HomeScreenV2() {
   const qc = useQueryClient();
   const home = useHomeData();
   const insets = useSafeAreaInsets();
+  /*
+    Высоту шапки меряем, а не считаем: она зависит от выреза и от логотипа,
+    который пользователь может сменить. Прикидка на глаз уже дала пустую
+    полосу над сторис.
+  */
+  const [headH, setHeadH] = useState(insets.top + 62);
   // листы рисуются в общей теме приложения, поэтому берём её палитру
   const { colors, name: themeName } = useTheme();
 
@@ -295,7 +301,11 @@ export function HomeScreenV2() {
         Шапка закреплена и на прокрутке уходит под стекло: контент подъезжал
         вплотную к логотипу и читался поверх него.
       */}
-      <View style={[styles.head, { paddingTop: insets.top + 12 }]} pointerEvents="box-none">
+      <View
+        style={[styles.head, { paddingTop: insets.top + 12 }]}
+        pointerEvents="box-none"
+        onLayout={(e) => setHeadH(e.nativeEvent.layout.height)}
+      >
         {/*
           Стекло проявляется на прокрутке: контент уезжает ПОД шапку, и без
           размытия логотип читался поверх карточек.
@@ -336,7 +346,7 @@ export function HomeScreenV2() {
         showsVerticalScrollIndicator={false}
         contentInsetAdjustmentBehavior="never"
         automaticallyAdjustContentInsets={false}
-        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 64 }]}
+        contentContainerStyle={[styles.scroll, { paddingTop: headH + 8 }]}
         scrollEventThrottle={16}
         onScroll={onScroll}
       >
