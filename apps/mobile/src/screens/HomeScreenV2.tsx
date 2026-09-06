@@ -327,8 +327,15 @@ export function HomeScreenV2() {
         </View>
       </View>
 
+      {/*
+        contentInsetAdjustmentBehavior=never: iOS сам добавляет скроллу у края
+        экрана верхний инсет безопасной зоны, и вместе с нашим отступом под
+        шапку он складывался в пустую полосу над сторис.
+      */}
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="never"
+        automaticallyAdjustContentInsets={false}
         contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 64 }]}
         scrollEventThrottle={16}
         onScroll={onScroll}
