@@ -1083,6 +1083,7 @@
     "feedWaiting": "still owes {amount}",
     "feedPaid": "closed {amount} · {what}",
     "feedCashback": "caught +{amount} cashback",
-    "feedZap": "ZAP"
+    "feedZap": "ZAP",
+    "loadingMore": "loading more…"
   }
 }

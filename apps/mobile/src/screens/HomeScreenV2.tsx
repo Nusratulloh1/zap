@@ -11,6 +11,7 @@
 // запрашиваем. Чего в данных нет (реакции на посты ленты), того и не рисуем.
 import React, { useMemo, useState } from 'react';
 import {
+  ActivityIndicator,
   Image,
   ScrollView,
   StyleSheet,
@@ -32,6 +33,7 @@ import { useTranslation } from 'react-i18next';
 import { useQueryClient } from '@tanstack/react-query';
 import { Screen } from '@/components/Screen';
 import { Avatar } from '@/components/Avatar';
+import { PingButton } from '@/components/PingButton';
 import { PressableScale } from '@/components/PressableScale';
 import { toast } from '@/components/ToastHost';
 import { ContrastIcon, ScanIcon } from '@/components/icons';
@@ -53,6 +55,9 @@ const STK_RECEIPT = require('../../assets/home2/receipt-qr.png');
 const STK_CHECK = require('../../assets/home2/check-avatars.png');
 // логотип-наклейка из прототипа: он же и на тёмном, и на светлом холсте
 const LOGO = require('../../assets/home2/logo.png');
+
+/** Сколько событий ленты показываем за раз. */
+const FEED_PAGE = 6;
 
 const LIME = '#D9FF3A';
 const INK = '#121212';
@@ -101,13 +106,31 @@ export function HomeScreenV2() {
   );
 
   const [feedFilter, setFeedFilter] = useState<'crew' | 'all'>('all');
+  /*
+    Лента грузится порциями: сразу шесть событий, дальше по мере прокрутки.
+    Целиком она уезжала на несколько экранов вниз, и до нижних секций никто
+    не доходил.
+  */
+  const [shown, setShown] = useState(FEED_PAGE);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [pinged, setPinged] = useState<Set<string>>(new Set());
 
   const feed = useMemo(
     () => homeFeed(home.db, home.nameOfContact),
     [home.db, home.nameOfContact],
   );
-  const shownFeed = feedFilter === 'crew' ? feed.filter((f) => f.crew) : feed;
+  const filtered = feedFilter === 'crew' ? feed.filter((f) => f.crew) : feed;
+  const shownFeed = filtered.slice(0, shown);
+  const hasMore = filtered.length > shownFeed.length;
+
+  const loadMore = () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    setTimeout(() => {
+      setShown((n) => n + FEED_PAGE);
+      setLoadingMore(false);
+    }, 400);
+  };
 
   /*
     «Где Zарабатывать»: сперва заведения из данных, у которых есть предложение,
@@ -229,7 +252,15 @@ export function HomeScreenV2() {
         <Rect x={0} y={0} width="100%" height="100%" fill="url(#dots)" />
       </Svg>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scroll}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scroll}
+        scrollEventThrottle={64}
+        onScroll={(e) => {
+          const { contentOffset, contentSize, layoutMeasurement } = e.nativeEvent;
+          if (contentOffset.y + layoutMeasurement.height > contentSize.height - 240) loadMore();
+        }}
+      >
         {/* шапка: логотип, тема, сканер, аватар */}
         <View style={styles.head}>
           <Image source={LOGO} style={styles.logo} resizeMode="contain" />
@@ -573,20 +604,18 @@ export function HomeScreenV2() {
                 <View style={styles.bubbleFoot}>
                   <Text style={[styles.bubbleTime, { color: c.mute }]} numberOfLines={1}>{item.time}</Text>
                   {item.memberId ? (
-                    <PressableScale
-                      small
-                      disabled={pinged.has(item.id)}
-                      style={[styles.feedPing, pinged.has(item.id) && styles.dim]}
-                      onPress={() => void pingFeed(item)}
-                    >
-                      <Text style={styles.feedPingGlyph}>⚡</Text>
-                      <Text style={styles.feedPingText}>{t('home2.ping')}</Text>
-                    </PressableScale>
+                    <PingButton size={28} pinged={pinged.has(item.id)} onPress={() => void pingFeed(item)} />
                   ) : null}
                 </View>
               </PressableScale>
             </Animated.View>
           ))}
+          {hasMore ? (
+            <View style={styles.feedMore}>
+              <ActivityIndicator size="small" color={c.mute} />
+              <Text style={[styles.feedMoreText, { color: c.mute }]}>{t('home2.loadingMore')}</Text>
+            </View>
+          ) : null}
         </View>
       </ScrollView>
     </Screen>
@@ -695,9 +724,8 @@ const styles = StyleSheet.create({
   bubbleWho: { fontFamily: font.extrabold },
   bubbleFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 8 },
   bubbleTime: { fontFamily: font.semibold, fontSize: 10, flexShrink: 1 },
-  feedPing: { flexDirection: 'row', alignItems: 'center', gap: 5, height: 24, borderRadius: 12, paddingHorizontal: 10, backgroundColor: INK },
-  feedPingGlyph: { fontSize: 10, color: LIME },
-  feedPingText: { fontFamily: font.extrabold, fontSize: 11, color: LIME },
+  feedMore: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 18 },
+  feedMoreText: { fontFamily: font.semibold, fontSize: 11 },
 
   dim: { opacity: 0.5 },
 });

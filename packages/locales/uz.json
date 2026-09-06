@@ -1083,6 +1083,7 @@
     "feedWaiting": "hali {amount} to‘lamadi",
     "feedPaid": "{amount} yopdi · {what}",
     "feedCashback": "+{amount} keshbek ushladi",
-    "feedZap": "ZAP"
+    "feedZap": "ZAP",
+    "loadingMore": "yana yuklanyapti…"
   }
 }

@@ -1083,6 +1083,7 @@
     "feedWaiting": "ещё не оплатил {amount}",
     "feedPaid": "закрыл {amount} · {what}",
     "feedCashback": "словил +{amount} кэшбэка",
-    "feedZap": "ZAP"
+    "feedZap": "ZAP",
+    "loadingMore": "грузим ещё…"
   }
 }
