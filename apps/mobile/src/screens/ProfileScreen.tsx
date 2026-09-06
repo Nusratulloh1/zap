@@ -731,6 +731,7 @@ const styles = StyleSheet.create({
   iconBig: { width: 60, height: 60, borderRadius: 14, borderWidth: 0, borderColor: 'transparent' },
   iconLabel: { fontFamily: font.semibold, fontSize: 11, marginTop: 7 },
   topBtnGap: { marginLeft: 'auto' },
+
   topGlyph: { fontSize: 17 },
   gRow: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 58, paddingHorizontal: 14 },
   gRowTall: { minHeight: 72 },
@@ -774,7 +775,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    gap: 10,
   },
   topBtn: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   topGlass: { position: 'absolute', left: 0, right: 0, top: 0, bottom: -22 },
