@@ -7,11 +7,8 @@ import { useSyncExternalStore } from 'react';
 import { storage } from '@/theme/ThemeProvider';
 
 export type HomeVariant = 'classic' | 'pulse';
-/** Холст новой главной: тёмный как в прототипе или светлый песочный. */
-export type HomeSkin = 'dark' | 'light';
 
 const KEY = 'zap:home-variant';
-const KEY_SKIN = 'zap:home-skin';
 const KEY_LOGO = 'zap:home-logo';
 
 const subs = new Set<() => void>();
@@ -43,15 +40,6 @@ export function useHomeVariant(): HomeVariant {
   return useSyncExternalStore(subscribe, getHomeVariant, getHomeVariant);
 }
 
-export function getHomeSkin(): HomeSkin {
-  return storage.getString(KEY_SKIN) === 'light' ? 'light' : 'dark';
-}
-
-export function setHomeSkin(v: HomeSkin) {
-  storage.set(KEY_SKIN, v);
-  emit();
-}
-
 /** Стиль логотипа в шапке новой главной — индекс в наборе прототипа. */
 export function getHomeLogo(): number {
   return Number(storage.getString(KEY_LOGO) ?? 0) || 0;
@@ -66,6 +54,3 @@ export function useHomeLogo(): number {
   return useSyncExternalStore(subscribe, getHomeLogo, getHomeLogo);
 }
 
-export function useHomeSkin(): HomeSkin {
-  return useSyncExternalStore(subscribe, getHomeSkin, getHomeSkin);
-}
