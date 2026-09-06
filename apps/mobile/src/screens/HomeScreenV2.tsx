@@ -296,26 +296,12 @@ export function HomeScreenV2() {
         экрана верхний инсет безопасной зоны, и вместе с нашим отступом под
         шапку он складывался в пустую полосу над сторис.
       */}
-      <Animated.ScrollView
-        showsVerticalScrollIndicator={false}
-        contentInsetAdjustmentBehavior="never"
-        automaticallyAdjustContentInsets={false}
-        contentContainerStyle={styles.scroll}
-        stickyHeaderIndices={[0]}
-        scrollEventThrottle={16}
-        onScroll={onScroll}
-      >
-        {/*
-          Липкая шапка первым элементом списка: она прилипает к верху сама, а
-          контент уезжает под неё. Раньше шапка висела абсолютом, и отступ
-          скролла под неё приходилось задавать руками — промах каждый раз
-          вылезал пустой полосой.
-        */}
-        <View style={[styles.head, { paddingTop: insets.top + 12 }]}>
-        {/*
-          Стекло проявляется на прокрутке: контент уезжает ПОД шапку, и без
-          размытия логотип читался поверх карточек.
-        */}
+      {/*
+        Шапка плавает над лентой — как на классической главной: контейнер
+        абсолютом, внутри обычный ряд. Липкий заголовок внутри скролла я уже
+        пробовал: RN оборачивает его по-своему, и ряд разъезжался в колонку.
+      */}
+      <View style={[styles.head, { paddingTop: insets.top + 12 }]} pointerEvents="box-none">
         <Animated.View style={[styles.headGlass, headGlassStyle]} pointerEvents="none">
           <Glass
             dark={dark}
@@ -325,24 +311,37 @@ export function HomeScreenV2() {
             style={StyleSheet.absoluteFill as object}
           />
         </Animated.View>
-        {/* тап по логотипу — выбор его стиля, как в прототипе */}
-        <PressableScale haptic={false} onPress={() => setLogoSheet(true)}>
-          <Image source={HOME_LOGOS[logo]?.src ?? LOGO} style={styles.logo} resizeMode="contain" />
-        </PressableScale>
-        <View style={styles.headBtns}>
-          <PressableScale
-            small
-            style={[styles.round, { backgroundColor: c.card, borderColor: c.line }]}
-            onPress={() => nav.navigate('Scan')}
-          >
-            <ScanIcon size={18} color={c.fg} strokeWidth={2} />
-          </PressableScale>
-          <PressableScale small onPress={() => nav.navigate('Profile')}>
-            <Avatar contactId="me" size={40} ring={c.accent} ringWidth={3} />
-          </PressableScale>
-        </View>
-        </View>
 
+        <View style={styles.headRow}>
+          {/* тап по логотипу — выбор его стиля, как в прототипе */}
+          <PressableScale haptic={false} onPress={() => setLogoSheet(true)}>
+            <Image source={HOME_LOGOS[logo]?.src ?? LOGO} style={styles.logo} resizeMode="contain" />
+          </PressableScale>
+          <View style={styles.headBtns}>
+            <PressableScale
+              small
+              style={[styles.round, { backgroundColor: c.card, borderColor: c.line }]}
+              onPress={() => nav.navigate('Scan')}
+            >
+              <ScanIcon size={18} color={c.fg} strokeWidth={2} />
+            </PressableScale>
+            <PressableScale small onPress={() => nav.navigate('Profile')}>
+              <Avatar contactId="me" size={40} ring={c.accent} ringWidth={3} />
+            </PressableScale>
+          </View>
+        </View>
+      </View>
+
+      <Animated.ScrollView
+        showsVerticalScrollIndicator={false}
+        // iOS сам добавляет верхний инсет скроллу у края экрана — с отступом
+        // под шапку он складывался в пустую полосу над сторис
+        contentInsetAdjustmentBehavior="never"
+        automaticallyAdjustContentInsets={false}
+        contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 74 }]}
+        scrollEventThrottle={16}
+        onScroll={onScroll}
+      >
         {/* сторис компаний */}
         <ScrollView
           horizontal
@@ -752,14 +751,8 @@ const styles = StyleSheet.create({
   root: { paddingHorizontal: 0 },
   scroll: { paddingBottom: 120 },
 
-  head: {
-    zIndex: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingBottom: 10,
-  },
+  head: { position: 'absolute', left: 0, right: 0, top: 0, zIndex: 20, paddingHorizontal: 16, paddingBottom: 10 },
+  headRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   headGlass: { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
   logo: { height: 44, width: 68 },
   headBtns: { flexDirection: 'row', alignItems: 'center', gap: 8 },
