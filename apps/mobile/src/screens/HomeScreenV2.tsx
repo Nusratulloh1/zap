@@ -36,7 +36,7 @@ import { Avatar } from '@/components/Avatar';
 import { PingButton } from '@/components/PingButton';
 import { PressableScale } from '@/components/PressableScale';
 import { toast } from '@/components/ToastHost';
-import { ContrastIcon, ScanIcon } from '@/components/icons';
+import { CheckIcon, ContrastIcon, ScanIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { qk } from '@/api/data';
 import { remindMember } from '@/api/splits';
@@ -482,8 +482,13 @@ export function HomeScreenV2() {
                       <Text style={styles.crewPingGlyph}>⚡</Text>
                     </PressableScale>
                   ) : (
-                    <View style={[styles.crewDone, { backgroundColor: INK }]}>
-                      <Text style={styles.crewDoneGlyph}>✓</Text>
+                    /*
+                      «Всё оплачено»: в макете это тонкая галочка-обводка, а не
+                      текстовый ✓ — тот вставал жирной кляксой и спорил с ⚡
+                      соседней строки.
+                    */
+                    <View style={[styles.crewDone, { backgroundColor: c.card, borderColor: c.line }]}>
+                      <CheckIcon size={18} color={c.accent} strokeWidth={2.6} />
                     </View>
                   )}
                 </PressableScale>
@@ -688,8 +693,7 @@ const styles = StyleSheet.create({
   crewSub: { fontFamily: font.semibold, fontSize: 10, marginLeft: 6, flexShrink: 1 },
   crewPing: { width: 44, height: 44, borderRadius: 999, backgroundColor: LIME, alignItems: 'center', justifyContent: 'center' },
   crewPingGlyph: { fontSize: 18 },
-  crewDone: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  crewDoneGlyph: { fontSize: 16, color: LIME, fontFamily: font.extrabold },
+  crewDone: { width: 44, height: 44, borderRadius: 999, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
 
   merchants: { gap: 10, paddingHorizontal: 16, paddingTop: 14, paddingBottom: 6 },
   merchant: {
