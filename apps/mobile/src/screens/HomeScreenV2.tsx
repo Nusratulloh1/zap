@@ -72,6 +72,9 @@ const HOME_LOGOS = [
   { key: 'receipt', src: require('../../assets/home2/receipt-qr.png'), bg: '#FFFFFF' },
 ] as const;
 
+/** Явный нулевой инсет: iOS иначе подставляет свой. */
+const ZERO_INSET = { top: 0, bottom: 0, left: 0, right: 0 } as const;
+
 /** Сколько событий ленты показываем за раз. */
 const FEED_PAGE = 6;
 
@@ -334,10 +337,15 @@ export function HomeScreenV2() {
 
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
-        // iOS сам добавляет верхний инсет скроллу у края экрана — с отступом
-        // под шапку он складывался в пустую полосу над сторис
+        /*
+          Верхний инсет гасим тремя способами сразу: iOS упорно добавляет
+          скроллу у края экрана высоту статус-бара, и она складывалась с нашим
+          отступом под шапку — между логотипом и сторис зияла полоса.
+        */
         contentInsetAdjustmentBehavior="never"
         automaticallyAdjustContentInsets={false}
+        contentInset={ZERO_INSET}
+        scrollIndicatorInsets={ZERO_INSET}
         contentContainerStyle={[styles.scroll, { paddingTop: insets.top + 74 }]}
         scrollEventThrottle={16}
         onScroll={onScroll}
