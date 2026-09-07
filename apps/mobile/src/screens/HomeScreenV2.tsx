@@ -710,12 +710,13 @@ export function HomeScreenV2() {
         <Defs>
           <LinearGradient id="homeFade" x1="0" y1="0" x2="0" y2="1">
             {/*
-              Плотная часть градиента начинается ВЫШЕ пилла навигации: раньше
-              его нижняя половина стояла на залитом фоне, а верхняя — на
-              полупрозрачном, и стекло выглядело двухцветным.
+              Заливка начинается сразу над пиллом (≈95 pt от низа), выше —
+              мягкий переход. Тянуть её выше нельзя: чёрная полоса съедала
+              заголовок «Твои Crews», а обрывать по середине пилла — он
+              становился двухцветным.
             */}
             <Stop offset="0" stopColor={c.bg} stopOpacity={0} />
-            <Stop offset="0.42" stopColor={c.bg} stopOpacity={0.98} />
+            <Stop offset="0.37" stopColor={c.bg} stopOpacity={1} />
             <Stop offset="1" stopColor={c.bg} stopOpacity={1} />
           </LinearGradient>
         </Defs>
@@ -875,7 +876,7 @@ const styles = StyleSheet.create({
   bubbleWho: { fontFamily: fontHome.extrabold },
   bubbleFoot: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 8 },
   bubbleTime: { fontFamily: fontHome.semibold, fontSize: 10, flexShrink: 1 },
-  bottomFade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 210 },
+  bottomFade: { position: 'absolute', left: 0, right: 0, bottom: 0, height: 150 },
   sheetTitle: { fontFamily: fontHome.black, fontSize: 19, letterSpacing: -0.4 },
   sheetSub: { fontFamily: fontHome.semibold, fontSize: 12.5, marginTop: 4 },
   logoGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 16, paddingBottom: 4 },
