@@ -128,6 +128,8 @@ export function HomeScreenV2() {
       avBorder: dark ? '#2A2A2A' : '#FFFFFF',
       accent: dark ? LIME : INK,
       dot: dark ? 'rgba(255,255,255,0.07)' : 'rgba(18,18,18,0.06)',
+      // тон, в который растворяется низ экрана — ближе к стеклу навигации
+      fade: dark ? '#262623' : '#F1EFE9',
     }),
     [dark],
   );
@@ -320,9 +322,13 @@ export function HomeScreenV2() {
         <Animated.View style={[styles.headGlass, headGlassStyle]} pointerEvents="none">
           <Glass
             dark={dark}
-            amount={18}
-            fallback={dark ? 'rgba(18,18,18,0.82)' : 'rgba(241,239,233,0.82)'}
-            tint={dark ? 'rgba(18,18,18,0.28)' : 'rgba(255,255,255,0.24)'}
+            amount={36}
+            /*
+              Подложка полупрозрачная: при плотной ничего не размывается —
+              стекло превращалось в обычную плашку, и блюра было не видно.
+            */
+            fallback={dark ? 'rgba(18,18,18,0.55)' : 'rgba(241,239,233,0.55)'}
+            tint={dark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.18)'}
             style={StyleSheet.absoluteFill as object}
           />
         </Animated.View>
@@ -709,9 +715,13 @@ export function HomeScreenV2() {
       <Svg style={styles.bottomFade} pointerEvents="none">
         <Defs>
           <LinearGradient id="homeFade" x1="0" y1="0" x2="0" y2="1">
-            <Stop offset="0" stopColor={c.bg} stopOpacity={0} />
-            <Stop offset="0.45" stopColor={c.bg} stopOpacity={0.92} />
-            <Stop offset="1" stopColor={c.bg} stopOpacity={1} />
+            {/*
+              Низ уходит не в чистый фон, а в тон навигации: чёрная полоса
+              под серым пиллом читалась как дыра в экране.
+            */}
+            <Stop offset="0" stopColor={c.fade} stopOpacity={0} />
+            <Stop offset="0.45" stopColor={c.fade} stopOpacity={0.92} />
+            <Stop offset="1" stopColor={c.fade} stopOpacity={1} />
           </LinearGradient>
         </Defs>
         <Rect x={0} y={0} width="100%" height="100%" fill="url(#homeFade)" />
