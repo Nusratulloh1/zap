@@ -22,6 +22,7 @@ import Svg, { Defs, LinearGradient, Stop, Rect as SvgRect } from 'react-native-s
 import { BackIcon, MoonIcon, SunIcon } from '@/components/icons';
 import { refocus, useKeyboardLock } from '@/lib/keyboard';
 import { Toggle } from '@/components/Toggle';
+import { biometricsAvailable, biometricsEnabled, setBiometricsEnabled } from '@/lib/biometrics';
 import { toast } from '@/components/ToastHost';
 import { setHomeVariant, useHomeVariant } from '@/lib/homeVariant';
 import { addCard, setPrimaryCard, changePin, toggleDebtNotifications, fetchRecap } from '@/api/actions';
@@ -128,6 +129,13 @@ export function ProfileScreen() {
 
   // ---- смена PIN: старый → новый → повтор ----
   const [pinSheet, setPinSheet] = useState(false);
+  // биометрия: есть ли сенсор и не выключил ли её человек
+  const [bioAvailable, setBioAvailable] = useState(false);
+  const [bioOn, setBioOn] = useState(biometricsEnabled);
+
+  useEffect(() => {
+    void biometricsAvailable().then(setBioAvailable);
+  }, []);
   const [pinStep, setPinStep] = useState<'old' | 'new' | 'repeat'>('old');
   const [pinOld, setPinOld] = useState('');
   const [pinNew, setPinNew] = useState('');
@@ -414,6 +422,25 @@ export function ProfileScreen() {
                 <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.pinFaceId')}</Text>
                 <Text style={[styles.chevron, { color: colors.mist }]}>›</Text>
               </PressableScale>
+
+              {/*
+                Face ID отключаемый. Раньше строка называлась «PIN и Face ID»,
+                но управлять можно было только кодом: биометрия молча включалась
+                сама и выключить её было негде.
+              */}
+              {bioAvailable ? (
+                <View style={[styles.gRow, styles.gDiv, { borderBottomColor: colors.sand2 }]}>
+                  <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>🙂</Text></View>
+                  <Text style={[styles.gTitle, { color: colors.ink }]}>{t('profile.faceId')}</Text>
+                  <Toggle
+                    value={bioOn}
+                    onChange={(v) => {
+                      setBioOn(v);
+                      setBiometricsEnabled(v);
+                    }}
+                  />
+                </View>
+              ) : null}
 
               <View style={[styles.gRow, styles.gDiv, { borderBottomColor: colors.sand2 }]}>
                 <View style={[styles.gIcon, { backgroundColor: colors.sand }]}><Text style={styles.gGlyph}>🔔</Text></View>

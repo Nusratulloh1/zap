@@ -596,7 +596,8 @@
     "homePulse": "Pulse",
     "homeHint": "Two home screens — pick the one you like",
     "themeLightShort": "Light",
-    "themeDarkShort": "Dark"
+    "themeDarkShort": "Dark",
+    "faceId": "Face ID for payments"
   },
   "install": {
     "title": "Install ZAP!",

@@ -33,6 +33,12 @@ export function PinSheet({ open, hint, title, onClose, onConfirm }: Props) {
   const [wrong, setWrong] = useState(false);
   const [success, setSuccess] = useState(false);
   const [busy, setBusy] = useState(false);
+  /*
+    Пока висит системный запрос Face ID, поле ввода трогать нельзя: фокус
+    поднимает клавиатуру, а она гасит запрос — биометрия «срабатывала через
+    раз», и человек видел то Face ID, то сразу PIN.
+  */
+  const [askingBio, setAskingBio] = useState(true);
   const input = useRef<React.ComponentRef<typeof TextInput>>(null);
 
   useEffect(() => {
@@ -42,6 +48,7 @@ export function PinSheet({ open, hint, title, onClose, onConfirm }: Props) {
       return;
     }
     let cancelled = false;
+    setAskingBio(true);
     // системный запрос идёт первым; отказ просто оставляет ввод PIN
     void (async () => {
       const ok = await promptBiometrics(title ?? hint ?? '');
@@ -50,23 +57,27 @@ export function PinSheet({ open, hint, title, onClose, onConfirm }: Props) {
         setSuccess(true);
         setTimeout(() => {
           setSuccess(false);
+          setPin('');
           confirmRef.current();
-        }, 240);
+        }, 380);
         return;
       }
-      input.current?.focus();
+      // отказ или нет сенсора — только теперь поднимаем клавиатуру
+      setAskingBio(false);
+      setTimeout(() => {
+        if (!cancelled) input.current?.focus();
+      }, 60);
     })();
-    const id = setTimeout(() => {
-      if (!cancelled) input.current?.focus();
-    }, 380);
     return () => {
       cancelled = true;
-      clearTimeout(id);
     };
-  }, [open, title, hint]);
+    // подпись запроса меняется вместе с суммой — перезапускать по ней запрос
+    // Face ID нельзя: он схлопнется на полпути
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
-  // клавиатура всегда открыта, пока шит виден; выход — крестик
-  useKeyboardLock(input, open);
+  // клавиатура держится открытой, пока не идёт системный запрос
+  useKeyboardLock(input, open && !askingBio);
 
   // свежий колбэк без перезапуска эффекта
   const confirmRef = useRef(onConfirm);

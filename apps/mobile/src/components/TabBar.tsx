@@ -36,8 +36,13 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
     с светлыми иконками. На остальных экранах — светлое, как в вебе.
   */
   const onLime = state.routes[state.index]?.name === 'Amount';
-  // в тёмной теме светлое стекло висело белой плашкой поверх тёмных экранов
-  const dark = onLime || themeName === 'dark';
+  /*
+    В тёмной теме пилл был почти чёрным и терялся на фоне. Держим его серым
+    стеклом — тот же рисунок, что и в светлой навигации, только приглушённый.
+    Чернильный остаётся только на ладе суммы, где фон сплошной лайм.
+  */
+  const darkTheme = themeName === 'dark';
+  const dark = onLime || darkTheme;
 
   return (
     <View pointerEvents="box-none" style={[styles.wrap, { paddingBottom: Math.min(insets.bottom, 20) + 10 }]}>
@@ -54,9 +59,13 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         thin
         dark={dark}
         amount={5}
-        fallback={dark ? 'rgba(24,24,22,0.60)' : 'rgba(255,255,255,0.55)'}
-        tint={dark ? 'rgba(18,18,18,0.30)' : 'rgba(255,255,255,0.18)'}
-        style={[styles.pill, dark ? styles.pillSurfaceInk : styles.pillSurface]}
+        fallback={
+          onLime ? 'rgba(24,24,22,0.60)' : darkTheme ? 'rgba(86,85,80,0.55)' : 'rgba(255,255,255,0.55)'
+        }
+        tint={
+          onLime ? 'rgba(18,18,18,0.30)' : darkTheme ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.18)'
+        }
+        style={[styles.pill, onLime ? styles.pillSurfaceInk : darkTheme ? styles.pillSurfaceGrey : styles.pillSurface]}
       >
         {/* верхний глянец — блик на светлом стекле; на чернильном он лишний */}
         {onLime ? null : (
@@ -183,6 +192,7 @@ const styles = StyleSheet.create({
   */
   pillSurface: { borderColor: 'rgba(255,255,255,0.7)' },
   pillSurfaceInk: { borderColor: 'rgba(255,255,255,0.16)' },
+  pillSurfaceGrey: { borderColor: 'rgba(255,255,255,0.26)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',

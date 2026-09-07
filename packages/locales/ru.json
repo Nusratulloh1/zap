@@ -596,7 +596,8 @@
     "homePulse": "Pulse",
     "homeHint": "Две главные — выбирайте, какая нравится",
     "themeLightShort": "Светлая",
-    "themeDarkShort": "Тёмная"
+    "themeDarkShort": "Тёмная",
+    "faceId": "Face ID при оплате"
   },
   "install": {
     "title": "Установите ZAP!",

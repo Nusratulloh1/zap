@@ -596,7 +596,8 @@
     "homePulse": "Pulse",
     "homeHint": "Ikkita bosh sahifa — qaysi biri yoqsa, o‘shani tanlang",
     "themeLightShort": "Yorug‘",
-    "themeDarkShort": "Qorong‘i"
+    "themeDarkShort": "Qorong‘i",
+    "faceId": "To‘lovda Face ID"
   },
   "install": {
     "title": "ZAP! ni o'rnating",
