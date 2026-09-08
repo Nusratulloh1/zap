@@ -21,6 +21,13 @@ import { PressableScale } from '@/components/PressableScale';
 import { useTheme } from '@/theme/ThemeProvider';
 import { HomeIcon, ClockIcon } from '@/components/icons';
 
+/*
+  Поверхность кнопок шапки главной: чернила экрана плюс белые 8%. Считаем
+  цвет заранее, а не слоями — пилл должен совпадать с ними в точности, а не
+  «примерно».
+*/
+const SCAN_SURFACE = '#252523';
+
 const ICON = { Home: 'home', Amount: 'grid', History: 'clock' } as const;
 type IconKind = (typeof ICON)[keyof typeof ICON];
 
@@ -55,20 +62,26 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         Тинт над блюром опущен до 0.18: вместе с глянцем 0.30 white уже
         замывал сам блюр.
       */}
+      {/*
+        В тёмной теме пилл — не стекло, а ровно та же поверхность, что у
+        кнопок шапки главной: белые 8% поверх чернил. Со стеклом совпасть
+        нельзя по определению — блюр показывает то, что под ним, и тон плывёт
+        от карточки к карточке.
+      */}
       <Glass
         thin
         dark={dark}
-        amount={5}
+        amount={darkTheme && !onLime ? 0 : 5}
         fallback={
-          onLime ? 'rgba(24,24,22,0.60)' : darkTheme ? 'rgba(44,44,42,0.72)' : 'rgba(255,255,255,0.55)'
+          onLime ? 'rgba(24,24,22,0.60)' : darkTheme ? SCAN_SURFACE : 'rgba(255,255,255,0.55)'
         }
         tint={
-          onLime ? 'rgba(18,18,18,0.30)' : darkTheme ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.18)'
+          onLime ? 'rgba(18,18,18,0.30)' : darkTheme ? SCAN_SURFACE : 'rgba(255,255,255,0.18)'
         }
         style={[styles.pill, onLime ? styles.pillSurfaceInk : darkTheme ? styles.pillSurfaceGrey : styles.pillSurface]}
       >
-        {/* верхний глянец — блик на светлом стекле; на чернильном он лишний */}
-        {onLime ? null : (
+        {/* верхний глянец — блик на светлом стекле; на тёмном он лишний */}
+        {onLime || darkTheme ? null : (
         <Svg style={StyleSheet.absoluteFill} pointerEvents="none">
           <Defs>
             <LinearGradient id="tabGloss" x1="0" y1="0" x2="0" y2="1">
