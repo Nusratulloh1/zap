@@ -37,9 +37,9 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
   */
   const onLime = state.routes[state.index]?.name === 'Amount';
   /*
-    В тёмной теме пилл был почти чёрным и терялся на фоне. Держим его серым
-    стеклом — тот же рисунок, что и в светлой навигации, только приглушённый.
-    Чернильный остаётся только на ладе суммы, где фон сплошной лайм.
+    В тёмной теме пилл повторяет кнопки шапки главной (сканер, тема): белое
+    стекло в 8% поверх блюра с тонкой светлой обводкой. Почти чёрный пилл
+    терялся на фоне, а серый спорил с ними по тону.
   */
   const darkTheme = themeName === 'dark';
   const dark = onLime || darkTheme;
@@ -60,10 +60,10 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         dark={dark}
         amount={5}
         fallback={
-          onLime ? 'rgba(24,24,22,0.60)' : darkTheme ? 'rgba(86,85,80,0.55)' : 'rgba(255,255,255,0.55)'
+          onLime ? 'rgba(24,24,22,0.60)' : darkTheme ? 'rgba(44,44,42,0.72)' : 'rgba(255,255,255,0.55)'
         }
         tint={
-          onLime ? 'rgba(18,18,18,0.30)' : darkTheme ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.18)'
+          onLime ? 'rgba(18,18,18,0.30)' : darkTheme ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.18)'
         }
         style={[styles.pill, onLime ? styles.pillSurfaceInk : darkTheme ? styles.pillSurfaceGrey : styles.pillSurface]}
       >
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
   */
   pillSurface: { borderColor: 'rgba(255,255,255,0.7)' },
   pillSurfaceInk: { borderColor: 'rgba(255,255,255,0.16)' },
-  pillSurfaceGrey: { borderColor: 'rgba(255,255,255,0.26)' },
+  pillSurfaceGrey: { borderColor: 'rgba(255,255,255,0.14)' },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
