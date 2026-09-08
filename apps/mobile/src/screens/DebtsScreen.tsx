@@ -15,21 +15,26 @@ import { PingButton } from '@/components/PingButton';
 import { Podium } from '@/components/Podium';
 import { SectionLabel } from '@/components/SectionLabel';
 import { SkinSheet } from '@/components/SkinSheet';
-import { useSkinSurface } from '@/lib/screenSkin';
+import { isDarkSkin, useSkin } from '@/lib/screenSkin';
 import { CountUp } from '@/components/CountUp';
 import { toast } from '@/components/ToastHost';
 import { remindDebt, remindAllDebts } from '@/api/actions';
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { money, humanDateLc } from '@/lib/format';
+import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
 export function DebtsScreen() {
   const nav = useNavigation<any>();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { colors, bg, onDark } = useSkinSurface();
+  const { colors } = useTheme();
+  const skin = useSkin();
   const [skinSheet, setSkinSheet] = useState(false);
+  const bg = skin ?? colors.dune2;
+  // тёмный ли фон решает сам фон, а не факт выбора: в тёмной теме фон тёмный и без выбора
+  const onDark = isDarkSkin(bg);
   const ink = onDark ? '#FFFFFF' : colors.ink;
   const muted = onDark ? 'rgba(255,255,255,0.6)' : colors.muted;
 

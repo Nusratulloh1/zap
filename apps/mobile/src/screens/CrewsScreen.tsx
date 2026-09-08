@@ -16,7 +16,7 @@ import { BackIcon } from '@/components/icons';
 import { useHomeData } from '@/store/bootstrap';
 import { crewColorOf, crewEmojiOf, useCrewSignsVersion } from '@/lib/crewEmoji';
 import { money, peopleCount } from '@/lib/format';
-import { useSkinSurface } from '@/lib/screenSkin';
+import { isDarkSkin, useSkin } from '@/lib/screenSkin';
 import { useTheme } from '@/theme/ThemeProvider';
 import { SCREEN_PAD_X, font } from '@/theme/tokens';
 
@@ -24,10 +24,12 @@ export function CrewsScreen() {
   const { t } = useTranslation();
   const nav = useNavigation<any>();
   const home = useHomeData();
-  const { fixed } = useTheme();
-  const { colors, bg, onDark } = useSkinSurface();
+  const { colors, fixed } = useTheme();
+  const skin = useSkin();
   const signs = useCrewSignsVersion();
 
+  const bg = skin ?? colors.dune2;
+  const onDark = isDarkSkin(bg);
   const ink = onDark ? '#FFFFFF' : colors.ink;
 
   const crews = useMemo(
