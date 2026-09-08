@@ -71,7 +71,8 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
       <Glass
         thin
         dark={dark}
-        amount={5}
+        // в тёмной теме блюр мягче: на чернильном фоне 5 уже размывал заметно
+        amount={darkTheme && !onLime ? 3 : 5}
         fallback={
           onLime ? 'rgba(24,24,22,0.60)' : darkTheme ? SCAN_SURFACE : 'rgba(255,255,255,0.55)'
         }
