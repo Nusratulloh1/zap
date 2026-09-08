@@ -6,7 +6,7 @@
 // случайном фоне лаймовые кнопки исчезают.
 import { useSyncExternalStore } from 'react';
 import { storage, useTheme } from '@/theme/ThemeProvider';
-import type { ThemeName } from '@/theme/tokens';
+import { palette, type Palette, type ThemeName } from '@/theme/tokens';
 
 /*
   Фон хранится ОТДЕЛЬНО для светлой и тёмной темы. Общий ключ означал, что
@@ -28,22 +28,13 @@ export const SKINS_LIGHT = [
 ] as const;
 
 /*
-  Палитра тёмной темы. Первый набор был из восьми почти чёрных плашек — в
-  шите они выглядели одинаковыми квадратами, и выбирать было не из чего.
-  Здесь оттенок различим, но фон остаётся тёмным: белый текст и лайм на нём
-  читаются.
-*/
-export const SKINS_DARK = [
-  '#121212', // чернила
-  '#1C1B18', // графит
-  '#152238', // ночное небо
-  '#122A1E', // хвоя
-  '#2A2410', // тёмный лайм
-  '#2A1520', // вино
-  '#1E1430', // тёмная лаванда
-  '#0E2A2C', // морская глубина
-] as const;
+  Палитра одна на обе темы: фирменный лайм и остальные «настроения» должны
+  быть доступны и в тёмной. Отдельный тёмный набор оказался восемью почти
+  одинаковыми чёрными плашками, а лайм из выбора пропадал совсем.
 
+  Читаемость держит не тема, а сам фон: экран берёт светлую или тёмную
+  палитру по яркости выбранного цвета (см. useSkinSurface).
+*/
 export const SKINS = SKINS_LIGHT;
 
 export type Skin = (typeof SKINS_LIGHT)[number];
@@ -85,9 +76,29 @@ export function useSkin(): string | null {
   return useSyncExternalStore(subscribe, () => read(name), () => read(name)) ?? null;
 }
 
-/** Палитра для текущей темы. */
-export function skinsFor(theme: ThemeName): readonly string[] {
-  return theme === 'dark' ? SKINS_DARK : SKINS_LIGHT;
+/** Палитра выбора фона — общая для обеих тем. */
+export function skinsFor(_theme: ThemeName): readonly string[] {
+  return SKINS_LIGHT;
+}
+
+/**
+ * Поверхность экрана: цвет фона и палитра под него.
+ *
+ * Тема задаёт фон по умолчанию, но выбранный «🎨» цвет главнее: на лайме
+ * нужны тёмный текст и белые карточки независимо от того, тёмная тема или
+ * светлая, а на чернилах — наоборот. Иначе лайм в тёмной теме давал белый
+ * текст на лайме.
+ */
+export function useSkinSurface(lightDefault?: string): {
+  bg: string;
+  onDark: boolean;
+  colors: Palette;
+} {
+  const { name } = useTheme();
+  const skin = useSkin();
+  const bg = skin ?? (name === 'dark' ? palette.dark.dune2 : (lightDefault ?? palette.light.dune2));
+  const onDark = isDarkSkin(bg);
+  return { bg, onDark, colors: onDark ? palette.dark : palette.light };
 }
 
 /** Тёмный ли фон — на нём текст и иконки становятся светлыми. */

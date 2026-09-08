@@ -22,7 +22,7 @@ import { spendCashbackNext, withdrawCashback } from '@/api/actions';
 import { qk } from '@/api/data';
 import { useHomeData } from '@/store/bootstrap';
 import { SkinSheet } from '@/components/SkinSheet';
-import { isDarkSkin, useSkin } from '@/lib/screenSkin';
+import { useSkinSurface } from '@/lib/screenSkin';
 import { useNavigation } from '@react-navigation/native';
 import { money, humanDateLc } from '@/lib/format';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -31,7 +31,8 @@ import { SCREEN_PAD_X, font } from '@/theme/tokens';
 export function CashbackScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { colors, fixed } = useTheme();
+  const { fixed } = useTheme();
+  const { colors, bg, onDark } = useSkinSurface();
   const qc = useQueryClient();
   const home = useHomeData();
   const nav = useNavigation<any>();
@@ -140,11 +141,8 @@ export function CashbackScreen() {
     }
   };
 
-  const skin = useSkin();
   const [skinSheet, setSkinSheet] = useState(false);
   const [historySheet, setHistorySheet] = useState(false);
-  const bg = skin ?? colors.dune2;
-  const onDark = isDarkSkin(bg);
   const ink = onDark ? '#FFFFFF' : colors.ink;
   const muted = onDark ? 'rgba(255,255,255,0.6)' : colors.muted;
 

@@ -14,7 +14,7 @@ import { BottomSheet } from '@/components/BottomSheet';
 import { PinDots } from '@/components/PinDots';
 import { AvatarSheet } from '@/components/AvatarSheet';
 import { SkinSheet } from '@/components/SkinSheet';
-import { useSkin } from '@/lib/screenSkin';
+import { useSkinSurface } from '@/lib/screenSkin';
 import { PlayerCard } from '@/components/PlayerCard';
 import { AchievementStrip } from '@/components/AchievementStrip';
 import { STICKER } from '@/components/EmptyState';
@@ -60,7 +60,9 @@ function stripGlyph(v: string): string {
 
 export function ProfileScreen() {
   const { t } = useTranslation();
-  const { colors, fixed, name, setPref } = useTheme();
+  const { fixed, name, setPref } = useTheme();
+  // лайм — фон профиля по умолчанию; выбранный «🎨» цвет главнее темы
+  const { colors, bg: skinBg } = useSkinSurface('#D9FF3A');
   const homeVariant = useHomeVariant();
   const insets = useSafeAreaInsets();
   const nav = useNavigation<any>();
@@ -207,12 +209,6 @@ export function ProfileScreen() {
   const [logoutSheet, setLogoutSheet] = useState(false);
   const [avatarSheet, setAvatarSheet] = useState(false);
   const [skinSheet, setSkinSheet] = useState(false);
-  const skin = useSkin();
-  /*
-    Лайм — фон профиля по умолчанию, но только в светлой теме: в тёмной текст
-    и карточки светлые, и на лайме экран становился нечитаемым.
-  */
-  const skinBg = skin ?? (name === 'dark' ? colors.dune2 : '#D9FF3A');
   const loggingOut = useRef(false);
 
 

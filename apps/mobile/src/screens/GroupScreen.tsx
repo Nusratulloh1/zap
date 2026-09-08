@@ -24,7 +24,7 @@ import { useDraft } from '@/store/draft';
 import { money, humanDateLc, peopleCount, dayMonth } from '@/lib/format';
 import { crewStats } from '@/lib/crewStats';
 import { STICKER } from '@/components/EmptyState';
-import { isDarkSkin, useSkin } from '@/lib/screenSkin';
+import { useSkinSurface } from '@/lib/screenSkin';
 import { SkinSheet } from '@/components/SkinSheet';
 import { VenueIcon } from '@/components/VenueIcon';
 import { SquadCircle } from '@/components/SquadCircle';
@@ -37,6 +37,9 @@ import { SCREEN_PAD_X, font } from '@/theme/tokens';
 // те же знаки, что на слайде кэшбэка в онбординге
 
 /** Какой стикер показывать за каждый титул (наборы совпадают по смыслу). */
+/** Лайм — фон экрана компании по умолчанию в светлой теме. */
+const LIME = '#D9FF3A';
+
 const TITLE_STICKER: Record<TitleKey, keyof typeof STICKER> = {
   fastestFinger: 'paidDone',
   lastPayer: 'receiptHero',
@@ -49,7 +52,9 @@ const TITLE_STICKER: Record<TitleKey, keyof typeof STICKER> = {
 export function GroupScreen() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const { colors, fixed, name: themeName } = useTheme();
+  const { fixed } = useTheme();
+  // лайм — фон компании по умолчанию; выбранный цвет главнее темы
+  const { colors, bg, onDark } = useSkinSurface(LIME);
   const nav = useNavigation<any>();
   const route = useRoute<any>();
   const qc = useQueryClient();
@@ -95,13 +100,10 @@ export function GroupScreen() {
   const [emojiSheet, setEmojiSheet] = useState(false);
   const crewEmoji = useCrewEmoji(home.db, id);
   const crewColor = useCrewColor(home.db, id);
-  const skin = useSkin();
   /*
     Заголовки секций на цветном фоне: на светлом — тёмно-оливковый из макета,
     на тёмном фон съедает его, поэтому берём песочный.
   */
-  const bg = skin ?? (themeName === 'dark' ? colors.dune2 : fixed.lime);
-  const onDark = isDarkSkin(bg);
   const sectionColor = onDark ? colors.sand : colors.deep;
 
   /*
