@@ -113,7 +113,7 @@ export function HistoryScreen() {
                 });
               }}
             >
-              <SearchIcon size={18} color={searchOpen ? fixed.ink : colors.slate} />
+              <SearchIcon size={18} color={colors.slate} />
             </PressableScale>
             <PressableScale small accessibilityLabel={t('common.profileAria')} onPress={() => nav.navigate('Profile')}>
               <Avatar source={myAvatar ?? undefined} name={home.db?.user?.name} letter={home.db?.user?.initials} color="#121212" size={44} ring={fixed.lime} ringWidth={2} />

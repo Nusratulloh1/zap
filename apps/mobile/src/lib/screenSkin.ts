@@ -50,7 +50,22 @@ export type Skin = (typeof SKINS_LIGHT)[number];
 
 const listeners = new Set<() => void>();
 
+/*
+  До разделения по темам фон лежал под общим ключом. Переносим его в светлую
+  тему один раз: иначе у тех, кто уже выбрал себе цвет, экраны молча
+  вернулись бы к стандартному.
+*/
+const LEGACY_KEY = 'zap:skin';
+
+function migrateLegacy(): void {
+  const old = storage.getString(LEGACY_KEY);
+  if (!old) return;
+  if (!storage.getString(KEY('light'))) storage.set(KEY('light'), old);
+  storage.delete(LEGACY_KEY);
+}
+
 function read(theme: ThemeName): string | undefined {
+  migrateLegacy();
   return storage.getString(KEY(theme));
 }
 
